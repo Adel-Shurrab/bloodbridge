@@ -5,7 +5,7 @@
 
     <main class="contact-page">
         <section class="contact-header">
-            <div class="section-header" style="text-align: center">
+            <div class="section-header" style="">
                 <h2>تواصل معنا</h2>
                 <p>
                     نحن هنا لمساعدتكم والإجابة على أي سؤال لديكم. نتطلع لسماع آرائكم.
