@@ -34,9 +34,7 @@ function validateForm(formData) {
 // Clear error messages
 function clearErrors() {
     document.querySelectorAll('.error-message').forEach(el => {
-        if (!el.classList.contains('form-message')) {
-            el.textContent = '';
-        }
+        el.textContent = '';
     });
     document.getElementById('errorMessage').style.display = 'none';
     document.getElementById('successMessage').style.display = 'none';
@@ -45,7 +43,7 @@ function clearErrors() {
 // Display errors
 function displayErrors(errors) {
     clearErrors();
-    Object.entries(errors).forEach(([field, message]) => {
+    Object.forEach((field, message) => {
         const errorEl = document.getElementById(field + 'Error');
         if (errorEl) {
             errorEl.textContent = message;
