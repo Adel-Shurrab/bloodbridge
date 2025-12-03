@@ -1,0 +1,481 @@
+/* Registration Intro Page Styles */
+
+/* Registration Section */
+.registration-section {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rem 2rem 4rem;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(135deg, #f9fafb 0%, #eff6ff 100%);
+}
+
+/* Animated Background */
+.registration-background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.floating-circle {
+  position: absolute;
+  border-radius: 50%;
+  opacity: 0.08;
+  animation: floatCircle 25s ease-in-out infinite;
+}
+
+.circle-1 {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, #d32f2f, transparent);
+  top: -15%;
+  right: -10%;
+  animation-delay: 0s;
+}
+
+.circle-2 {
+  width: 350px;
+  height: 350px;
+  background: radial-gradient(circle, #00637c, transparent);
+  bottom: -15%;
+  left: -10%;
+  animation-delay: 8s;
+}
+
+.circle-3 {
+  width: 400px;
+  height: 400px;
+  background: radial-gradient(circle, #f44336, transparent);
+  top: 40%;
+  left: 50%;
+  animation-delay: 16s;
+}
+
+@keyframes floatCircle {
+  0%,
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(40px, -40px) scale(1.1);
+  }
+  66% {
+    transform: translate(-40px, 40px) scale(0.9);
+  }
+}
+
+/* Registration Container */
+.registration-container {
+  max-width: 900px;
+  width: 100%;
+  position: relative;
+  z-index: 1;
+}
+
+/* Registration Header */
+.registration-header {
+  text-align: center;
+  margin-bottom: 4rem;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.header-badge {
+  display: inline-block;
+  padding: 0.5rem 1.5rem;
+  background: linear-gradient(135deg, #ffe5e5, #fee2e2);
+  color: #d32f2f;
+  border-radius: 50px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-bottom: 1.5rem;
+}
+
+.registration-header h1 {
+  font-size: 3rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.registration-header p {
+  font-size: 1.2rem;
+  color: #6b7280;
+  line-height: 1.8;
+  max-width: 700px;
+  margin: 0 auto;
+}
+
+/* Options Container */
+.options-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+/* Option Card */
+.option-card {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+  border: 3px solid transparent;
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+.option-card:nth-child(1) {
+  animation-delay: 0.2s;
+}
+
+.option-card:nth-child(2) {
+  animation-delay: 0.3s;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.option-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    135deg,
+    rgba(211, 47, 47, 0.03),
+    rgba(0, 99, 124, 0.03)
+  );
+  opacity: 0;
+  transition: opacity 0.4s;
+}
+
+.option-card:hover::before {
+  opacity: 1;
+}
+
+.option-card:hover {
+  transform: translateY(-10px);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+
+/* Selected State */
+.option-card.selected {
+  border-color: #d32f2f;
+  background: linear-gradient(
+    135deg,
+    rgba(211, 47, 47, 0.05),
+    rgba(244, 67, 54, 0.05)
+  );
+  box-shadow: 0 10px 40px rgba(211, 47, 47, 0.2);
+}
+
+.option-card.selected::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, #d32f2f, #f44336);
+}
+
+/* Option Icon */
+.option-icon {
+  width: 80px;
+  height: 80px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1.5rem;
+  transition: all 0.4s;
+}
+
+.donor-icon {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+  color: #d32f2f;
+}
+
+.organization-icon {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+  color: #00637c;
+}
+
+.option-card:hover .option-icon {
+  transform: scale(1.1) rotate(5deg);
+}
+
+.option-card.selected .option-icon {
+  transform: scale(1.15);
+}
+
+/* Option Content */
+.option-content h3 {
+  font-size: 1.75rem;
+  font-weight: 800;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.option-content p {
+  font-size: 1rem;
+  color: #6b7280;
+  line-height: 1.7;
+  margin-bottom: 1.5rem;
+}
+
+/* Option Features */
+.option-features {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.option-features li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.95rem;
+  color: #4b5563;
+}
+
+.feature-icon {
+  width: 24px;
+  height: 24px;
+  background: linear-gradient(135deg, #d32f2f, #f44336);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+/* Option Checkmark */
+.option-checkmark {
+  position: absolute;
+  top: 1.5rem;
+  left: 1.5rem;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #d32f2f, #f44336);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+
+.option-card.selected .option-checkmark {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Action Container */
+.action-container {
+  text-align: center;
+  animation: fadeInUp 0.6s ease-out 0.4s backwards;
+}
+
+.btn-continue {
+  min-width: 250px;
+  padding: 1rem 2.5rem;
+  font-size: 1.1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.3s;
+}
+
+.btn-continue:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-continue:not(:disabled):hover {
+  gap: 1rem;
+}
+
+.btn-continue svg {
+  transition: transform 0.3s;
+}
+
+.btn-continue:hover svg {
+  transform: translateX(-5px);
+}
+
+.login-prompt {
+  font-size: 1rem;
+  color: #6b7280;
+}
+
+.login-prompt a {
+  color: #d32f2f;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.login-prompt a:hover {
+  color: #b71c1c;
+  text-decoration: underline;
+}
+
+/* Trust Indicators */
+.trust-indicators {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 3rem;
+  margin-top: 3rem;
+  padding-top: 3rem;
+  border-top: 1px solid #e5e7eb;
+  animation: fadeInUp 0.6s ease-out 0.5s backwards;
+}
+
+.trust-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.95rem;
+  color: #6b7280;
+}
+
+.trust-icon {
+  font-size: 1.5rem;
+}
+
+/* Toast Notification */
+.toast-notification {
+  position: fixed;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 1rem 2rem;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  z-index: 2000;
+  transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+  border-right: 4px solid #d32f2f;
+}
+
+.toast-notification.show {
+  bottom: 30px;
+}
+
+.toast-icon {
+  font-size: 1.5rem;
+}
+
+.toast-message {
+  font-size: 0.95rem;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .registration-section {
+    padding: 6rem 1rem 3rem;
+  }
+
+  .registration-header h1 {
+    font-size: 2rem;
+  }
+
+  .registration-header p {
+    font-size: 1rem;
+  }
+
+  .options-container {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .option-card {
+    padding: 2rem;
+  }
+
+  .option-content h3 {
+    font-size: 1.5rem;
+  }
+
+  .btn-continue {
+    width: 100%;
+    min-width: auto;
+  }
+
+  .trust-indicators {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .option-checkmark {
+    top: 1rem;
+    left: 1rem;
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 480px) {
+  .registration-header {
+    margin-bottom: 3rem;
+  }
+
+  .registration-header h1 {
+    font-size: 1.75rem;
+  }
+
+  .option-icon {
+    width: 60px;
+    height: 60px;
+  }
+
+  .option-icon svg {
+    width: 40px;
+    height: 40px;
+  }
+}

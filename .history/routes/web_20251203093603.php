@@ -13,4 +13,4 @@ Route::view('/register/donor', 'auth.register-donor')->name('register.donor');
 Route::view('/register/organization', 'auth.register-organization')->name('register.organization');
 
 // Default Auth Routes
-require __DIR__ . '/auth.php';
+require __DIR__.'/auth.php';
