@@ -103,16 +103,11 @@
 }
 
 .error-message {
-  display: none;
+  display: block;
   color: #f87171;
   font-size: 0.85rem;
   margin-top: 0.3rem;
-  min-height: 0;
-  height: auto;
-}
-
-.error-message:not(:empty) {
-  display: block;
+  min-height: 1rem;
 }
 
 .form-group.checkbox {
