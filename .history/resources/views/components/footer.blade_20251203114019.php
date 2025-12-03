@@ -18,7 +18,7 @@
                     <li><a href="{{ route('home') }}">الرئيسية</a></li>
                     <li><a href="{{ route('about') }}">من نحن</a></li>
                     <li><a href="{{ route('contact') }}">اتصل بنا</a></li>
-                    <li><a href="{{ route('privacy') }}">سياسة الخصوصية</a></li>
+                    <li><a href="">سياسة الخصوصية</a></li>
                     <li><a href="#">شروط الخدمة</a></li>
                 </ul>
             </div>

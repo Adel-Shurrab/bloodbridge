@@ -79,7 +79,7 @@
                                 required 
                                 aria-required="true"
                             />
-                            <label for="privacy">أوافق على <a href="{{ route('privacy') }}">سياسة الخصوصية</a> <span class="required">*</span></label>
+                            <label for="privacy">أوافق على <a href="">سياسة الخصوصية</a> <span class="required">*</span></label>
                         </div>
                         <button type="submit" class="btn btn-primary full-width" id="submitBtn">
                             <span class="btn-text">إرسال الرسالة</span>
