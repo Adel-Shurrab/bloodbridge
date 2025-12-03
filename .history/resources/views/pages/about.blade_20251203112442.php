@@ -94,7 +94,7 @@
                     تحت إشراف أكاديمي متميز.
                 </p>
             </div>
-
+            
             <div class="team-grid" style="justify-content: center; margin-bottom: 2rem;">
                 <div class="team-card">
                     <div class="team-image">
@@ -103,8 +103,7 @@
                     <h3>د. سهير حرب</h3>
                     <p class="team-role">المشرف الأكاديمي</p>
                     <p class="team-desc">
-                        دكتوراه في هندسة أنظمة الحاسوب. قادت التوجيه الأكاديمي والإشراف العام لضمان جودة مخرجات مشروع
-                        BloodBridge.
+                        دكتوراه في هندسة أنظمة الحاسوب. قادت التوجيه الأكاديمي والإشراف العام لضمان جودة مخرجات مشروع BloodBridge.
                     </p>
                 </div>
             </div>

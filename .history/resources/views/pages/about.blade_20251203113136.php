@@ -88,69 +88,42 @@
     <section class="team-section">
         <div class="container-content">
             <div class="section-header">
-                <h2>فريق العمل</h2>
+                <h2>تعرف على فريقنا</h2>
                 <p>
-                    نخبة من مهندسي أنظمة الحاسوب، يجمعهم شغف توظيف التكنولوجيا لخدمة الإنسانية
-                    تحت إشراف أكاديمي متميز.
+                    يتألف فريقنا من أفراد متحمسين من خلفيات متنوعة، يجمعهم هدف مشترك:
+                    إنقاذ الأرواح من خلال التبرع بالدم
                 </p>
             </div>
-
-            <div class="team-grid" style="justify-content: center; margin-bottom: 2rem;">
-                <div class="team-card">
-                    <div class="team-image">
-                        <div class="team-image-placeholder">👩‍🏫</div>
-                    </div>
-                    <h3>د. سهير حرب</h3>
-                    <p class="team-role">المشرف الأكاديمي</p>
-                    <p class="team-desc">
-                        دكتوراه في هندسة أنظمة الحاسوب. قادت التوجيه الأكاديمي والإشراف العام لضمان جودة مخرجات مشروع
-                        BloodBridge.
-                    </p>
-                </div>
-            </div>
-
             <div class="team-grid">
                 <div class="team-card">
                     <div class="team-image">
-                        <div class="team-image-placeholder">👨‍💻</div>
+                        <div class="team-image-placeholder">👩‍⚕️</div>
                     </div>
-                    <h3>عادل عبد الله شراب</h3>
-                    <p class="team-role">مطور ومؤسس شريك</p>
+                    <h3>الدكتورة إميلي كارتر</h3>
+                    <p class="team-role">المدير الطبي</p>
                     <p class="team-desc">
-                        مهندس أنظمة حاسوب، ساهم في هندسة النظام الخلفية وتطوير خوارزميات المطابقة الذكية.
+                        يقود فريقنا الطبي، ويضمن سلامة وجودة عمليات التبرع بالدم لدينا
                     </p>
                 </div>
-
                 <div class="team-card">
                     <div class="team-image">
-                        <div class="team-image-placeholder">👨‍💻</div>
+                        <div class="team-image-placeholder">👨‍💼</div>
                     </div>
-                    <h3>عبد الحليم أشرف حمدان</h3>
-                    <p class="team-role">مطور ومؤسس شريك</p>
+                    <h3>ديفيد لي</h3>
+                    <p class="team-role">مدير التوعية المجتمعية</p>
                     <p class="team-desc">
-                        مهندس أنظمة حاسوب، متخصص في تطوير واجهات المستخدم وتجربة المستخدم (UI/UX) للمنصة.
+                        يدير جهودنا في المشاركة المجتمعية، وبناء الشراكات، ورفع مستوى
+                        الوعي
                     </p>
                 </div>
-
                 <div class="team-card">
                     <div class="team-image">
-                        <div class="team-image-placeholder">👨‍💻</div>
+                        <div class="team-image-placeholder">👩‍💻</div>
                     </div>
-                    <h3>أنس فيصل أبو عمرة</h3>
-                    <p class="team-role">مطور ومؤسس شريك</p>
+                    <h3>سارة تشين</h3>
+                    <p class="team-role">منسق علاقات المانحين</p>
                     <p class="team-desc">
-                        مهندس أنظمة حاسوب، ركز على تكامل الخدمات (API Integration) وأنظمة الإشعارات الفورية.
-                    </p>
-                </div>
-
-                <div class="team-card">
-                    <div class="team-image">
-                        <div class="team-image-placeholder">👨‍💻</div>
-                    </div>
-                    <h3>فيصل رامي الزير</h3>
-                    <p class="team-role">مطور ومؤسس شريك</p>
-                    <p class="team-desc">
-                        مهندس أنظمة حاسوب، عمل على تأمين البيانات (Security) وإدارة قواعد البيانات المتقدمة.
+                        يعمل بشكل مباشر مع المتبرعين، ويقدم الدعم ويضمن تجربة تبرع إيجابية
                     </p>
                 </div>
             </div>

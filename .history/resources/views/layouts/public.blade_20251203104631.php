@@ -15,7 +15,7 @@
 
     <title>{{ $title ?? 'BloodBridge - إنقاذ الأرواح قطرة قطرة' }}</title>
 
-    <link rel="icon" type="image/jpeg" href="{{ asset('assets/images/logo.jpg') }}" />
+    <link rel="icon" type="image/jpeg" href="{{ asset('assets/images/favicon.jpg') }}" />
     <link rel="shortcut icon" type="image/jpeg" href="{{ asset('assets/images/logo.jpg') }}" />
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
