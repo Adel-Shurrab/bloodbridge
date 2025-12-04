@@ -1,4 +1,4 @@
-<x-layout title="تسجيل الدخول - BloodBridge">
+<x-public-layout title="تسجيل الدخول - BloodBridge">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/styles/pages/login.css') }}" />
     @endpush
@@ -122,4 +122,4 @@
     @push('scripts')
         <script src="{{ asset('assets/scripts/pages/login.js') }}"></script>
     @endpush
-</x-layout>
+</x-public-layout>

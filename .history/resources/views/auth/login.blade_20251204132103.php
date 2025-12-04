@@ -18,18 +18,43 @@
                     <p>سجل دخولك للوصول إلى حسابك</p>
                 </div>
 
-                <form class="login-form" id="loginForm" method="POST" action="{{ route('login') }}">
+                @if ($errors->any())
+                    <div class="alert alert-error">
+                        <div class="alert-icon">⚠️</div>
+                        <div class="alert-content">
+                            <h4>فشل تسجيل الدخول</h4>
+                            <ul class="error-list">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                        <button class="alert-close" onclick="this.parentElement.style.display='none';">×</button>
+                    </div>
+                @endif
+
+                <form class="login-form" id="loginForm" method="POST" action="{{ route('login') }}" novalidate>
                     @csrf
 
                     <div class="form-group">
                         <label for="email">البريد الإلكتروني</label>
                         <div class="input-wrapper">
                             <span class="input-icon">📧</span>
-                            <input type="email" id="email" name="email" value="{{ old('email') }}"
-                                placeholder="you@example.com" required autofocus autocomplete="username" />
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email" 
+                                value="{{ old('email') }}"
+                                placeholder="you@example.com" 
+                                required 
+                                autofocus 
+                                autocomplete="username"
+                                class="@error('email') input-error @enderror"
+                                aria-describedby="emailError"
+                            />
                         </div>
                         @error('email')
-                            <span class="error-message" style="display: block;">{{ $message }}</span>
+                            <span class="error-message" id="emailError">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -40,14 +65,22 @@
                         </div>
                         <div class="input-wrapper">
                             <span class="input-icon">🔒</span>
-                            <input type="password" id="password" name="password" placeholder="••••••••" required
-                                autocomplete="current-password" />
-                            <button type="button" class="toggle-password" id="togglePassword">
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password" 
+                                placeholder="••••••••" 
+                                required
+                                autocomplete="current-password"
+                                class="@error('password') input-error @enderror"
+                                aria-describedby="passwordError"
+                            />
+                            <button type="button" class="toggle-password" id="togglePassword" tabindex="-1">
                                 <span class="eye-icon">👁️</span>
                             </button>
                         </div>
                         @error('password')
-                            <span class="error-message" style="display: block;">{{ $message }}</span>
+                            <span class="error-message" id="passwordError">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -59,7 +92,7 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-login">
+                    <button type="submit" class="btn btn-primary btn-login" id="submitBtn">
                         <span class="btn-text">تسجيل الدخول</span>
                         <span class="btn-loader"></span>
                     </button>
