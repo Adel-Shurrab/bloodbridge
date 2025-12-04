@@ -35,9 +35,9 @@
                             <input type="email" id="email" name="email" value="{{ old('email') }}"
                                 placeholder="you@example.com" required autofocus autocomplete="username" />
                         </div>
-                        @if ($errors->has('email') && !str_contains($errors->first('email'), 'credentials'))
-                            <span class="error-message" style="display: block;">{{ $errors->first('email') }}</span>
-                        @endif
+                        @error('email')
+                            <span class="error-message" style="display: block;">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="form-group">

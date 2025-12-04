@@ -21,13 +21,6 @@
                 <form class="login-form" id="loginForm" method="POST" action="{{ route('login') }}">
                     @csrf
 
-                    @if ($errors->has('email') && str_contains($errors->first('email'), 'credentials'))
-                        <div class="alert alert-error" role="alert">
-                            <span class="alert-icon">⚠️</span>
-                            <span class="alert-text">{{ $errors->first('email') }}</span>
-                        </div>
-                    @endif
-
                     <div class="form-group">
                         <label for="email">البريد الإلكتروني</label>
                         <div class="input-wrapper">
@@ -35,9 +28,9 @@
                             <input type="email" id="email" name="email" value="{{ old('email') }}"
                                 placeholder="you@example.com" required autofocus autocomplete="username" />
                         </div>
-                        @if ($errors->has('email') && !str_contains($errors->first('email'), 'credentials'))
-                            <span class="error-message" style="display: block;">{{ $errors->first('email') }}</span>
-                        @endif
+                        @error('email')
+                            <span class="error-message" style="display: block;">{{ $message }}</span>
+                        @enderror
                     </div>
 
                     <div class="form-group">
