@@ -45,7 +45,7 @@
             </form>
         @else
             <a href="{{ route('login') }}" class="btn btn-outline">تسجيل الدخول</a>
-            <a href="" class="btn btn-primary">حساب جديد</a>
+            <a href="{{ route('register.selection') }}" class="btn btn-primary">حساب جديد</a>
         @endauth
     </div>
 </div>

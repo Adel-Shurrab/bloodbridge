@@ -36,7 +36,7 @@
             <div class="footer-section">
                 <h4>للمنظمات</h4>
                 <ul>
-                    <li><a href="">سجل كمنظمة</a></li>
+                    <li><a href="{{ route('register.organization') }}">سجل كمنظمة</a></li>
                     <li><a href="#">الشراكات</a></li>
                     <li><a href="#">الدعم الفني</a></li>
                     <li><a href="#">الموارد</a></li>

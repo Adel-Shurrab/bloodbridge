@@ -52,11 +52,24 @@
                     </div>
 
                     <div class="form-group checkbox-group">
-                        <label class="checkbox-label">
-                            <input type="checkbox" id="rememberMe" name="remember" />
+                        <label class="checkbox-label" for="rememberMe">
+                            <input 
+                                type="checkbox" 
+                                id="rememberMe" 
+                                name="remember" 
+                                value="1"
+                                @if(old('remember'))
+                                    checked
+                                @endif
+                                aria-label="تذكرني في هذا الجهاز لمدة 60 يوم"
+                                aria-describedby="remember-help"
+                            />
                             <span class="checkbox-custom"></span>
                             <span class="checkbox-text">تذكرني</span>
                         </label>
+                        <small id="remember-help" class="remember-help">
+                            سيبقى حسابك مسجل الدخول لمدة 60 يوم على هذا الجهاز فقط
+                        </small>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-login">
@@ -90,7 +103,7 @@
                 <div class="signup-prompt">
                     <p>
                         ليس لديك حساب؟
-                        <a href="">إنشاء حساب جديد</a>
+                        <a href="{{ route('register.selection') }}">إنشاء حساب جديد</a>
                     </p>
                 </div>
             </div>

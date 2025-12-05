@@ -1,5 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     initPasswordToggle();
+    // We removed initFormSubmission() because Laravel handles the submission now.
 });
 
 // Toggle password visibility

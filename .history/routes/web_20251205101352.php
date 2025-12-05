@@ -11,13 +11,10 @@ Route::view('/contact', 'pages.contact')->name('contact');
 Route::view('/privacy-policy', 'pages.privacy')->name('privacy');
 
 // Registration Pages
-Route::middleware('guest')->group(function () {
-    Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
-});
-Route::middleware('auth')->group(function () {
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
-});
+Route::get('/login', [AuthenticatedSessionController::class, 'create'])->name('register.selection');
+Route::get('/register-select', function () {
+    return view('auth.register-selection');
+})->name('register.selection');
+
 // Default Auth Routes
 require __DIR__ . '/auth.php';
-

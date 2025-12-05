@@ -26,14 +26,12 @@ function initMobileMenu() {
     mobileNav.classList.add('open');
     overlay.classList.add('active');
     document.body.style.overflow = 'hidden';
-    mobileMenuBtn.setAttribute('aria-expanded', 'true');
   };
 
   const closeMenu = () => {
     mobileNav.classList.remove('open');
     overlay.classList.remove('active');
     document.body.style.overflow = '';
-    mobileMenuBtn.setAttribute('aria-expanded', 'false');
   };
 
   if (mobileMenuBtn && mobileNav && mobileMenuCloseBtn && overlay) {
@@ -63,8 +61,9 @@ function initOptionSelection() {
     selectOption('organization', organizationCard, donorCard, continueBtn);
   });
 
-  // Add keyboard navigation (Enter and Space keys)
+  // Add keyboard navigation
   [donorCard, organizationCard].forEach(card => {
+    card.setAttribute('tabindex', '0');
     card.addEventListener('keypress', (e) => {
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
@@ -89,8 +88,7 @@ function selectOption(option, selectedCard, otherCard, continueBtn) {
 
   // Enable continue button
   continueBtn.disabled = false;
-  continueBtn.classList.remove('disabled');
-  
+
   // Add pulse animation to continue button
   continueBtn.style.animation = 'pulse 0.5s';
   setTimeout(() => {
@@ -105,51 +103,37 @@ function selectOption(option, selectedCard, otherCard, continueBtn) {
 function initContinueButton() {
   const continueBtn = document.getElementById('continueBtn');
 
-  continueBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    
+  continueBtn.addEventListener('click', () => {
     if (!selectedOption) {
-      showNotification('الرجاء اختيار نوع الحساب');
+      showToast();
       return;
     }
 
     // Add loading state
     continueBtn.disabled = true;
-    const originalText = continueBtn.innerHTML;
     continueBtn.innerHTML = `
-      <span>جاري التحميل...</span>
-      <div class="spinner"></div>
-    `;
+            <span>جاري التحميل...</span>
+            <div class="spinner"></div>
+        `;
 
-    // Redirect to appropriate registration page
+    // Simulate loading and redirect
     setTimeout(() => {
       if (selectedOption === 'donor') {
-        window.location.href = continueBtn.getAttribute('data-donor-url') || '/register/donor';
+        window.location.href = 'registration-donor.html';
       } else if (selectedOption === 'organization') {
-        window.location.href = continueBtn.getAttribute('data-org-url') || '/register/organization';
+        window.location.href = 'registration-organization.html';
       }
-    }, 600);
+    }, 800);
   });
 }
 
-// Show notification
-function showNotification(message) {
-  // Create notification element
-  const notification = document.createElement('div');
-  notification.className = 'notification show';
-  notification.innerHTML = `
-    <span class="notification-icon">ℹ️</span>
-    <span class="notification-text">${message}</span>
-  `;
-  
-  document.body.appendChild(notification);
+// Show toast notification
+function showToast() {
+  const toast = document.getElementById('toast');
+  toast.classList.add('show');
 
-  // Remove after 3 seconds
   setTimeout(() => {
-    notification.classList.remove('show');
-    setTimeout(() => {
-      notification.remove();
-    }, 300);
+    toast.classList.remove('show');
   }, 3000);
 }
 
@@ -206,17 +190,17 @@ function createRipple(event) {
   const y = event.clientY - rect.top - size / 2;
 
   ripple.style.cssText = `
-    position: absolute;
-    width: ${size}px;
-    height: ${size}px;
-    border-radius: 50%;
-    background: rgba(211, 47, 47, 0.2);
-    right: ${x}px;
-    top: ${y}px;
-    transform: scale(0);
-    animation: ripple 0.6s ease-out;
-    pointer-events: none;
-  `;
+        position: absolute;
+        width: ${size}px;
+        height: ${size}px;
+        border-radius: 50%;
+        background: rgba(211, 47, 47, 0.2);
+        right: ${x}px;
+        top: ${y}px;
+        transform: scale(0);
+        animation: ripple 0.6s ease-out;
+        pointer-events: none;
+    `;
 
   card.style.position = 'relative';
   card.style.overflow = 'hidden';
@@ -231,70 +215,38 @@ function createRipple(event) {
 function addRippleStyles() {
   const style = document.createElement('style');
   style.textContent = `
-    @keyframes ripple {
-      to {
-        transform: scale(4);
-        opacity: 0;
-      }
-    }
+        @keyframes ripple {
+            to {
+                transform: scale(4);
+                opacity: 0;
+            }
+        }
 
-    @keyframes pulse {
-      0%, 100% {
-        transform: scale(1);
-      }
-      50% {
-        transform: scale(1.05);
-      }
-    }
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
 
-    .spinner {
-      width: 16px;
-      height: 16px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top-color: white;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      display: inline-block;
-      margin-left: 0.5rem;
-    }
+        .spinner {
+            width: 16px;
+            height: 16px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: inline-block;
+        }
 
-    @keyframes spin {
-      to {
-        transform: rotate(360deg);
-      }
-    }
-
-    .notification {
-      position: fixed;
-      bottom: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: white;
-      padding: 1rem 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      z-index: 2000;
-      transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-      border-right: 4px solid #d32f2f;
-    }
-
-    .notification.show {
-      bottom: 30px;
-    }
-
-    .notification-icon {
-      font-size: 1.25rem;
-    }
-
-    .notification-text {
-      font-size: 0.95rem;
-      color: #1f2937;
-      font-weight: 600;
-    }
-  `;
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+    `;
   document.head.appendChild(style);
 }
 
@@ -304,10 +256,44 @@ function trackInteraction() {
 
   cards.forEach(card => {
     card.addEventListener('click', (e) => {
+      // Add analytics or tracking here if needed
+      console.log('Card clicked:', card.dataset.option);
+
       // Create ripple effect
       createRipple(e);
     });
   });
+}
+
+// Preload next pages
+function preloadNextPages() {
+  const pages = [
+    'registration-donor.html',
+    'registration-organization.html'
+  ];
+
+  pages.forEach(page => {
+    const link = document.createElement('link');
+    link.rel = 'prefetch';
+    link.href = page;
+    document.head.appendChild(link);
+  });
+}
+
+// Check if user is already logged in
+function checkLoginStatus() {
+  // Check if user has active session
+  const isLoggedIn = sessionStorage.getItem('isLoggedIn');
+
+  if (isLoggedIn === 'true') {
+    // Redirect to dashboard
+    const userType = sessionStorage.getItem('userType');
+    if (userType === 'donor') {
+      window.location.href = 'donor-dashboard.html';
+    } else if (userType === 'organization') {
+      window.location.href = 'organization-dashboard.html';
+    }
+  }
 }
 
 // Initialize all functions when DOM is loaded
@@ -320,6 +306,8 @@ document.addEventListener('DOMContentLoaded', () => {
   initScrollAnimations();
   trackInteraction();
   addRippleStyles();
+  preloadNextPages();
+  checkLoginStatus();
 
   // Add entrance animation to page elements
   setTimeout(() => {
@@ -330,11 +318,11 @@ document.addEventListener('DOMContentLoaded', () => {
 // Handle page visibility
 document.addEventListener('visibilitychange', () => {
   if (document.hidden) {
-    // Page is hidden
-    console.log('Registration page hidden');
+    // Page is hidden - pause animations if needed
+    console.log('Page hidden');
   } else {
-    // Page is visible
-    console.log('Registration page visible');
+    // Page is visible - resume animations
+    console.log('Page visible');
   }
 });
 

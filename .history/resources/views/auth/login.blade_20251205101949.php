@@ -90,7 +90,7 @@
                 <div class="signup-prompt">
                     <p>
                         ليس لديك حساب؟
-                        <a href="">إنشاء حساب جديد</a>
+                        <a href="{{ route('register.selection') }}">إنشاء حساب جديد</a>
                     </p>
                 </div>
             </div>
