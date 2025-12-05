@@ -14,10 +14,6 @@
         <div class="nav-buttons">
             @auth
                 <a href="{{ url('/admin') }}" class="btn btn-primary">لوحة التحكم</a>
-                <form method="POST" action="{{ route('logout') }}" style="display: inline;">
-                    @csrf
-                    <button type="submit" class="btn btn-outline">تسجيل الخروج</button>
-                </form>
             @else
                 <a href="{{ route('login') }}" class="btn btn-outline">تسجيل الدخول</a>
                 <a href="{{ route('register.selection') }}" class="btn btn-primary">حساب جديد</a>
@@ -39,10 +35,6 @@
     <div class="mobile-nav-buttons">
         @auth
             <a href="{{ url('/dashboard') }}" class="btn btn-primary">لوحة التحكم</a>
-            <form method="POST" action="{{ route('logout') }}" style="display: block; width: 100%;">
-                @csrf
-                <button type="submit" class="btn btn-outline" style="width: 100%;">تسجيل الخروج</button>
-            </form>
         @else
             <a href="{{ route('login') }}" class="btn btn-outline">تسجيل الدخول</a>
             <a href="{{ route('register.selection') }}" class="btn btn-primary">حساب جديد</a>
