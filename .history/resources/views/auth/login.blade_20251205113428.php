@@ -28,10 +28,8 @@
                             <input type="email" id="email" name="email" value="{{ old('email') }}"
                                 placeholder="you@example.com" required autofocus autocomplete="username" />
                         </div>
-                        @if ($errors->has('email') || $errors->has('credentials'))
-                            <span class="error-message error-message--visible" role="alert">
-                                {{ $errors->has('credentials') ? $errors->first('credentials') : $errors->first('email') }}
-                            </span>
+                        @if ($errors->has('email') && !str_contains($errors->first('email'), 'credentials'))
+                            <span class="error-message">{{ $errors->first('email') }}</span>
                         @endif
                     </div>
 
@@ -44,12 +42,12 @@
                             <span class="input-icon">🔒</span>
                             <input type="password" id="password" name="password" placeholder="••••••••" required
                                 autocomplete="current-password" />
-                            <button type="button" class="toggle-password" id="togglePassword" aria-label="تبديل رؤية كلمة السر" aria-pressed="false">
-                                <span class="eye-icon" aria-hidden="true">👁️</span>
+                            <button type="button" class="toggle-password" id="togglePassword">
+                                <span class="eye-icon">👁️</span>
                             </button>
                         </div>
                         @error('password')
-                            <span class="error-message error-message--visible" role="alert">{{ $message }}</span>
+                            <span class="error-message" style="display: block;">{{ $message }}</span>
                         @enderror
                     </div>
 
@@ -61,9 +59,9 @@
                         </label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+                    <button type="submit" class="btn btn-primary btn-login">
                         <span class="btn-text">تسجيل الدخول</span>
-                        <span class="btn-loader" aria-hidden="true"></span>
+                        <span class="btn-loader"></span>
                     </button>
                 </form>
 
@@ -71,8 +69,8 @@
                     <span>أو</span>
                 </div>
 
-                <button class="btn btn-social" aria-label="تسجيل الدخول باستخدام جوجل">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" aria-hidden="true">
+                <button class="btn btn-social">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none">
                         <path
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                             fill="#4285F4" />
@@ -92,7 +90,7 @@
                 <div class="signup-prompt">
                     <p>
                         ليس لديك حساب؟
-                        <a href="{{ route('register') }}">إنشاء حساب جديد</a>
+                        <a href="{{ route() }}">إنشاء حساب جديد</a>
                     </p>
                 </div>
             </div>

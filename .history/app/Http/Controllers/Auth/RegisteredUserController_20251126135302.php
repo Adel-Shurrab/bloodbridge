@@ -14,18 +14,12 @@ use Illuminate\View\View;
 
 class RegisteredUserController extends Controller
 {
-
-    public function showRegisterSelection(): View
-    {
-        return view('auth.register_selection');
-    }
-
     /**
      * Display the registration view.
      */
     public function create(): View
     {
-        return view('auth.register_selection');
+        return view('auth.register');
     }
 
     /**

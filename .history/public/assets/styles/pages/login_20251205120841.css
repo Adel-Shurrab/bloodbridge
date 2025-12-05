@@ -276,6 +276,16 @@
   display: block;
 }
 
+/* Input Validation */
+.input-wrapper input[aria-invalid="true"] {
+  border-color: #dc2626;
+  background-color: #fef2f2;
+}
+
+.input-wrapper input[aria-invalid="true"]:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
 /* Checkbox */
 .checkbox-group {
   margin-bottom: 2rem;

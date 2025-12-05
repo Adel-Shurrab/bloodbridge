@@ -29,7 +29,7 @@
                                 placeholder="you@example.com" required autofocus autocomplete="username" />
                         </div>
                         @if ($errors->has('email') || $errors->has('credentials'))
-                            <span class="error-message error-message--visible" role="alert">
+                            <span class="error-message" role="alert">
                                 {{ $errors->has('credentials') ? $errors->first('credentials') : $errors->first('email') }}
                             </span>
                         @endif

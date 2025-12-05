@@ -14,10 +14,10 @@ Route::view('/privacy-policy', 'pages.privacy')->name('privacy');
 // Registration Pages
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
-    Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::get('register_selection', [RegisteredUserController::class, 'showRegisterSelection'])->name('register');
+    Route::post('login', [AuthenticatedSessionController::class, 'store']);
 });
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 // Default Auth Routes

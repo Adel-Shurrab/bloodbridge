@@ -265,15 +265,11 @@
 
 /* Error Message */
 .error-message {
-  display: none;
+  display: block;
   color: #dc2626;
   font-size: 0.85rem;
   margin-top: 0.5rem;
   min-height: 1.2rem;
-}
-
-.error-message--visible {
-  display: block;
 }
 
 /* Checkbox */

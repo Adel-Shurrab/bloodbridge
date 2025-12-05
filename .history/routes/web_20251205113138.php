@@ -15,7 +15,11 @@ Route::view('/privacy-policy', 'pages.privacy')->name('privacy');
 Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
-    Route::get('register_selection', [RegisteredUserController::class, 'showRegisterSelection'])->name('register');
+    Route::get('register_s', [RegisteredUserController::class, 'showRegisterSelection'])->name('register');
+    Route::get('register/donor', [RegisteredUserController::class, 'showDonorForm'])->name('register.donor');
+    Route::post('register/donor', [RegisteredUserController::class, 'storeDonor']);
+    Route::get('register/organization', [RegisteredUserController::class, 'showOrgForm'])->name('register.organization');
+    Route::post('register/organization', [RegisteredUserController::class, 'storeOrganization']);
 });
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');

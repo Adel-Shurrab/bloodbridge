@@ -24,14 +24,14 @@
                     <div class="form-group">
                         <label for="email">البريد الإلكتروني</label>
                         <div class="input-wrapper">
-                            <span class="input-icon">📧</span>
+                            <span class="input-icon" aria-hidden="true">📧</span>
                             <input type="email" id="email" name="email" value="{{ old('email') }}"
-                                placeholder="you@example.com" required autofocus autocomplete="username" />
+                                placeholder="you@example.com" required autofocus autocomplete="username"
+                                aria-invalid="{{ $errors->has('email') ? 'true' : 'false' }}"
+                                aria-describedby="{{ $errors->has('email') ? 'email-error' : '' }}" />
                         </div>
-                        @if ($errors->has('email') || $errors->has('credentials'))
-                            <span class="error-message error-message--visible" role="alert">
-                                {{ $errors->has('credentials') ? $errors->first('credentials') : $errors->first('email') }}
-                            </span>
+                        @if ($errors->has('email') && !str_contains($errors->first('email'), 'credentials'))
+                            <span class="error-message" id="email-error">{{ $errors->first('email') }}</span>
                         @endif
                     </div>
 
@@ -41,27 +41,30 @@
                             <a href="{{ route('password.request') }}" class="forgot-link">هل نسيت كلمة السر؟</a>
                         </div>
                         <div class="input-wrapper">
-                            <span class="input-icon">🔒</span>
+                            <span class="input-icon" aria-hidden="true">🔒</span>
                             <input type="password" id="password" name="password" placeholder="••••••••" required
-                                autocomplete="current-password" />
-                            <button type="button" class="toggle-password" id="togglePassword" aria-label="تبديل رؤية كلمة السر" aria-pressed="false">
+                                autocomplete="current-password" minlength="8"
+                                aria-invalid="{{ $errors->has('password') ? 'true' : 'false' }}"
+                                aria-describedby="{{ $errors->has('password') ? 'password-error' : '' }}" />
+                            <button type="button" class="toggle-password" id="togglePassword"
+                                aria-label="إظهار/إخفاء كلمة السر" aria-pressed="false">
                                 <span class="eye-icon" aria-hidden="true">👁️</span>
                             </button>
                         </div>
                         @error('password')
-                            <span class="error-message error-message--visible" role="alert">{{ $message }}</span>
+                            <span class="error-message error-message--visible" id="password-error">{{ $message }}</span>
                         @enderror
                     </div>
 
                     <div class="form-group checkbox-group">
                         <label class="checkbox-label">
-                            <input type="checkbox" id="rememberMe" name="remember" />
-                            <span class="checkbox-custom"></span>
+                            <input type="checkbox" id="rememberMe" name="remember" aria-label="تذكرني في المرة القادمة" />
+                            <span class="checkbox-custom" aria-hidden="true"></span>
                             <span class="checkbox-text">تذكرني</span>
                         </label>
                     </div>
 
-                    <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
+                    <button type="submit" class="btn btn-primary btn-login" id="submitBtn" aria-label="تسجيل الدخول">
                         <span class="btn-text">تسجيل الدخول</span>
                         <span class="btn-loader" aria-hidden="true"></span>
                     </button>
@@ -72,7 +75,7 @@
                 </div>
 
                 <button class="btn btn-social" aria-label="تسجيل الدخول باستخدام جوجل">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img" aria-hidden="true">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" aria-hidden="true" role="img">
                         <path
                             d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
                             fill="#4285F4" />

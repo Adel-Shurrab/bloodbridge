@@ -28,10 +28,8 @@
                             <input type="email" id="email" name="email" value="{{ old('email') }}"
                                 placeholder="you@example.com" required autofocus autocomplete="username" />
                         </div>
-                        @if ($errors->has('email') || $errors->has('credentials'))
-                            <span class="error-message error-message--visible" role="alert">
-                                {{ $errors->has('credentials') ? $errors->first('credentials') : $errors->first('email') }}
-                            </span>
+                        @if ($errors->has('email'))
+                            <span class="error-message" role="alert">{{ $errors->first('email') }}</span>
                         @endif
                     </div>
 

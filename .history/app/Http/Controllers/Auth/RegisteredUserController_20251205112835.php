@@ -15,10 +15,7 @@ use Illuminate\View\View;
 class RegisteredUserController extends Controller
 {
 
-    public function showRegisterSelection(): View
-    {
-        return view('auth.register_selection');
-    }
+    p
 
     /**
      * Display the registration view.

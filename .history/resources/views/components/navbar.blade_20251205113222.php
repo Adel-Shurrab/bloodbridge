@@ -20,7 +20,7 @@
                 </form>
             @else
                 <a href="{{ route('login') }}" class="btn btn-outline">تسجيل الدخول</a>
-                <a href="{{ route('register') }}" class="btn btn-primary">حساب جديد</a>
+                <a href="r" class="btn btn-primary">حساب جديد</a>
             @endauth
         </div>
         <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="فتح القائمة" aria-expanded="false" aria-controls="mobile-nav">☰</button>

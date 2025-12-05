@@ -17,9 +17,12 @@ Route::middleware('guest')->group(function () {
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
     Route::get('register_selection', [RegisteredUserController::class, 'showRegisterSelection'])->name('register');
 });
-Route::middleware('auth')->group(function () {
+Route::middleware(['auth', 'verified'])->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
+Route::get('/dashboard', function () {
+    return view('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard'); // <--- 'verified' is key here
 // Default Auth Routes
 require __DIR__ . '/auth.php';
 
