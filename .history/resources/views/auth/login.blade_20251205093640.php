@@ -29,7 +29,7 @@
                                 placeholder="you@example.com" required autofocus autocomplete="username" />
                         </div>
                         @if ($errors->has('email') && !str_contains($errors->first('email'), 'credentials'))
-                            <span class="error-message">{{ $errors->first('email') }}</span>
+                            <span class="error-message" style="display: block;">{{ $errors->first('email') }}</span>
                         @endif
                     </div>
 
