@@ -16,8 +16,7 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
-    Route::get('register_selection', [RegisteredUserController::class, 'showRegisterSelection'])
-        ->name('register');
+    Route::get('register_selection', [RegisteredUserController::class, 'showRegisterSelection'])->name('register');
 
     // Donor Registration
     Route::get('register/donor', [RegisteredUserController::class, 'createDonor'])
@@ -26,8 +25,7 @@ Route::middleware('guest')->group(function () {
         ->name('register.donor.store');
 });
 Route::middleware('auth')->group(function () {
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 // Default Auth Routes
 require __DIR__ . '/auth.php';

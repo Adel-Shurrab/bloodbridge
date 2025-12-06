@@ -26,8 +26,7 @@ Route::middleware('guest')->group(function () {
         ->name('register.donor.store');
 });
 Route::middleware('auth')->group(function () {
-    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-        ->name('logout');
+    Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])->name('logout');
 });
 // Default Auth Routes
 require __DIR__ . '/auth.php';

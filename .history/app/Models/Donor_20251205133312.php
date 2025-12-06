@@ -10,7 +10,6 @@ class Donor extends Model
         'user_id',
         'national_id',
         'gender',
-        'phone',
         'birth_date',
         'blood_type',
         'city',
@@ -18,8 +17,7 @@ class Donor extends Model
         'lng',
     ];
 
-    public function user()
-    {
-        return $this->belongsTo(User::class);
+    public function use const \{
+        ,
     }
 }

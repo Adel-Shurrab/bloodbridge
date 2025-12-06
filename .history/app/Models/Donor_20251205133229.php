@@ -10,16 +10,10 @@ class Donor extends Model
         'user_id',
         'national_id',
         'gender',
-        'phone',
         'birth_date',
-        'blood_type',
+        'blood_type', 
         'city',
-        'lat',
+        'lat',        // Optional for now
         'lng',
     ];
-
-    public function user()
-    {
-        return $this->belongsTo(User::class);
-    }
 }

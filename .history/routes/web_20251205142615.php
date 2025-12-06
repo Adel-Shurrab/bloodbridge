@@ -16,7 +16,7 @@ Route::middleware('guest')->group(function () {
     Route::get('login', [AuthenticatedSessionController::class, 'create'])
         ->name('login');
     Route::post('login', [AuthenticatedSessionController::class, 'store']);
-    Route::get('register_selection', [RegisteredUserController::class, 'showRegisterSelection'])
+    Route::get('register', [RegisteredUserController::class, 'showRegisterSelection'])
         ->name('register');
 
     // Donor Registration

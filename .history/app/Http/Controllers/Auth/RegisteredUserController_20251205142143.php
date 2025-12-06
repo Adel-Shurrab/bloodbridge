@@ -47,6 +47,7 @@ class RegisteredUserController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
+
             // A. Create the Login User
             $user = User::create([
                 'name' => $request->name,
@@ -71,9 +72,6 @@ class RegisteredUserController extends Controller
             event(new Registered($user));
             Auth::login($user);
         });
-
-        // 3. Redirect
-        return redirect(route('login', absolute: false));
     }
 
     /**

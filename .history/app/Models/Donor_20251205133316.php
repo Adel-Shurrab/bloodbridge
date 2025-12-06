@@ -10,7 +10,6 @@ class Donor extends Model
         'user_id',
         'national_id',
         'gender',
-        'phone',
         'birth_date',
         'blood_type',
         'city',

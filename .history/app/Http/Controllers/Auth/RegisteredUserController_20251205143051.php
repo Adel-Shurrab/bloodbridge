@@ -19,7 +19,7 @@ class RegisteredUserController extends Controller
 
     public function showRegisterSelection(): View
     {
-        return view('auth.register_selection');
+        return view('auth.register');
     }
 
     /**

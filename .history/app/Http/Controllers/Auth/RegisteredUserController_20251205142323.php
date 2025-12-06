@@ -47,6 +47,7 @@ class RegisteredUserController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
+
             // A. Create the Login User
             $user = User::create([
                 'name' => $request->name,

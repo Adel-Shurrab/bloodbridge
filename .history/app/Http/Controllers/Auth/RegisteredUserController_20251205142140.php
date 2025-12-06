@@ -47,6 +47,7 @@ class RegisteredUserController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
+
             // A. Create the Login User
             $user = User::create([
                 'name' => $request->name,
@@ -64,16 +65,13 @@ class RegisteredUserController extends Controller
                 'birth_date' => $request->birth_date,
                 'gender' => $request->gender,
                 'city' => $request->city,
-                'blood_type' => null,
+                'blood_type' => null, // Donors don't know their verified type yet
             ]);
 
             // C. Trigger Events & Login
             event(new Registered($user));
             Auth::login($user);
         });
-
-        // 3. Redirect
-        return redirect(route('login', absolute: false));
     }
 
     /**

@@ -33,47 +33,19 @@ class RegisteredUserController extends Controller
     /**
      * Handle the Donor Registration Logic
      */
-    public function storeDonor(Request $request): RedirectResponse
-    {
+    public function storeDonor(Request $request): RedirectResponse {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'phone' => ['required', 'string', 'max:15', 'unique:' . User::class],
-            'national_id' => ['required', 'string', 'max:20', 'unique:donors'],
+            // Unique in users table (for login)
+            'phone' => ['required', 'string', 'max:15', 'unique:'.User::class], 
+            // Unique in donors table (business logic)
+            'national_id' => ['required', 'string', 'max:20', 'unique:donors'], 
             'birth_date' => ['required', 'date', 'before:today'],
             'gender' => ['required', 'in:male,female'],
             'city' => ['required', 'string', 'max:255'],
         ]);
-
-        DB::transaction(function () use ($request) {
-            // A. Create the Login User
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'password' => Hash::make($request->password),
-                'role' => 'donor',
-                'is_active' => true,
-            ]);
-
-            // B. Create the Profile linked to that User
-            Donor::create([
-                'user_id' => $user->id,
-                'national_id' => $request->national_id,
-                'birth_date' => $request->birth_date,
-                'gender' => $request->gender,
-                'city' => $request->city,
-                'blood_type' => null,
-            ]);
-
-            // C. Trigger Events & Login
-            event(new Registered($user));
-            Auth::login($user);
-        });
-
-        // 3. Redirect
-        return redirect(route('login', absolute: false));
     }
 
     /**
@@ -85,7 +57,7 @@ class RegisteredUserController extends Controller
     {
         $request->validate([
             'name' => ['required', 'string', 'max:255'],
-            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:'.User::class],
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
         ]);
 
