@@ -6,22 +6,29 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
+    /**
+     * Run the migrations.
+     * 
+     * This migration adds the foreign key constraint from users to organizations
+     * AFTER the organizations table has been created, avoiding constraint issues
+     */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->foreignId('organization_id')
-                ->nullable()
-                ->after('role')
-                ->constrained('organizations')
-                ->nullOnDelete();
+            $table->foreign('organization_id')
+                ->references('id')
+                ->on('organizations')
+                ->onDelete('set null');
         });
     }
 
+    /**
+     * Reverse the migrations.
+     */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
             $table->dropForeign(['organization_id']);
-            $table->dropColumn('organization_id');
         });
     }
 };
