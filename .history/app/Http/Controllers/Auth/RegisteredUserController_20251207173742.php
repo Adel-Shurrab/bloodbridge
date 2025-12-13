@@ -25,7 +25,7 @@ class RegisteredUserController extends Controller
     /**
      * Show the Donor Registration Form
      */
-    public function showDonorRegistrationForm(): View
+    public function createDonor(): View
     {
         return view('auth.register-donor');
     }
@@ -47,29 +47,37 @@ class RegisteredUserController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-            // A. Create the Login User
-            $user = User::create([
-                'name' => $request->name,
-                'email' => $request->email,
-                'phone' => $request->phone,
-                'password' => Hash::make($request->password),
-                'role' => 'donor',
-                'is_active' => true,
-            ]);
+    // 1. Create User
+    $user = User::create([
+        'name' => $request->name,
+        'email' => $request->email,
+        'phone' => $request->phone,
+        'password' => Hash::make($request->password),
+        'role' => 'donor',
+        'is_active' => true,
+    ]);
 
-            // B. Create the Profile linked to that User
-            Donor::create([
-                'user_id' => $user->id,
-                'national_id' => $request->national_id,
-                'birth_date' => $request->birth_date,
-                'gender' => $request->gender,
-                'city' => $request->city,
-                'blood_type' => null,
-            ]);
+    // 2. Create Donor
+    $donor = Donor::create([ // Capture the donor in a variable
+        'user_id' => $user->id,
+        'national_id' => $request->national_id,
+        'birth_date' => $request->birth_date,
+        'gender' => $request->gender,
+        'city' => $request->city,
+        'blood_type' => null,
+    ]);
 
-            // C. Trigger Events & Login
-            event(new Registered($user));
-            Auth::login($user);
+    // 3. Create Empty Health Profile (CRITICAL STEP)
+    DonorHealthProfile::create([
+        'donor_id' => $donor->id,
+        'is_eligible' => true, // Default to eligible until proven otherwise
+        // other fields can be null for now
+    ]);
+
+    // 4. Login
+    event(new Registered($user));
+    Auth::login($user);
+});
         });
 
         // 3. Redirect

@@ -93,7 +93,23 @@
             </div>
 
             <div class="form-row">
-              <div class="form-group full-width">
+              <div class="form-group">
+                <label for="blood_type">فصيلة الدم <span class="required">*</span></label>
+                <select id="blood_type" name="blood_type" required>
+                  <option value="" disabled selected>اختر فصيلة الدم</option>
+                  <option value="O+" {{ old('blood_type') == 'O+' ? 'selected' : '' }}>O+</option>
+                  <option value="O-" {{ old('blood_type') == 'O-' ? 'selected' : '' }}>O-</option>
+                  <option value="A+" {{ old('blood_type') == 'A+' ? 'selected' : '' }}>A+</option>
+                  <option value="A-" {{ old('blood_type') == 'A-' ? 'selected' : '' }}>A-</option>
+                  <option value="B+" {{ old('blood_type') == 'B+' ? 'selected' : '' }}>B+</option>
+                  <option value="B-" {{ old('blood_type') == 'B-' ? 'selected' : '' }}>B-</option>
+                  <option value="AB+" {{ old('blood_type') == 'AB+' ? 'selected' : '' }}>AB+</option>
+                  <option value="AB-" {{ old('blood_type') == 'AB-' ? 'selected' : '' }}>AB-</option>
+                </select>
+                <span class="error-message"></span>
+              </div>
+
+              <div class="form-group">
                 <label for="city">المدينة / العنوان <span class="required">*</span></label>
                 <input type="text" id="city" name="city" value="{{ old('city') }}" required placeholder="غزة، الرمال" />
                 <span class="error-message"></span>

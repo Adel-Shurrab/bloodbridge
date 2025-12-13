@@ -4,6 +4,8 @@ let currentStep = 1;
 const totalSteps = 2;
 const formData = {};
 
+// ... (Keep Navbar & Mobile Menu & Shake Animation code same as before) ...
+
 // Validate current step
 function validateStep(step) {
     let isValid = true;

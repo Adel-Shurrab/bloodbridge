@@ -25,7 +25,7 @@ class RegisteredUserController extends Controller
     /**
      * Show the Donor Registration Form
      */
-    public function showDonorRegistrationForm(): View
+    public function createDonor(): View
     {
         return view('auth.register-donor');
     }
@@ -47,7 +47,7 @@ class RegisteredUserController extends Controller
         ]);
 
         DB::transaction(function () use ($request) {
-            // A. Create the Login User
+            // 1. Create User
             $user = User::create([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -57,8 +57,8 @@ class RegisteredUserController extends Controller
                 'is_active' => true,
             ]);
 
-            // B. Create the Profile linked to that User
-            Donor::create([
+            // 2. Create Donor
+            $donor = Donor::create([ // Capture the donor in a variable
                 'user_id' => $user->id,
                 'national_id' => $request->national_id,
                 'birth_date' => $request->birth_date,
@@ -67,7 +67,14 @@ class RegisteredUserController extends Controller
                 'blood_type' => null,
             ]);
 
-            // C. Trigger Events & Login
+            // 3. Create Empty Health Profile (CRITICAL STEP)
+            DonorHealthProfile::create([
+                'donor_id' => $donor->id,
+                'is_eligible' => true, // Default to eligible until proven otherwise
+                // other fields can be null for now
+            ]);
+
+            // 4. Login
             event(new Registered($user));
             Auth::login($user);
         });

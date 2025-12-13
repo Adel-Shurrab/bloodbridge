@@ -17,12 +17,13 @@ function validateStep(step) {
         const phone = document.getElementById('phone').value.trim();
         const birthDate = document.getElementById('birth_date').value;
         const gender = document.getElementById('gender').value;
+        const bloodType = document.getElementById('blood_type').value;
         const city = document.getElementById('city').value.trim();
         const password = document.getElementById('password').value;
         const passwordConfirmation = document.getElementById('password_confirmation').value;
 
         // Clear all errors first
-        ['name', 'email', 'national_id', 'phone', 'birth_date', 'gender', 'city', 'password', 'password_confirmation'].forEach(clearError);
+        ['name', 'email', 'national_id', 'phone', 'birth_date', 'gender', 'blood_type', 'city', 'password', 'password_confirmation'].forEach(clearError);
 
         if (!name) {
             showError('name', 'الاسم مطلوب');
@@ -69,6 +70,11 @@ function validateStep(step) {
             isValid = false;
         }
 
+        if (!bloodType) {
+            showError('blood_type', 'فصيلة الدم مطلوبة');
+            isValid = false;
+        }
+
         if (!city) {
             showError('city', 'العنوان مطلوب');
             isValid = false;
@@ -98,6 +104,7 @@ function validateStep(step) {
             formData.phone = phone;
             formData.birthDate = birthDate;
             formData.gender = gender;
+            formData.bloodType = bloodType;
             formData.city = city;
         }
     } else if (step === 2) {

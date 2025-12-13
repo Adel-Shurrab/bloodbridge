@@ -4,6 +4,8 @@ let currentStep = 1;
 const totalSteps = 2;
 const formData = {};
 
+// ... (Keep Navbar & Mobile Menu & Shake Animation code same as before) ...
+
 // Validate current step
 function validateStep(step) {
     let isValid = true;
@@ -179,7 +181,7 @@ function initNavigation() {
     });
 
     // IMPORTANT: Form Submission Logic
-    submitBtn.addEventListener('click', function (e) {
+    submitBtn.addEventListener('click', function(e) {
         e.preventDefault();
 
         if (!validateStep(currentStep)) {
@@ -191,7 +193,7 @@ function initNavigation() {
         submitBtn.disabled = true;
 
         // Submit the form to Laravel
-        form.submit();
+        form.submit(); 
     });
 }
 
@@ -210,7 +212,7 @@ function validateAge(birthDate) {
 }
 function showError(fieldId, message) {
     const field = document.getElementById(fieldId);
-    if (field) {
+    if(field) {
         const errorElement = field.parentElement.querySelector('.error-message');
         field.classList.add('error');
         if (errorElement) errorElement.textContent = message;
@@ -220,7 +222,7 @@ function showError(fieldId, message) {
 }
 function clearError(fieldId) {
     const field = document.getElementById(fieldId);
-    if (field) {
+    if(field) {
         const errorElement = field.parentElement.querySelector('.error-message');
         field.classList.remove('error');
         if (errorElement) errorElement.textContent = '';

@@ -25,9 +25,9 @@ class RegisteredUserController extends Controller
     /**
      * Show the Donor Registration Form
      */
-    public function showDonorRegistrationForm(): View
+    public function createDonor(): View
     {
-        return view('auth.register-donor');
+        return view('auth.showDonorRegistrationForm');
     }
 
     /**
