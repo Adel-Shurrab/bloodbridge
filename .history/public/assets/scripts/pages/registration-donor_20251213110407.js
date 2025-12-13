@@ -127,7 +127,7 @@ function displayEligibilityStatus() {
 }
 
 // Add listener for health profile changes
-function initHealthProfileChangeListeners() {
+document.addEventListener('DOMContentLoaded', () => {
     const healthFields = ['weight', 'height', 'chronic_disease', 'recent_donation', 'infection', 'is_smoker', 'has_recent_surgery', 'surgery_date', 'last_donation_date'];
     
     healthFields.forEach(fieldId => {
@@ -137,7 +137,7 @@ function initHealthProfileChangeListeners() {
             field.addEventListener('input', displayEligibilityStatus);
         }
     });
-}
+});
 
 // Validate current step
 function validateStep(step) {
@@ -236,45 +236,6 @@ function validateStep(step) {
             formData.city = city;
         }
     } else if (step === 2) {
-        // Health Profile
-        const weight = document.getElementById('weight').value.trim();
-        const height = document.getElementById('height').value.trim();
-
-        // Clear all errors first
-        ['weight', 'height', 'surgery_date', 'last_donation_date'].forEach(clearError);
-
-        if (!weight) {
-            showError('weight', 'الوزن مطلوب');
-            isValid = false;
-        } else if (parseInt(weight) < 50) {
-            showError('weight', 'الوزن يجب أن يكون 50 كغ على الأقل');
-            isValid = false;
-        }
-
-        if (!height) {
-            showError('height', 'الطول مطلوب');
-            isValid = false;
-        } else if (parseInt(height) < 140) {
-            showError('height', 'الطول يجب أن يكون 140 سم على الأقل');
-            isValid = false;
-        }
-
-        if (isValid) {
-            // Store health data for review step
-            formData.weight = weight;
-            formData.height = height;
-            formData.chronicDisease = document.getElementById('chronic_disease').checked;
-            formData.recentDonation = document.getElementById('recent_donation').checked;
-            formData.infection = document.getElementById('infection').checked;
-            formData.isSmoker = document.getElementById('is_smoker').checked;
-            formData.hasRecentSurgery = document.getElementById('has_recent_surgery').checked;
-            formData.surgeryDate = document.getElementById('surgery_date').value;
-            formData.lastDonationDate = document.getElementById('last_donation_date').value;
-
-            // Check eligibility
-            checkEligibility();
-        }
-    } else if (step === 3) {
         // Review & Confirm
         const termsAgree = document.getElementById('termsAgree');
         const errorElement = termsAgree.parentElement.parentElement.querySelector('.error-message');
@@ -297,11 +258,6 @@ function validateStep(step) {
 // Populate review section
 function populateReview() {
     const personalInfoReview = document.getElementById('personalInfoReview');
-    const healthInfoReview = document.getElementById('healthInfoReview');
-    const eligibilityReviewBox = document.getElementById('eligibility-review-box');
-    const eligibilityReviewIcon = document.getElementById('eligibility-review-icon');
-    const eligibilityReviewTitle = document.getElementById('eligibility-review-title');
-    const eligibilityReviewMessage = document.getElementById('eligibility-review-message');
 
     // Personal Information
     personalInfoReview.innerHTML = `
@@ -334,80 +290,6 @@ function populateReview() {
             <span class="review-value">${formData.city}</span>
         </div>
     `;
-
-    // Health Information
-    healthInfoReview.innerHTML = `
-        <div class="review-item">
-            <span class="review-label">الوزن</span>
-            <span class="review-value">${formData.weight} كغ</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">الطول</span>
-            <span class="review-value">${formData.height} سم</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">مرض مزمن</span>
-            <span class="review-value">${formData.chronicDisease ? 'نعم' : 'لا'}</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">مدخن</span>
-            <span class="review-value">${formData.isSmoker ? 'نعم' : 'لا'}</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">عدوى حالية</span>
-            <span class="review-value">${formData.infection ? 'نعم' : 'لا'}</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">تبرع مؤخراً</span>
-            <span class="review-value">${formData.recentDonation ? 'نعم' : 'لا'}</span>
-        </div>
-        ${formData.lastDonationDate ? `<div class="review-item">
-            <span class="review-label">تاريخ آخر تبرع</span>
-            <span class="review-value">${formData.lastDonationDate}</span>
-        </div>` : ''}
-        <div class="review-item">
-            <span class="review-label">عملية جراحية مؤخراً</span>
-            <span class="review-value">${formData.hasRecentSurgery ? 'نعم' : 'لا'}</span>
-        </div>
-        ${formData.surgeryDate ? `<div class="review-item">
-            <span class="review-label">تاريخ العملية الجراحية</span>
-            <span class="review-value">${formData.surgeryDate}</span>
-        </div>` : ''}
-    `;
-
-    // Eligibility Status
-    if (!formData.isEligible) {
-        eligibilityReviewBox.style.display = 'block';
-        eligibilityReviewBox.style.background = '#fef3c7';
-        eligibilityReviewBox.style.borderColor = '#f59e0b';
-        eligibilityReviewIcon.textContent = '⚠️';
-        eligibilityReviewTitle.textContent = 'غير مؤهل مؤقتًا';
-        
-        let messageText = '<strong>الأسباب:</strong><ul style="margin: 0.5rem 0 0 0; padding-right: 1.5rem;">';
-        formData.ineligibilityReasons.forEach(reason => {
-            messageText += `<li>${reason}</li>`;
-        });
-        
-        if (formData.nextEligibleDate) {
-            const dateStr = formData.nextEligibleDate.toLocaleDateString('ar-EG', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-            });
-            messageText += `</ul><p style="margin: 0.5rem 0 0 0;"><strong>سيكون لديك الأهلية اعتباراً من: ${dateStr}</strong></p>`;
-        } else {
-            messageText += '</ul>';
-        }
-        
-        eligibilityReviewMessage.innerHTML = messageText;
-    } else {
-        eligibilityReviewBox.style.display = 'block';
-        eligibilityReviewBox.style.background = '#d1fae5';
-        eligibilityReviewBox.style.borderColor = '#10b981';
-        eligibilityReviewIcon.textContent = '✓';
-        eligibilityReviewTitle.textContent = 'مؤهل للتبرع';
-        eligibilityReviewMessage.innerHTML = '<p>تهانينا! أنت مؤهل للتبرع والمساهمة في إنقاذ الأرواح.</p>';
-    }
 }
 
 // Navigation handlers
@@ -531,7 +413,6 @@ function showStep(step) {
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initPasswordToggle();
-    initHealthProfileChangeListeners();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;

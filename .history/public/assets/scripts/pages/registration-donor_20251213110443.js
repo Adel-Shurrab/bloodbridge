@@ -127,7 +127,7 @@ function displayEligibilityStatus() {
 }
 
 // Add listener for health profile changes
-function initHealthProfileChangeListeners() {
+document.addEventListener('DOMContentLoaded', () => {
     const healthFields = ['weight', 'height', 'chronic_disease', 'recent_donation', 'infection', 'is_smoker', 'has_recent_surgery', 'surgery_date', 'last_donation_date'];
     
     healthFields.forEach(fieldId => {
@@ -137,7 +137,7 @@ function initHealthProfileChangeListeners() {
             field.addEventListener('input', displayEligibilityStatus);
         }
     });
-}
+});
 
 // Validate current step
 function validateStep(step) {
@@ -531,7 +531,6 @@ function showStep(step) {
 document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initPasswordToggle();
-    initHealthProfileChangeListeners();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;

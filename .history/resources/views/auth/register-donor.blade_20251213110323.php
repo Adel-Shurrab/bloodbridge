@@ -132,102 +132,7 @@
             </div>
           </div>
 
-          <!-- Step 2: Health Profile -->
           <div class="form-step" id="step2">
-            <h2 class="step-title">الملف الصحي</h2>
-
-            <div class="info-box" style="background: #e0f2fe; border-color: #0284c7;">
-              <div class="info-icon">ℹ️</div>
-              <div class="info-content">
-                <strong style="color: #0284c7;">معلومات صحية مهمة</strong>
-                <p>هذه المعلومات تساعدنا على التحقق من صحتك وتحديد توافقك للتبرع</p>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="weight">الوزن (كغ) <span class="required">*</span></label>
-                <input type="number" id="weight" name="weight" min="50" max="200" placeholder="70" />
-                <span class="error-message"></span>
-              </div>
-
-              <div class="form-group">
-                <label for="height">الطول (سم) <span class="required">*</span></label>
-                <input type="number" id="height" name="height" min="140" max="220" placeholder="180" />
-                <span class="error-message"></span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="chronic_disease" name="chronic_disease" />
-                  <span class="checkbox-custom"></span>
-                  <span class="checkbox-text">هل تعاني من أي مرض مزمن؟</span>
-                </label>
-              </div>
-
-              <div class="form-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="is_smoker" name="is_smoker" />
-                  <span class="checkbox-custom"></span>
-                  <span class="checkbox-text">هل أنت مدخن؟</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="recent_donation" name="recent_donation" />
-                  <span class="checkbox-custom"></span>
-                  <span class="checkbox-text">هل تبرعت في آخر 90 يوم؟</span>
-                </label>
-              </div>
-
-              <div class="form-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="infection" name="infection" />
-                  <span class="checkbox-custom"></span>
-                  <span class="checkbox-text">هل تعاني من عدوى حالياً؟</span>
-                </label>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label class="checkbox-label">
-                  <input type="checkbox" id="has_recent_surgery" name="has_recent_surgery" />
-                  <span class="checkbox-custom"></span>
-                  <span class="checkbox-text">هل أجريت عملية جراحية مؤخراً؟</span>
-                </label>
-              </div>
-
-              <div class="form-group">
-                <label for="surgery_date">تاريخ العملية الجراحية (إن وجدت)</label>
-                <input type="date" id="surgery_date" name="surgery_date" />
-                <span class="error-message"></span>
-              </div>
-            </div>
-
-            <div class="form-row">
-              <div class="form-group">
-                <label for="last_donation_date">تاريخ آخر تبرع (إن وجد)</label>
-                <input type="date" id="last_donation_date" name="last_donation_date" />
-                <span class="error-message"></span>
-              </div>
-            </div>
-
-            <div id="eligibility-status-box" style="display: none;" class="info-box" style="background: #fef3c7; border-color: #f59e0b;">
-              <div class="info-icon">⚠️</div>
-              <div class="info-content">
-                <strong id="eligibility-status-title">حالة التأهيل</strong>
-                <p id="eligibility-status-message"></p>
-              </div>
-            </div>
-          </div>
-
-          <div class="form-step" id="step3">
             <h2 class="step-title">مراجعة المعلومات</h2>
 
             <div class="review-section">
@@ -235,25 +140,12 @@
               <div class="review-grid" id="personalInfoReview"></div>
             </div>
 
-            <div class="review-section">
-              <h3>الملف الصحي</h3>
-              <div class="review-grid" id="healthInfoReview"></div>
-            </div>
-
-            <div id="eligibility-review-box" style="display: none;" class="info-box">
-              <div class="info-icon" id="eligibility-review-icon">✓</div>
-              <div class="info-content">
-                <strong id="eligibility-review-title">حالة التأهيل</strong>
-                <p id="eligibility-review-message"></p>
-              </div>
-            </div>
-
             <div class="info-box">
               <div class="info-icon">ℹ️</div>
               <div class="info-content">
                 <strong>ملاحظة:</strong>
                 <p>
-                  سيتم إضافة زمرة الدم والمزيد من المعلومات الطبية
+                  سيتم إضافة المعلومات الطبية (زمرة الدم، الحالات الصحية)
                   لاحقاً من لوحة التحكم الخاصة بك بعد التسجيل
                 </p>
               </div>

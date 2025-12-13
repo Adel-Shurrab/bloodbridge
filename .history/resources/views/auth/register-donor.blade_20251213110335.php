@@ -235,25 +235,12 @@
               <div class="review-grid" id="personalInfoReview"></div>
             </div>
 
-            <div class="review-section">
-              <h3>الملف الصحي</h3>
-              <div class="review-grid" id="healthInfoReview"></div>
-            </div>
-
-            <div id="eligibility-review-box" style="display: none;" class="info-box">
-              <div class="info-icon" id="eligibility-review-icon">✓</div>
-              <div class="info-content">
-                <strong id="eligibility-review-title">حالة التأهيل</strong>
-                <p id="eligibility-review-message"></p>
-              </div>
-            </div>
-
             <div class="info-box">
               <div class="info-icon">ℹ️</div>
               <div class="info-content">
                 <strong>ملاحظة:</strong>
                 <p>
-                  سيتم إضافة زمرة الدم والمزيد من المعلومات الطبية
+                  سيتم إضافة المعلومات الطبية (زمرة الدم، الحالات الصحية)
                   لاحقاً من لوحة التحكم الخاصة بك بعد التسجيل
                 </p>
               </div>
