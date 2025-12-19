@@ -9,90 +9,82 @@ function checkEligibility() {
     const weight = parseInt(document.getElementById('weight').value) || 0;
     const height = parseInt(document.getElementById('height').value) || 0;
     const chronicDisease = document.getElementById('chronic_disease').checked;
+    const recentDonation = document.getElementById('recent_donation').checked;
     const infection = document.getElementById('infection').checked;
-    const lastDonationInput = document.getElementById('last_donation_date');
-    const surgeryInput = document.getElementById('surgery_date');
-
-    // Get raw date values
-    const surgeryDateVal = document.getElementById('surgery_date').value;
-    const lastDonationDateVal = document.getElementById('last_donation_date').value;
+    const hasRecentSurgery = document.getElementById('has_recent_surgery').checked;
+    const surgeryDate = document.getElementById('surgery_date').value;
+    const lastDonationDate = document.getElementById('last_donation_date').value;
 
     const today = new Date();
-    // Reset time part to ensure accurate day calculation
-    today.setHours(0, 0, 0, 0);
-
     let isEligible = true;
     let nextEligibleDate = null;
     let ineligibilityReasons = [];
 
-    // 1. Basic Checks
+    // Check weight (minimum 50kg)
     if (weight < 50) {
         isEligible = false;
         ineligibilityReasons.push('الوزن أقل من الحد الأدنى (50 كغ)');
     }
+
+    // Check height (minimum 140cm)
     if (height < 140) {
         isEligible = false;
         ineligibilityReasons.push('الطول أقل من الحد الأدنى (140 سم)');
     }
-    if (lastDonationInput.validity.badInput) {
-        isEligible = false;
-        ineligibilityReasons.push('تاريخ التبرع السابق غير مكتمل');
-    }
-    if (surgeryInput.validity.badInput) {
-        isEligible = false;
-        ineligibilityReasons.push('تاريخ العملية الجراحية غير مكتمل');
-    }
+
+    // Check chronic disease
     if (chronicDisease) {
         isEligible = false;
         ineligibilityReasons.push('وجود مرض مزمن');
     }
+
+    // Check infection
     if (infection) {
         isEligible = false;
         ineligibilityReasons.push('وجود عدوى حالية');
     }
 
-    // 2. Donation Logic (90 Days)
-    if (lastDonationDateVal) {
-        const lastDonation = new Date(lastDonationDateVal);
-        const diffTime = Math.abs(today - lastDonation);
-        const daysSinceDonation = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Check recent donation (90 days)
+    if (lastDonationDate) {
+        const lastDonation = new Date(lastDonationDate);
+        const daysSinceDonation = Math.floor((today - lastDonation) / (1000 * 60 * 60 * 24));
 
-        // Only block if less than 90 days
         if (daysSinceDonation < 90) {
             isEligible = false;
-            ineligibilityReasons.push(`تبرعت قبل ${daysSinceDonation} يوم (يجب الانتظار 90 يوم)`);
+            const daysRemaining = 90 - daysSinceDonation;
+            ineligibilityReasons.push(`تبرعت قبل ${daysSinceDonation} أيام فقط (يجب أن تمضي 90 يوم)`);
 
-            // Calculate Next Eligible Date
+            // Calculate next eligible date
             const futureDate = new Date(lastDonation);
             futureDate.setDate(futureDate.getDate() + 90);
-
-            // Logic: Take the latest date if multiple bans exist
-            if (!nextEligibleDate || futureDate > nextEligibleDate) {
-                nextEligibleDate = futureDate;
-            }
+            nextEligibleDate = futureDate;
         }
     }
 
-    // 3. Surgery Logic (28 Days)
-    if (surgeryDateVal) {
-        const surgery = new Date(surgeryDateVal);
-        const diffTime = Math.abs(today - surgery);
-        const daysSinceSurgery = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    // Check recent surgery (4 weeks)
+    if (hasRecentSurgery && surgeryDate) {
+        const surgery = new Date(surgeryDate);
+        const daysSinceSurgery = Math.floor((today - surgery) / (1000 * 60 * 60 * 24));
 
         if (daysSinceSurgery < 28) {
             isEligible = false;
-            ineligibilityReasons.push(`أجريت عملية قبل ${daysSinceSurgery} يوم (يجب الانتظار 28 يوم)`);
+            const daysRemaining = 28 - daysSinceSurgery;
+            ineligibilityReasons.push(`أجريت عملية جراحية قبل ${daysSinceSurgery} أيام فقط (يجب أن تمضي 4 أسابيع)`);
 
+            // Update next eligible date if this is later
             const futureDate = new Date(surgery);
             futureDate.setDate(futureDate.getDate() + 28);
-
             if (!nextEligibleDate || futureDate > nextEligibleDate) {
                 nextEligibleDate = futureDate;
             }
         }
     }
 
-    // Return result
+    // Store eligibility info in formData
+    formData.isEligible = isEligible;
+    formData.nextEligibleDate = nextEligibleDate;
+    formData.ineligibilityReasons = ineligibilityReasons;
+
     return { isEligible, nextEligibleDate, ineligibilityReasons };
 }
 
@@ -133,36 +125,9 @@ function displayEligibilityStatus() {
     }
 }
 
-function initClearDateButtons() {
-    const clearBtns = document.querySelectorAll('.clear-date-btn');
-
-    clearBtns.forEach(btn => {
-        const inputId = btn.getAttribute('data-target');
-        const input = document.getElementById(inputId);
-
-        const toggleBtn = () => {
-            if (input.value) {
-                btn.style.display = 'block';
-            } else {
-                btn.style.display = 'none';
-            }
-        };
-
-        toggleBtn();
-        input.addEventListener('input', toggleBtn);
-        input.addEventListener('change', toggleBtn);
-
-        btn.addEventListener('click', () => {
-            input.value = '';
-            toggleBtn();
-            clearError(inputId);
-            displayEligibilityStatus();
-        });
-    });
-}
-
+// Add listener for health profile changes
 function initHealthProfileChangeListeners() {
-    const healthFields = ['weight', 'height', 'chronic_disease', 'infection', 'surgery_date', 'last_donation_date'];
+    const healthFields = ['weight', 'height', 'chronic_disease', 'recent_donation', 'infection', 'has_recent_surgery', 'surgery_date', 'last_donation_date'];
 
     healthFields.forEach(fieldId => {
         const field = document.getElementById(fieldId);
@@ -179,6 +144,7 @@ function validateStep(step) {
 
     if (step === 1) {
         // Personal Information
+        // Updated IDs to match Laravel Database Columns
         const name = document.getElementById('name').value.trim();
         const email = document.getElementById('email').value.trim();
         const nationalId = document.getElementById('national_id').value.trim();
@@ -274,9 +240,6 @@ function validateStep(step) {
         const height = document.getElementById('height').value.trim();
         // Get Checkbox States
         const chronicDisease = document.getElementById('chronic_disease').checked;
-        const bloodType = document.getElementById('blood_type').value;
-        const lastDonationInput = document.getElementById('last_donation_date');
-        const surgeryInput = document.getElementById('surgery_date');
 
         // Clear all errors first
         ['weight', 'height', 'surgery_date', 'last_donation_date'].forEach(clearError);
@@ -298,18 +261,6 @@ function validateStep(step) {
             isValid = false;
         }
 
-        // Check Last Donation Date
-        if (lastDonationInput.validity.badInput) {
-            showError('last_donation_date', 'يرجى إدخال التاريخ كاملاً أو تركه فارغاً');
-            isValid = false;
-        }
-
-        // Check Surgery Date
-        if (surgeryInput.validity.badInput) {
-            showError('surgery_date', 'يرجى إدخال التاريخ كاملاً أو تركه فارغاً');
-            isValid = false;
-        }
-
         // CRITICAL LOGIC: Hard Stop for Chronic Disease
         if (isValid && chronicDisease) {
             // Show the "Thank You" Modal
@@ -324,16 +275,14 @@ function validateStep(step) {
             formData.height = height;
             // ... rest of data storage
             formData.chronicDisease = chronicDisease;
+            formData.recentDonation = document.getElementById('recent_donation').checked;
             formData.infection = document.getElementById('infection').checked;
+            formData.hasRecentSurgery = document.getElementById('has_recent_surgery').checked;
             formData.surgeryDate = document.getElementById('surgery_date').value;
             formData.lastDonationDate = document.getElementById('last_donation_date').value;
-            formData.bloodType = bloodType;
 
-            // Check eligibility and store result
-            const eligibilityResult = checkEligibility();
-            formData.isEligible = eligibilityResult.isEligible;
-            formData.nextEligibleDate = eligibilityResult.nextEligibleDate;
-            formData.ineligibilityReasons = eligibilityResult.ineligibilityReasons;
+            // Check eligibility (Calculates Scenario 2)
+            checkEligibility();
         }
     } else if (step === 3) {
         // Review & Confirm
@@ -405,10 +354,6 @@ function populateReview() {
         <div class="review-item">
             <span class="review-label">الطول</span>
             <span class="review-value">${formData.height} سم</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">فصيلة الدم</span>
-            <span class="review-value">${formData.bloodType ? formData.bloodType : 'غير محدد'}</span>
         </div>
         <div class="review-item">
             <span class="review-label">مرض مزمن</span>
@@ -594,10 +539,6 @@ function showStep(step) {
     document.querySelectorAll('.form-step').forEach((s, index) => {
         s.classList.toggle('active', index + 1 === step);
     });
-
-    // Update progress steps
-    updateProgressSteps();
-
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const submitBtn = document.getElementById('submitBtn');
@@ -618,7 +559,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initPasswordToggle();
     initHealthProfileChangeListeners();
-    initClearDateButtons();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;

@@ -89,7 +89,7 @@ class RegisteredUserController extends Controller
                 'weight' => $request->weight,
                 'height' => $request->height,
                 'blood_type' => $request->blood_type,
-                'verified_blood_type' => null,
+                'verified_blood_type' => null, 
                 'chronic_disease' => $request->boolean('chronic_disease'),
                 'infection' => $request->boolean('infection'),
                 'recent_donation' => $request->last_donation_date ? true : false,

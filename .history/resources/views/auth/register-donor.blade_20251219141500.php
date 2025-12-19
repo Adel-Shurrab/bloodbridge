@@ -225,12 +225,14 @@
                   <label for="last_donation_date">تاريخ آخر تبرع <span style="color: #999; font-weight: normal;">(إن
                       وجد)</span></label>
 
-                  <div class="date-input-wrapper" style="position: relative;">
+                  <div class="date-input-wrapper" style="position: relative; display: flex; align-items: center;">
                     <input type="date" id="last_donation_date" name="last_donation_date" max="{{ date('Y-m-d') }}"
                       style="width: 100%;" />
 
                     <button type="button" class="clear-date-btn" data-target="last_donation_date"
-                      style="display: none;">
+                      style="display: none; position: absolute; right: 12px; background: none; border: none; cursor: pointer; padding: 0.4rem 0.6rem; border-radius: 50%; color: #9ca3af; font-size: 1.2rem; line-height: 1; transition: all 0.2s ease; -webkit-appearance: none; appearance: none;" 
+                      onmouseover="this.style.background='#f3f4f6'; this.style.color='#ef4444';" 
+                      onmouseout="this.style.background='none'; this.style.color='#9ca3af';">
                       ✕
                     </button>
                   </div>
@@ -242,10 +244,13 @@
                 <div class="form-group">
                   <label for="surgery_date">تاريخ آخر عملية جراحية <span style="color: #999; font-weight: normal;">(إن
                       وجد)</span></label>
-                  <div class="date-input-wrapper" style="position: relative;">
+                  <div class="date-input-wrapper" style="position: relative; display: flex; align-items: center;">
                     <input type="date" id="surgery_date" name="surgery_date" max="{{ date('Y-m-d') }}"
                       style="width: 100%;" />
-                    <button type="button" class="clear-date-btn" data-target="surgery_date" style="display: none;">
+                    <button type="button" class="clear-date-btn" data-target="surgery_date" 
+                      style="display: none; position: absolute; right: 12px; background: none; border: none; cursor: pointer; padding: 0.4rem 0.6rem; border-radius: 50%; color: #9ca3af; font-size: 1.2rem; line-height: 1; transition: all 0.2s ease; -webkit-appearance: none; appearance: none;" 
+                      onmouseover="this.style.background='#f3f4f6'; this.style.color='#ef4444';" 
+                      onmouseout="this.style.background='none'; this.style.color='#9ca3af';">
                       ✕
                     </button>
                   </div>

@@ -144,42 +144,32 @@
               </div>
             </div>
 
-            <!-- Section 1: Basic Measurements -->
-            <div style="margin-bottom: 2rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
-                القياسات الأساسية
-              </h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="weight">الوزن (كغ) <span class="required">*</span></label>
-                  <input type="number" id="weight" name="weight" min="50" max="200" placeholder="70" />
-                  <span class="helper-text">يجب أن يكون 50 كغ على الأقل</span>
-                  <span class="error-message"></span>
-                </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="weight">الوزن (كغ) <span class="required">*</span></label>
+                <input type="number" id="weight" name="weight" min="50" max="200" placeholder="70" />
+                <span class="error-message"></span>
+              </div>
 
-                <div class="form-group">
-                  <label for="height">الطول (سم) <span class="required">*</span></label>
-                  <input type="number" id="height" name="height" min="140" max="220" placeholder="180" />
-                  <span class="helper-text">يجب أن يكون 140 سم على الأقل</span>
-                  <span class="error-message"></span>
-                </div>
+              <div class="form-group">
+                <label for="height">الطول (سم) <span class="required">*</span></label>
+                <input type="number" id="height" name="height" min="140" max="220" placeholder="180" />
+                <span class="error-message"></span>
               </div>
 
               <div class="form-row">
                 <div class="form-group full-width">
-                  <label for="blood_type">فصيلة الدم <span
-                      style="color: #999; font-weight: normal;">(اختياري)</span></label>
+                  <label for="blood_type">فصيلة الدم (اختياري)</label>
                   <select id="blood_type" name="blood_type">
                     <option value="" selected>لا أعرف / غير متأكد</option>
-                    <option value="O+">O+ (موجب)</option>
-                    <option value="O-">O- (سالب)</option>
-                    <option value="A+">A+ (موجب)</option>
-                    <option value="A-">A- (سالب)</option>
-                    <option value="B+">B+ (موجب)</option>
-                    <option value="B-">B- (سالب)</option>
-                    <option value="AB+">AB+ (موجب)</option>
-                    <option value="AB-">AB- (سالب)</option>
+                    <option value="O+">O+</option>
+                    <option value="O-">O-</option>
+                    <option value="A+">A+</option>
+                    <option value="A-">A-</option>
+                    <option value="B+">B+</option>
+                    <option value="B-">B-</option>
+                    <option value="AB+">AB+</option>
+                    <option value="AB-">AB-</option>
                   </select>
                   <span class="helper-text">سيقوم المستشفى بإجراء فحص للتأكد من الفصيلة عند التبرع</span>
                   <span class="error-message"></span>
@@ -187,75 +177,42 @@
               </div>
             </div>
 
-            <!-- Section 2: Medical History -->
-            <div style="margin-bottom: 2rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
-                السجل الطبي
-              </h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="chronic_disease" name="chronic_disease" value="1" />
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">هل تعاني من أي مرض مزمن؟</span>
-                  </label>
-                  <span class="error-message"></span>
-                </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="chronic_disease" name="chronic_disease" value="1" />
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-text">هل تعاني من أي مرض مزمن؟</span>
+                </label>
+                <span class="error-message"></span>
+              </div>
 
-                <div class="form-group">
-                  <label class="checkbox-label">
-                    <input type="checkbox" id="infection" name="infection" value="1" />
-                    <span class="checkbox-custom"></span>
-                    <span class="checkbox-text">هل تعاني من عدوى حالياً؟</span>
-                  </label>
-                  <span class="error-message"></span>
-                </div>
+              <div class="form-group">
+                <label class="checkbox-label">
+                  <input type="checkbox" id="infection" name="infection" value="1" />
+                  <span class="checkbox-custom"></span>
+                  <span class="checkbox-text">هل تعاني من عدوى حالياً؟</span>
+                </label>
+                <span class="error-message"></span>
               </div>
             </div>
 
-            <!-- Section 3: Donation & Surgery History -->
-            <div style="margin-bottom: 2rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
-                التبرعات والعمليات الجراحية السابقة
-              </h3>
-              <div class="form-row">
-                <div class="form-group">
-                  <label for="last_donation_date">تاريخ آخر تبرع <span style="color: #999; font-weight: normal;">(إن
-                      وجد)</span></label>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="last_donation_date">تاريخ آخر تبرع (إن وجد)</label>
+                <input type="date" id="last_donation_date" name="last_donation_date" max="{{ date('Y-m-d') }}" />
+                <span class="helper-text">اتركه فارغاً إذا لم تتبرع من قبل</span>
+                <span class="error-message"></span>
+              </div>
 
-                  <div class="date-input-wrapper" style="position: relative;">
-                    <input type="date" id="last_donation_date" name="last_donation_date" max="{{ date('Y-m-d') }}"
-                      style="width: 100%;" />
-
-                    <button type="button" class="clear-date-btn" data-target="last_donation_date"
-                      style="display: none;">
-                      ✕
-                    </button>
-                  </div>
-
-                  <span class="helper-text">يجب الانتظار 90 يوم بين التبرعات</span>
-                  <span class="error-message"></span>
-                </div>
-
-                <div class="form-group">
-                  <label for="surgery_date">تاريخ آخر عملية جراحية <span style="color: #999; font-weight: normal;">(إن
-                      وجد)</span></label>
-                  <div class="date-input-wrapper" style="position: relative;">
-                    <input type="date" id="surgery_date" name="surgery_date" max="{{ date('Y-m-d') }}"
-                      style="width: 100%;" />
-                    <button type="button" class="clear-date-btn" data-target="surgery_date" style="display: none;">
-                      ✕
-                    </button>
-                  </div>
-                  <span class="helper-text">يجب الانتظار 28 يوم بعد العملية</span>
-                  <span class="error-message"></span>
-                </div>
+              <div class="form-group">
+                <label for="surgery_date">تاريخ آخر عملية جراحية (إن وجد)</label>
+                <input type="date" id="surgery_date" name="surgery_date" max="{{ date('Y-m-d') }}" />
+                <span class="helper-text">اتركه فارغاً إذا لم تقم بأي عملية</span>
+                <span class="error-message"></span>
               </div>
             </div>
 
-            <!-- Eligibility Status -->
             <div id="eligibility-status-box" style="display: none;" class="info-box">
               <div class="info-icon">⚠️</div>
               <div class="info-content">
@@ -268,73 +225,46 @@
           <div class="form-step" id="step3">
             <h2 class="step-title">مراجعة المعلومات</h2>
 
-            <!-- Personal Information Section -->
-            <div style="margin-bottom: 2.5rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem;">
-                <span>👤</span>
-                <span>المعلومات الشخصية</span>
-              </h3>
+            <div class="review-section">
+              <h3>المعلومات الشخصية</h3>
               <div class="review-grid" id="personalInfoReview"></div>
             </div>
 
-            <!-- Health Information Section -->
-            <div style="margin-bottom: 2.5rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem;">
-                <span>💚</span>
-                <span>الملف الصحي</span>
-              </h3>
+            <div class="review-section">
+              <h3>الملف الصحي</h3>
               <div class="review-grid" id="healthInfoReview"></div>
             </div>
 
-            <!-- Eligibility Status Section -->
-            <div style="margin-bottom: 2.5rem;" id="eligibility-review-container">
-              <div id="eligibility-review-box" style="display: none;" class="info-box">
-                <div style="display: flex; align-items: flex-start; gap: 1rem;">
-                  <div class="info-icon" id="eligibility-review-icon" style="font-size: 1.5rem; flex-shrink: 0;">✓</div>
-                  <div class="info-content" style="flex: 1;">
-                    <strong id="eligibility-review-title"
-                      style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">حالة التأهيل</strong>
-                    <p id="eligibility-review-message" style="margin: 0; line-height: 1.6; color: #4b5563;"></p>
-                  </div>
-                </div>
+            <div id="eligibility-review-box" style="display: none;" class="info-box">
+              <div class="info-icon" id="eligibility-review-icon">✓</div>
+              <div class="info-content">
+                <strong id="eligibility-review-title">حالة التأهيل</strong>
+                <p id="eligibility-review-message"></p>
               </div>
             </div>
 
-            <!-- Important Note Section -->
-            <div style="margin-bottom: 2.5rem;">
-              <div class="info-box" style="background: #f3f4f6; border-color: #d1d5db;">
-                <div class="info-icon">ℹ️</div>
-                <div class="info-content">
-                  <strong>ملاحظة مهمة:</strong>
-                  <p style="margin: 0.5rem 0 0 0; line-height: 1.6;">
-                    تم التحقق من جميع البيانات أعلاه. سيتم إرسال رسالة تأكيد إلى بريدك الإلكتروني.
-                    <br>
-                    يمكنك تحديث معلوماتك الإضافية (زمرة الدم والمزيد) لاحقاً من لوحة التحكم الخاصة بك.
-                  </p>
-                </div>
+            <div class="info-box">
+              <div class="info-icon">ℹ️</div>
+              <div class="info-content">
+                <strong>ملاحظة:</strong>
+                <p>
+                  سيتم إضافة زمرة الدم والمزيد من المعلومات الطبية
+                  لاحقاً من لوحة التحكم الخاصة بك بعد التسجيل
+                </p>
               </div>
             </div>
 
-            <!-- Terms & Conditions Section -->
-            <div
-              style="padding: 1.5rem; background: #f9fafb; border-radius: 0.5rem; border: 1px solid #e5e7eb; margin-bottom: 2rem;">
-              <div class="form-group checkbox-group" style="margin: 0;">
-                <label class="checkbox-label"
-                  style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
-                  <input type="checkbox" id="termsAgree" name="terms" required style="margin-top: 0.25rem;" />
-                  <span class="checkbox-custom" style="margin-top: 0.25rem;"></span>
-                  <span class="checkbox-text" style="padding: 0;">
-                    أقرّ بأنني قد قرأت ووافقت على
-                    <a href="{{ route('privacy') }}" class="terms-link"
-                      style="color: #dc2626; text-decoration: underline;">الشروط والأحكام</a>
-                    والسياسات المتعلقة بالبيانات الشخصية
-                    <span class="required">*</span>
-                  </span>
-                </label>
-                <span class="error-message" style="display: block; margin-top: 0.5rem;"></span>
-              </div>
+            <div class="form-group checkbox-group">
+              <label class="checkbox-label">
+                <input type="checkbox" id="termsAgree" name="terms" required />
+                <span class="checkbox-custom"></span>
+                <span class="checkbox-text">
+                  لقد قرأت ووافقت على
+                  <a href="#" class="terms-link">الشروط والأحكام</a>
+                  <span class="required">*</span>
+                </span>
+              </label>
+              <span class="error-message"></span>
             </div>
           </div>
 
