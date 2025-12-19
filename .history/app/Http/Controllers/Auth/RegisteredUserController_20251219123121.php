@@ -88,8 +88,8 @@ class RegisteredUserController extends Controller
                 'donor_id' => $donor->id,
                 'weight' => $request->weight,
                 'height' => $request->height,
-                'blood_type' => $request->blood_type,
-                'verified_blood_type' => null,
+                'blood_type' => $request->blood_type, // القيمة التي أدخلها المستخدم
+                'verified_blood_type' => null, // نتركه فارغاً حتى يؤكده المستشفى
                 'chronic_disease' => $request->boolean('chronic_disease'),
                 'infection' => $request->boolean('infection'),
                 'recent_donation' => $request->last_donation_date ? true : false,

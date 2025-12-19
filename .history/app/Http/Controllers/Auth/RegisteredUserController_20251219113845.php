@@ -55,7 +55,6 @@ class RegisteredUserController extends Controller
             'has_recent_surgery' => ['nullable', 'boolean'],
             'surgery_date' => ['nullable', 'date', 'before_or_equal:today'],
             'last_donation_date' => ['nullable', 'date', 'before_or_equal:today'],
-            'blood_type' => ['nullable', 'string', 'in:O+,O-,A+,A-,B+,B-,AB+,AB-'],
         ], [
             'chronic_disease.in' => 'عذراً، المتبرعون الذين يعانون من أمراض مزمنة غير مؤهلين للتبرع.',
         ]);
@@ -88,12 +87,10 @@ class RegisteredUserController extends Controller
                 'donor_id' => $donor->id,
                 'weight' => $request->weight,
                 'height' => $request->height,
-                'blood_type' => $request->blood_type,
-                'verified_blood_type' => null,
                 'chronic_disease' => $request->boolean('chronic_disease'),
+                'recent_donation' => $request->boolean('recent_donation'),
                 'infection' => $request->boolean('infection'),
-                'recent_donation' => $request->last_donation_date ? true : false,
-                'has_recent_surgery' => $request->surgery_date ? true : false,
+                'has_recent_surgery' => $request->boolean('has_recent_surgery'),
                 'surgery_date' => $request->surgery_date,
                 'last_donation_date' => $request->last_donation_date,
                 'is_eligible' => $eligibilityData['is_eligible'],

@@ -653,6 +653,7 @@
     color: #dc2626; 
 }
 
+/* تعديل بسيط للتأكد من أن النص لا يغطي الزر */
 input[type="date"] {
     padding-left: 35px; 
 }

@@ -161,6 +161,10 @@ function initClearDateButtons() {
     });
 }
 
+document.addEventListener('DOMContentLoaded', () => {
+    initClearDateButtons(); 
+});
+
 function initHealthProfileChangeListeners() {
     const healthFields = ['weight', 'height', 'chronic_disease', 'infection', 'surgery_date', 'last_donation_date'];
 

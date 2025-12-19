@@ -146,8 +146,7 @@
 
             <!-- Section 1: Basic Measurements -->
             <div style="margin-bottom: 2rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
+              <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
                 القياسات الأساسية
               </h3>
               <div class="form-row">
@@ -168,8 +167,7 @@
 
               <div class="form-row">
                 <div class="form-group full-width">
-                  <label for="blood_type">فصيلة الدم <span
-                      style="color: #999; font-weight: normal;">(اختياري)</span></label>
+                  <label for="blood_type">فصيلة الدم <span style="color: #999; font-weight: normal;">(اختياري)</span></label>
                   <select id="blood_type" name="blood_type">
                     <option value="" selected>لا أعرف / غير متأكد</option>
                     <option value="O+">O+ (موجب)</option>
@@ -189,8 +187,7 @@
 
             <!-- Section 2: Medical History -->
             <div style="margin-bottom: 2rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
+              <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
                 السجل الطبي
               </h3>
               <div class="form-row">
@@ -216,39 +213,20 @@
 
             <!-- Section 3: Donation & Surgery History -->
             <div style="margin-bottom: 2rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
+              <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb;">
                 التبرعات والعمليات الجراحية السابقة
               </h3>
               <div class="form-row">
                 <div class="form-group">
-                  <label for="last_donation_date">تاريخ آخر تبرع <span style="color: #999; font-weight: normal;">(إن
-                      وجد)</span></label>
-
-                  <div class="date-input-wrapper" style="position: relative;">
-                    <input type="date" id="last_donation_date" name="last_donation_date" max="{{ date('Y-m-d') }}"
-                      style="width: 100%;" />
-
-                    <button type="button" class="clear-date-btn" data-target="last_donation_date"
-                      style="display: none;">
-                      ✕
-                    </button>
-                  </div>
-
+                  <label for="last_donation_date">تاريخ آخر تبرع <span style="color: #999; font-weight: normal;">(إن وجد)</span></label>
+                  <input type="date" id="last_donation_date" name="last_donation_date" max="{{ date('Y-m-d') }}" />
                   <span class="helper-text">يجب الانتظار 90 يوم بين التبرعات</span>
                   <span class="error-message"></span>
                 </div>
 
                 <div class="form-group">
-                  <label for="surgery_date">تاريخ آخر عملية جراحية <span style="color: #999; font-weight: normal;">(إن
-                      وجد)</span></label>
-                  <div class="date-input-wrapper" style="position: relative;">
-                    <input type="date" id="surgery_date" name="surgery_date" max="{{ date('Y-m-d') }}"
-                      style="width: 100%;" />
-                    <button type="button" class="clear-date-btn" data-target="surgery_date" style="display: none;">
-                      ✕
-                    </button>
-                  </div>
+                  <label for="surgery_date">تاريخ آخر عملية جراحية <span style="color: #999; font-weight: normal;">(إن وجد)</span></label>
+                  <input type="date" id="surgery_date" name="surgery_date" max="{{ date('Y-m-d') }}" />
                   <span class="helper-text">يجب الانتظار 28 يوم بعد العملية</span>
                   <span class="error-message"></span>
                 </div>
@@ -270,8 +248,7 @@
 
             <!-- Personal Information Section -->
             <div style="margin-bottom: 2.5rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem;">
+              <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem;">
                 <span>👤</span>
                 <span>المعلومات الشخصية</span>
               </h3>
@@ -280,8 +257,7 @@
 
             <!-- Health Information Section -->
             <div style="margin-bottom: 2.5rem;">
-              <h3
-                style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem;">
+              <h3 style="font-size: 1rem; font-weight: 600; color: #374151; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #e5e7eb; display: flex; align-items: center; gap: 0.5rem;">
                 <span>💚</span>
                 <span>الملف الصحي</span>
               </h3>
@@ -294,8 +270,7 @@
                 <div style="display: flex; align-items: flex-start; gap: 1rem;">
                   <div class="info-icon" id="eligibility-review-icon" style="font-size: 1.5rem; flex-shrink: 0;">✓</div>
                   <div class="info-content" style="flex: 1;">
-                    <strong id="eligibility-review-title"
-                      style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">حالة التأهيل</strong>
+                    <strong id="eligibility-review-title" style="font-size: 1.1rem; display: block; margin-bottom: 0.5rem;">حالة التأهيل</strong>
                     <p id="eligibility-review-message" style="margin: 0; line-height: 1.6; color: #4b5563;"></p>
                   </div>
                 </div>
@@ -318,17 +293,14 @@
             </div>
 
             <!-- Terms & Conditions Section -->
-            <div
-              style="padding: 1.5rem; background: #f9fafb; border-radius: 0.5rem; border: 1px solid #e5e7eb; margin-bottom: 2rem;">
+            <div style="padding: 1.5rem; background: #f9fafb; border-radius: 0.5rem; border: 1px solid #e5e7eb; margin-bottom: 2rem;">
               <div class="form-group checkbox-group" style="margin: 0;">
-                <label class="checkbox-label"
-                  style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                <label class="checkbox-label" style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
                   <input type="checkbox" id="termsAgree" name="terms" required style="margin-top: 0.25rem;" />
                   <span class="checkbox-custom" style="margin-top: 0.25rem;"></span>
                   <span class="checkbox-text" style="padding: 0;">
                     أقرّ بأنني قد قرأت ووافقت على
-                    <a href="{{ route('privacy') }}" class="terms-link"
-                      style="color: #dc2626; text-decoration: underline;">الشروط والأحكام</a>
+                    <a href="{{ route('privacy') }}" class="terms-link" style="color: #dc2626; text-decoration: underline;">الشروط والأحكام</a>
                     والسياسات المتعلقة بالبيانات الشخصية
                     <span class="required">*</span>
                   </span>

@@ -636,7 +636,7 @@
 
 .clear-date-btn {
     position: absolute;
-    left: 10px; 
+    left: 10px; /* يظهر على اليسار لأن الموقع عربي RTL */
     top: 50%;
     transform: translateY(-50%);
     background: none;
@@ -650,9 +650,10 @@
 }
 
 .clear-date-btn:hover {
-    color: #dc2626; 
+    color: #dc2626; /* لون أحمر عند التحويم */
 }
 
+/* تعديل بسيط للتأكد من أن النص لا يغطي الزر */
 input[type="date"] {
     padding-left: 35px; 
 }

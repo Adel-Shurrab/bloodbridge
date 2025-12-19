@@ -55,7 +55,6 @@ class RegisteredUserController extends Controller
             'has_recent_surgery' => ['nullable', 'boolean'],
             'surgery_date' => ['nullable', 'date', 'before_or_equal:today'],
             'last_donation_date' => ['nullable', 'date', 'before_or_equal:today'],
-            'blood_type' => ['nullable', 'string', 'in:O+,O-,A+,A-,B+,B-,AB+,AB-'],
         ], [
             'chronic_disease.in' => 'عذراً، المتبرعون الذين يعانون من أمراض مزمنة غير مؤهلين للتبرع.',
         ]);
@@ -88,12 +87,10 @@ class RegisteredUserController extends Controller
                 'donor_id' => $donor->id,
                 'weight' => $request->weight,
                 'height' => $request->height,
-                'blood_type' => $request->blood_type,
-                'verified_blood_type' => null,
                 'chronic_disease' => $request->boolean('chronic_disease'),
+                'recent_donation' => $request->boolean('recent_donation'),
                 'infection' => $request->boolean('infection'),
-                'recent_donation' => $request->last_donation_date ? true : false,
-                'has_recent_surgery' => $request->surgery_date ? true : false,
+                'has_recent_surgery' => $request->boolean('has_recent_surgery'),
                 'surgery_date' => $request->surgery_date,
                 'last_donation_date' => $request->last_donation_date,
                 'is_eligible' => $eligibilityData['is_eligible'],
@@ -114,49 +111,48 @@ class RegisteredUserController extends Controller
      */
     private function checkEligibility($request): array
     {
-        $today = Carbon::now()->startOfDay();
+        $today = Carbon::now();
         $isEligible = true;
         $nextEligibleDate = null;
 
-        // 1. Permanent Disqualifiers
         if ($request->boolean('chronic_disease')) {
             return ['is_eligible' => false, 'next_eligible_date' => null];
         }
 
-        // 2. Physical Stats
+        // 2. Check Physical Stats
         if ($request->weight < 50 || $request->height < 140) {
             $isEligible = false;
         }
 
-        // 3. Infection (Temporary 14 days)
+        // 3. Check Temporary Conditions
         if ($request->boolean('infection')) {
             $isEligible = false;
+            // We set a default 14 day wait or null
             $nextEligibleDate = $today->copy()->addDays(14);
         }
 
-        // 4. Donation Logic (90 Days)
-        if ($request->last_donation_date) {
-            $lastDonation = Carbon::parse($request->last_donation_date)->startOfDay();
-            $daysSince = $lastDonation->diffInDays($today); // Absolute difference
+        // 4. Check Recent Donation (90 Days Rule)
+        if ($request->boolean('recent_donation') && $request->last_donation_date) {
+            $lastDonation = Carbon::parse($request->last_donation_date);
+            $daysSinceDonation = $today->diffInDays($lastDonation);
 
-            // Only punish if WITHIN the window
-            if ($daysSince < 90) {
+            if ($daysSinceDonation < 90) {
                 $isEligible = false;
+                // Use copy() to prevent modifying the original date object
                 $futureDate = $lastDonation->copy()->addDays(90);
 
-                // Keep the furthest date
                 if (!$nextEligibleDate || $futureDate > $nextEligibleDate) {
                     $nextEligibleDate = $futureDate;
                 }
             }
         }
 
-        // 5. Surgery Logic (28 Days)
-        if ($request->surgery_date) {
-            $surgery = Carbon::parse($request->surgery_date)->startOfDay();
-            $daysSince = $surgery->diffInDays($today);
+        // 5. Check Recent Surgery (28 Days Rule)
+        if ($request->boolean('has_recent_surgery') && $request->surgery_date) {
+            $surgery = Carbon::parse($request->surgery_date);
+            $daysSinceSurgery = $today->diffInDays($surgery);
 
-            if ($daysSince < 28) {
+            if ($daysSinceSurgery < 28) {
                 $isEligible = false;
                 $futureDate = $surgery->copy()->addDays(28);
 

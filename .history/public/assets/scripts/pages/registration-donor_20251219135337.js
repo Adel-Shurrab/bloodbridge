@@ -34,14 +34,6 @@ function checkEligibility() {
         isEligible = false;
         ineligibilityReasons.push('الطول أقل من الحد الأدنى (140 سم)');
     }
-    if (lastDonationInput.validity.badInput) {
-        isEligible = false;
-        ineligibilityReasons.push('تاريخ التبرع السابق غير مكتمل');
-    }
-    if (surgeryInput.validity.badInput) {
-        isEligible = false;
-        ineligibilityReasons.push('تاريخ العملية الجراحية غير مكتمل');
-    }
     if (chronicDisease) {
         isEligible = false;
         ineligibilityReasons.push('وجود مرض مزمن');
@@ -131,34 +123,6 @@ function displayEligibilityStatus() {
 
         message.innerHTML = messageText;
     }
-}
-
-function initClearDateButtons() {
-    const clearBtns = document.querySelectorAll('.clear-date-btn');
-
-    clearBtns.forEach(btn => {
-        const inputId = btn.getAttribute('data-target');
-        const input = document.getElementById(inputId);
-
-        const toggleBtn = () => {
-            if (input.value) {
-                btn.style.display = 'block';
-            } else {
-                btn.style.display = 'none';
-            }
-        };
-
-        toggleBtn();
-        input.addEventListener('input', toggleBtn);
-        input.addEventListener('change', toggleBtn);
-
-        btn.addEventListener('click', () => {
-            input.value = '';
-            toggleBtn();
-            clearError(inputId);
-            displayEligibilityStatus();
-        });
-    });
 }
 
 function initHealthProfileChangeListeners() {
@@ -276,7 +240,7 @@ function validateStep(step) {
         const chronicDisease = document.getElementById('chronic_disease').checked;
         const bloodType = document.getElementById('blood_type').value;
         const lastDonationInput = document.getElementById('last_donation_date');
-        const surgeryInput = document.getElementById('surgery_date');
+        const surgeryInput = document.getElementById('surgery_date')
 
         // Clear all errors first
         ['weight', 'height', 'surgery_date', 'last_donation_date'].forEach(clearError);
@@ -618,7 +582,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initPasswordToggle();
     initHealthProfileChangeListeners();
-    initClearDateButtons();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;

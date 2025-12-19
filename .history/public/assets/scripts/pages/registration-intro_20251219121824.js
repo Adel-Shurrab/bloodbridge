@@ -76,39 +76,39 @@ function initOptionSelection() {
 
 // Select option function
 function selectOption(option, selectedCard, otherCard, continueBtn) {
+  // If called without proper parameters (from onclick), get elements from DOM
+  if (!selectedCard || !otherCard || !continueBtn) {
+    selectedCard = selectedCard || document.getElementById('donor-card');
+    otherCard = otherCard || document.getElementById('organization-card');
+    continueBtn = continueBtn || document.getElementById('continueBtn');
+  }
+
+  // Safety check - ensure elements exist before proceeding
+  if (!selectedCard || !otherCard || !continueBtn) {
+    console.error('Required DOM elements not found for selectOption');
+    return;
+  }
+
   selectedOption = option;
 
-  // If called from onclick handler without parameters, get elements from DOM
-  if (!selectedCard) {
-    selectedCard = document.getElementById(option === 'donor' ? 'donor-card' : 'organization-card');
-  }
-  if (!otherCard) {
-    otherCard = document.getElementById(option === 'donor' ? 'organization-card' : 'donor-card');
-  }
-  if (!continueBtn) {
-    continueBtn = document.getElementById('continueBtn');
-  }
-
   // Remove selected class from both cards
-  if (selectedCard) selectedCard.classList.remove('selected');
-  if (otherCard) otherCard.classList.remove('selected');
+  selectedCard.classList.remove('selected');
+  otherCard.classList.remove('selected');
 
   // Add selected class to chosen card with animation
   setTimeout(() => {
-    if (selectedCard) selectedCard.classList.add('selected');
+    selectedCard.classList.add('selected');
   }, 50);
 
   // Enable continue button
-  if (continueBtn) {
-    continueBtn.disabled = false;
-    continueBtn.classList.remove('disabled');
-    
-    // Add pulse animation to continue button
-    continueBtn.style.animation = 'pulse 0.5s';
-    setTimeout(() => {
-      continueBtn.style.animation = '';
-    }, 500);
-  }
+  continueBtn.disabled = false;
+  continueBtn.classList.remove('disabled');
+  
+  // Add pulse animation to continue button
+  continueBtn.style.animation = 'pulse 0.5s';
+  setTimeout(() => {
+    continueBtn.style.animation = '';
+  }, 500);
 
   // Store selection in sessionStorage
   sessionStorage.setItem('userType', option);

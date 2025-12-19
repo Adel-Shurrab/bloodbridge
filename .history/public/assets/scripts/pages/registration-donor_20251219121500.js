@@ -10,8 +10,6 @@ function checkEligibility() {
     const height = parseInt(document.getElementById('height').value) || 0;
     const chronicDisease = document.getElementById('chronic_disease').checked;
     const infection = document.getElementById('infection').checked;
-    const lastDonationInput = document.getElementById('last_donation_date');
-    const surgeryInput = document.getElementById('surgery_date');
 
     // Get raw date values
     const surgeryDateVal = document.getElementById('surgery_date').value;
@@ -33,14 +31,6 @@ function checkEligibility() {
     if (height < 140) {
         isEligible = false;
         ineligibilityReasons.push('الطول أقل من الحد الأدنى (140 سم)');
-    }
-    if (lastDonationInput.validity.badInput) {
-        isEligible = false;
-        ineligibilityReasons.push('تاريخ التبرع السابق غير مكتمل');
-    }
-    if (surgeryInput.validity.badInput) {
-        isEligible = false;
-        ineligibilityReasons.push('تاريخ العملية الجراحية غير مكتمل');
     }
     if (chronicDisease) {
         isEligible = false;
@@ -131,34 +121,6 @@ function displayEligibilityStatus() {
 
         message.innerHTML = messageText;
     }
-}
-
-function initClearDateButtons() {
-    const clearBtns = document.querySelectorAll('.clear-date-btn');
-
-    clearBtns.forEach(btn => {
-        const inputId = btn.getAttribute('data-target');
-        const input = document.getElementById(inputId);
-
-        const toggleBtn = () => {
-            if (input.value) {
-                btn.style.display = 'block';
-            } else {
-                btn.style.display = 'none';
-            }
-        };
-
-        toggleBtn();
-        input.addEventListener('input', toggleBtn);
-        input.addEventListener('change', toggleBtn);
-
-        btn.addEventListener('click', () => {
-            input.value = '';
-            toggleBtn();
-            clearError(inputId);
-            displayEligibilityStatus();
-        });
-    });
 }
 
 function initHealthProfileChangeListeners() {
@@ -275,8 +237,6 @@ function validateStep(step) {
         // Get Checkbox States
         const chronicDisease = document.getElementById('chronic_disease').checked;
         const bloodType = document.getElementById('blood_type').value;
-        const lastDonationInput = document.getElementById('last_donation_date');
-        const surgeryInput = document.getElementById('surgery_date');
 
         // Clear all errors first
         ['weight', 'height', 'surgery_date', 'last_donation_date'].forEach(clearError);
@@ -295,18 +255,6 @@ function validateStep(step) {
             isValid = false;
         } else if (parseInt(height) < 140) {
             showError('height', 'الطول يجب أن يكون 140 سم على الأقل');
-            isValid = false;
-        }
-
-        // Check Last Donation Date
-        if (lastDonationInput.validity.badInput) {
-            showError('last_donation_date', 'يرجى إدخال التاريخ كاملاً أو تركه فارغاً');
-            isValid = false;
-        }
-
-        // Check Surgery Date
-        if (surgeryInput.validity.badInput) {
-            showError('surgery_date', 'يرجى إدخال التاريخ كاملاً أو تركه فارغاً');
             isValid = false;
         }
 
@@ -329,11 +277,8 @@ function validateStep(step) {
             formData.lastDonationDate = document.getElementById('last_donation_date').value;
             formData.bloodType = bloodType;
 
-            // Check eligibility and store result
-            const eligibilityResult = checkEligibility();
-            formData.isEligible = eligibilityResult.isEligible;
-            formData.nextEligibleDate = eligibilityResult.nextEligibleDate;
-            formData.ineligibilityReasons = eligibilityResult.ineligibilityReasons;
+            // Check eligibility (Calculates Scenario 2)
+            checkEligibility();
         }
     } else if (step === 3) {
         // Review & Confirm
@@ -406,10 +351,7 @@ function populateReview() {
             <span class="review-label">الطول</span>
             <span class="review-value">${formData.height} سم</span>
         </div>
-        <div class="review-item">
-            <span class="review-label">فصيلة الدم</span>
-            <span class="review-value">${formData.bloodType ? formData.bloodType : 'غير محدد'}</span>
-        </div>
+        
         <div class="review-item">
             <span class="review-label">مرض مزمن</span>
             <span class="review-value">${formData.chronicDisease ? 'نعم' : 'لا'}</span>
@@ -594,10 +536,6 @@ function showStep(step) {
     document.querySelectorAll('.form-step').forEach((s, index) => {
         s.classList.toggle('active', index + 1 === step);
     });
-
-    // Update progress steps
-    updateProgressSteps();
-
     const prevBtn = document.getElementById('prevBtn');
     const nextBtn = document.getElementById('nextBtn');
     const submitBtn = document.getElementById('submitBtn');
@@ -618,7 +556,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initPasswordToggle();
     initHealthProfileChangeListeners();
-    initClearDateButtons();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;

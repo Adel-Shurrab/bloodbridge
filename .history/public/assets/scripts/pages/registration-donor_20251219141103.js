@@ -152,14 +152,28 @@ function initClearDateButtons() {
         input.addEventListener('input', toggleBtn);
         input.addEventListener('change', toggleBtn);
 
+        // 2. عند الضغط على زر المسح
         btn.addEventListener('click', () => {
+            // مسح القيمة
             input.value = '';
+
+            // إخفاء الزر
             toggleBtn();
+
+            // مسح أي رسائل خطأ سابقة (مثل "يرجى إدخال التاريخ كاملاً")
             clearError(inputId);
+
+            // إعادة فحص الأهلية (ليختفي التحذير الأصفر)
             displayEligibilityStatus();
         });
     });
 }
+
+// لا تنسَ استدعاء الدالة في الـ initialization
+document.addEventListener('DOMContentLoaded', () => {
+    // ... الدوال الأخرى ...
+    initClearDateButtons(); // <--- أضف هذا السطر
+});
 
 function initHealthProfileChangeListeners() {
     const healthFields = ['weight', 'height', 'chronic_disease', 'infection', 'surgery_date', 'last_donation_date'];
@@ -618,7 +632,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavigation();
     initPasswordToggle();
     initHealthProfileChangeListeners();
-    initClearDateButtons();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;
