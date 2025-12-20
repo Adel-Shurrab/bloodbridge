@@ -13,7 +13,7 @@
         </ul>
         <div class="nav-buttons">
             @auth
-                <a href="{{ auth()->user()->getDashboardUrl() }}" class="btn btn-primary">لوحة التحكم</a>
+                <a href="{{ url('/admin') }}" class="btn btn-primary">لوحة التحكم</a>
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
                     <button type="submit" class="btn btn-outline">تسجيل الخروج</button>
@@ -23,8 +23,7 @@
                 <a href="{{ route('register.selection') }}" class="btn btn-primary">حساب جديد</a>
             @endauth
         </div>
-        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="فتح القائمة" aria-expanded="false"
-            aria-controls="mobile-nav">☰</button>
+        <button class="mobile-menu-btn" id="mobile-menu-btn" aria-label="فتح القائمة" aria-expanded="false" aria-controls="mobile-nav">☰</button>
     </div>
 </nav>
 
@@ -39,14 +38,14 @@
     </ul>
     <div class="mobile-nav-buttons">
         @auth
-            <a href="{{ auth()->user()->getDashboardUrl() }}" class="btn btn-primary">لوحة التحكم</a>
+            <a href="{{ url('/dashboard') }}" class="btn btn-primary">لوحة التحكم</a>
             <form method="POST" action="{{ route('logout') }}" style="display: block; width: 100%;">
                 @csrf
                 <button type="submit" class="btn btn-outline" style="width: 100%;">تسجيل الخروج</button>
             </form>
         @else
             <a href="{{ route('login') }}" class="btn btn-outline">تسجيل الدخول</a>
-            <a href="{{ route('register.selection') }}" class="btn btn-primary">حساب جديد</a>
+            <a href="{{ route('register') }}" class="btn btn-primary">حساب جديد</a>
         @endauth
     </div>
 </div>

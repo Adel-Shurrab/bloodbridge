@@ -38,20 +38,6 @@ class User extends Authenticatable implements FilamentUser
         'remember_token',
     ];
 
-    public function getDashboardUrl(): string
-    {
-        $adminRole = app_constant('user.roles.ADMIN');
-        $donorRole = app_constant('user.roles.DONOR');
-        $organizationRole = app_constant('user.roles.ORGANIZATION');
-
-        return match ($this->role) {
-            $adminRole => route('filament.admin.pages.dashboard'),
-            $donorRole => route('filament.donor.pages.dashboard'),
-            $organizationRole => route('filament.organization.pages.dashboard'),
-            default => route('home'),
-        };
-    }
-
     public function canAccessPanel(Panel $panel): bool
     {
         $panelId = $panel->getId();

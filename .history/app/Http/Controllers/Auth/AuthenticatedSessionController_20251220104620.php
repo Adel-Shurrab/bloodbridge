@@ -29,7 +29,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $url = $user->getDashboardUrl();
+        $adminRole = app_constant('user.roles.ADMIN');
+        $donorRole = app_constant('user.roles.DONOR');
+        $organizationRole = app_constant('user.roles.ORGANIZATION');
+
+        $url = match ($user->role) {
+            $adminRole => route('filament.admin.pages.dashboard'),
+            $donorRole => route('filament.donor.pages.dashboard'),
+            $organizationRole => route('filament.organization.pages.dashboard'),
+            default => route('home'),
+        };
 
         return redirect()->intended($url);
     }
