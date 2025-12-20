@@ -9,7 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Panel;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable;
@@ -37,35 +37,6 @@ class User extends Authenticatable implements FilamentUser
         'password',
         'remember_token',
     ];
-
-    public function getDashboardUrl(): string
-    {
-        $adminRole = app_constant('user.roles.ADMIN');
-        $donorRole = app_constant('user.roles.DONOR');
-        $organizationRole = app_constant('user.roles.ORGANIZATION');
-
-        return match ($this->role) {
-            $adminRole => route('filament.admin.pages.dashboard'),
-            $donorRole => route('filament.donor.pages.dashboard'),
-            $organizationRole => route('filament.organization.pages.dashboard'),
-            default => route('home'),
-        };
-    }
-
-    public function canAccessPanel(Panel $panel): bool
-    {
-        $panelId = $panel->getId();
-        $adminRole = app_constant('user.roles.ADMIN');
-        $donorRole = app_constant('user.roles.DONOR');
-        $organizationRole = app_constant('user.roles.ORGANIZATION');
-
-        return match ($panelId) {
-            'admin' => $this->role === $adminRole,
-            'donor' => $this->role === $donorRole,
-            'organization' => $this->role === $organizationRole,
-            default => false,
-        };
-    }
 
     /**
      * Get the attributes that should be cast.

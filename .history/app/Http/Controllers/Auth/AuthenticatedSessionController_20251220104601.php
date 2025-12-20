@@ -29,7 +29,16 @@ class AuthenticatedSessionController extends Controller
         $request->session()->regenerate();
 
         $user = Auth::user();
-        $url = $user->getDashboardUrl();
+        $adminRole = app_constant('user.roles.ADMIN');
+        $donorRole = app_constant('user.roles.DONOR');
+        $organizationRole = app_constant('user.roles.ORGANIZATION');
+
+        $url = match ($user->role) {
+            $adminRole => '/admin',
+            $donorRole => '/donor',
+            $organizationRole => '/organization',
+            default => route('home'),
+        };
 
         return redirect()->intended($url);
     }
