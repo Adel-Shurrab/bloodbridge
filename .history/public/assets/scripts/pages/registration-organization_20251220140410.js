@@ -380,6 +380,18 @@ function showStep(step) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+// Get organization type label
+function getOrganizationTypeLabel(type) {
+    const types = {
+        hospital: "مستشفى",
+        government_clinic: "عيادة حكومية",
+        private_clinic: "عيادة خاصة",
+        blood_bank: "بنك دم",
+        ngo: "منظمة غير حكومية",
+    };
+    return types[type] || type;
+}
+
 // Populate review section
 function populateReview() {
     const organizationInfoReview = document.getElementById("organizationInfoReview");

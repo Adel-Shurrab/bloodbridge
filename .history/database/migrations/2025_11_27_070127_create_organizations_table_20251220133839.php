@@ -24,8 +24,6 @@ return new class extends Migration
             $table->string('responsible_person_name');
             $table->string('responsible_person_position')->nullable();
             $table->string('responsible_person_email')->nullable();
-            $table->string('contact_email')->nullable();
-            $table->string('contact_phone')->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();
             $table->string('street_address')->nullable();

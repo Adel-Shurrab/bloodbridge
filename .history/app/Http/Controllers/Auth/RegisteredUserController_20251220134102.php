@@ -169,8 +169,6 @@ class RegisteredUserController extends Controller
                 'license_document_path' => $licensePath,
                 'responsible_person_name' => $request->adminName,
                 'responsible_person_email' => $request->adminEmail,
-                'contact_email' => $request->contactEmail,
-                'contact_phone' => $request->contactPhone,
                 'street_address' => $request->streetAddress,
                 'city' => $request->city,
                 'state' => $request->state,

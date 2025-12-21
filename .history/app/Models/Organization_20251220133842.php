@@ -13,8 +13,6 @@ class Organization extends Model
         'license_document_path',
         'responsible_person_name',
         'responsible_person_email',
-        'contact_email',
-        'contact_phone',
         'street_address',
         'city',
         'state',

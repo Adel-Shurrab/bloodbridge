@@ -23,12 +23,6 @@ Route::middleware('guest')->group(function () {
         ->name('register.donor');
     Route::post('register/donor', [RegisteredUserController::class, 'storeDonor'])
         ->name('register.donor.store');
-
-    // Organization Registration
-    Route::get('register/organization', [RegisteredUserController::class, 'showOrganizationRegistrationForm'])
-        ->name('register.organization');
-    Route::post('register/organization', [RegisteredUserController::class, 'storeOrganization'])
-        ->name('register.organization.store');
 });
 Route::middleware('auth')->group(function () {
     Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
