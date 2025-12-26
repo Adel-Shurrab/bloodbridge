@@ -48,10 +48,14 @@ class User extends Authenticatable implements FilamentUser
 
     public function getDashboardUrl(): string
     {
+        $adminRole = app_constant('user.roles.ADMIN');
+        $donorRole = app_constant('user.roles.DONOR');
+        $organizationRole = app_constant('user.roles.ORGANIZATION');
+
         return match ($this->role) {
-            self::ROLE_ADMIN => route('filament.admin.pages.dashboard'),
-            self::ROLE_DONOR => route('filament.donor.pages.dashboard'),
-            self::ROLE_ORGANIZATION => route('filament.organization.pages.dashboard'),
+            $adminRole => route('filament.admin.pages.dashboard'),
+            $donorRole => route('filament.donor.pages.dashboard'),
+            $organizationRole => route('filament.organization.pages.dashboard'),
             default => route('home'),
         };
     }
@@ -59,11 +63,14 @@ class User extends Authenticatable implements FilamentUser
     public function canAccessPanel(Panel $panel): bool
     {
         $panelId = $panel->getId();
+        $adminRole = app_constant('user.roles.ADMIN');
+        $donorRole = app_constant('user.roles.DONOR');
+        $organizationRole = app_constant('user.roles.ORGANIZATION');
 
         return match ($panelId) {
-            'admin' => $this->role === self::ROLE_ADMIN,
-            'donor' => $this->role === self::ROLE_DONOR,
-            'organization' => $this->role === self::ROLE_ORGANIZATION,
+            'admin' => $this->role === $adminRole,
+            'donor' => $this->role === $donorRole,
+            'organization' => $this->role === $organizationRole,
             default => false,
         };
     }

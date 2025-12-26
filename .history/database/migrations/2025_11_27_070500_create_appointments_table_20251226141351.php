@@ -3,7 +3,6 @@
 use App\Models\BloodRequest;
 use App\Models\Donor;
 use App\Models\Organization;
-use App\Models\Appointment;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
