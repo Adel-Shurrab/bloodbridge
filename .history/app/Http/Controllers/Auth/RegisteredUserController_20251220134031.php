@@ -70,7 +70,7 @@ class RegisteredUserController extends Controller
             'chronic_disease.in' => 'عذراً، المتبرعون الذين يعانون من أمراض مزمنة غير مؤهلين للتبرع.',
         ]);
 
-        $user = DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request) {
             // A. Create the Login User
             $user = User::create([
                 'name' => $request->name,
@@ -113,12 +113,10 @@ class RegisteredUserController extends Controller
             // D. Trigger Events & Login
             event(new Registered($user));
             Auth::login($user);
-
-            return $user;
         });
 
         // 3. Redirect
-        return redirect()->to($user->getDashboardUrl());
+        return redirect(route('login', absolute: false));
     }
 
     public function storeOrganization(Request $request): RedirectResponse
@@ -169,8 +167,6 @@ class RegisteredUserController extends Controller
                 'license_document_path' => $licensePath,
                 'responsible_person_name' => $request->adminName,
                 'responsible_person_email' => $request->adminEmail,
-                'contact_email' => $request->contactEmail,
-                'contact_phone' => $request->contactPhone,
                 'street_address' => $request->streetAddress,
                 'city' => $request->city,
                 'state' => $request->state,
@@ -254,4 +250,4 @@ class RegisteredUserController extends Controller
             'next_eligible_date' => $nextEligibleDate,
         ];
     }
-}
+

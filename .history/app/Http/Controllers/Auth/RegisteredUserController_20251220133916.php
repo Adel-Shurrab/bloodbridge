@@ -70,7 +70,7 @@ class RegisteredUserController extends Controller
             'chronic_disease.in' => 'عذراً، المتبرعون الذين يعانون من أمراض مزمنة غير مؤهلين للتبرع.',
         ]);
 
-        $user = DB::transaction(function () use ($request) {
+        DB::transaction(function () use ($request) {
             // A. Create the Login User
             $user = User::create([
                 'name' => $request->name,
@@ -113,12 +113,10 @@ class RegisteredUserController extends Controller
             // D. Trigger Events & Login
             event(new Registered($user));
             Auth::login($user);
-
-            return $user;
         });
 
         // 3. Redirect
-        return redirect()->to($user->getDashboardUrl());
+        return redirect(route('login', absolute: false));
     }
 
     public function storeOrganization(Request $request): RedirectResponse
@@ -169,8 +167,6 @@ class RegisteredUserController extends Controller
                 'license_document_path' => $licensePath,
                 'responsible_person_name' => $request->adminName,
                 'responsible_person_email' => $request->adminEmail,
-                'contact_email' => $request->contactEmail,
-                'contact_phone' => $request->contactPhone,
                 'street_address' => $request->streetAddress,
                 'city' => $request->city,
                 'state' => $request->state,
@@ -253,5 +249,31 @@ class RegisteredUserController extends Controller
             'is_eligible' => $isEligible,
             'next_eligible_date' => $nextEligibleDate,
         ];
+    }
+
+    /**
+     * Handle an incoming registration request.
+     *
+     * @throws \Illuminate\Validation\ValidationException
+     */
+    public function store(Request $request): RedirectResponse
+    {
+        $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'lowercase', 'email', 'max:255', 'unique:' . User::class],
+            'password' => ['required', 'confirmed', Rules\Password::defaults()],
+        ]);
+
+        $user = User::create([
+            'name' => $request->name,
+            'email' => $request->email,
+            'password' => Hash::make($request->password),
+        ]);
+
+        event(new Registered($user));
+
+        Auth::login($user);
+
+        return redirect(route('login', absolute: false));
     }
 }

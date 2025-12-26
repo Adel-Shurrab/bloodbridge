@@ -182,8 +182,7 @@ function validateStep(step) {
     if (step === 1) {
         // Organization Information
         const organizationName = document.getElementById("organizationName").value.trim();
-        const organizationDescription = document.getElementById("organizationDescription").value.trim();
-
+        // ["organizationName"].forEach(clearError); // Changed to avoid error if organizationType is missing
         clearError("organizationName");
 
         if (!organizationName) {
@@ -191,8 +190,14 @@ function validateStep(step) {
             isValid = false;
         }
 
+        if (!organizationType) {
+            showError("organizationType", "نوع المنظمة مطلوب");
+            isValid = false;
+        }
+
         if (isValid) {
             formData.organizationName = organizationName;
+            // formData.organizationType = organizationType; // Removed
             formData.organizationDescription = organizationDescription;
         }
     } else if (step === 2) {
@@ -380,6 +385,18 @@ function showStep(step) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+// Get organization type label
+function getOrganizationTypeLabel(type) {
+    const types = {
+        hospital: "مستشفى",
+        government_clinic: "عيادة حكومية",
+        private_clinic: "عيادة خاصة",
+        blood_bank: "بنك دم",
+        ngo: "منظمة غير حكومية",
+    };
+    return types[type] || type;
+}
+
 // Populate review section
 function populateReview() {
     const organizationInfoReview = document.getElementById("organizationInfoReview");
@@ -389,8 +406,8 @@ function populateReview() {
     // Organization Information
     organizationInfoReview.innerHTML = `
         <div class="review-item">
-            <span class="review-label">اسم المنظمة</span>
-            <span class="review-value">${formData.organizationName}</span>
+            # <span class="review-label">اسم المنظمة</span>
+            # <span class="review-value">${formData.organizationName}</span>
         </div>
         ${formData.organizationDescription
             ? `

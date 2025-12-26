@@ -191,8 +191,14 @@ function validateStep(step) {
             isValid = false;
         }
 
+        if (!organizationType) {
+            showError("organizationType", "نوع المنظمة مطلوب");
+            isValid = false;
+        }
+
         if (isValid) {
             formData.organizationName = organizationName;
+            // formData.organizationType = organizationType; // Removed
             formData.organizationDescription = organizationDescription;
         }
     } else if (step === 2) {
@@ -378,6 +384,18 @@ function showStep(step) {
 
     // Scroll to top
     window.scrollTo({ top: 0, behavior: "smooth" });
+}
+
+// Get organization type label
+function getOrganizationTypeLabel(type) {
+    const types = {
+        hospital: "مستشفى",
+        government_clinic: "عيادة حكومية",
+        private_clinic: "عيادة خاصة",
+        blood_bank: "بنك دم",
+        ngo: "منظمة غير حكومية",
+    };
+    return types[type] || type;
 }
 
 // Populate review section

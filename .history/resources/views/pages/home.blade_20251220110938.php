@@ -126,6 +126,6 @@
     <section class="cta">
         <h2>ابدأ رحلة الإنقاذ اليوم</h2>
         <p>كل تبرع يمكن أن ينقذ حياة ثلاثة أشخاص. انضم إلينا الآن وكن بطلاً</p>
-        <a href="{{ route('register.selection') }}" class="btn">سجل الآن</a>
+        <a href="ro" class="btn">سجل الآن</a>
     </section>
 </x-layout>

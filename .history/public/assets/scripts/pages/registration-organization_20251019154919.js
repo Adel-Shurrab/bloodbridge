@@ -182,17 +182,25 @@ function validateStep(step) {
     if (step === 1) {
         // Organization Information
         const organizationName = document.getElementById("organizationName").value.trim();
+        const organizationType = document.getElementById("organizationType").value;
         const organizationDescription = document.getElementById("organizationDescription").value.trim();
 
-        clearError("organizationName");
+        // Clear all errors first
+        ["organizationName", "organizationType"].forEach(clearError);
 
         if (!organizationName) {
             showError("organizationName", "اسم المنظمة مطلوب");
             isValid = false;
         }
 
+        if (!organizationType) {
+            showError("organizationType", "نوع المنظمة مطلوب");
+            isValid = false;
+        }
+
         if (isValid) {
             formData.organizationName = organizationName;
+            formData.organizationType = organizationType;
             formData.organizationDescription = organizationDescription;
         }
     } else if (step === 2) {
@@ -253,10 +261,10 @@ function validateStep(step) {
         const adminName = document.getElementById("adminName").value.trim();
         const adminEmail = document.getElementById("adminEmail").value.trim();
         const adminPassword = document.getElementById("adminPassword").value;
-        const adminPassword_confirmation = document.getElementById("adminPassword_confirmation").value;
+        const confirmAdminPassword = document.getElementById("confirmAdminPassword").value;
 
         // Clear all errors first
-        ["licenseNumber", "licenseUpload", "adminName", "adminEmail", "adminPassword", "adminPassword_confirmation"].forEach(clearError);
+        ["licenseNumber", "licenseUpload", "adminName", "adminEmail", "adminPassword", "confirmAdminPassword"].forEach(clearError);
 
         if (!licenseNumber) {
             showError("licenseNumber", "رقم الترخيص مطلوب");
@@ -289,11 +297,11 @@ function validateStep(step) {
             isValid = false;
         }
 
-        if (!adminPassword_confirmation) {
-            showError("adminPassword_confirmation", "تأكيد كلمة السر مطلوب");
+        if (!confirmAdminPassword) {
+            showError("confirmAdminPassword", "تأكيد كلمة السر مطلوب");
             isValid = false;
-        } else if (adminPassword !== adminPassword_confirmation) {
-            showError("adminPassword_confirmation", "كلمة السر غير متطابقة");
+        } else if (adminPassword !== confirmAdminPassword) {
+            showError("confirmAdminPassword", "كلمة السر غير متطابقة");
             isValid = false;
         }
 
@@ -380,6 +388,18 @@ function showStep(step) {
     window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
+// Get organization type label
+function getOrganizationTypeLabel(type) {
+    const types = {
+        hospital: "مستشفى",
+        government_clinic: "عيادة حكومية",
+        private_clinic: "عيادة خاصة",
+        blood_bank: "بنك دم",
+        ngo: "منظمة غير حكومية",
+    };
+    return types[type] || type;
+}
+
 // Populate review section
 function populateReview() {
     const organizationInfoReview = document.getElementById("organizationInfoReview");
@@ -391,6 +411,10 @@ function populateReview() {
         <div class="review-item">
             <span class="review-label">اسم المنظمة</span>
             <span class="review-value">${formData.organizationName}</span>
+        </div>
+        <div class="review-item">
+            <span class="review-label">نوع المنظمة</span>
+            <span class="review-value">${getOrganizationTypeLabel(formData.organizationType)}</span>
         </div>
         ${formData.organizationDescription
             ? `
@@ -460,16 +484,40 @@ function initNavigation() {
         updateProgressSteps();
     });
 
-    submitBtn.addEventListener("click", (e) => {
+    submitBtn.addEventListener("click", async (e) => {
+        e.preventDefault();
+
         if (!validateStep(currentStep)) {
-            e.preventDefault();
             return;
         }
 
         // Show loading
         submitBtn.classList.add("loading");
-        // We don't disable here because we want the form to actually submit
-        // submitBtn.disabled = true; 
+        submitBtn.disabled = true;
+
+        // Simulate API call
+        try {
+            await simulateRegistration();
+
+            // Show success modal
+            const successModal = document.getElementById("successModal");
+            successModal.classList.add("show");
+
+            // Reset form
+            document.getElementById("organizationRegistrationForm").reset();
+            currentStep = 1;
+            showStep(currentStep);
+            updateProgressSteps();
+
+            // Reset file upload
+            document.getElementById("fileUploadDisplay").style.display = "flex";
+            document.getElementById("fileSelected").style.display = "none";
+        } catch (error) {
+            alert("حدث خطأ أثناء التسجيل. يرجى المحاولة مرة أخرى.");
+        } finally {
+            submitBtn.classList.remove("loading");
+            submitBtn.disabled = false;
+        }
     });
 }
 
