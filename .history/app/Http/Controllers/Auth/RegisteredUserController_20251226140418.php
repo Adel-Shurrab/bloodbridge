@@ -13,8 +13,6 @@ use Illuminate\Validation\Rules;
 use Illuminate\View\View;
 use App\Models\Donor;
 use App\Models\DonorHealthProfile;
-use App\Models\Organization;
-use App\Models\BloodRequest;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
