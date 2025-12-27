@@ -103,16 +103,17 @@
                         </div>
 
                         <div class="form-row">
-                            <div class="form-group full-width">
-                                <label for="governorate_id">المحافظة <span class="required">*</span></label>
-                                <select id="governorate_id" name="governorate_id" required>
-                                    <option value="" disabled selected>اختر المحافظة</option>
-                                    @foreach ($governorates as $gov)
-                                        <option value="{{ $gov->id }}" {{ old('governorate_id') == $gov->id ? 'selected' : '' }}>
-                                            {{ $gov->name }}
-                                        </option>
-                                    @endforeach
-                                </select>
+                            <div class="form-group">
+                                <label for="city">اسم المدينة <span class="required">*</span></label>
+                                <input type="text" id="city" name="city" value="{{ old('city') }}" required
+                                    placeholder="غزة" />
+                                <span class="error-message"></span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="state">المحافظة/الولاية <span class="required">*</span></label>
+                                <input type="text" id="state" name="state" value="{{ old('state') }}" required
+                                    placeholder="قطاع غزة" />
                                 <span class="error-message"></span>
                             </div>
                         </div>

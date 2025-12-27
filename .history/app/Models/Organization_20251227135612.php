@@ -26,7 +26,6 @@ class Organization extends Model
     protected $fillable = [
         'user_id',
         'org_name',
-        'governorate_id',
         'description',
         'license_number',
         'license_document_path',
@@ -35,13 +34,10 @@ class Organization extends Model
         'contact_email',
         'contact_phone',
         'street_address',
+        'city',
+        'state',
         'approval_status',
     ];
-
-    public function governorate()
-    {
-        return $this->belongsTo(Governorate::class);
-    }
 
     public function user()
     {

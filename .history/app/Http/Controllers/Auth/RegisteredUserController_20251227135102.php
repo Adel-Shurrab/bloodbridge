@@ -33,8 +33,7 @@ class RegisteredUserController extends Controller
      */
     public function showDonorRegistrationForm(): View
     {
-        $governorates = \App\Models\Governorate::all();
-        return view('auth.register-donor', compact('governorates'));
+        return view('auth.register-donor');
     }
 
     /**
@@ -42,8 +41,7 @@ class RegisteredUserController extends Controller
      */
     public function showOrganizationRegistrationForm(): View
     {
-        $governorates = \App\Models\Governorate::all();
-        return view('auth.register-organization', compact('governorates'));
+        return view('auth.register-organization');
     }
 
     /**
@@ -59,7 +57,7 @@ class RegisteredUserController extends Controller
             'national_id' => ['required', 'string', 'digits:9', 'unique:' . Donor::class],
             'birth_date' => ['required', 'date', 'before_or_equal:-18 years'],
             'gender' => ['required', 'in:' . implode(',', Donor::GENDER_LIST)],
-            'governorate_id' => ['required', 'exists:governorates,id'],
+            'city' => ['required', 'string', 'max:255'],
             // Health Profile Fields
             'weight' => ['required', 'integer', 'min:50', 'max:200'],
             'height' => ['required', 'integer', 'min:140', 'max:220'],
@@ -88,10 +86,10 @@ class RegisteredUserController extends Controller
             // B. Create the Profile linked to that User
             $donor = Donor::create([
                 'user_id' => $user->id,
-                'governorate_id' => $request->governorate_id,
                 'national_id' => $request->national_id,
                 'birth_date' => $request->birth_date,
                 'gender' => $request->gender,
+                'city' => $request->city,
                 'blood_type' => null,
             ]);
 
@@ -136,7 +134,9 @@ class RegisteredUserController extends Controller
             'contactEmail' => ['required', 'string', 'email', 'max:255'], // إيميل التواصل العام
             'contactPhone' => ['required', 'string', 'max:20'],
             'streetAddress' => ['required', 'string', 'max:255'],
-            'governorate_id' => ['required', 'exists:governorates,id'],
+            'city' => ['required', 'string', 'max:255'],
+            'state' => ['required', 'string', 'max:255'],
+            'postalCode' => ['nullable', 'string', 'max:20'],
 
             // Admin & License Info
             'licenseNumber' => ['required', 'string', 'max:50', 'unique:organizations,license_number'],
@@ -167,8 +167,6 @@ class RegisteredUserController extends Controller
             $organization = Organization::create([
                 'user_id' => $user->id,
                 'org_name' => $request->organizationName,
-                'description' => $request->organizationDescription,
-                'governorate_id' => $request->governorate_id,
                 'license_number' => $request->licenseNumber,
                 'license_document_path' => $licensePath,
                 'responsible_person_name' => $request->adminName,
@@ -176,6 +174,8 @@ class RegisteredUserController extends Controller
                 'contact_email' => $request->contactEmail,
                 'contact_phone' => $request->contactPhone,
                 'street_address' => $request->streetAddress,
+                'city' => $request->city,
+                'state' => $request->state,
                 'approval_status' => Organization::STATUS_PENDING,
             ]);
 
