@@ -137,46 +137,34 @@ function initConditionalInputs() {
     const recentDonationSelect = document.getElementById('recent_donation');
     const lastDonationDateContainer = document.getElementById('last_donation_date_container');
     const lastDonationDateInput = document.getElementById('last_donation_date');
+
+    recentDonationSelect.addEventListener('change', () => {
+        if (recentDonationSelect.value === '1') {
+            lastDonationDateContainer.style.display = 'block';
+            lastDonationDateInput.required = true;
+        } else {
+            lastDonationDateContainer.style.display = 'none';
+            lastDonationDateInput.required = false;
+            lastDonationDateInput.value = '';
+        }
+        displayEligibilityStatus();
+    });
+
     const hasRecentSurgerySelect = document.getElementById('has_recent_surgery');
     const surgeryDateContainer = document.getElementById('surgery_date_container');
     const surgeryDateInput = document.getElementById('surgery_date');
 
-    const updateVisibility = () => {
-        try {
-            if (recentDonationSelect && lastDonationDateContainer && lastDonationDateInput) {
-                if (recentDonationSelect.value === '1') {
-                    lastDonationDateContainer.style.display = 'block';
-                    lastDonationDateInput.required = true;
-                } else {
-                    lastDonationDateContainer.style.display = 'none';
-                    lastDonationDateInput.required = false;
-                    lastDonationDateInput.value = '';
-                }
-            }
-
-            if (hasRecentSurgerySelect && surgeryDateContainer && surgeryDateInput) {
-                if (hasRecentSurgerySelect.value === '1') {
-                    surgeryDateContainer.style.display = 'block';
-                    surgeryDateInput.required = true;
-                } else {
-                    surgeryDateContainer.style.display = 'none';
-                    surgeryDateInput.required = false;
-                    surgeryDateInput.value = '';
-                }
-            }
-
-            // Update eligibility status after visibility changes
-            displayEligibilityStatus();
-        } catch (e) {
-            console.error('Error in updateVisibility:', e);
+    hasRecentSurgerySelect.addEventListener('change', () => {
+        if (hasRecentSurgerySelect.value === '1') {
+            surgeryDateContainer.style.display = 'block';
+            surgeryDateInput.required = true;
+        } else {
+            surgeryDateContainer.style.display = 'none';
+            surgeryDateInput.required = false;
+            surgeryDateInput.value = '';
         }
-    };
-
-    if (recentDonationSelect) recentDonationSelect.addEventListener('change', updateVisibility);
-    if (hasRecentSurgerySelect) hasRecentSurgerySelect.addEventListener('change', updateVisibility);
-
-    // Initial state
-    updateVisibility();
+        displayEligibilityStatus();
+    });
 }
 
 function initClearDateButtons() {
@@ -587,15 +575,19 @@ function validateAge(birthDate) {
 function showError(fieldId, message) {
     const field = document.getElementById(fieldId);
     if (field) {
-        const parent = field.closest('.form-group');
-        const errorElement = parent ? parent.querySelector('.error-message') : null;
-
-        field.classList.add('error');
-        if (errorElement) {
-            errorElement.textContent = message;
-            errorElement.style.display = 'block';
+        // For checkboxes in labels, find the parent form-group
+        let errorElement;
+        if (field.type === 'checkbox') {
+            let parent = field.closest('.form-group');
+            if (parent) {
+                errorElement = parent.querySelector('.error-message');
+            }
+        } else {
+            errorElement = field.parentElement.querySelector('.error-message');
         }
 
+        field.classList.add('error');
+        if (errorElement) errorElement.textContent = message;
         if (field.type !== 'checkbox') {
             field.style.animation = 'shake 0.5s';
             setTimeout(() => { field.style.animation = ''; }, 500);
@@ -605,13 +597,18 @@ function showError(fieldId, message) {
 function clearError(fieldId) {
     const field = document.getElementById(fieldId);
     if (field) {
-        const parent = field.closest('.form-group');
-        const errorElement = parent ? parent.querySelector('.error-message') : null;
+        let errorElement;
+        if (field.type === 'checkbox') {
+            let parent = field.closest('.form-group');
+            if (parent) {
+                errorElement = parent.querySelector('.error-message');
+            }
+        } else {
+            errorElement = field.parentElement.querySelector('.error-message');
+        }
 
         field.classList.remove('error');
-        if (errorElement) {
-            errorElement.textContent = '';
-        }
+        if (errorElement) errorElement.textContent = '';
     }
 }
 function initPasswordToggle() {
@@ -668,12 +665,11 @@ function showStep(step) {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Call conditional inputs first to set up initial visibility
-    initConditionalInputs();
     initNavigation();
     initPasswordToggle();
     initHealthProfileChangeListeners();
     initClearDateButtons();
+    initConditionalInputs();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;

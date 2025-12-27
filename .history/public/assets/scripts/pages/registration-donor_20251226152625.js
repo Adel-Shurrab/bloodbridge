@@ -137,46 +137,50 @@ function initConditionalInputs() {
     const recentDonationSelect = document.getElementById('recent_donation');
     const lastDonationDateContainer = document.getElementById('last_donation_date_container');
     const lastDonationDateInput = document.getElementById('last_donation_date');
+
+    const toggleDonation = () => {
+        if (!recentDonationSelect || !lastDonationDateContainer || !lastDonationDateInput) return;
+
+        if (recentDonationSelect.value === '1') {
+            lastDonationDateContainer.style.display = 'block';
+            lastDonationDateInput.required = true;
+        } else {
+            lastDonationDateContainer.style.display = 'none';
+            lastDonationDateInput.required = false;
+            lastDonationDateInput.value = '';
+        }
+        displayEligibilityStatus();
+    };
+
+    if (recentDonationSelect) {
+        recentDonationSelect.addEventListener('change', toggleDonation);
+        // Initial state
+        toggleDonation();
+    }
+
     const hasRecentSurgerySelect = document.getElementById('has_recent_surgery');
     const surgeryDateContainer = document.getElementById('surgery_date_container');
     const surgeryDateInput = document.getElementById('surgery_date');
 
-    const updateVisibility = () => {
-        try {
-            if (recentDonationSelect && lastDonationDateContainer && lastDonationDateInput) {
-                if (recentDonationSelect.value === '1') {
-                    lastDonationDateContainer.style.display = 'block';
-                    lastDonationDateInput.required = true;
-                } else {
-                    lastDonationDateContainer.style.display = 'none';
-                    lastDonationDateInput.required = false;
-                    lastDonationDateInput.value = '';
-                }
-            }
+    const toggleSurgery = () => {
+        if (!hasRecentSurgerySelect || !surgeryDateContainer || !surgeryDateInput) return;
 
-            if (hasRecentSurgerySelect && surgeryDateContainer && surgeryDateInput) {
-                if (hasRecentSurgerySelect.value === '1') {
-                    surgeryDateContainer.style.display = 'block';
-                    surgeryDateInput.required = true;
-                } else {
-                    surgeryDateContainer.style.display = 'none';
-                    surgeryDateInput.required = false;
-                    surgeryDateInput.value = '';
-                }
-            }
-
-            // Update eligibility status after visibility changes
-            displayEligibilityStatus();
-        } catch (e) {
-            console.error('Error in updateVisibility:', e);
+        if (hasRecentSurgerySelect.value === '1') {
+            surgeryDateContainer.style.display = 'block';
+            surgeryDateInput.required = true;
+        } else {
+            surgeryDateContainer.style.display = 'none';
+            surgeryDateInput.required = false;
+            surgeryDateInput.value = '';
         }
+        displayEligibilityStatus();
     };
 
-    if (recentDonationSelect) recentDonationSelect.addEventListener('change', updateVisibility);
-    if (hasRecentSurgerySelect) hasRecentSurgerySelect.addEventListener('change', updateVisibility);
-
-    // Initial state
-    updateVisibility();
+    if (hasRecentSurgerySelect) {
+        hasRecentSurgerySelect.addEventListener('change', toggleSurgery);
+        // Initial state
+        toggleSurgery();
+    }
 }
 
 function initClearDateButtons() {
@@ -668,12 +672,11 @@ function showStep(step) {
 
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
-    // Call conditional inputs first to set up initial visibility
-    initConditionalInputs();
     initNavigation();
     initPasswordToggle();
     initHealthProfileChangeListeners();
     initClearDateButtons();
+    initConditionalInputs();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;
