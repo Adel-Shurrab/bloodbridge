@@ -200,12 +200,12 @@ function validateStep(step) {
         const contactEmail = document.getElementById("contactEmail").value.trim();
         const contactPhone = document.getElementById("contactPhone").value.trim();
         const streetAddress = document.getElementById("streetAddress").value.trim();
-        const governorateSelect = document.getElementById("governorate_id");
-        const governorateId = governorateSelect.value;
-        const governorateName = governorateSelect.options[governorateSelect.selectedIndex]?.text || '';
+        const city = document.getElementById("city").value.trim();
+        const state = document.getElementById("state").value.trim();
+        const postalCode = document.getElementById("postalCode").value.trim();
 
         // Clear all errors first
-        ["contactEmail", "contactPhone", "streetAddress", "governorate_id"].forEach(clearError);
+        ["contactEmail", "contactPhone", "streetAddress", "city", "state"].forEach(clearError);
 
         if (!contactEmail) {
             showError("contactEmail", "البريد الإلكتروني مطلوب");
@@ -224,12 +224,17 @@ function validateStep(step) {
         }
 
         if (!streetAddress) {
-            showError("streetAddress", "العنوان مطلوب");
+            showError("streetAddress", "اسم الشارع مطلوب");
             isValid = false;
         }
 
-        if (!governorateId) {
-            showError("governorate_id", "المحافظة مطلوبة");
+        if (!city) {
+            showError("city", "اسم المدينة مطلوب");
+            isValid = false;
+        }
+
+        if (!state) {
+            showError("state", "المحافظة/الولاية مطلوبة");
             isValid = false;
         }
 
@@ -409,7 +414,7 @@ function populateReview() {
         </div>
         <div class="review-item" style="grid-column: 1 / -1;">
             <span class="review-label">العنوان</span>
-            <span class="review-value">${formData.streetAddress}, ${formData.governorateName}</span>
+            <span class="review-value">${formData.streetAddress}, ${formData.city}, ${formData.state}</span>
         </div>
     `;
 

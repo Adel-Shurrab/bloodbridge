@@ -15,10 +15,12 @@ return new class extends Migration
     {
         Schema::create('organizations', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('governorate_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignIdFor(User::class)
+                ->constrained()
+                ->onDelete('cascade');
+
             $table->string('org_name')->index();
-            $table->text('description')->nullable();
+            $table->text('description')->nullable()
             $table->string('license_number')->unique()->index();
             $table->string('license_document_path')->nullable();
             $table->string('responsible_person_name');
@@ -29,6 +31,8 @@ return new class extends Migration
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();
             $table->string('street_address')->nullable();
+            $table->string('city')->nullable()->index();
+            $table->string('state')->nullable();
             $table->time('opening_time')->nullable();
             $table->time('closing_time')->nullable();
             $table->string('working_days')->nullable();
@@ -38,7 +42,7 @@ return new class extends Migration
             $table->unsignedInteger('total_request_created')->default(Organization::DEFAULT_TOTAL_REQUEST_CREATED);
             $table->unsignedInteger('total_donation_verified')->default(Organization::DEFAULT_TOTAL_DONATION_VERIFIED);
             $table->enum('approval_status', Organization::STATUS_LIST)->default(Organization::DEFAULT_APPROVAL_STATUS)->index();
-            $table->foreignIdFor(User::class, 'approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignIdFor(User::class, 'approved_by')->nullable()->constrained()->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

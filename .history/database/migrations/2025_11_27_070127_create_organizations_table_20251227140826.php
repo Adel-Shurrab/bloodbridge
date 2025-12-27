@@ -38,7 +38,7 @@ return new class extends Migration
             $table->unsignedInteger('total_request_created')->default(Organization::DEFAULT_TOTAL_REQUEST_CREATED);
             $table->unsignedInteger('total_donation_verified')->default(Organization::DEFAULT_TOTAL_DONATION_VERIFIED);
             $table->enum('approval_status', Organization::STATUS_LIST)->default(Organization::DEFAULT_APPROVAL_STATUS)->index();
-            $table->foreignIdFor(User::class, 'approved_by')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignIdFor(User::class, 'approved_by')->nullable()->constrained()->nullOnDelete();
             $table->softDeletes();
             $table->timestamps();
         });

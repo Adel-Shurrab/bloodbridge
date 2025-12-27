@@ -15,8 +15,7 @@ return new class extends Migration
     {
         Schema::create('donors', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->cascadeOnDelete();
-            $table->foreignId('governorate_id')->nullable()->constrained()->nullOnDelete();
+            $table->foreignId('governorate_id')->nullable()->after('user_id')->constrained()->nullOnDelete();
             $table->string('national_id', 9)->unique()->index()->comment('National/ID number');
             $table->enum('gender', Donor::GENDER_LIST)->index();
             $table->date('birth_date')->nullable()->index();
