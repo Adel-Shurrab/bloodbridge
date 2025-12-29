@@ -223,17 +223,6 @@ function validateStep(step) {
             isValid = false;
         }
 
-        if (!isOpen247Val) {
-            if (!openingTime) {
-                showError("opening_time", "وقت الافتتاح مطلوب");
-                isValid = false;
-            }
-            if (!closingTime) {
-                showError("closing_time", "وقت الإغلاق مطلوب");
-                isValid = false;
-            }
-        }
-
         if (workingDays.length === 0) {
             // We need a way to show error for working_days. 
             // The showError function expects an ID, but working_days doesn't have one on a single element.

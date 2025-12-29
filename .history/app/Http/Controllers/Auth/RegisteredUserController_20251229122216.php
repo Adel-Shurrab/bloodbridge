@@ -127,29 +127,25 @@ class RegisteredUserController extends Controller
 
     public function storeOrganization(Request $request): RedirectResponse
     {
-        $request->validate([
-            // Organization Info
-            'organizationName' => ['required', 'string', 'max:255'],
-            'organizationDescription' => ['nullable', 'string', 'max:1000'],
-            'opening_time' => ['required_unless:is_24_hours,1', 'nullable', 'date_format:H:i'],
-            'closing_time' => ['required_unless:is_24_hours,1', 'nullable', 'date_format:H:i', 'after:opening_time'],
-            'working_days' => ['required', 'array', 'min:1'],
-            'working_days.*' => ['string'],
-            'daily_capacity' => ['required', 'integer', 'min:1'],
-
-            // Contact Info
-            'contactEmail' => ['required', 'string', 'email', 'max:255', 'unique:organizations,contact_email'],
-            'contactPhone' => ['required', 'string', 'max:20', 'unique:organizations,contact_phone'],
-            'streetAddress' => ['required', 'string', 'max:255'],
-            'governorate_id' => ['required', 'exists:governorates,id'],
-
-            // Admin & License Info
-            'licenseNumber' => ['required', 'string', 'max:50', 'unique:organizations,license_number'],
-            'licenseUpload' => ['required', 'file', 'mimes:pdf,jpg,jpeg,png', 'max:5120'], // Max 5MB
-            'adminName' => ['required', 'string', 'max:255'],
-            'responsible_person_position' => ['required', 'string', 'max:255'],
-            'adminEmail' => ['required', 'string', 'email', 'max:255', 'unique:users,email'], // إيميل تسجيل الدخول
-            'adminPassword' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [
+            // Custom messages if needed, otherwise rely on attributes
+        ], [
+            'organizationName' => 'اسم المنظمة',
+            'organizationDescription' => 'وصف المنظمة',
+            'opening_time' => 'وقت الافتتاح',
+            'closing_time' => 'وقت الإغلاق',
+            'working_days' => 'أيام العمل',
+            'daily_capacity' => 'القدرة الاستيعابية اليومية',
+            'contactEmail' => 'البريد الإلكتروني للتواصل',
+            'contactPhone' => 'رقم الجوال للتواصل',
+            'streetAddress' => 'اسم الشارع',
+            'governorate_id' => 'المحافظة',
+            'licenseNumber' => 'رقم الترخيص',
+            'licenseUpload' => 'ملف الترخيص',
+            'adminName' => 'اسم المسؤول الإداري',
+            'responsible_person_position' => 'المسمى الوظيفي للمسؤول',
+            'adminEmail' => 'البريد الإلكتروني للمسؤول',
+            'adminPassword' => 'كلمة السر',
         ]);
 
         $user = DB::transaction(function () use ($request) {

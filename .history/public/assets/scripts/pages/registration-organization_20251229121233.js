@@ -216,37 +216,10 @@ function validateStep(step) {
         const workingDays = Array.from(document.querySelectorAll('input[name="working_days[]"]:checked')).map(cb => cb.value);
         const organizationDescription = document.getElementById("organizationDescription").value.trim();
 
-        ["organizationName", "opening_time", "closing_time", "daily_capacity", "working_days"].forEach(clearError);
+        ["organizationName", "opening_time", "closing_time", "daily_capacity"].forEach(clearError);
 
         if (!organizationName) {
             showError("organizationName", "اسم المنظمة مطلوب");
-            isValid = false;
-        }
-
-        if (!isOpen247Val) {
-            if (!openingTime) {
-                showError("opening_time", "وقت الافتتاح مطلوب");
-                isValid = false;
-            }
-            if (!closingTime) {
-                showError("closing_time", "وقت الإغلاق مطلوب");
-                isValid = false;
-            }
-        }
-
-        if (workingDays.length === 0) {
-            // We need a way to show error for working_days. 
-            // The showError function expects an ID, but working_days doesn't have one on a single element.
-            // I'll add an ID to the container or just use a dummy one if I can't find it.
-            // Let's check if there is an error-message span near the checkbox grid.
-            const workingDaysContainer = document.querySelector('.checkbox-grid').closest('.form-group');
-            if (workingDaysContainer) {
-                const errorSpan = workingDaysContainer.querySelector('.error-message');
-                if (errorSpan) {
-                    errorSpan.textContent = "يرجى اختيار يوم عمل واحد على الأقل";
-                    workingDaysContainer.classList.add('error');
-                }
-            }
             isValid = false;
         }
 

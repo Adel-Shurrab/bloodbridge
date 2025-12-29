@@ -126,7 +126,6 @@ class RegisteredUserController extends Controller
     }
 
     public function storeOrganization(Request $request): RedirectResponse
-    {
         $request->validate([
             // Organization Info
             'organizationName' => ['required', 'string', 'max:255'],
@@ -150,6 +149,23 @@ class RegisteredUserController extends Controller
             'responsible_person_position' => ['required', 'string', 'max:255'],
             'adminEmail' => ['required', 'string', 'email', 'max:255', 'unique:users,email'], // إيميل تسجيل الدخول
             'adminPassword' => ['required', 'confirmed', Rules\Password::defaults()],
+        ], [], [
+            'organizationName' => 'اسم المنظمة',
+            'organizationDescription' => 'وصف المنظمة',
+            'opening_time' => 'وقت الافتتاح',
+            'closing_time' => 'وقت الإغلاق',
+            'working_days' => 'أيام العمل',
+            'daily_capacity' => 'القدرة الاستيعابية اليومية',
+            'contactEmail' => 'البريد الإلكتروني للتواصل',
+            'contactPhone' => 'رقم الجوال للتواصل',
+            'streetAddress' => 'اسم الشارع',
+            'governorate_id' => 'المحافظة',
+            'licenseNumber' => 'رقم الترخيص',
+            'licenseUpload' => 'ملف الترخيص',
+            'adminName' => 'اسم المسؤول الإداري',
+            'responsible_person_position' => 'المسمى الوظيفي للمسؤول',
+            'adminEmail' => 'البريد الإلكتروني المسؤول',
+            'adminPassword' => 'كلمة السر',
         ]);
 
         $user = DB::transaction(function () use ($request) {

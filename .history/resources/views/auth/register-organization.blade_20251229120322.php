@@ -34,23 +34,22 @@
             </div>
 
             <div class="form-container">
+                @if ($errors->any())
+                    <div class="info-box" style="background: #fee2e2; border-color: #ef4444; margin-bottom: 1.5rem;">
+                        <div class="info-content">
+                            <strong style="color: #b91c1c;">يرجى تصحيح الأخطاء التالية:</strong>
+                            <ul style="margin: 0; padding-right: 1rem; color: #b91c1c;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
+
                 <form id="organizationRegistrationForm" method="POST"
                     action="{{ route('register.organization.store') }}" enctype="multipart/form-data">
                     @csrf
-
-                    @if ($errors->any())
-                        <div class="info-box" style="background: #fee2e2; border-color: #ef4444; margin-bottom: 2rem;">
-                            <div class="info-icon">⚠️</div>
-                            <div class="info-content">
-                                <strong style="color: #b91c1c;">يرجى تصحيح الأخطاء التالية لتقديم الطلب:</strong>
-                                <ul style="margin: 0.5rem 1rem 0 0; padding: 0; color: #b91c1c; font-size: 0.95rem;">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    @endif
 
                     <div class="form-step active" id="step1">
                         <h2 class="step-title">معلومات المنظمة</h2>
@@ -59,47 +58,29 @@
                             <div class="form-group full-width">
                                 <label for="organizationName">اسم المنظمة <span class="required">*</span></label>
                                 <input type="text" id="organizationName" name="organizationName"
-                                    value="{{ old('organizationName') }}" placeholder="مستشفى المجتمع العام" />
+                                    value="{{ old('organizationName') }}" required placeholder="مستشفى المجتمع العام" />
+                                <span class="error-message"></span>
+                            </div>
+                        </div>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="opening_time">وقت الافتتاح</label>
+                                <input type="time" id="opening_time" name="opening_time"
+                                    value="{{ old('opening_time') }}" />
+                                <span class="error-message"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="closing_time">وقت الإغلاق</label>
+                                <input type="time" id="closing_time" name="closing_time"
+                                    value="{{ old('closing_time') }}" />
                                 <span class="error-message"></span>
                             </div>
                         </div>
 
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label class="checkbox-label inline">
-                                    <input type="checkbox" id="isOpen247" name="is_24_hours" value="1" />
-                                    <span class="checkbox-custom"></span>
-                                    <span class="checkbox-text">تعمل المنظمة على مدار 24 ساعة (24/7)</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <div id="operatingHoursContainer">
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="opening_time">وقت الافتتاح <span class="required">*</span></label>
-                                    <input type="time" id="opening_time" name="opening_time"
-                                        value="{{ old('opening_time') }}" />
-                                    <span class="error-message"></span>
-                                </div>
-                                <div class="form-group">
-                                    <label for="closing_time">وقت الإغلاق <span class="required">*</span></label>
-                                    <input type="time" id="closing_time" name="closing_time"
-                                        value="{{ old('closing_time') }}" />
-                                    <span class="error-message"></span>
-                                </div>
-                            </div>
-                            <div class="info-box mini" style="margin: 0 0 1.5rem 0; padding: 0.75rem 1rem;">
-                                <div class="info-icon">💡</div>
-                                <div class="info-content">
-                                    <p style="font-size: 0.85rem;">تزويدنا بساعات العمل يساعد المتبرعين على اختيار الوقت المناسب لزيارتكم.</p>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group full-width">
-                                <label>أيام العمل <span class="required">*</span></label>
+                                <label>أيام العمل</label>
                                 <div class="checkbox-grid">
                                     @php
                                         $days = [
@@ -127,11 +108,11 @@
 
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label for="daily_capacity">القدرة الاستيعابية اليومية (عدد المتبرعين) <span class="required">*</span></label>
+                                <label for="daily_capacity">القدرة الاستيعابية اليومية (عدد المتبرعين)</label>
                                 <input type="number" id="daily_capacity" name="daily_capacity"
-                                    value="{{ old('daily_capacity') }}" min="1" placeholder="مثال: 50" />
+                                    value="{{ old('daily_capacity', 0) }}" min="0" />
                                 <span class="error-message"></span>
-                                <span class="helper-text">العدد التقديري للمتبرعين الذين يمكن للمؤسسة استقبالهم يومياً. إدخال هذا الرقم يساعدنا في تنظيم تدفق المتبرعين.</span>
+                                <span class="helper-text">العدد التقديري للمتبرعين الذين يمكن للمؤسسة استقبالهم يومياً</span>
                             </div>
                         </div>
 
@@ -153,14 +134,14 @@
                                 <label for="contactEmail">البريد الإلكتروني للتواصل <span
                                         class="required">*</span></label>
                                 <input type="email" id="contactEmail" name="contactEmail"
-                                    value="{{ old('contactEmail') }}" placeholder="contact@organization.com" />
+                                    value="{{ old('contactEmail') }}" required placeholder="contact@organization.com" />
                                 <span class="error-message"></span>
                             </div>
 
                             <div class="form-group">
                                 <label for="contactPhone">رقم الجوال للتواصل <span class="required">*</span></label>
                                 <input type="tel" id="contactPhone" name="contactPhone"
-                                    value="{{ old('contactPhone') }}" placeholder="0599xxxxxx" />
+                                    value="{{ old('contactPhone') }}" required placeholder="0599xxxxxx" />
                                 <span class="error-message"></span>
                             </div>
                         </div>
@@ -169,7 +150,7 @@
                             <div class="form-group full-width">
                                 <label for="streetAddress">اسم الشارع <span class="required">*</span></label>
                                 <input type="text" id="streetAddress" name="streetAddress"
-                                    value="{{ old('streetAddress') }}" placeholder="123 الشارع الرئيسي" />
+                                    value="{{ old('streetAddress') }}" required placeholder="123 الشارع الرئيسي" />
                                 <span class="error-message"></span>
                             </div>
                         </div>
@@ -177,7 +158,7 @@
                         <div class="form-row">
                             <div class="form-group full-width">
                                 <label for="governorate_id">المحافظة <span class="required">*</span></label>
-                                <select id="governorate_id" name="governorate_id">
+                                <select id="governorate_id" name="governorate_id" required>
                                     <option value="" disabled selected>اختر المحافظة</option>
                                     @foreach ($governorates as $gov)
                                         <option value="{{ $gov->id }}" {{ old('governorate_id') == $gov->id ? 'selected' : '' }}>
@@ -198,7 +179,7 @@
                             <div class="form-group">
                                 <label for="licenseNumber">رقم الترخيص الرسمي <span class="required">*</span></label>
                                 <input type="text" id="licenseNumber" name="licenseNumber"
-                                    value="{{ old('licenseNumber') }}" placeholder="LIC-123456789" />
+                                    value="{{ old('licenseNumber') }}" required placeholder="LIC-123456789" />
                                 <span class="error-message"></span>
                             </div>
 
@@ -206,7 +187,7 @@
                                 <label for="licenseUpload">تحميل الرخصة <span class="required">*</span></label>
                                 <div class="file-upload-wrapper">
                                     <input type="file" id="licenseUpload" name="licenseUpload"
-                                        accept=".pdf,.jpg,.jpeg,.png" class="file-input" />
+                                        accept=".pdf,.jpg,.jpeg,.png" required class="file-input" />
                                     <div class="file-upload-display" id="fileUploadDisplay">
                                         <div class="file-icon">📄</div>
                                         <div class="file-text">
@@ -227,7 +208,7 @@
                             <div class="form-group">
                                 <label for="adminName">اسم جهة الاتصال الإدارية <span class="required">*</span></label>
                                 <input type="text" id="adminName" name="adminName" value="{{ old('adminName') }}"
-                                    placeholder="أحمد محمد" />
+                                    required placeholder="أحمد محمد" />
                                 <span class="error-message"></span>
                             </div>
 
@@ -235,7 +216,7 @@
                                 <label for="responsible_person_position">المسمى الوظيفي <span
                                         class="required">*</span></label>
                                 <input type="text" id="responsible_person_position" name="responsible_person_position"
-                                    value="{{ old('responsible_person_position') }}"
+                                    value="{{ old('responsible_person_position') }}" required
                                     placeholder="مدير العلاقات العامة" />
                                 <span class="error-message"></span>
                             </div>
@@ -246,7 +227,7 @@
                                 <label for="adminEmail">البريد الإلكتروني للمسؤول <span
                                         class="required">*</span></label>
                                 <input type="email" id="adminEmail" name="adminEmail" value="{{ old('adminEmail') }}"
-                                    placeholder="admin@organization.com" />
+                                    required placeholder="admin@organization.com" />
                                 <span class="error-message"></span>
                             </div>
                         </div>
@@ -255,7 +236,7 @@
                             <div class="form-group">
                                 <label for="adminPassword">كلمة السر <span class="required">*</span></label>
                                 <div class="password-input">
-                                    <input type="password" id="adminPassword" name="adminPassword"
+                                    <input type="password" id="adminPassword" name="adminPassword" required
                                         placeholder="••••••••" />
                                     <button type="button" class="toggle-password" data-target="adminPassword">
                                         <span class="eye-icon">👁️</span>
@@ -270,7 +251,7 @@
                                         class="required">*</span></label>
                                 <div class="password-input">
                                     <input type="password" id="adminPassword_confirmation"
-                                        name="adminPassword_confirmation" placeholder="••••••••" />
+                                        name="adminPassword_confirmation" required placeholder="••••••••" />
                                     <button type="button" class="toggle-password"
                                         data-target="adminPassword_confirmation">
                                         <span class="eye-icon">👁️</span>

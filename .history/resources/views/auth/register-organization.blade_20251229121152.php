@@ -34,23 +34,22 @@
             </div>
 
             <div class="form-container">
+                @if ($errors->any())
+                    <div class="info-box" style="background: #fee2e2; border-color: #ef4444; margin-bottom: 1.5rem;">
+                        <div class="info-content">
+                            <strong style="color: #b91c1c;">يرجى تصحيح الأخطاء التالية:</strong>
+                            <ul style="margin: 0; padding-right: 1rem; color: #b91c1c;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
+
                 <form id="organizationRegistrationForm" method="POST"
                     action="{{ route('register.organization.store') }}" enctype="multipart/form-data">
                     @csrf
-
-                    @if ($errors->any())
-                        <div class="info-box" style="background: #fee2e2; border-color: #ef4444; margin-bottom: 2rem;">
-                            <div class="info-icon">⚠️</div>
-                            <div class="info-content">
-                                <strong style="color: #b91c1c;">يرجى تصحيح الأخطاء التالية لتقديم الطلب:</strong>
-                                <ul style="margin: 0.5rem 1rem 0 0; padding: 0; color: #b91c1c; font-size: 0.95rem;">
-                                    @foreach ($errors->all() as $error)
-                                        <li>{{ $error }}</li>
-                                    @endforeach
-                                </ul>
-                            </div>
-                        </div>
-                    @endif
 
                     <div class="form-step active" id="step1">
                         <h2 class="step-title">معلومات المنظمة</h2>
@@ -77,13 +76,13 @@
                         <div id="operatingHoursContainer">
                             <div class="form-row">
                                 <div class="form-group">
-                                    <label for="opening_time">وقت الافتتاح <span class="required">*</span></label>
+                                    <label for="opening_time">وقت الافتتاح</label>
                                     <input type="time" id="opening_time" name="opening_time"
                                         value="{{ old('opening_time') }}" />
                                     <span class="error-message"></span>
                                 </div>
                                 <div class="form-group">
-                                    <label for="closing_time">وقت الإغلاق <span class="required">*</span></label>
+                                    <label for="closing_time">وقت الإغلاق</label>
                                     <input type="time" id="closing_time" name="closing_time"
                                         value="{{ old('closing_time') }}" />
                                     <span class="error-message"></span>
@@ -99,7 +98,7 @@
 
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label>أيام العمل <span class="required">*</span></label>
+                                <label>أيام العمل</label>
                                 <div class="checkbox-grid">
                                     @php
                                         $days = [

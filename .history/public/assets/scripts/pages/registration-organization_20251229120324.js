@@ -117,31 +117,6 @@ function initFileUpload() {
     }
 }
 
-// 24/7 Toggle functionality
-function initOpen247() {
-    const isOpen247 = document.getElementById("isOpen247");
-    const operatingHoursContainer = document.getElementById("operatingHoursContainer");
-    const openingTimeInput = document.getElementById("opening_time");
-    const closingTimeInput = document.getElementById("closing_time");
-
-    if (isOpen247 && operatingHoursContainer) {
-        isOpen247.addEventListener("change", function () {
-            if (this.checked) {
-                operatingHoursContainer.style.display = "none";
-                openingTimeInput.value = "";
-                closingTimeInput.value = "";
-            } else {
-                operatingHoursContainer.style.display = "block";
-            }
-        });
-
-        // Initialize state
-        if (isOpen247.checked) {
-            operatingHoursContainer.style.display = "none";
-        }
-    }
-}
-
 // Form validation functions
 function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -209,57 +184,23 @@ function validateStep(step) {
     if (step === 1) {
         // Organization Information
         const organizationName = document.getElementById("organizationName").value.trim();
-        const isOpen247Val = document.getElementById("isOpen247").checked;
         const openingTime = document.getElementById("opening_time").value;
         const closingTime = document.getElementById("closing_time").value;
         const dailyCapacity = document.getElementById("daily_capacity").value;
         const workingDays = Array.from(document.querySelectorAll('input[name="working_days[]"]:checked')).map(cb => cb.value);
         const organizationDescription = document.getElementById("organizationDescription").value.trim();
 
-        ["organizationName", "opening_time", "closing_time", "daily_capacity", "working_days"].forEach(clearError);
+        ["organizationName", "opening_time", "closing_time", "daily_capacity"].forEach(clearError);
 
         if (!organizationName) {
             showError("organizationName", "اسم المنظمة مطلوب");
             isValid = false;
         }
 
-        if (!isOpen247Val) {
-            if (!openingTime) {
-                showError("opening_time", "وقت الافتتاح مطلوب");
-                isValid = false;
-            }
-            if (!closingTime) {
-                showError("closing_time", "وقت الإغلاق مطلوب");
-                isValid = false;
-            }
-        }
-
-        if (workingDays.length === 0) {
-            // We need a way to show error for working_days. 
-            // The showError function expects an ID, but working_days doesn't have one on a single element.
-            // I'll add an ID to the container or just use a dummy one if I can't find it.
-            // Let's check if there is an error-message span near the checkbox grid.
-            const workingDaysContainer = document.querySelector('.checkbox-grid').closest('.form-group');
-            if (workingDaysContainer) {
-                const errorSpan = workingDaysContainer.querySelector('.error-message');
-                if (errorSpan) {
-                    errorSpan.textContent = "يرجى اختيار يوم عمل واحد على الأقل";
-                    workingDaysContainer.classList.add('error');
-                }
-            }
-            isValid = false;
-        }
-
-        if (!dailyCapacity || parseInt(dailyCapacity) <= 0) {
-            showError("daily_capacity", "القدرة الاستيعابية مطلوبة ويجب أن تكون أكبر من 0");
-            isValid = false;
-        }
-
         if (isValid) {
             formData.organizationName = organizationName;
-            formData.isOpen247 = isOpen247Val;
-            formData.openingTime = isOpen247Val ? null : openingTime;
-            formData.closingTime = isOpen247Val ? null : closingTime;
+            formData.openingTime = openingTime;
+            formData.closingTime = closingTime;
             formData.dailyCapacity = dailyCapacity;
             formData.workingDays = workingDays;
             formData.organizationDescription = organizationDescription;
@@ -456,12 +397,6 @@ function populateReview() {
     const contactInfoReview = document.getElementById("contactInfoReview");
     const adminInfoReview = document.getElementById("adminInfoReview");
 
-    const getWorkingHoursText = () => {
-        if (formData.isOpen247) return "تعمل على مدار 24 ساعة (24/7)";
-        if (formData.openingTime && formData.closingTime) return `${formData.openingTime} - ${formData.closingTime}`;
-        return "غير محدد";
-    };
-
     // Organization Information
     organizationInfoReview.innerHTML = `
         <div class="review-item">
@@ -470,7 +405,7 @@ function populateReview() {
         </div>
         <div class="review-item">
             <span class="review-label">مواعيد العمل</span>
-            <span class="review-value">${getWorkingHoursText()}</span>
+            <span class="review-value">${formData.openingTime && formData.closingTime ? `${formData.openingTime} - ${formData.closingTime}` : "غير محدد"}</span>
         </div>
         <div class="review-item">
             <span class="review-label">أيام العمل</span>
@@ -582,7 +517,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initPasswordToggle();
     initFileUpload();
     initNavigation();
-    initOpen247();
     showStep(currentStep);
     updateProgressSteps();
 

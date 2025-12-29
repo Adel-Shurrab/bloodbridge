@@ -131,9 +131,9 @@ class RegisteredUserController extends Controller
             // Organization Info
             'organizationName' => ['required', 'string', 'max:255'],
             'organizationDescription' => ['nullable', 'string', 'max:1000'],
-            'opening_time' => ['required_unless:is_24_hours,1', 'nullable', 'date_format:H:i'],
-            'closing_time' => ['required_unless:is_24_hours,1', 'nullable', 'date_format:H:i', 'after:opening_time'],
-            'working_days' => ['required', 'array', 'min:1'],
+            'opening_time' => ['nullable', 'date_format:H:i'],
+            'closing_time' => ['nullable', 'date_format:H:i'],
+            'working_days' => ['nullable', 'array'],
             'working_days.*' => ['string'],
             'daily_capacity' => ['required', 'integer', 'min:1'],
 

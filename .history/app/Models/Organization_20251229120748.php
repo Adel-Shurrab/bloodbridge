@@ -38,6 +38,7 @@ class Organization extends Model
         'street_address',
         'opening_time',
         'closing_time',
+        'is_24_hours',
         'working_days',
         'daily_capacity',
         'approval_status',
