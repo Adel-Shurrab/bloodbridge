@@ -117,31 +117,6 @@ function initFileUpload() {
     }
 }
 
-// 24/7 Toggle functionality
-function initOpen247() {
-    const isOpen247 = document.getElementById("isOpen247");
-    const operatingHoursContainer = document.getElementById("operatingHoursContainer");
-    const openingTimeInput = document.getElementById("opening_time");
-    const closingTimeInput = document.getElementById("closing_time");
-
-    if (isOpen247 && operatingHoursContainer) {
-        isOpen247.addEventListener("change", function () {
-            if (this.checked) {
-                operatingHoursContainer.style.display = "none";
-                openingTimeInput.value = "";
-                closingTimeInput.value = "";
-            } else {
-                operatingHoursContainer.style.display = "block";
-            }
-        });
-
-        // Initialize state
-        if (isOpen247.checked) {
-            operatingHoursContainer.style.display = "none";
-        }
-    }
-}
-
 // Form validation functions
 function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -216,37 +191,10 @@ function validateStep(step) {
         const workingDays = Array.from(document.querySelectorAll('input[name="working_days[]"]:checked')).map(cb => cb.value);
         const organizationDescription = document.getElementById("organizationDescription").value.trim();
 
-        ["organizationName", "opening_time", "closing_time", "daily_capacity", "working_days"].forEach(clearError);
+        ["organizationName", "opening_time", "closing_time", "daily_capacity"].forEach(clearError);
 
         if (!organizationName) {
             showError("organizationName", "اسم المنظمة مطلوب");
-            isValid = false;
-        }
-
-        if (!isOpen247Val) {
-            if (!openingTime) {
-                showError("opening_time", "وقت الافتتاح مطلوب");
-                isValid = false;
-            }
-            if (!closingTime) {
-                showError("closing_time", "وقت الإغلاق مطلوب");
-                isValid = false;
-            }
-        }
-
-        if (workingDays.length === 0) {
-            // We need a way to show error for working_days. 
-            // The showError function expects an ID, but working_days doesn't have one on a single element.
-            // I'll add an ID to the container or just use a dummy one if I can't find it.
-            // Let's check if there is an error-message span near the checkbox grid.
-            const workingDaysContainer = document.querySelector('.checkbox-grid').closest('.form-group');
-            if (workingDaysContainer) {
-                const errorSpan = workingDaysContainer.querySelector('.error-message');
-                if (errorSpan) {
-                    errorSpan.textContent = "يرجى اختيار يوم عمل واحد على الأقل";
-                    workingDaysContainer.classList.add('error');
-                }
-            }
             isValid = false;
         }
 
@@ -582,7 +530,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initPasswordToggle();
     initFileUpload();
     initNavigation();
-    initOpen247();
     showStep(currentStep);
     updateProgressSteps();
 

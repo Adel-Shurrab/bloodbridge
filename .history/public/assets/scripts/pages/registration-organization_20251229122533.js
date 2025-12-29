@@ -368,6 +368,7 @@ function validateStep(step) {
 
         if (isValid) {
             formData.licenseNumber = licenseNumber;
+            formData.licenseFile = licenseUpload.files[0];
             formData.adminName = adminName;
             formData.responsiblePersonPosition = responsiblePersonPosition;
             formData.adminEmail = adminEmail;
@@ -515,7 +516,11 @@ function populateReview() {
         </div>
         <div class="review-item">
             <span class="review-label">الرخصة المحملة</span>
-            <span class="review-value">${formData.licenseFile ? formData.licenseFile.name : "غير محدد"}</span>
+            <span class="review-value">
+                ${formData.licenseFile
+            ? `${formData.licenseFile.name} <a href="${URL.createObjectURL(formData.licenseFile)}" target="_blank" style="color: var(--primary-color); text-decoration: underline; margin-right: 10px;">(عرض الملف)</a>`
+            : "غير محدد"}
+            </span>
         </div>
         <div class="review-item">
             <span class="review-label">اسم المسؤول</span>

@@ -117,31 +117,6 @@ function initFileUpload() {
     }
 }
 
-// 24/7 Toggle functionality
-function initOpen247() {
-    const isOpen247 = document.getElementById("isOpen247");
-    const operatingHoursContainer = document.getElementById("operatingHoursContainer");
-    const openingTimeInput = document.getElementById("opening_time");
-    const closingTimeInput = document.getElementById("closing_time");
-
-    if (isOpen247 && operatingHoursContainer) {
-        isOpen247.addEventListener("change", function () {
-            if (this.checked) {
-                operatingHoursContainer.style.display = "none";
-                openingTimeInput.value = "";
-                closingTimeInput.value = "";
-            } else {
-                operatingHoursContainer.style.display = "block";
-            }
-        });
-
-        // Initialize state
-        if (isOpen247.checked) {
-            operatingHoursContainer.style.display = "none";
-        }
-    }
-}
-
 // Form validation functions
 function validateEmail(email) {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -162,8 +137,7 @@ function showError(fieldId, message) {
     const field = document.getElementById(fieldId);
     if (!field) return;
 
-    const parent = field.closest(".form-group");
-    const errorElement = parent ? parent.querySelector(".error-message") : null;
+    const errorElement = field.parentElement.querySelector(".error-message");
 
     field.classList.add("error");
     if (errorElement) {
@@ -182,8 +156,7 @@ function clearError(fieldId) {
     const field = document.getElementById(fieldId);
     if (!field) return;
 
-    const parent = field.closest(".form-group");
-    const errorElement = parent ? parent.querySelector(".error-message") : null;
+    const errorElement = field.parentElement.querySelector(".error-message");
 
     field.classList.remove("error");
     if (errorElement) {
@@ -209,59 +182,17 @@ function validateStep(step) {
     if (step === 1) {
         // Organization Information
         const organizationName = document.getElementById("organizationName").value.trim();
-        const isOpen247Val = document.getElementById("isOpen247").checked;
-        const openingTime = document.getElementById("opening_time").value;
-        const closingTime = document.getElementById("closing_time").value;
-        const dailyCapacity = document.getElementById("daily_capacity").value;
-        const workingDays = Array.from(document.querySelectorAll('input[name="working_days[]"]:checked')).map(cb => cb.value);
         const organizationDescription = document.getElementById("organizationDescription").value.trim();
 
-        ["organizationName", "opening_time", "closing_time", "daily_capacity", "working_days"].forEach(clearError);
+        clearError("organizationName");
 
         if (!organizationName) {
             showError("organizationName", "اسم المنظمة مطلوب");
             isValid = false;
         }
 
-        if (!isOpen247Val) {
-            if (!openingTime) {
-                showError("opening_time", "وقت الافتتاح مطلوب");
-                isValid = false;
-            }
-            if (!closingTime) {
-                showError("closing_time", "وقت الإغلاق مطلوب");
-                isValid = false;
-            }
-        }
-
-        if (workingDays.length === 0) {
-            // We need a way to show error for working_days. 
-            // The showError function expects an ID, but working_days doesn't have one on a single element.
-            // I'll add an ID to the container or just use a dummy one if I can't find it.
-            // Let's check if there is an error-message span near the checkbox grid.
-            const workingDaysContainer = document.querySelector('.checkbox-grid').closest('.form-group');
-            if (workingDaysContainer) {
-                const errorSpan = workingDaysContainer.querySelector('.error-message');
-                if (errorSpan) {
-                    errorSpan.textContent = "يرجى اختيار يوم عمل واحد على الأقل";
-                    workingDaysContainer.classList.add('error');
-                }
-            }
-            isValid = false;
-        }
-
-        if (!dailyCapacity || parseInt(dailyCapacity) <= 0) {
-            showError("daily_capacity", "القدرة الاستيعابية مطلوبة ويجب أن تكون أكبر من 0");
-            isValid = false;
-        }
-
         if (isValid) {
             formData.organizationName = organizationName;
-            formData.isOpen247 = isOpen247Val;
-            formData.openingTime = isOpen247Val ? null : openingTime;
-            formData.closingTime = isOpen247Val ? null : closingTime;
-            formData.dailyCapacity = dailyCapacity;
-            formData.workingDays = workingDays;
             formData.organizationDescription = organizationDescription;
         }
     } else if (step === 2) {
@@ -314,13 +245,12 @@ function validateStep(step) {
         const licenseNumber = document.getElementById("licenseNumber").value.trim();
         const licenseUpload = document.getElementById("licenseUpload");
         const adminName = document.getElementById("adminName").value.trim();
-        const responsiblePersonPosition = document.getElementById("responsible_person_position").value.trim();
         const adminEmail = document.getElementById("adminEmail").value.trim();
         const adminPassword = document.getElementById("adminPassword").value;
         const adminPassword_confirmation = document.getElementById("adminPassword_confirmation").value;
 
         // Clear all errors first
-        ["licenseNumber", "licenseUpload", "adminName", "responsible_person_position", "adminEmail", "adminPassword", "adminPassword_confirmation"].forEach(clearError);
+        ["licenseNumber", "licenseUpload", "adminName", "adminEmail", "adminPassword", "adminPassword_confirmation"].forEach(clearError);
 
         if (!licenseNumber) {
             showError("licenseNumber", "رقم الترخيص مطلوب");
@@ -334,11 +264,6 @@ function validateStep(step) {
 
         if (!adminName) {
             showError("adminName", "اسم جهة الاتصال مطلوب");
-            isValid = false;
-        }
-
-        if (!responsiblePersonPosition) {
-            showError("responsible_person_position", "المسمى الوظيفي مطلوب");
             isValid = false;
         }
 
@@ -369,7 +294,6 @@ function validateStep(step) {
         if (isValid) {
             formData.licenseNumber = licenseNumber;
             formData.adminName = adminName;
-            formData.responsiblePersonPosition = responsiblePersonPosition;
             formData.adminEmail = adminEmail;
             formData.adminPassword = adminPassword;
         }
@@ -456,29 +380,11 @@ function populateReview() {
     const contactInfoReview = document.getElementById("contactInfoReview");
     const adminInfoReview = document.getElementById("adminInfoReview");
 
-    const getWorkingHoursText = () => {
-        if (formData.isOpen247) return "تعمل على مدار 24 ساعة (24/7)";
-        if (formData.openingTime && formData.closingTime) return `${formData.openingTime} - ${formData.closingTime}`;
-        return "غير محدد";
-    };
-
     // Organization Information
     organizationInfoReview.innerHTML = `
         <div class="review-item">
             <span class="review-label">اسم المنظمة</span>
             <span class="review-value">${formData.organizationName}</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">مواعيد العمل</span>
-            <span class="review-value">${getWorkingHoursText()}</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">أيام العمل</span>
-            <span class="review-value">${formData.workingDays && formData.workingDays.length > 0 ? formData.workingDays.join(", ") : "غير محدد"}</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">القدرة الاستيعابية</span>
-            <span class="review-value">${formData.dailyCapacity || 0} متبرع يومياً</span>
         </div>
         ${formData.organizationDescription
             ? `
@@ -520,10 +426,6 @@ function populateReview() {
         <div class="review-item">
             <span class="review-label">اسم المسؤول</span>
             <span class="review-value">${formData.adminName}</span>
-        </div>
-        <div class="review-item">
-            <span class="review-label">المسمى الوظيفي</span>
-            <span class="review-value">${formData.responsiblePersonPosition}</span>
         </div>
         <div class="review-item">
             <span class="review-label">البريد الإلكتروني للمسؤول</span>
@@ -582,7 +484,6 @@ document.addEventListener("DOMContentLoaded", () => {
     initPasswordToggle();
     initFileUpload();
     initNavigation();
-    initOpen247();
     showStep(currentStep);
     updateProgressSteps();
 

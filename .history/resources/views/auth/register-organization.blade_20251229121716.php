@@ -34,6 +34,19 @@
             </div>
 
             <div class="form-container">
+                @if ($errors->any())
+                    <div class="info-box" style="background: #fee2e2; border-color: #ef4444; margin-bottom: 1.5rem;">
+                        <div class="info-content">
+                            <strong style="color: #b91c1c;">يرجى تصحيح الأخطاء التالية:</strong>
+                            <ul style="margin: 0; padding-right: 1rem; color: #b91c1c;">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
+                        </div>
+                    </div>
+                @endif
+
                 <form id="organizationRegistrationForm" method="POST"
                     action="{{ route('register.organization.store') }}" enctype="multipart/form-data">
                     @csrf
