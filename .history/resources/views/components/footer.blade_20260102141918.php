@@ -18,8 +18,7 @@
                     <li><a href="{{ route('home') }}">الرئيسية</a></li>
                     <li><a href="{{ route('about') }}">من نحن</a></li>
                     <li><a href="{{ route('contact') }}">اتصل بنا</a></li>
-                    <li><a href="javascript:void(0)" @click.prevent="$dispatch('open-modal', 'privacyModal')">سياسة
-                            الخصوصية</a></li>
+                    <li><a href="#" @click.prevent="$dispatch('open-modal', 'privacyModal')">سياسة الخصوصية</a></li>
                     <li><a href="#">شروط الخدمة</a></li>
                 </ul>
             </div>

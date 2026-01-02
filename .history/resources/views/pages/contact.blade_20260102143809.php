@@ -45,7 +45,7 @@
                         </div>
                         <div class="form-group checkbox">
                             <input type="checkbox" id="privacy" name="privacy" required aria-required="true" />
-                            <label for="privacy">أوافق على <a href="javascript:void(0)"
+                            <label for="privacy">أوافق على <a href="#"
                                     @click.prevent="$dispatch('open-modal', 'privacyModal')">سياسة الخصوصية</a> <span
                                     class="required">*</span></label>
                         </div>
