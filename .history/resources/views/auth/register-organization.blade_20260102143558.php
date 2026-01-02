@@ -312,7 +312,7 @@
                             <label class="checkbox-label">
                                 <input type="checkbox" id="termsAgree" name="termsAgree" required value="1" />
                                 <span class="checkbox-custom"></span>
-                                <span class="checkbox-text">لقد قرأت ووافقت على <a href="javascript:void(0)" @click.prevent="$dispatch('open-modal', 'privacyModal')" class="terms-link">الشروط
+                                <span class="checkbox-text">لقد قرأت ووافقت على <a href="#" @click.prevent="$dispatch('open-modal', 'privacyModal')" class="terms-link">الشروط
                                         والأحكام</a> <span class="required">*</span></span>
                             </label>
                             <span class="error-message"></span>

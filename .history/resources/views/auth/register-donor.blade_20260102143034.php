@@ -352,8 +352,8 @@
                   <span class="checkbox-custom" style="margin-top: 0.25rem;"></span>
                   <span class="checkbox-text" style="padding: 0;">
                     أقرّ بأنني قد قرأت ووافقت على
-                    <a href="javascript:void(0)" @click.prevent="$dispatch('open-modal', 'privacyModal')"
-                      class="terms-link" style="color: #dc2626; text-decoration: underline;">الشروط والأحكام</a>
+                    <a href="#" @click.prevent="$dispatch('open-modal', 'privacyModal')" class="terms-link"
+                      style="color: #dc2626; text-decoration: underline;">الشروط والأحكام</a>
                     والسياسات المتعلقة بالبيانات الشخصية
                     <span class="required">*</span>
                   </span>
