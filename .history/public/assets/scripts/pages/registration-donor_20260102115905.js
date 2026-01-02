@@ -345,14 +345,10 @@ function validateStep(step) {
         }
     } else if (step === 2) {
         // Health Profile
-        const weightField = document.getElementById('weight');
-        const heightField = document.getElementById('height');
-        const weight = weightField ? weightField.value.trim() : '';
-        const height = heightField ? heightField.value.trim() : '';
-
+        const weight = document.getElementById('weight').value.trim();
+        const height = document.getElementById('height').value.trim();
         // Get Checkbox States
-        const chronicDiseaseField = document.getElementById('chronic_disease');
-        const chronicDisease = chronicDiseaseField ? chronicDiseaseField.checked : false;
+        const chronicDisease = document.getElementById('chronic_disease').checked;
         const bloodType = document.getElementById('blood_type').value;
         const recentDonation = document.getElementById('recent_donation').value;
         const hasRecentSurgery = document.getElementById('has_recent_surgery').value;
@@ -366,7 +362,7 @@ function validateStep(step) {
         if (!weight) {
             showError('weight', 'الوزن مطلوب');
             isValid = false;
-        } else if (parseFloat(weight) < 50) {
+        } else if (parseInt(weight) < 50) {
             showError('weight', 'الوزن يجب أن يكون 50 كغ على الأقل');
             isValid = false;
         }
@@ -374,7 +370,7 @@ function validateStep(step) {
         if (!height) {
             showError('height', 'الطول مطلوب');
             isValid = false;
-        } else if (parseFloat(height) < 140) {
+        } else if (parseInt(height) < 140) {
             showError('height', 'الطول يجب أن يكون 140 سم على الأقل');
             isValid = false;
         }
@@ -550,6 +546,7 @@ function populateReview() {
         eligibilityReviewBox.style.display = 'block';
         eligibilityReviewBox.style.background = '#fef3c7';
         eligibilityReviewBox.style.borderColor = '#f59e0b';
+        eligibilityReviewIcon.textContent = '⚠️';
         eligibilityReviewTitle.textContent = formData.isPermanent ? 'غير مؤهل دائمًا' : 'غير مؤهل مؤقتًا';
 
         let messageText = '<strong>الأسباب:</strong><ul style="margin: 0.5rem 0 0 0; padding-right: 1.5rem;">';

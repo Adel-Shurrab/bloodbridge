@@ -1,13 +1,11 @@
-<x-public-layout>
-    <x-slot name="title">اتصل بنا - BloodBridge</x-slot>
-
+<x-layout title="اتصل بنا - BloodBridge">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/styles/pages/contact.css') }}" />
     @endpush
 
     <main class="contact-page">
         <section class="contact-header">
-            <div class="section-header">
+            <div class="section-header" style="text-align: center">
                 <h2>تواصل معنا</h2>
                 <p>
                     نحن هنا لمساعدتكم والإجابة على أي سؤال لديكم. نتطلع لسماع آرائكم.
@@ -19,25 +17,76 @@
             <div class="contact-grid">
                 <div class="form-card">
                     <h3>أرسل لنا رسالة</h3>
-                    <form action="#"> <div class="form-group">
-                            <label for="name">اسمك</label>
-                            <input type="text" id="name" placeholder="ادخل اسمك" required />
+                    <form id="contactForm" method="POST" action="#" class="contact-form">
+                        @csrf
+                        <div class="form-group">
+                            <label for="name">اسمك <span class="required">*</span></label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name"
+                                placeholder="ادخل اسمك" 
+                                required 
+                                aria-required="true"
+                                aria-describedby="nameError"
+                            />
+                            <span class="error-message" id="nameError"></span>
                         </div>
                         <div class="form-group">
-                            <label for="email">بريدك الإلكتروني</label>
-                            <input type="email" id="email" placeholder="name@example.com" required />
+                            <label for="email">بريدك الإلكتروني <span class="required">*</span></label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email"
+                                placeholder="name@example.com" 
+                                required 
+                                aria-required="true"
+                                aria-describedby="emailError"
+                            />
+                            <span class="error-message" id="emailError"></span>
                         </div>
                         <div class="form-group">
-                            <label for="subject">الموضوع</label>
-                            <input type="text" id="subject" placeholder="كيف يمكننا مساعدتك؟" required />
+                            <label for="subject">الموضوع <span class="required">*</span></label>
+                            <input 
+                                type="text" 
+                                id="subject" 
+                                name="subject"
+                                placeholder="كيف يمكننا مساعدتك؟" 
+                                required 
+                                aria-required="true"
+                                aria-describedby="subjectError"
+                            />
+                            <span class="error-message" id="subjectError"></span>
                         </div>
                         <div class="form-group">
-                            <label for="message">الرسالة</label>
-                            <textarea id="message" rows="5" placeholder="اكتب رسالتك هنا..."></textarea>
+                            <label for="message">الرسالة <span class="required">*</span></label>
+                            <textarea 
+                                id="message" 
+                                name="message"
+                                rows="5" 
+                                placeholder="اكتب رسالتك هنا..."
+                                required 
+                                aria-required="true"
+                                aria-describedby="messageError"
+                            ></textarea>
+                            <span class="error-message" id="messageError"></span>
                         </div>
-                        <button type="submit" class="btn btn-primary full-width">
-                            إرسال الرسالة
+                        <div class="form-group checkbox">
+                            <input 
+                                type="checkbox" 
+                                id="privacy" 
+                                name="privacy"
+                                required 
+                                aria-required="true"
+                            />
+                            <label for="privacy">أوافق على <a href="#" @click.prevent="$dispatch('open-modal', 'privacyModal')" style="cursor: pointer; color: #dc2626; text-decoration: underline;">سياسة الخصوصية</a> <span class="required">*</span></label>
+                        </div>
+                        <button type="submit" class="btn btn-primary full-width" id="submitBtn">
+                            <span class="btn-text">إرسال الرسالة</span>
+                            <span class="btn-loader" style="display: none;">جاري الإرسال...</span>
                         </button>
+                        <div class="form-message success-message" id="successMessage" style="display: none;"></div>
+                        <div class="form-message error-message" id="errorMessage" style="display: none;"></div>
                     </form>
                 </div>
 
@@ -109,4 +158,4 @@
     @push('scripts')
         <script src="{{ asset('assets/scripts/pages/contact.js') }}"></script>
     @endpush
-</x-public-layout>
+</x-layout>

@@ -39,6 +39,8 @@
 
     <x-footer />
 
+    <x-privacy-modal />
+
     <script src="{{ asset('assets/scripts/pages/index.js') }}"></script>
 
     @stack('scripts')
