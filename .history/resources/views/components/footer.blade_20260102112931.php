@@ -18,7 +18,7 @@
                     <li><a href="{{ route('home') }}">الرئيسية</a></li>
                     <li><a href="{{ route('about') }}">من نحن</a></li>
                     <li><a href="{{ route('contact') }}">اتصل بنا</a></li>
-                    <li><a href="#">سياسة الخصوصية</a></li>
+                    <li><a href="#" @click.prevent="$dispatch('open-modal', 'privacyModal')" style="cursor: pointer;">سياسة الخصوصية</a></li>
                     <li><a href="#">شروط الخدمة</a></li>
                 </ul>
             </div>
@@ -36,7 +36,7 @@
             <div class="footer-section">
                 <h4>للمنظمات</h4>
                 <ul>
-                    <li><a href="{{ route('register.organization') }}">سجل كمنظمة</a></li>
+                    <li><a href="{{ route('register.selection') }}">سجل كمنظمة</a></li>
                     <li><a href="#">الشراكات</a></li>
                     <li><a href="#">الدعم الفني</a></li>
                     <li><a href="#">الموارد</a></li>

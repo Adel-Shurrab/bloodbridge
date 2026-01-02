@@ -550,6 +550,7 @@ function populateReview() {
         eligibilityReviewBox.style.display = 'block';
         eligibilityReviewBox.style.background = '#fef3c7';
         eligibilityReviewBox.style.borderColor = '#f59e0b';
+        eligibilityReviewIcon.textContent = '⚠️';
         eligibilityReviewTitle.textContent = formData.isPermanent ? 'غير مؤهل دائمًا' : 'غير مؤهل مؤقتًا';
 
         let messageText = '<strong>الأسباب:</strong><ul style="margin: 0.5rem 0 0 0; padding-right: 1.5rem;">';
