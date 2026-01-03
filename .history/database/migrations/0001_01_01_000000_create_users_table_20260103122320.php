@@ -20,6 +20,7 @@ return new class extends Migration
             $table->string('phone')->unique();
             $table->string('password');
             $table->unsignedTinyInteger('role')->default(User::ROLE_DONOR)->index();
+            $table->foreignIdFor(Organization::class, 'organization_id')->nullable()->index();
             $table->boolean('is_active')->default(true)->index();
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('phone_verified_at')->nullable();
