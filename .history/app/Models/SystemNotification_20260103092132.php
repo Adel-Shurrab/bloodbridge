@@ -7,6 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class SystemNotification extends Model
 {
     // Types
+    public const TYPE_EMAIL = 'email';
+    public const TYPE_SMS = 'sms';
+    public const TYPE_PUSH = 'push';
+
+    public const TYPE_LIST = [
+        self::TYPE_EMAIL,
     public const TYPE_EMAIL = 1;
     public const TYPE_SMS = 2;
     public const TYPE_PUSH = 3;
