@@ -144,9 +144,8 @@ class OrganizationForm
                             ->label('وصف المنظمة')
                             ->columnSpanFull(),
 
-                        TextInput::make('user_name')
+                        TextInput::make('responsible_person_name')
                             ->label('اسم المسؤول')
-                            ->formatStateUsing(fn($record) => $record?->user?->name)
                             ->required()
                             ->maxLength(255),
 
@@ -155,9 +154,8 @@ class OrganizationForm
                             ->required()
                             ->maxLength(255),
 
-                        TextInput::make('user_email')
+                        TextInput::make('responsible_person_email')
                             ->label('البريد الإلكتروني للمسؤول')
-                            ->formatStateUsing(fn($record) => $record?->user?->email)
                             ->email()
                             ->required()
                             ->maxLength(255),

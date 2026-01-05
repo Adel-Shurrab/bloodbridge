@@ -13,9 +13,7 @@ class EditOrganization extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
-            DeleteAction::make()->label('حذف'),
-            \Filament\Actions\RestoreAction::make()->label('استعادة'),
-            \Filament\Actions\ForceDeleteAction::make()->label('حذف نهائي'),
+            DeleteAction::make(),
         ];
     }
 
