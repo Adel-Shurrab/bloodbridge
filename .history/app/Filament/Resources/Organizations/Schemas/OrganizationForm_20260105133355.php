@@ -147,7 +147,8 @@ class OrganizationForm
                         TextInput::make('user_name')
                             ->label('اسم المسؤول')
                             ->formatStateUsing(fn($record) => $record?->user?->name)
-                            ->required()
+                            ->readOnly()
+                            ->dehydrated(false)
                             ->maxLength(255),
 
                         TextInput::make('responsible_person_position')
@@ -158,8 +159,8 @@ class OrganizationForm
                         TextInput::make('user_email')
                             ->label('البريد الإلكتروني للمسؤول')
                             ->formatStateUsing(fn($record) => $record?->user?->email)
-                            ->email()
-                            ->required()
+                            ->readOnly()
+                            ->dehydrated(false)
                             ->maxLength(255),
                     ])->columns(2),
 

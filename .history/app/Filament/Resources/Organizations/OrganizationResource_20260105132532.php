@@ -36,7 +36,7 @@ class OrganizationResource extends Resource
                 Grid::make(['lg' => 3])
                     ->schema([
                         Group::make([
-                            ($components[0] ?? null)?->visible(fn($operation) => $operation === 'create'), // حساب المستخدم
+                            $components[0] ?? null, // حساب المستخدم
                             $components[1] ?? null, // معلومات المنظمة (Includes Responsible Person)
                             $components[2] ?? null, // معلومات التواصل العام
                             $components[3] ?? null, // الموقع وساعات العمل
@@ -90,13 +90,5 @@ class OrganizationResource extends Resource
             'view' => \App\Filament\Resources\Organizations\Pages\ViewOrganization::route('/{record}'),
             'edit' => \App\Filament\Resources\Organizations\Pages\EditOrganization::route('/{record}/edit'),
         ];
-    }
-
-    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
-    {
-        return parent::getEloquentQuery()
-            ->withoutGlobalScopes([
-                \Illuminate\Database\Eloquent\SoftDeletingScope::class,
-            ]);
     }
 }
