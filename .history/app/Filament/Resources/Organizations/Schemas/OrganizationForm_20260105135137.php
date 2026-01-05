@@ -141,8 +141,7 @@ class OrganizationForm
                             ->label('اسم المسؤول')
                             ->formatStateUsing(fn($record) => $record?->user?->name)
                             ->required()
-                            ->maxLength(255)
-                            ->hidden(fn($operation) => $operation === 'create'),
+                            ->maxLength(255),
 
                         TextInput::make('responsible_person_position')
                             ->label('منصب المسؤول')
@@ -154,8 +153,7 @@ class OrganizationForm
                             ->formatStateUsing(fn($record) => $record?->user?->email)
                             ->email()
                             ->required()
-                            ->maxLength(255)
-                            ->hidden(fn($operation) => $operation === 'create'),
+                            ->maxLength(255),
                     ])->columns(2),
 
 
