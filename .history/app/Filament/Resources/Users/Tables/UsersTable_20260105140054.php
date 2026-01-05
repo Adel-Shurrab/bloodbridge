@@ -40,7 +40,7 @@ class UsersTable
                     ->label('رقم الهاتف')
                     ->searchable(),
 
-                TextColumn::make('role')
+                BrokenTextColumn::make('role')
                     ->label('نوع الحساب')
                     ->badge()
                     ->formatStateUsing(fn($state) => User::getRoleOptions()[$state] ?? $state)

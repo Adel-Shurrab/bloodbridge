@@ -2,7 +2,6 @@
 
 namespace App\Filament\Resources\Users\Schemas;
 
-use App\Models\User;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\TextInput;
@@ -37,8 +36,8 @@ class UserForm
                             ->unique('users', 'phone', ignoreRecord: true),
 
                         Select::make('role')
-                            ->label('نوع الحساب')
-                            ->options(User::getRoleOptions())
+                            ->label('الصلاحية')
+                            ->options(\App\Models\User::getRoleOptions())
                             ->required(),
 
                         Toggle::make('is_active')

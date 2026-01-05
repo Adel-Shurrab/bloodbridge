@@ -37,7 +37,7 @@ class UserForm
                             ->unique('users', 'phone', ignoreRecord: true),
 
                         Select::make('role')
-                            ->label('نوع الحساب')
+                            ->label('الصلاحية')
                             ->options(User::getRoleOptions())
                             ->required(),
 

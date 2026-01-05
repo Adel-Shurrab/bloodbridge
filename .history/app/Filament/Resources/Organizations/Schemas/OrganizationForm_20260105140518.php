@@ -78,11 +78,7 @@ class OrganizationForm
                         // Existing User Selection
                         Select::make('user_id')
                             ->label('الحساب المرتبط')
-                            ->relationship('user', 'name', function ($query) {
-                                return $query->where('role', User::ROLE_ORGANIZATION)
-                                    ->orderByRaw('EXISTS (SELECT 1 FROM organizations WHERE organizations.user_id = users.id) ASC')
-                                    ->orderBy('name');
-                            })
+                            ->relationship('user', 'name', fn($query) => $query->where('role', User::ROLE_ORGANIZATION))
                             ->getOptionLabelFromRecordUsing(function (User $user, $record) {
                                 $isOccupied = Organization::where('user_id', $user->id)
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
