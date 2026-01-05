@@ -14,6 +14,8 @@ use Filament\Forms\Components\Radio;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Components\Placeholder;
 
 class OrganizationForm
@@ -41,27 +43,39 @@ class OrganizationForm
                         // New User Creation Fields
                         TextInput::make('new_user_name')
                             ->label('اسم المستخدم')
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
+                            ->required(fn(Get $get) => $get('user_creation_mode') === 'create')
                             ->maxLength(255)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
+                            ->visible(fn(Get $get) => $get('user_creation_mode') === 'create')
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                if ($get('user_creation_mode') === 'create') {
+                                    $set('responsible_person_name', $state);
+                                }
+                            }),
 
                         TextInput::make('new_user_email')
                             ->label('البريد الإلكتروني')
                             ->email()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
+                            ->required(fn(Get $get) => $get('user_creation_mode') === 'create')
                             ->maxLength(255)
                             ->unique('users', 'email', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
+                            ->visible(fn(Get $get) => $get('user_creation_mode') === 'create')
+                            ->live()
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
+                                if ($get('user_creation_mode') === 'create') {
+                                    $set('responsible_person_email', $state);
+                                }
+                            }),
 
                         TextInput::make('new_user_phone')
                             ->label('رقم الهاتف')
                             ->tel()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
+                            ->required(fn(Get $get) => $get('user_creation_mode') === 'create')
                             ->maxLength(255)
                             ->unique('users', 'phone', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create')
+                            ->visible(fn(Get $get) => $get('user_creation_mode') === 'create')
                             ->live()
-                            ->afterStateUpdated(function ($state, $set, $get) {
+                            ->afterStateUpdated(function ($state, Set $set, Get $get) {
                                 if ($get('user_creation_mode') === 'create') {
                                     $set('contact_phone', $state);
                                 }
@@ -70,17 +84,17 @@ class OrganizationForm
                         TextInput::make('new_user_password')
                             ->label('كلمة المرور')
                             ->password()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
+                            ->required(fn(Get $get) => $get('user_creation_mode') === 'create')
                             ->minLength(8)
                             ->same('new_user_password_confirmation')
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
+                            ->visible(fn(Get $get) => $get('user_creation_mode') === 'create'),
 
                         TextInput::make('new_user_password_confirmation')
                             ->label('تأكيد كلمة المرور')
                             ->password()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
+                            ->required(fn(Get $get) => $get('user_creation_mode') === 'create')
                             ->minLength(8)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
+                            ->visible(fn(Get $get) => $get('user_creation_mode') === 'create'),
 
                         // Existing User Selection
                         Select::make('user_id')
@@ -102,19 +116,23 @@ class OrganizationForm
                                 if ($operation !== 'create') return;
 
                                 if (! $state) {
+                                    $set('responsible_person_name', null);
+                                    $set('responsible_person_email', null);
                                     $set('contact_phone', null);
                                     return;
                                 }
 
                                 $user = User::find($state);
                                 if ($user) {
+                                    $set('responsible_person_name', $user->name);
+                                    $set('responsible_person_email', $user->email);
                                     $set('contact_phone', $user->phone);
                                 }
                             })
-                            ->required(fn($get) => $get('user_creation_mode') === 'select')
+                            ->required(fn(Get $get) => $get('user_creation_mode') === 'select')
                             ->searchable()
                             ->preload()
-                            ->visible(fn($get) => $get('user_creation_mode') === 'select'),
+                            ->visible(fn(Get $get) => $get('user_creation_mode') === 'select'),
                     ])->columns(2),
 
                 Section::make('معلومات المنظمة')
@@ -143,13 +161,28 @@ class OrganizationForm
                         TextInput::make('description')
                             ->label('وصف المنظمة')
                             ->columnSpanFull(),
-
-                        TextInput::make('responsible_person_position')
-                            ->label('منصب المسؤول')
-                            ->required()
-                            ->maxLength(255),
                     ])->columns(2),
 
+                Section::make('الشخص المسؤول')
+                    ->description('بيانات التواصل مع الشخص المسؤول')
+                    ->icon('heroicon-o-user')
+                    ->schema([
+                        TextInput::make('responsible_person_name')
+                            ->label('اسم المسؤول')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('responsible_person_position')
+                            ->label('المنصب')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('responsible_person_email')
+                            ->label('البريد الإلكتروني للمسؤول')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+                    ])->columns(3),
 
                 Section::make('معلومات التواصل العام')
                     ->description('كيف يمكن للجمهور التواصل مع المنظمة')

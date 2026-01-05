@@ -3,14 +3,12 @@
 namespace App\Filament\Resources\Organizations\Schemas;
 
 use App\Models\User;
-use App\Models\Organization;
 
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Radio;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
@@ -22,101 +20,6 @@ class OrganizationForm
     {
         return $schema
             ->components([
-                Section::make('حساب المستخدم')
-                    ->description('إنشاء حساب مستخدم جديد أو اختيار حساب موجود')
-                    ->icon('heroicon-o-user-circle')
-                    ->schema([
-                        Radio::make('user_creation_mode')
-                            ->label('طريقة إضافة المستخدم')
-                            ->options([
-                                'create' => 'إنشاء مستخدم جديد',
-                                'select' => 'اختيار مستخدم موجود',
-                            ])
-                            ->default('create')
-                            ->inline()
-                            ->live()
-                            ->required()
-                            ->columnSpanFull(),
-
-                        // New User Creation Fields
-                        TextInput::make('new_user_name')
-                            ->label('اسم المستخدم')
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        TextInput::make('new_user_email')
-                            ->label('البريد الإلكتروني')
-                            ->email()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->unique('users', 'email', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        TextInput::make('new_user_phone')
-                            ->label('رقم الهاتف')
-                            ->tel()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->unique('users', 'phone', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create')
-                            ->live()
-                            ->afterStateUpdated(function ($state, $set, $get) {
-                                if ($get('user_creation_mode') === 'create') {
-                                    $set('contact_phone', $state);
-                                }
-                            }),
-
-                        TextInput::make('new_user_password')
-                            ->label('كلمة المرور')
-                            ->password()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->minLength(8)
-                            ->same('new_user_password_confirmation')
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        TextInput::make('new_user_password_confirmation')
-                            ->label('تأكيد كلمة المرور')
-                            ->password()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->minLength(8)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        // Existing User Selection
-                        Select::make('user_id')
-                            ->label('الحساب المرتبط')
-                            ->relationship('user', 'name', fn($query) => $query->where('role', User::ROLE_ORGANIZATION))
-                            ->getOptionLabelFromRecordUsing(function (User $user, $record) {
-                                $isOccupied = Organization::where('user_id', $user->id)
-                                    ->when($record, fn($q) => $q->where('id', '!=', $record->id))
-                                    ->exists();
-                                return $isOccupied ? "{$user->name} (مشغول)" : $user->name;
-                            })
-                            ->disableOptionWhen(function (string $value, $record) {
-                                return Organization::where('user_id', $value)
-                                    ->when($record, fn($q) => $q->where('id', '!=', $record->id))
-                                    ->exists();
-                            })
-                            ->live()
-                            ->afterStateUpdated(function ($state, $set, $operation) {
-                                if ($operation !== 'create') return;
-
-                                if (! $state) {
-                                    $set('contact_phone', null);
-                                    return;
-                                }
-
-                                $user = User::find($state);
-                                if ($user) {
-                                    $set('contact_phone', $user->phone);
-                                }
-                            })
-                            ->required(fn($get) => $get('user_creation_mode') === 'select')
-                            ->searchable()
-                            ->preload()
-                            ->visible(fn($get) => $get('user_creation_mode') === 'select'),
-                    ])->columns(2),
-
                 Section::make('معلومات المنظمة')
                     ->description('المعلومات الأساسية والترخيص')
                     ->icon('heroicon-o-information-circle')
@@ -125,6 +28,13 @@ class OrganizationForm
                             ->label('اسم المنظمة')
                             ->required()
                             ->maxLength(255),
+
+                        Select::make('user_id')
+                            ->label('الحساب المرتبط')
+                            ->relationship('user', 'name', fn($query) => $query->where('role', User::ROLE_ORGANIZATION))
+                            ->required()
+                            ->searchable()
+                            ->preload(),
 
                         TextInput::make('license_number')
                             ->label('رقم الترخيص')
@@ -143,13 +53,28 @@ class OrganizationForm
                         TextInput::make('description')
                             ->label('وصف المنظمة')
                             ->columnSpanFull(),
-
-                        TextInput::make('responsible_person_position')
-                            ->label('منصب المسؤول')
-                            ->required()
-                            ->maxLength(255),
                     ])->columns(2),
 
+                Section::make('الشخص المسؤول')
+                    ->description('بيانات التواصل مع الشخص المسؤول')
+                    ->icon('heroicon-o-user')
+                    ->schema([
+                        TextInput::make('responsible_person_name')
+                            ->label('اسم المسؤول')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('responsible_person_position')
+                            ->label('المنصب')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('responsible_person_email')
+                            ->label('البريد الإلكتروني للمسؤول')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+                    ])->columns(3),
 
                 Section::make('معلومات التواصل العام')
                     ->description('كيف يمكن للجمهور التواصل مع المنظمة')

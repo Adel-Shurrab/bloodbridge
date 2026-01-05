@@ -14,6 +14,8 @@ use Filament\Forms\Components\Radio;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
+use Filament\Forms\Get;
+use Filament\Forms\Set;
 use Filament\Forms\Components\Placeholder;
 
 class OrganizationForm
@@ -43,7 +45,13 @@ class OrganizationForm
                             ->label('اسم المستخدم')
                             ->required(fn($get) => $get('user_creation_mode') === 'create')
                             ->maxLength(255)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
+                            ->visible(fn($get) => $get('user_creation_mode') === 'create')
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set, $get) {
+                                if ($get('user_creation_mode') === 'create') {
+                                    $set('responsible_person_name', $state);
+                                }
+                            }),
 
                         TextInput::make('new_user_email')
                             ->label('البريد الإلكتروني')
@@ -51,7 +59,13 @@ class OrganizationForm
                             ->required(fn($get) => $get('user_creation_mode') === 'create')
                             ->maxLength(255)
                             ->unique('users', 'email', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
+                            ->visible(fn($get) => $get('user_creation_mode') === 'create')
+                            ->live()
+                            ->afterStateUpdated(function ($state, $set, $get) {
+                                if ($get('user_creation_mode') === 'create') {
+                                    $set('responsible_person_email', $state);
+                                }
+                            }),
 
                         TextInput::make('new_user_phone')
                             ->label('رقم الهاتف')
@@ -102,12 +116,16 @@ class OrganizationForm
                                 if ($operation !== 'create') return;
 
                                 if (! $state) {
+                                    $set('responsible_person_name', null);
+                                    $set('responsible_person_email', null);
                                     $set('contact_phone', null);
                                     return;
                                 }
 
                                 $user = User::find($state);
                                 if ($user) {
+                                    $set('responsible_person_name', $user->name);
+                                    $set('responsible_person_email', $user->email);
                                     $set('contact_phone', $user->phone);
                                 }
                             })
@@ -143,13 +161,28 @@ class OrganizationForm
                         TextInput::make('description')
                             ->label('وصف المنظمة')
                             ->columnSpanFull(),
-
-                        TextInput::make('responsible_person_position')
-                            ->label('منصب المسؤول')
-                            ->required()
-                            ->maxLength(255),
                     ])->columns(2),
 
+                Section::make('الشخص المسؤول')
+                    ->description('بيانات التواصل مع الشخص المسؤول')
+                    ->icon('heroicon-o-user')
+                    ->schema([
+                        TextInput::make('responsible_person_name')
+                            ->label('اسم المسؤول')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('responsible_person_position')
+                            ->label('المنصب')
+                            ->required()
+                            ->maxLength(255),
+
+                        TextInput::make('responsible_person_email')
+                            ->label('البريد الإلكتروني للمسؤول')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
+                    ])->columns(3),
 
                 Section::make('معلومات التواصل العام')
                     ->description('كيف يمكن للجمهور التواصل مع المنظمة')
