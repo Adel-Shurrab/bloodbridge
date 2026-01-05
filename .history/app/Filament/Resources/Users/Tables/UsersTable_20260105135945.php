@@ -41,7 +41,7 @@ class UsersTable
                     ->searchable(),
 
                 TextColumn::make('role')
-                    ->label('نوع الحساب')
+                    ->label('الصلاحية')
                     ->badge()
                     ->formatStateUsing(fn($state) => User::getRoleOptions()[$state] ?? $state)
                     ->color(fn($state) => match ($state) {
@@ -63,7 +63,7 @@ class UsersTable
             ])
             ->filters([
                 SelectFilter::make('role')
-                    ->label('نوع الحساب')
+                    ->label('الصلاحية')
                     ->options(User::getRoleOptions()),
                 TernaryFilter::make('is_active')
                     ->label('نشط'),
