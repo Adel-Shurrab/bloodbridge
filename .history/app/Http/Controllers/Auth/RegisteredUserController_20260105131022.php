@@ -34,8 +34,7 @@ class RegisteredUserController extends Controller
     public function showDonorRegistrationForm(): View
     {
         $governorates = \App\Models\Governorate::all();
-        $bloodTypes = Donor::getBloodTypeOptions();
-        return view('auth.register-donor', compact('governorates', 'bloodTypes'));
+        return view('auth.register-donor', compact('governorates'));
     }
 
     /**
@@ -70,7 +69,7 @@ class RegisteredUserController extends Controller
             'has_recent_surgery' => ['required', 'boolean'],
             'surgery_date' => ['required_if:has_recent_surgery,1', 'nullable', 'date', 'before_or_equal:today'],
             'last_donation_date' => ['required_if:recent_donation,1', 'nullable', 'date', 'before_or_equal:today'],
-            'blood_type' => ['nullable', 'in:' . implode(',', array_keys(Donor::getBloodTypeOptions()))],
+            'blood_type' => ['nullable', 'string', 'in:' . implode(',', Donor::BLOOD_TYPES_LIST)],
         ], [
             'chronic_disease.in' => 'عذراً، المتبرعون الذين يعانون من أمراض مزمنة غير مؤهلين للتبرع.',
         ]);

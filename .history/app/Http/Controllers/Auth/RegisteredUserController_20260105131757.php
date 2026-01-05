@@ -99,11 +99,16 @@ class RegisteredUserController extends Controller
             // C. Create Health Profile and Calculate Eligibility
             $eligibilityData = $this->checkEligibility($request);
 
+            $bloodTypeId = null;
+            if ($request->blood_type) {
+                $bloodTypeId = Donor::getBloodTypeIdByLabel($request->blood_type);
+            }
+
             DonorHealthProfile::create([
                 'donor_id' => $donor->id,
                 'weight' => $request->weight,
                 'height' => $request->height,
-                'blood_type' => $request->blood_type,
+                'blood_type' => $bloodTypeId,
                 'verified_blood_type' => null,
                 'chronic_disease' => $request->boolean('chronic_disease'),
                 'infection' => $request->boolean('infection'),

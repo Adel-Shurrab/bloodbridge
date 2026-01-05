@@ -435,7 +435,7 @@ function validateStep(step) {
             formData.hasRecentSurgeryValue = hasRecentSurgery;
             formData.surgeryDate = document.getElementById('surgery_date').value;
             formData.lastDonationDate = document.getElementById('last_donation_date').value;
-
+            
             const bloodTypeSelect = document.getElementById('blood_type');
             formData.bloodType = bloodTypeSelect.value;
             formData.bloodTypeLabel = bloodTypeSelect.options[bloodTypeSelect.selectedIndex]?.text || 'غير محدد';
@@ -520,7 +520,7 @@ function populateReview() {
         </div>
         <div class="review-item">
             <span class="review-label">فصيلة الدم</span>
-            <span class="review-value">${formData.bloodTypeLabel}</span>
+            <span class="review-value">${formData.bloodType ? formData.bloodType : 'غير محدد'}</span>
         </div>
         <div class="review-item">
             <span class="review-label">مرض مزمن</span>

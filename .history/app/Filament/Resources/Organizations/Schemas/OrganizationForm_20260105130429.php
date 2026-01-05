@@ -59,13 +59,7 @@ class OrganizationForm
                             ->required(fn($get) => $get('user_creation_mode') === 'create')
                             ->maxLength(255)
                             ->unique('users', 'phone', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create')
-                            ->live()
-                            ->afterStateUpdated(function ($state, $set, $get) {
-                                if ($get('user_creation_mode') === 'create') {
-                                    $set('contact_phone', $state);
-                                }
-                            }),
+                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
 
                         TextInput::make('new_user_password')
                             ->label('كلمة المرور')
@@ -102,12 +96,16 @@ class OrganizationForm
                                 if ($operation !== 'create') return;
 
                                 if (! $state) {
+                                    $set('responsible_person_name', null);
+                                    $set('responsible_person_email', null);
                                     $set('contact_phone', null);
                                     return;
                                 }
 
                                 $user = User::find($state);
                                 if ($user) {
+                                    $set('responsible_person_name', $user->name);
+                                    $set('responsible_person_email', $user->email);
                                     $set('contact_phone', $user->phone);
                                 }
                             })
@@ -143,11 +141,6 @@ class OrganizationForm
                         TextInput::make('description')
                             ->label('وصف المنظمة')
                             ->columnSpanFull(),
-
-                        TextInput::make('responsible_person_position')
-                            ->label('منصب المسؤول')
-                            ->required()
-                            ->maxLength(255),
                     ])->columns(2),
 
 

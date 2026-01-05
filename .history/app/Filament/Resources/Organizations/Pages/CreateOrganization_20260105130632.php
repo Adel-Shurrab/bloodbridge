@@ -30,8 +30,10 @@ class CreateOrganization extends CreateRecord
                     'is_active' => User::DEFAULT_IS_ACTIVE,
                 ]);
 
-                // Set the user_id for the organization
+                // Set the user_id and map the name to responsible_person_name (required in DB)
                 $data['user_id'] = $user->id;
+                $data['responsible_person_name'] = $data['new_user_name'];
+                $data['responsible_person_email'] = $data['new_user_email'];
 
                 // Commit the transaction
                 DB::commit();
@@ -39,6 +41,13 @@ class CreateOrganization extends CreateRecord
                 // Rollback on error
                 DB::rollBack();
                 throw $e;
+            }
+        } elseif (isset($data['user_id'])) {
+            // Fill responsible_person_name for existing user selection as well
+            $user = User::find($data['user_id']);
+            if ($user) {
+                $data['responsible_person_name'] = $user->name;
+                $data['responsible_person_email'] = $user->email;
             }
         }
 
