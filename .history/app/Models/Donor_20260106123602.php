@@ -4,7 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class Donor extends Model
 {
@@ -18,14 +17,6 @@ class Donor extends Model
         self::GENDER_MALE,
         self::GENDER_FEMALE,
     ];
-
-    public static function getGenderOptions(): array
-    {
-        return [
-            self::GENDER_MALE => 'ذكر',
-            self::GENDER_FEMALE => 'أنثى',
-        ];
-    }
 
     // Blood Types
     public const BLOOD_TYPE_O_POSITIVE = 1;

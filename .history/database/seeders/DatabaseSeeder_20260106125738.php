@@ -26,6 +26,7 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
+            GovernorateSeeder::class,
             OrganizationSeeder::class,
             DonorSeeder::class,
         ]);

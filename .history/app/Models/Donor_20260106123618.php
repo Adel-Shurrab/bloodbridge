@@ -19,14 +19,6 @@ class Donor extends Model
         self::GENDER_FEMALE,
     ];
 
-    public static function getGenderOptions(): array
-    {
-        return [
-            self::GENDER_MALE => 'ذكر',
-            self::GENDER_FEMALE => 'أنثى',
-        ];
-    }
-
     // Blood Types
     public const BLOOD_TYPE_O_POSITIVE = 1;
     public const BLOOD_TYPE_O_NEGATIVE = 2;
