@@ -14,6 +14,7 @@ class CreateDonor extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // Check if we're creating a new user
         if (isset($data['user_creation_mode']) && $data['user_creation_mode'] === 'create') {
             DB::beginTransaction();
 

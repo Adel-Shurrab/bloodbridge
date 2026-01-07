@@ -14,10 +14,13 @@ class CreateDonor extends CreateRecord
 
     protected function mutateFormDataBeforeCreate(array $data): array
     {
+        // Check if we're creating a new user
         if (isset($data['user_creation_mode']) && $data['user_creation_mode'] === 'create') {
+            // Create the user within a transaction
             DB::beginTransaction();
 
             try {
+                // Create the new user
                 $user = User::create([
                     'name' => $data['new_user_name'],
                     'email' => $data['new_user_email'],
@@ -27,15 +30,19 @@ class CreateDonor extends CreateRecord
                     'is_active' => User::DEFAULT_IS_ACTIVE,
                 ]);
 
+                // Set the user_id for the donor
                 $data['user_id'] = $user->id;
 
+                // Commit the transaction
                 DB::commit();
             } catch (\Exception $e) {
+                // Rollback on error
                 DB::rollBack();
                 throw $e;
             }
         }
 
+        // Remove temporary user creation fields from donor data
         unset(
             $data['user_creation_mode'],
             $data['new_user_name'],

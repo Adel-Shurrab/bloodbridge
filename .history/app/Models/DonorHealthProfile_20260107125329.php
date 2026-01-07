@@ -60,6 +60,7 @@ class DonorHealthProfile extends Model
     protected static function booted()
     {
         static::saving(function (DonorHealthProfile $profile) {
+            // Nullify dates if flags are toggled off
             if (!$profile->recent_donation) {
                 $profile->last_donation_date = null;
             }

@@ -33,7 +33,7 @@ class RegisteredUserController extends Controller
      */
     public function showDonorRegistrationForm(): View
     {
-        $governorates = Governorate::all();
+        $governorates = \App\Models\Governorate::all();
         $bloodTypes = Donor::getBloodTypeOptions();
         return view('auth.register-donor', compact('governorates', 'bloodTypes'));
     }
@@ -43,7 +43,7 @@ class RegisteredUserController extends Controller
      */
     public function showOrganizationRegistrationForm(): View
     {
-        $governorates = Governorate::all();
+        $governorates = \App\Models\Governorate::all();
         return view('auth.register-organization', compact('governorates'));
     }
 
@@ -96,7 +96,9 @@ class RegisteredUserController extends Controller
                 'blood_type' => null,
             ]);
 
-            // C. Create Health Profile (Eligibility is handled by Model Hook)
+            // C. Create Health Profile and Calculate Eligibility
+            $eligibilityData = $this->checkEligibility($request);
+
             DonorHealthProfile::create([
                 'donor_id' => $donor->id,
                 'weight' => $request->weight,
@@ -109,6 +111,8 @@ class RegisteredUserController extends Controller
                 'has_recent_surgery' => $request->boolean('has_recent_surgery'),
                 'surgery_date' => $request->surgery_date,
                 'last_donation_date' => $request->last_donation_date,
+                'is_eligible' => $eligibilityData['is_eligible'],
+                'next_eligible_date' => $eligibilityData['next_eligible_date'],
             ]);
 
             // D. Trigger Events & Login
@@ -200,5 +204,68 @@ class RegisteredUserController extends Controller
         // Redirect using the centralized dashboard URL
         return redirect()->to($user->getDashboardUrl())
             ->with('success', 'تم تقديم طلبك بنجاح! حسابك قيد المراجعة حالياً.');
+    }
+
+    /**
+     * Check eligibility based on health profile
+     */
+    private function checkEligibility($request): array
+    {
+        $today = Carbon::now()->startOfDay();
+        $isEligible = true;
+        $nextEligibleDate = null;
+
+        // 1. Permanent Disqualifiers
+        if ($request->boolean('chronic_disease')) {
+            return ['is_eligible' => false, 'next_eligible_date' => null];
+        }
+
+        // 2. Physical Stats
+        if ($request->weight < 50 || $request->height < 140) {
+            $isEligible = false;
+        }
+
+        // 3. Infection (Temporary 14 days)
+        if ($request->boolean('infection')) {
+            $isEligible = false;
+            $nextEligibleDate = $today->copy()->addDays(14);
+        }
+
+        // 4. Donation Logic (90 Days)
+        if ($request->last_donation_date) {
+            $lastDonation = Carbon::parse($request->last_donation_date)->startOfDay();
+            $daysSince = $lastDonation->diffInDays($today); // Absolute difference
+
+            // Only punish if WITHIN the window
+            if ($daysSince < 90) {
+                $isEligible = false;
+                $futureDate = $lastDonation->copy()->addDays(90);
+
+                // Keep the furthest date
+                if (!$nextEligibleDate || $futureDate > $nextEligibleDate) {
+                    $nextEligibleDate = $futureDate;
+                }
+            }
+        }
+
+        // 5. Surgery Logic (28 Days)
+        if ($request->surgery_date) {
+            $surgery = Carbon::parse($request->surgery_date)->startOfDay();
+            $daysSince = $surgery->diffInDays($today);
+
+            if ($daysSince < 28) {
+                $isEligible = false;
+                $futureDate = $surgery->copy()->addDays(28);
+
+                if (!$nextEligibleDate || $futureDate > $nextEligibleDate) {
+                    $nextEligibleDate = $futureDate;
+                }
+            }
+        }
+
+        return [
+            'is_eligible' => $isEligible,
+            'next_eligible_date' => $nextEligibleDate,
+        ];
     }
 }

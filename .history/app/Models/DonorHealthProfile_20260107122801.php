@@ -60,13 +60,6 @@ class DonorHealthProfile extends Model
     protected static function booted()
     {
         static::saving(function (DonorHealthProfile $profile) {
-            if (!$profile->recent_donation) {
-                $profile->last_donation_date = null;
-            }
-            if (!$profile->has_recent_surgery) {
-                $profile->surgery_date = null;
-            }
-
             $eligibility = $profile->calculateEligibility();
             $profile->is_eligible = $eligibility['is_eligible'];
             $profile->next_eligible_date = $eligibility['next_eligible_date'];
