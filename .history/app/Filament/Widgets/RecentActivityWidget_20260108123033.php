@@ -41,7 +41,7 @@ class RecentActivityWidget extends Widget
         });
 
         // Latest Organizations Approved
-        Organization::where('approval_status', Organization::STATUS_APPROVED)
+        \App\Models\Organization::where('approval_status', \App\Models\Organization::STATUS_APPROVED)
             ->latest('updated_at')
             ->take(5)
             ->get()

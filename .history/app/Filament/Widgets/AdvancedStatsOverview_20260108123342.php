@@ -1,7 +1,5 @@
 <?php
 
-namespace App\Filament\Widgets;
-
 use App\Models\BloodRequest;
 use App\Models\Donor;
 

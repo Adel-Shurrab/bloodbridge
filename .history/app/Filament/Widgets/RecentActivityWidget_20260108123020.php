@@ -6,7 +6,6 @@ use Filament\Widgets\Widget;
 use App\Models\BloodRequest;
 use App\Models\Donor;
 use App\Models\User;
-use App\Models\Organization;
 
 class RecentActivityWidget extends Widget
 {
@@ -15,7 +14,7 @@ class RecentActivityWidget extends Widget
     public function getActivities(): array
     {
         $activities = collect();
-        $bloodTypeOptions = Donor::getBloodTypeOptions();
+        $bloodTypeOptions = \App\Models\Donor::getBloodTypeOptions();
 
         // Latest Blood Requests
         BloodRequest::latest()->take(5)->get()->each(function ($request) use ($activities, $bloodTypeOptions) {
@@ -30,7 +29,7 @@ class RecentActivityWidget extends Widget
         });
 
         // Latest Donors
-        Donor::latest()->take(5)->get()->each(function ($donor) use ($activities) {
+        \App\Models\Donor::latest()->take(5)->get()->each(function ($donor) use ($activities) {
             $activities->push([
                 'title' => "متبرع جديد ({$donor->user->name}) مسجل في النظام.",
                 'time' => $donor->created_at->diffForHumans(),
@@ -41,7 +40,7 @@ class RecentActivityWidget extends Widget
         });
 
         // Latest Organizations Approved
-        Organization::where('approval_status', Organization::STATUS_APPROVED)
+        \App\Models\Organization::where('approval_status', \App\Models\Organization::STATUS_APPROVED)
             ->latest('updated_at')
             ->take(5)
             ->get()
