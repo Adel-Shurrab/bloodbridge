@@ -46,9 +46,6 @@ class DatabaseSeeder extends Seeder
                 'org_name' => "مؤسسة قيد الانتظار $i",
                 'approval_status' => \App\Models\Organization::STATUS_PENDING,
                 'license_number' => "PEND-00$i",
-                'responsible_person_name' => $user->name,
-                'responsible_person_position' => 'مدير',
-                'responsible_person_email' => $user->email,
                 'contact_email' => $user->email,
                 'contact_phone' => $user->phone,
             ]);
