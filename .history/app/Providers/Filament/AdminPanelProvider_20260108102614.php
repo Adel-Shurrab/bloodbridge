@@ -19,28 +19,33 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class DonorPanelProvider extends PanelProvider
+class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->id('donor')
-            ->path('donor')
+            ->default()
+            ->id('admin')
+            ->path('admin')
             ->brandName('BloodBridge')
             ->font('Cairo')
             ->colors([
                 'primary' => Color::Red,
             ])
-            ->discoverResources(in: app_path('Filament/Donor/Resources'), for: 'App\Filament\Donor\Resources')
-            ->discoverPages(in: app_path('Filament/Donor/Pages'), for: 'App\Filament\Donor\Pages')
+            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
+            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
             ->pages([
-                \App\Filament\Donor\Pages\Dashboard::class,
+                \App\Filament\Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Donor/Widgets'), for: 'App\Filament\Donor\Widgets')
             ->widgets([
-                \App\Filament\Donor\Widgets\DonorHeaderWidget::class,
-                \App\Filament\Donor\Widgets\DonorStatsOverview::class,
+                \App\Filament\Widgets\DashboardHeaderWidget::class,
+                \App\Filament\Widgets\StatsOverview::class,
+                \App\Filament\Widgets\AdvancedStatsOverview::class,
+                \App\Filament\Widgets\RecentActivityWidget::class,
+                \App\Filament\Widgets\BloodTypeDemandWidget::class,
+                \App\Filament\Widgets\EngagementChartWidget::class,
             ])
+            ->databaseNotifications()
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
