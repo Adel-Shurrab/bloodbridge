@@ -37,7 +37,7 @@ class PendingOrganizationsWidget extends TableWidget
                     ->sortable(),
             ])
             ->actions([
-                Action::make('approve')
+                Tables\Actions\Action::make('approve')
                     ->label('موافقة')
                     ->icon('heroicon-m-check-circle')
                     ->color('success')
@@ -50,7 +50,7 @@ class PendingOrganizationsWidget extends TableWidget
                             ->success()
                             ->send();
                     }),
-                Action::make('reject')
+                Tables\Actions\Action::make('reject')
                     ->label('رفض')
                     ->icon('heroicon-m-x-circle')
                     ->color('danger')
