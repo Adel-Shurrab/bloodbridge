@@ -1,0 +1,52 @@
+<?php
+
+namespace App\Filament\Pages;
+
+use App\Settings\DonationSettings;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Pages\SettingsPage;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\TextInput;
+
+class ManageDonationSettings extends SettingsPage
+{
+    protected static ?string $navigationIcon = 'heroicon-o-cog-6-tooth';
+    protected static ?string $navigationLabel = 'إعدادات التبرع';
+    protected static ?string $title = 'إعدادات قواعد التبرع';
+    protected static string $settings = DonationSettings::class;
+
+    public function form(Form $form): Form
+    {
+        return $form
+            ->schema([
+                Section::make('المتطلبات الجسدية')
+                    ->schema([
+                        TextInput::make('min_weight')
+                            ->label('أقل وزن مقبول (كجم)')
+                            ->numeric()
+                            ->required(),
+                        TextInput::make('min_height')
+                            ->label('أقل طول مقبول (سم)')
+                            ->numeric()
+                            ->required(),
+                    ])->columns(2),
+
+                Section::make('فترات الانتظار (بالأيام)')
+                    ->schema([
+                        TextInput::make('donation_deferral_days')
+                            ->label('فترة الانتظار بعد التبرع')
+                            ->numeric()
+                            ->required(),
+                        TextInput::make('surgery_deferral_days')
+                            ->label('فترة الانتظار بعد العمليات الجراحية')
+                            ->numeric()
+                            ->required(),
+                        TextInput::make('infection_deferral_days')
+                            ->label('فترة الانتظار بعد الإصابات/العدوى')
+                            ->numeric()
+                            ->required(),
+                    ])->columns(3),
+            ]);
+    }
+}
