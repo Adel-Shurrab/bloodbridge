@@ -42,9 +42,7 @@ class ManageGeneralSettings extends SettingsPage
                                         TextInput::make('min_donor_age')->label('الحد الأدنى للعمر (سنة)')->numeric()->required(),
                                         TextInput::make('max_donor_age')->label('الحد الأقصى للعمر (سنة)')->numeric()->required(),
                                         TextInput::make('min_donor_weight')->label('الحد الأدنى للوزن (كجم)')->numeric()->required(),
-                                        TextInput::make('min_donor_height')->label('الحد الأدنى للطول (سم)')->numeric()->required(),
                                         TextInput::make('min_days_between_donations')->label('المدة بين التبرعات (يوم)')->numeric()->required(),
-                                        TextInput::make('min_days_after_surgery')->label('المدة بعد العمليات الجراحية (يوم)')->numeric()->required(),
                                     ])->columns(2),
                                 Section::make('قيود المنظمات')
                                     ->schema([

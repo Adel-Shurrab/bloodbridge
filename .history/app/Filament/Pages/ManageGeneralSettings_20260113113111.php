@@ -32,8 +32,7 @@ class ManageGeneralSettings extends SettingsPage
         return $schema
             ->components([
                 Tabs::make('Settings')
-                    ->tabs([
-                        Tab::make('System Rules')
+                Tab::make('System Rules')
                             ->label('قواعد النظام')
                             ->icon('heroicon-o-scale')
                             ->schema([
@@ -42,16 +41,15 @@ class ManageGeneralSettings extends SettingsPage
                                         TextInput::make('min_donor_age')->label('الحد الأدنى للعمر (سنة)')->numeric()->required(),
                                         TextInput::make('max_donor_age')->label('الحد الأقصى للعمر (سنة)')->numeric()->required(),
                                         TextInput::make('min_donor_weight')->label('الحد الأدنى للوزن (كجم)')->numeric()->required(),
-                                        TextInput::make('min_donor_height')->label('الحد الأدنى للطول (سم)')->numeric()->required(),
                                         TextInput::make('min_days_between_donations')->label('المدة بين التبرعات (يوم)')->numeric()->required(),
-                                        TextInput::make('min_days_after_surgery')->label('المدة بعد العمليات الجراحية (يوم)')->numeric()->required(),
                                     ])->columns(2),
                                 Section::make('قيود المنظمات')
                                     ->schema([
                                         TextInput::make('org_max_requests_per_day')->label('الحد الأقصى للطلبات يومياً')->numeric()->required(),
                                     ]),
                             ]),
-
+                            
+                    ->tabs([
                         Tab::make('Identity & System')
                             ->label('هوية الموقع والنظام')
                             ->icon('heroicon-o-cog-6-tooth')

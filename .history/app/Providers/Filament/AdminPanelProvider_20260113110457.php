@@ -29,7 +29,7 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName(fn() => app(\App\Settings\GeneralSettings::class)->site_name)
-            ->favicon(fn() => app(\App\Settings\GeneralSettings::class)->site_favicon ? Storage::disk('public')->url(app(\App\Settings\GeneralSettings::class)->site_favicon) : asset('assets/images/logo.jpg'))
+            ->favicon(fn() => app(\App\Settings\GeneralSettings::class)->site_favicon ? Storage::url(app(\App\Settings\GeneralSettings::class)->site_favicon) : asset('assets/images/logo.jpg'))
             ->font('Cairo')
             ->colors([
                 'primary' => Color::Red,

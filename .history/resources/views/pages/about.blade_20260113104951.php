@@ -19,7 +19,7 @@
                     <h2>{{ $settings->about_mission_title1 }}</h2>
                     <p>{{ $settings->about_mission_text1 }}</p>
                     @if($settings->about_mission_image1)
-                        <img src="{{ Storage::disk('public')->url($settings->about_mission_image1) }}"
+                        <img src="{{ Storage::url($settings->about_mission_image1) }}"
                             alt="{{ $settings->about_mission_title1 }}"
                             style="max-width: 100%; border-radius: 10px; margin-top: 1rem;">
                     @endif
@@ -29,7 +29,7 @@
                     <h2>{{ $settings->about_mission_title2 }}</h2>
                     <p>{{ $settings->about_mission_text2 }}</p>
                     @if($settings->about_mission_image2)
-                        <img src="{{ Storage::disk('public')->url($settings->about_mission_image2) }}"
+                        <img src="{{ Storage::url($settings->about_mission_image2) }}"
                             alt="{{ $settings->about_mission_title2 }}"
                             style="max-width: 100%; border-radius: 10px; margin-top: 1rem;">
                     @endif
@@ -49,7 +49,7 @@
                     <div class="value-card">
                         <div class="value-icon">
                             @if($value['image'] ?? null)
-                                <img src="{{ Storage::disk('public')->url($value['image']) }}" alt="{{ $value['title'] }}"
+                                <img src="{{ Storage::url($value['image']) }}" alt="{{ $value['title'] }}"
                                     style="width: 40px; height: 40px; object-fit: contain;">
                             @elseif($value['icon'] ?? null)
                                 {!! $value['icon'] !!}
@@ -77,7 +77,7 @@
                     <div class="team-card">
                         <div class="team-image">
                             @if($member['image'] ?? null)
-                                <img src="{{ Storage::disk('public')->url($member['image']) }}" alt="{{ $member['name'] }}"
+                                <img src="{{ Storage::url($member['image']) }}" alt="{{ $member['name'] }}"
                                     style="width: 100%; height: 100%; object-fit: cover; border-radius: 50%;">
                             @else
                                 <div class="team-image-placeholder">👤</div>

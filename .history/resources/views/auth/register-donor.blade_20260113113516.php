@@ -2,15 +2,12 @@
   @push('styles')
     <link rel="stylesheet" href="{{ asset('assets/styles/pages/registration-donor.css') }}" />
     <script>
-      window.donationRules = {
-        minAge: {{ $settings->min_donor_age }},
-        maxAge: {{ $settings->max_donor_age }},
-        minWeight: {{ $settings->min_donor_weight }},
-        minHeight: {{ $settings->min_donor_height }},
-        minHeight: {{ $settings->min_donor_height }},
-        minDaysBetweenDonations: {{ $settings->min_days_between_donations }},
-        minDaysAfterSurgery: {{ $settings->min_days_after_surgery }}
-            };
+        window.donationRules = {
+            minAge: {{ $settings->min_donor_age }},
+            maxAge: {{ $settings->max_donor_age }},
+            minWeight: {{ $settings->min_donor_weight }},
+            minDaysBetweenDonations: {{ $settings->min_days_between_donations }}
+        };
     </script>
   @endpush
 
@@ -171,17 +168,15 @@
               <div class="form-row">
                 <div class="form-group">
                   <label for="weight">الوزن (كغ) <span class="required">*</span></label>
-                  <input type="number" id="weight" name="weight" min="{{ $settings->min_donor_weight }}" max="200"
-                    placeholder="70" />
+                  <input type="number" id="weight" name="weight" min="{{ $settings->min_donor_weight }}" max="200" placeholder="70" />
                   <span class="helper-text">يجب أن يكون {{ $settings->min_donor_weight }} كغ على الأقل</span>
                   <span class="error-message"></span>
                 </div>
 
                 <div class="form-group">
                   <label for="height">الطول (سم) <span class="required">*</span></label>
-                  <input type="number" id="height" name="height" min="{{ $settings->min_donor_height }}" max="220"
-                    placeholder="180" />
-                  <span class="helper-text">يجب أن يكون {{ $settings->min_donor_height }} سم على الأقل</span>
+                  <input type="number" id="height" name="height" min="140" max="220" placeholder="180" />
+                  <span class="helper-text">يجب أن يكون 140 سم على الأقل</span>
                   <span class="error-message"></span>
                 </div>
               </div>
@@ -258,8 +253,7 @@
                       ✕
                     </button>
                   </div>
-                  <span class="helper-text">يجب الانتظار {{ $settings->min_days_between_donations }} يوم بين
-                    التبرعات</span>
+                  <span class="helper-text">يجب الانتظار {{ $settings->min_days_between_donations }} يوم بين التبرعات</span>
                   <span class="error-message"></span>
                 </div>
               </div>
@@ -285,7 +279,7 @@
                       ✕
                     </button>
                   </div>
-                  <span class="helper-text">يجب الانتظار {{ $settings->min_days_after_surgery }} يوم بعد العملية</span>
+                  <span class="helper-text">يجب الانتظار 28 يوم بعد العملية</span>
                   <span class="error-message"></span>
                 </div>
               </div>

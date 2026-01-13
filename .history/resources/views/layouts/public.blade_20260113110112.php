@@ -20,9 +20,9 @@
     <title>{{ $title ?? ($settings->seo_title ?? $settings->site_name . ' - إنقاذ الأرواح قطرة قطرة') }}</title>
 
     <link rel="icon"
-        href="{{ $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.jpg') }}" />
+        href="{{ $settings->site_favicon ? Storage::url($settings->site_favicon) : asset('assets/images/logo.jpg') }}" />
     <link rel="shortcut icon"
-        href="{{ $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.jpg') }}" />
+        href="{{ $settings->site_favicon ? Storage::url($settings->site_favicon) : asset('assets/images/logo.jpg') }}" />
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />

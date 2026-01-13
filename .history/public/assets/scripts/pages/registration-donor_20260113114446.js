@@ -103,12 +103,12 @@ function checkEligibility() {
             const diffTime = Math.abs(today - surgery);
             const daysSinceSurgery = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            if (daysSinceSurgery < window.donationRules.minDaysAfterSurgery) {
+            if (daysSinceSurgery < 28) {
                 isEligible = false;
-                ineligibilityReasons.push(`أجريت عملية قبل ${daysSinceSurgery} يوم (يجب الانتظار ${window.donationRules.minDaysAfterSurgery} يوم)`);
+                ineligibilityReasons.push(`أجريت عملية قبل ${daysSinceSurgery} يوم (يجب الانتظار 28 يوم)`);
 
                 const futureDate = new Date(surgery);
-                futureDate.setDate(futureDate.getDate() + window.donationRules.minDaysAfterSurgery);
+                futureDate.setDate(futureDate.getDate() + 28);
 
                 if (!nextEligibleDate || futureDate > nextEligibleDate) {
                     nextEligibleDate = futureDate;

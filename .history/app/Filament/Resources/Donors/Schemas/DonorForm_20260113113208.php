@@ -170,9 +170,7 @@ class DonorForm
                                 TextInput::make('height')
                                     ->label('الطول (سم)')
                                     ->numeric()
-                                    ->minValue(120) // Safe default, actual validation via params or logic if needed, but here minValue is static usually or needs closure. 
-                                    // Actually Filament allows closures for minValue.
-                                    ->minValue(app(\App\Settings\GeneralSettings::class)->min_donor_height)
+                                    ->minValue(140)
                                     ->maxValue(220)
                                     ->suffix('سم'),
                             ]),

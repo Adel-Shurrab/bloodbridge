@@ -91,14 +91,11 @@ class GeneralSettings extends Settings
     public ?string $org_register_image;
 
     // Donation Rules & Limits
-    public int $min_donor_age = 18;
-    public int $max_donor_age = 65;
-    public int $min_donor_weight = 50;
-    public int $min_days_between_donations = 56;
-    public int $min_donor_height = 140;
-    public int $min_days_after_surgery = 28;
-
-    public int $org_max_requests_per_day = 5;
+    public int $min_donor_age;
+    public int $max_donor_age;
+    public int $min_donor_weight;
+    public int $min_days_between_donations;
+    public int $org_max_requests_per_day;
 
     public static function group(): string
     {

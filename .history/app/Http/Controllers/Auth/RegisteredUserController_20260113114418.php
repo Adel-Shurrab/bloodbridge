@@ -68,7 +68,7 @@ class RegisteredUserController extends Controller
             'recent_donation' => ['required', 'boolean'],
             'infection' => ['nullable', 'boolean'],
             'has_recent_surgery' => ['required', 'boolean'],
-            'surgery_date' => ['required_if:has_recent_surgery,1', 'nullable', 'date', 'before_or_equal:' . now()->subDays(app(\App\Settings\GeneralSettings::class)->min_days_after_surgery)->format('Y-m-d')],
+            'surgery_date' => ['required_if:has_recent_surgery,1', 'nullable', 'date', 'before_or_equal:today'],
             'last_donation_date' => ['required_if:recent_donation,1', 'nullable', 'date', 'before_or_equal:' . now()->subDays(app(\App\Settings\GeneralSettings::class)->min_days_between_donations)->format('Y-m-d')],
             'blood_type' => ['nullable', 'in:' . implode(',', array_keys(Donor::getBloodTypeOptions()))],
         ], [
