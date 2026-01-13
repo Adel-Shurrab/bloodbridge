@@ -4,10 +4,12 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 
+use App\Http\Controllers\PublicPagesController;
+
 // Public Pages
-Route::view('/', 'pages.home')->name('home');
-Route::view('/about', 'pages.about')->name('about');
-Route::view('/contact', 'pages.contact')->name('contact');
+Route::get('/', [PublicPagesController::class, 'home'])->name('home');
+Route::get('/about', [PublicPagesController::class, 'about'])->name('about');
+Route::get('/contact', [PublicPagesController::class, 'contact'])->name('contact');
 
 // Registration Pages
 Route::middleware('guest')->group(function () {
