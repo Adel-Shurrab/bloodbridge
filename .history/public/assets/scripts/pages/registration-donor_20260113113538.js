@@ -45,9 +45,9 @@ function checkEligibility() {
     // 2. Basic Checks - Height
     if (heightRaw !== "" && !isNaN(heightRaw)) {
         const height = parseFloat(heightRaw);
-        if (height > 0 && height < window.donationRules.minHeight) {
+        if (height > 0 && height < 140) {
             isEligible = false;
-            ineligibilityReasons.push(`الطول أقل من الحد الأدنى (${window.donationRules.minHeight} سم)`);
+            ineligibilityReasons.push('الطول أقل من الحد الأدنى (140 سم)');
         }
     }
 
@@ -103,12 +103,12 @@ function checkEligibility() {
             const diffTime = Math.abs(today - surgery);
             const daysSinceSurgery = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
 
-            if (daysSinceSurgery < window.donationRules.minDaysAfterSurgery) {
+            if (daysSinceSurgery < 28) {
                 isEligible = false;
-                ineligibilityReasons.push(`أجريت عملية قبل ${daysSinceSurgery} يوم (يجب الانتظار ${window.donationRules.minDaysAfterSurgery} يوم)`);
+                ineligibilityReasons.push(`أجريت عملية قبل ${daysSinceSurgery} يوم (يجب الانتظار 28 يوم)`);
 
                 const futureDate = new Date(surgery);
-                futureDate.setDate(futureDate.getDate() + window.donationRules.minDaysAfterSurgery);
+                futureDate.setDate(futureDate.getDate() + 28);
 
                 if (!nextEligibleDate || futureDate > nextEligibleDate) {
                     nextEligibleDate = futureDate;
@@ -304,8 +304,8 @@ function validateStep(step) {
                 showError('birth_date', `يجب أن يكون عمرك ${window.donationRules.minAge} سنة على الأقل`);
                 isValid = false;
             } else if (age > window.donationRules.maxAge) {
-                showError('birth_date', `يجب أن لا يتجاوز عمرك ${window.donationRules.maxAge} سنة`);
-                isValid = false;
+                 showError('birth_date', `يجب أن لا يتجاوز عمرك ${window.donationRules.maxAge} سنة`);
+                 isValid = false;
             }
         }
 
@@ -377,8 +377,8 @@ function validateStep(step) {
         if (!height) {
             showError('height', 'الطول مطلوب');
             isValid = false;
-        } else if (parseFloat(height) < window.donationRules.minHeight) {
-            showError('height', `الطول يجب أن يكون ${window.donationRules.minHeight} سم على الأقل`);
+        } else if (parseFloat(height) < 140) {
+            showError('height', 'الطول يجب أن يكون 140 سم على الأقل');
             isValid = false;
         }
 

@@ -33,25 +33,6 @@ class ManageGeneralSettings extends SettingsPage
             ->components([
                 Tabs::make('Settings')
                     ->tabs([
-                        Tab::make('System Rules')
-                            ->label('قواعد النظام')
-                            ->icon('heroicon-o-scale')
-                            ->schema([
-                                Section::make('أهلية التبرع')
-                                    ->schema([
-                                        TextInput::make('min_donor_age')->label('الحد الأدنى للعمر (سنة)')->numeric()->required(),
-                                        TextInput::make('max_donor_age')->label('الحد الأقصى للعمر (سنة)')->numeric()->required(),
-                                        TextInput::make('min_donor_weight')->label('الحد الأدنى للوزن (كجم)')->numeric()->required(),
-                                        TextInput::make('min_donor_height')->label('الحد الأدنى للطول (سم)')->numeric()->required(),
-                                        TextInput::make('min_days_between_donations')->label('المدة بين التبرعات (يوم)')->numeric()->required(),
-                                        TextInput::make('min_days_after_surgery')->label('المدة بعد العمليات الجراحية (يوم)')->numeric()->required(),
-                                    ])->columns(2),
-                                Section::make('قيود المنظمات')
-                                    ->schema([
-                                        TextInput::make('org_max_requests_per_day')->label('الحد الأقصى للطلبات يومياً')->numeric()->required(),
-                                    ]),
-                            ]),
-
                         Tab::make('Identity & System')
                             ->label('هوية الموقع والنظام')
                             ->icon('heroicon-o-cog-6-tooth')
@@ -66,12 +47,10 @@ class ManageGeneralSettings extends SettingsPage
                                         FileUpload::make('site_logo')
                                             ->label('لوجو الموقع')
                                             ->image()
-                                            ->disk('public')
                                             ->directory('settings'),
                                         FileUpload::make('site_favicon')
                                             ->label('أيقونة الموقع (Favicon)')
                                             ->image()
-                                            ->disk('public')
                                             ->directory('settings'),
                                     ])->columns(2),
                                 Section::make('حالة الموقع')
@@ -136,7 +115,7 @@ class ManageGeneralSettings extends SettingsPage
                                     ->schema([
                                         TextInput::make('home_hero_title')->label('العنوان الرئيسي'),
                                         Textarea::make('home_hero_subtitle')->label('العنوان الفرعي'),
-                                        FileUpload::make('home_hero_image')->label('صورة القسم')->image()->disk('public')->directory('settings'),
+                                        FileUpload::make('home_hero_image')->label('صورة القسم')->image(),
                                     ]),
                                 Section::make('المميزات')
                                     ->schema([
@@ -191,12 +170,12 @@ class ManageGeneralSettings extends SettingsPage
                                                 Group::make([
                                                     TextInput::make('about_mission_title1')->label('عنوان المهمة'),
                                                     Textarea::make('about_mission_text1')->label('نص المهمة'),
-                                                    FileUpload::make('about_mission_image1')->label('صورة المهمة')->image()->disk('public')->directory('settings'),
+                                                    FileUpload::make('about_mission_image1')->label('صورة المهمة')->image(),
                                                 ]),
                                                 Group::make([
                                                     TextInput::make('about_mission_title2')->label('عنوان الرؤية'),
                                                     Textarea::make('about_mission_text2')->label('نص الرؤية'),
-                                                    FileUpload::make('about_mission_image2')->label('صورة الرؤية')->image()->disk('public')->directory('settings'),
+                                                    FileUpload::make('about_mission_image2')->label('صورة الرؤية')->image(),
                                                 ]),
                                             ]),
                                     ]),
@@ -210,7 +189,7 @@ class ManageGeneralSettings extends SettingsPage
                                                 TextInput::make('title')->label('العنوان'),
                                                 TextInput::make('text')->label('الوصف'),
                                                 TextInput::make('icon')->label('الأيقونة (Emoji or HTML)'),
-                                                FileUpload::make('image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                                FileUpload::make('image')->label('الصورة')->image(),
                                             ])->columns(3),
                                     ]),
                                 Section::make('الفريق')
@@ -263,7 +242,7 @@ class ManageGeneralSettings extends SettingsPage
                                     ->schema([
                                         TextInput::make('login_title')->label('العنوان'),
                                         TextInput::make('login_subtitle')->label('الوصف'),
-                                        FileUpload::make('login_image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                        FileUpload::make('login_image')->label('الصورة')->image(),
                                     ]),
                                 Section::make('حساب جديد (الاختيار)')
                                     ->schema([
@@ -274,27 +253,27 @@ class ManageGeneralSettings extends SettingsPage
                                     ->schema([
                                         TextInput::make('signup_donor_title')->label('العنوان'),
                                         TextInput::make('signup_donor_subtitle')->label('الوصف'),
-                                        FileUpload::make('signup_donor_image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                        FileUpload::make('signup_donor_image')->label('الصورة')->image(),
                                         TagsInput::make('signup_donor_tasks')->label('المهام/المميزات'),
                                     ]),
                                 Section::make('أنا منظمة (في خيار التسجيل)')
                                     ->schema([
                                         TextInput::make('signup_org_title')->label('العنوان'),
                                         TextInput::make('signup_org_subtitle')->label('الوصف'),
-                                        FileUpload::make('signup_org_image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                        FileUpload::make('signup_org_image')->label('الصورة')->image(),
                                         TagsInput::make('signup_org_tasks')->label('المهام/المميزات'),
                                     ]),
                                 Section::make('صفحة التسجيل كمتبرع')
                                     ->schema([
                                         TextInput::make('donor_register_title')->label('العنوان'),
                                         TextInput::make('donor_register_subtitle')->label('الوصف'),
-                                        FileUpload::make('donor_register_image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                        FileUpload::make('donor_register_image')->label('الصورة')->image(),
                                     ]),
                                 Section::make('صفحة التسجيل كمنظمة')
                                     ->schema([
                                         TextInput::make('org_register_title')->label('العنوان'),
                                         TextInput::make('org_register_subtitle')->label('الوصف'),
-                                        FileUpload::make('org_register_image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                        FileUpload::make('org_register_image')->label('الصورة')->image(),
                                     ]),
                             ]),
                     ])->columnSpanFull(),

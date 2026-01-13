@@ -9,7 +9,7 @@ return new class extends SettingsMigration
         // Site Identity
         $this->migrator->add('general.site_name', 'BloodBridge');
         $this->migrator->add('general.site_slogan', 'أعط الحياة قطرة قطرة');
-        $this->migrator->add('general.site_active', false);
+        $this->migrator->add('general.site_active', true);
         $this->migrator->add('general.maintenance_message', 'الموقع حالياً في وضع الصيانة، سنعود قريباً.');
         $this->migrator->add('general.site_logo', null);
         $this->migrator->add('general.site_favicon', null);
@@ -130,13 +130,11 @@ return new class extends SettingsMigration
         $this->migrator->add('general.org_register_title', 'سجل منظمتك');
         $this->migrator->add('general.org_register_subtitle', 'املأ بيانات منظمتك للانضمام إلى شبكتنا والحصول على التبرعات التي تحتاجها.');
         $this->migrator->add('general.org_register_image', null);
-
+    
         $this->migrator->add('general.min_donor_age', 18);
         $this->migrator->add('general.max_donor_age', 65);
         $this->migrator->add('general.min_donor_weight', 50);
-        $this->migrator->add('general.min_days_between_donations', 90);
-        $this->migrator->add('general.min_donor_height', 140);
-        $this->migrator->add('general.min_days_after_surgery', 28);
+        $this->migrator->add('general.min_days_between_donations', 56);
         $this->migrator->add('general.org_max_requests_per_day', 5);
     }
 };

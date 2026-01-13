@@ -7,10 +7,8 @@
         maxAge: {{ $settings->max_donor_age }},
         minWeight: {{ $settings->min_donor_weight }},
         minHeight: {{ $settings->min_donor_height }},
-        minHeight: {{ $settings->min_donor_height }},
-        minDaysBetweenDonations: {{ $settings->min_days_between_donations }},
-        minDaysAfterSurgery: {{ $settings->min_days_after_surgery }}
-            };
+        minDaysBetweenDonations: {{ $settings->min_days_between_donations }}
+          };
     </script>
   @endpush
 
@@ -285,7 +283,7 @@
                       ✕
                     </button>
                   </div>
-                  <span class="helper-text">يجب الانتظار {{ $settings->min_days_after_surgery }} يوم بعد العملية</span>
+                  <span class="helper-text">يجب الانتظار 28 يوم بعد العملية</span>
                   <span class="error-message"></span>
                 </div>
               </div>
