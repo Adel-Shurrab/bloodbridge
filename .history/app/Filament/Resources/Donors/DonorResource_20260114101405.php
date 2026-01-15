@@ -24,7 +24,7 @@ class DonorResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-heart';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
+    protected static string|UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
 
     protected static ?string $navigationLabel = 'المتبرعين';
 

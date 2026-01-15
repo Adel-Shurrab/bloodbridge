@@ -24,7 +24,7 @@ class OrganizationResource extends Resource
     protected static ?string $model = Organization::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingOffice;
-    protected static string|\UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
+    protected static string|UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
     protected static ?string $navigationLabel = 'المنظمات';
     protected static ?string $modelLabel = 'منظمة';
     protected static ?string $pluralModelLabel = 'المنظمات';

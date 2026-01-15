@@ -13,7 +13,7 @@ class Statistics extends Page
 {
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'الإحصائيات';
+    protected static string | \UnitEnum | null $navigationGroup = 'الإحصائيات';
 
     protected string $view = 'filament.pages.statistics';
 

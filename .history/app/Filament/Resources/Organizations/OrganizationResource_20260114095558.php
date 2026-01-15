@@ -9,6 +9,7 @@ use App\Filament\Resources\Organizations\RelationManagers\BloodRequestsRelationM
 use App\Models\Organization;
 use BackedEnum;
 use UnitEnum;
+use UnitEnum;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
@@ -24,7 +25,7 @@ class OrganizationResource extends Resource
     protected static ?string $model = Organization::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingOffice;
-    protected static string|\UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
+    protected static string|UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
     protected static ?string $navigationLabel = 'المنظمات';
     protected static ?string $modelLabel = 'منظمة';
     protected static ?string $pluralModelLabel = 'المنظمات';
