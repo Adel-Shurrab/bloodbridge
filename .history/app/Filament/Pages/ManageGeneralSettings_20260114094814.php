@@ -78,13 +78,13 @@ class ManageGeneralSettings extends SettingsPage
                                     ])->columns(2),
                                 Section::make('حالة الموقع')
                                     ->schema([
-                                        Toggle::make('maintenance_mode')
-                                            ->label('وضع الصيانة')
+                                        Toggle::make('site_active')
+                                            ->label('تعطيل الموقع')
                                             ->helperText('تفعيل هذا الخيار سيضع الموقع في وضع الصيانة.')
                                             ->live(),
                                         TextInput::make('maintenance_message')
                                             ->label('رسالة الصيانة')
-                                            ->visible(fn($get) => $get('maintenance_mode'))
+                                            ->visible(fn($get) => $get('site_active'))
                                             ->columnSpanFull(),
                                     ]),
                             ]),

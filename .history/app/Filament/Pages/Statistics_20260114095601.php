@@ -5,15 +5,17 @@ namespace App\Filament\Pages;
 use App\Filament\Widgets\AdvancedStatsOverview;
 use App\Filament\Widgets\BloodTypeDemandWidget;
 use App\Filament\Widgets\EngagementChartWidget;
+use App\Filament\Widgets\MapPlaceholderWidget;
 use App\Filament\Widgets\RecentActivityWidget;
 use App\Filament\Widgets\StatsOverview;
 use Filament\Pages\Page;
+use UnitEnum;
 
 class Statistics extends Page
 {
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'الإحصائيات';
+    protected static string | \UnitEnum | null $navigationGroup = 'الإحصائيات';
 
     protected string $view = 'filament.pages.statistics';
 
@@ -24,7 +26,11 @@ class Statistics extends Page
     protected function getHeaderWidgets(): array
     {
         return [
-            //
+            AdvancedStatsOverview::class,
+            EngagementChartWidget::class,
+            MapPlaceholderWidget::class,
+            BloodTypeDemandWidget::class,
+            RecentActivityWidget::class,
         ];
     }
 

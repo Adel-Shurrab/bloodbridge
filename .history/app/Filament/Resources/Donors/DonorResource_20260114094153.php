@@ -11,7 +11,6 @@ use App\Filament\Resources\Donors\Tables\DonorsTable;
 use App\Filament\Resources\Donors\RelationManagers\ResponsesRelationManager;
 use App\Models\Donor;
 use BackedEnum;
-use UnitEnum;
 use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
 use Filament\Tables\Table;
@@ -24,7 +23,7 @@ class DonorResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-heart';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
+    protected static ?string $navigationGroup = 'إدارة المستخدمين';
 
     protected static ?string $navigationLabel = 'المتبرعين';
 

@@ -12,8 +12,8 @@ use App\Filament\Resources\Donors\RelationManagers\ResponsesRelationManager;
 use App\Models\Donor;
 use BackedEnum;
 use UnitEnum;
-use Filament\Schemas\Schema;
 use Filament\Resources\Resource;
+use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
@@ -24,7 +24,7 @@ class DonorResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-heart';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
+    protected static string|UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
 
     protected static ?string $navigationLabel = 'المتبرعين';
 

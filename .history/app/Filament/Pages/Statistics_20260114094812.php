@@ -13,7 +13,7 @@ class Statistics extends Page
 {
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'الإحصائيات';
+    protected static string | \UnitEnum | null $navigationGroup = 'الإحصائيات';
 
     protected string $view = 'filament.pages.statistics';
 
@@ -24,7 +24,10 @@ class Statistics extends Page
     protected function getHeaderWidgets(): array
     {
         return [
-            //
+            AdvancedStatsOverview::class,
+            EngagementChartWidget::class,
+            BloodTypeDemandWidget::class,
+            RecentActivityWidget::class,
         ];
     }
 

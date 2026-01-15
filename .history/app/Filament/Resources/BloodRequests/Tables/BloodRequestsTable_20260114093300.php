@@ -3,18 +3,17 @@
 namespace App\Filament\Resources\BloodRequests\Tables;
 
 use App\Models\BloodRequest;
-use App\Models\Donor;
-use Filament\Actions\ActionGroup;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\RestoreAction;
-use Filament\Actions\RestoreBulkAction;
-use Filament\Actions\ViewAction;
 use Filament\Tables;
-use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Actions\DeleteAction;
+use Filament\Actions\EditAction;
+use Filament\Actions\ViewAction;
+use Filament\Actions\RestoreAction;
+use Filament\Actions\ForceDeleteAction;
+use Filament\Actions\RestoreBulkAction;
+use Filament\Actions\BulkActionGroup;
+use Filament\Actions\DeleteBulkAction;
 
 class BloodRequestsTable
 {
@@ -29,7 +28,7 @@ class BloodRequestsTable
                     ->sortable(),
                 TextColumn::make('blood_type')
                     ->label('فصيلة الدم')
-                    ->formatStateUsing(fn($state) => Donor::getBloodTypeOptions()[$state] ?? $state)
+                    ->formatStateUsing(fn($state) => \App\Models\Donor::getBloodTypeOptions()[$state] ?? $state)
                     ->badge()
                     ->color('danger'),
                 TextColumn::make('units_needed')
@@ -72,7 +71,7 @@ class BloodRequestsTable
                     ->options(BloodRequest::getUrgencyOptions()),
             ])
             ->actions([
-                ActionGroup::make([
+                \Filament\Actions\ActionGroup::make([
                     ViewAction::make()->label('عرض')->color('gray'),
                     EditAction::make()->label('تعديل'),
                     DeleteAction::make()->label('حذف'),
