@@ -5,6 +5,7 @@ namespace App\Filament\Organization\Resources\BloodRequests;
 use App\Filament\Organization\Resources\BloodRequests\Pages\CreateBloodRequest;
 use App\Filament\Organization\Resources\BloodRequests\Pages\EditBloodRequest;
 use App\Filament\Organization\Resources\BloodRequests\Pages\ListBloodRequests;
+use App\Filament\Organization\Resources\BloodRequests\Pages\ViewBloodRequest;
 use App\Filament\Organization\Resources\BloodRequests\Schemas\BloodRequestForm;
 use App\Filament\Organization\Resources\BloodRequests\Tables\BloodRequestsTable;
 use App\Models\BloodRequest;
@@ -39,7 +40,7 @@ class BloodRequestResource extends Resource
     public static function getRelations(): array
     {
         return [
-            //
+            RelationManagers\ResponsesRelationManager::class,
         ];
     }
 
@@ -48,6 +49,7 @@ class BloodRequestResource extends Resource
         return [
             'index' => ListBloodRequests::route('/'),
             'create' => CreateBloodRequest::route('/create'),
+            'view' => Pages\ViewBloodRequest::route('/{record}'),
             'edit' => EditBloodRequest::route('/{record}/edit'),
         ];
     }

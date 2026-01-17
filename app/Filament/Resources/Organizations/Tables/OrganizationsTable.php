@@ -82,7 +82,8 @@ class OrganizationsTable
                         ->requiresConfirmation()
                         ->visible(fn(Organization $record) => $record->approval_status === Organization::STATUS_PENDING)
                         ->action(function (Organization $record) {
-                            $record->update(['approval_status' => Organization::STATUS_APPROVED]);
+                            $record->approval_status = Organization::STATUS_APPROVED;
+                            $record->save();
                             Notification::make()->title('تمت الموافقة')->success()->send();
                         }),
 
@@ -94,7 +95,8 @@ class OrganizationsTable
                         ->requiresConfirmation()
                         ->visible(fn(Organization $record) => $record->approval_status === Organization::STATUS_PENDING)
                         ->action(function (Organization $record) {
-                            $record->update(['approval_status' => Organization::STATUS_REJECTED]);
+                            $record->approval_status = Organization::STATUS_REJECTED;
+                            $record->save();
                             Notification::make()->title('تم الرفض')->danger()->send();
                         }),
                 ])->label('خيارات')->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
