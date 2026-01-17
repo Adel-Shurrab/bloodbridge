@@ -43,6 +43,8 @@ class DonorHealthProfile extends Model
         'last_donation_date',
         'blood_type',
         'verified_blood_type',
+        'verified_by_organization_id',
+        'verified_at',
         'total_donations'
     ];
 
@@ -55,6 +57,7 @@ class DonorHealthProfile extends Model
         'has_recent_surgery' => 'boolean',
         'surgery_date' => 'date',
         'next_eligible_date' => 'date',
+        'verified_at' => 'datetime',
         'last_donation_date' => 'date',
         'blood_type' => BloodType::class,
         'verified_blood_type' => BloodType::class,
@@ -84,8 +87,13 @@ class DonorHealthProfile extends Model
     public function calculateEligibility(): array
     {
         $today = Carbon::now()->startOfDay();
-        $isEligible = true;
-        $nextEligibleDate = null;
+
+        // Respect current future date (e.g., from manual lab verification)
+        $nextEligibleDate = ($this->next_eligible_date && Carbon::parse($this->next_eligible_date)->isFuture())
+            ? Carbon::parse($this->next_eligible_date)->startOfDay()
+            : null;
+
+        $isEligible = $nextEligibleDate === null;
 
         // 1. Permanent Disqualifiers
         if ($this->chronic_disease) {
@@ -145,5 +153,10 @@ class DonorHealthProfile extends Model
     public function donor()
     {
         return $this->belongsTo(Donor::class);
+    }
+
+    public function verifyingOrganization()
+    {
+        return $this->belongsTo(Organization::class, 'verified_by_organization_id');
     }
 }

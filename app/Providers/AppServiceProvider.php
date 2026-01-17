@@ -19,8 +19,12 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        $settings = app(\App\Settings\GeneralSettings::class);
-        view()->share('settings', $settings);
-        config(['app.name' => $settings->site_name]);
+        try {
+            $settings = app(\App\Settings\GeneralSettings::class);
+            view()->share('settings', $settings);
+            config(['app.name' => $settings->site_name]);
+        } catch (\Throwable $e) {
+            // Silently fail if settings cannot be loaded (e.g. during migrations)
+        }
     }
 }

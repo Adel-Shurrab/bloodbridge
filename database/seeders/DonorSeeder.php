@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Donor;
 use App\Models\DonorHealthProfile;
 use App\Models\User;
+use App\Models\Organization;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
@@ -13,113 +14,58 @@ class DonorSeeder extends Seeder
 {
     public function run(): void
     {
-        $donors = [
-            [
-                'name' => 'أحمد محمد',
-                'email' => 'ahmed.mohamed@example.com',
-                'gender' => Donor::GENDER_MALE,
-                'blood_type' => Donor::BLOOD_TYPE_O_POSITIVE,
-                'national_id' => '100000001',
-            ],
-            [
-                'name' => 'سارة علي',
-                'email' => 'sarah.ali@example.com',
-                'gender' => Donor::GENDER_FEMALE,
-                'blood_type' => Donor::BLOOD_TYPE_A_POSITIVE,
-                'national_id' => '100000002',
-            ],
-            [
-                'name' => 'محمود حسن',
-                'email' => 'mahmoud.hassan@example.com',
-                'gender' => Donor::GENDER_MALE,
-                'blood_type' => Donor::BLOOD_TYPE_B_POSITIVE,
-                'national_id' => '100000003',
-            ],
-            [
-                'name' => 'فاطمة إبراهيم',
-                'email' => 'fatima.ibrahim@example.com',
-                'gender' => Donor::GENDER_FEMALE,
-                'blood_type' => Donor::BLOOD_TYPE_O_NEGATIVE,
-                'national_id' => '100000004',
-            ],
-            [
-                'name' => 'عمر خالد',
-                'email' => 'omar.khaled@example.com',
-                'gender' => Donor::GENDER_MALE,
-                'blood_type' => Donor::BLOOD_TYPE_AB_POSITIVE,
-                'national_id' => '100000005',
-            ],
-            [
-                'name' => 'ليلى حسين',
-                'email' => 'layla.hussein@example.com',
-                'gender' => Donor::GENDER_FEMALE,
-                'blood_type' => Donor::BLOOD_TYPE_A_NEGATIVE,
-                'national_id' => '100000006',
-            ],
-            [
-                'name' => 'يوسف عبدالله',
-                'email' => 'youssef.abdallah@example.com',
-                'gender' => Donor::GENDER_MALE,
-                'blood_type' => Donor::BLOOD_TYPE_B_NEGATIVE,
-                'national_id' => '100000007',
-            ],
-            [
-                'name' => 'نور الدين',
-                'email' => 'nour.eldin@example.com',
-                'gender' => Donor::GENDER_MALE,
-                'blood_type' => Donor::BLOOD_TYPE_AB_NEGATIVE,
-                'national_id' => '100000008',
-            ],
-            [
-                'name' => 'مصطفى عثمان',
-                'email' => 'mustafa.othman@example.com',
-                'gender' => Donor::GENDER_MALE,
-                'blood_type' => Donor::BLOOD_TYPE_O_POSITIVE,
-                'national_id' => '100000009',
-            ],
-            [
-                'name' => 'مريم سعيد',
-                'email' => 'mariam.saeed@example.com',
-                'gender' => Donor::GENDER_FEMALE,
-                'blood_type' => Donor::BLOOD_TYPE_A_POSITIVE,
-                'national_id' => '100000010',
-            ],
-        ];
+        $firstNames = ['محمد', 'أحمد', 'محمود', 'عبد الله', 'يوسف', 'خالد', 'إبراهيم', 'عمر', 'علي', 'حسين', 'سارة', 'فاطمة', 'مريم', 'ليلى', 'نور', 'منى', 'أسماء', 'رشا', 'هبة', 'منة'];
+        $lastNames = ['سليمان', 'أبو كمال', 'الحسن', 'عوض', 'صالحة', 'النجار', 'المصري', 'حمودة', 'عبيد', 'شاهين', 'بركة', 'عقل', 'داوود', 'خليل', 'ياسين', 'الأسطل', 'قدرة', 'صيام', 'أبو حطب', 'الأطرش'];
 
-        foreach ($donors as $data) {
-            $user = User::firstOrCreate(
-                ['email' => $data['email']],
-                [
-                    'name' => $data['name'],
-                    'password' => Hash::make('password'),
-                    'phone' => '059' . substr($data['national_id'], -7),
-                    'role' => User::ROLE_DONOR,
-                ]
-            );
+        $orgIds = Organization::pluck('id')->toArray();
 
-            $donor = Donor::firstOrCreate(
-                ['user_id' => $user->id],
-                [
-                    'national_id' => $data['national_id'],
-                    'gender' => $data['gender'],
-                    'birth_date' => Carbon::now()->subYears(rand(20, 40)),
-                    'lat' => 31.5 + (rand(0, 100) / 1000),
-                    'lng' => 34.4 + (rand(0, 100) / 1000),
-                    'governorate_id' => \App\Models\Governorate::inRandomOrder()->first()?->id,
-                ]
-            );
+        for ($i = 1; $i <= 50; $i++) {
+            $firstName = $firstNames[array_rand($firstNames)];
+            $lastName = $lastNames[array_rand($lastNames)];
+            $name = $firstName . ' ' . $lastName;
+            $email = "donor{$i}@bloodbridge.ps";
+            $nationalId = '4' . str_pad($i, 8, '0', STR_PAD_LEFT);
+            $gender = in_array($firstName, ['سارة', 'فاطمة', 'مريم', 'ليلى', 'نور', 'منى', 'أسماء', 'رشا', 'هبة', 'منة']) ? Donor::GENDER_FEMALE : Donor::GENDER_MALE;
 
-            // Create or update Health Profile
-            DonorHealthProfile::updateOrCreate(
-                ['donor_id' => $donor->id],
-                [
-                    'weight' => rand(60, 90),
-                    'height' => rand(160, 190),
-                    'blood_type' => $data['blood_type'],
-                    'is_eligible' => true,
-                    'total_donations' => rand(0, 5),
-                ]
-            );
+            $user = User::create([
+                'name' => $name,
+                'email' => $email,
+                'password' => Hash::make('password'),
+                'phone' => '0595' . str_pad($i, 6, '0', STR_PAD_LEFT),
+                'role' => User::ROLE_DONOR,
+                'is_active' => true,
+            ]);
+
+            $donor = Donor::create([
+                'user_id' => $user->id,
+                'national_id' => $nationalId,
+                'gender' => $gender,
+                'birth_date' => Carbon::now()->subYears(rand(18, 60)),
+                'lat' => 31.5 + (rand(-200, 200) / 1000),
+                'lng' => 34.4 + (rand(-100, 100) / 1000),
+                'governorate_id' => \App\Models\Governorate::inRandomOrder()->first()?->id,
+            ]);
+
+            // Create Health Profile with varied data
+            $hasRecentDonation = rand(0, 10) > 7;
+            $hasSurgery = rand(0, 10) > 8;
+
+            DonorHealthProfile::create([
+                'donor_id' => $donor->id,
+                'weight' => rand(55, 110),
+                'height' => rand(155, 195),
+                'blood_type' => rand(1, 8),
+                'verified_blood_type' => $hasVerifiedBloodType = (rand(0, 10) > 6 ? rand(1, 8) : null),
+                'verified_by_organization_id' => $hasVerifiedBloodType && !empty($orgIds) ? $orgIds[array_rand($orgIds)] : null,
+                'verified_at' => $hasVerifiedBloodType ? Carbon::now()->subDays(rand(5, 365)) : null,
+                'chronic_disease' => rand(0, 10) > 9,
+                'recent_donation' => $hasRecentDonation,
+                'last_donation_date' => $hasRecentDonation ? Carbon::now()->subDays(rand(10, 150)) : null,
+                'has_recent_surgery' => $hasSurgery,
+                'surgery_date' => $hasSurgery ? Carbon::now()->subDays(rand(5, 60)) : null,
+                'total_donations' => rand(0, 20),
+                'is_eligible' => true, // Will be auto-calculated by model booted method
+            ]);
         }
     }
 }

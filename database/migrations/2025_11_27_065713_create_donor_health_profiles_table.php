@@ -5,6 +5,7 @@ use App\Models\DonorHealthProfile;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use App\Models\Organization;
 
 return new class extends Migration
 {
@@ -30,6 +31,11 @@ return new class extends Migration
             $table->date('next_eligible_date')->nullable()->index()->comment('Auto-calculated: when donor becomes eligible again');
             $table->date('last_donation_date')->nullable()->index()->comment('Date of last donation');
             $table->unsignedTinyInteger('blood_type')->nullable()->index()->comment('Self declared');
+            $table->foreignIdFor(Organization::class, 'verified_by_organization_id')
+                ->nullable()
+                ->constrained('organizations')
+                ->nullOnDelete();
+            $table->timestamp('verified_at')->nullable();
             $table->unsignedTinyInteger('verified_blood_type')->nullable()->comment('Hospital verified');
             $table->unsignedInteger('total_donations')->default(DonorHealthProfile::DEFAULT_TOTAL_DONATIONS)->comment('Total donation count');
             $table->softDeletes();

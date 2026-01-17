@@ -17,7 +17,7 @@ class Organization extends Model
     {
         return [
             self::STATUS_PENDING => 'قيد الانتظار',
-            self::STATUS_APPROVED => 'مقبول',
+            self::STATUS_APPROVED => 'معتمدة',
             self::STATUS_REJECTED => 'مرفوض',
         ];
     }

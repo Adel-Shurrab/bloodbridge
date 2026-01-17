@@ -3,21 +3,38 @@
 namespace App\Filament\Organization\Resources\BloodRequests\RelationManagers;
 
 use App\Models\RequestResponse;
+use BackedEnum;
 use App\Models\BloodRequest;
-use App\Models\Donor;
 use App\Enums\BloodType;
-use Filament\Forms;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\Placeholder;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
 use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Actions\Action;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\Layout\Split;
+use Filament\Tables\Columns\Layout\Stack;
+use Filament\Tables\Columns\Layout\Panel;
+use Filament\Tables\Columns\Layout\Grid as TableGrid;
 use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
 use Filament\Notifications\Notification;
+use Filament\Support\Enums\FontWeight;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Carbon;
+use App\Models\EligibilityLog;
+use App\Models\SystemNotification;
+use Illuminate\Support\Facades\Auth;
+use Filament\Actions\ActionGroup;
+use Filament\Tables\Enums\FiltersLayout;
 
 class ResponsesRelationManager extends RelationManager
 {
@@ -25,14 +42,24 @@ class ResponsesRelationManager extends RelationManager
 
     protected static ?string $title = 'استجابات المتبرعين';
 
+    protected static string|BackedEnum|null $icon = 'heroicon-o-users';
+
     public function form(Schema $schema): Schema
     {
         return $schema
             ->schema([
-                Select::make('status')
-                    ->label('الحالة')
-                    ->options(RequestResponse::getStatusOptions())
-                    ->required(),
+                Section::make('تحديث حالة الاستجابة')
+                    ->description('اختر الحالة المناسبة للاستجابة')
+                    ->icon('heroicon-o-clipboard-document-check')
+                    ->schema([
+                        Select::make('status')
+                            ->label('الحالة')
+                            ->options(RequestResponse::getStatusOptions())
+                            ->required()
+                            ->native(false)
+                            ->placeholder('اختر الحالة')
+                            ->helperText('سيتم تحديث حالة استجابة المتبرع'),
+                    ]),
             ]);
     }
 
@@ -40,50 +67,212 @@ class ResponsesRelationManager extends RelationManager
     {
         return $table
             ->recordTitleAttribute('id')
-            ->columns([
-                TextColumn::make('donor.user.name')
-                    ->label('المتبرع')
-                    ->searchable()
-                    ->sortable(),
-
-                TextColumn::make('donor.healthProfile.blood_type')
-                    ->label('الفصيلة المصرحة')
-                    ->badge(),
-
-                TextColumn::make('donor.healthProfile.verified_blood_type')
-                    ->label('الفصيلة المحققة')
-                    ->badge()
-                    ->placeholder('لم تحقق بعد'),
-
-                TextColumn::make('status')
-                    ->label('الحالة')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => RequestResponse::getStatusOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int) $state) {
-                        RequestResponse::STATUS_ACCEPTED, RequestResponse::STATUS_COMPLETED => 'success',
-                        RequestResponse::STATUS_DECLINED, RequestResponse::STATUS_NO_SHOW => 'danger',
-                        default => 'warning',
-                    }),
-
-                TextColumn::make('verified_at')
-                    ->label('تاريخ التحقق')
-                    ->dateTime('Y/m/d h:i A')
-                    ->placeholder('-')
-                    ->sortable(),
+            ->heading('قائمة المتبرعين المستجيبين')
+            ->description('عرض وإدارة استجابات المتبرعين لهذا الطلب')
+            ->columns($this->getTableColumns())
+            ->contentGrid([
+                'sm' => 1,
+                'md' => 2,
+                'xl' => 3,
             ])
-            ->filters([
-                SelectFilter::make('status')
-                    ->label('الحالة')
-                    ->options(RequestResponse::getStatusOptions()),
+            ->filters($this->getTableFilters())
+            ->filtersLayout(FiltersLayout::AboveContentCollapsible)
+            ->actions($this->getTableActions())
+            ->bulkActions([])
+            ->emptyStateHeading('لا توجد استجابات بعد')
+            ->emptyStateDescription('لم يستجب أي متبرع لهذا الطلب حتى الآن')
+            ->emptyStateIcon('heroicon-o-users')
+            ->paginated([12, 24, 48, 'all'])
+            ->defaultPaginationPageOption(12)
+            ->defaultSort('created_at', 'desc');
+    }
+
+    protected function getTableColumns(): array
+    {
+        return [
+            Stack::make([
+                // Header: Name & Status Badge
+                Split::make([
+                    Stack::make([
+                        TextColumn::make('donor.user.name')
+                            ->label('اسم المتبرع')
+                            ->weight(FontWeight::Bold)
+                            ->size('lg')
+                            ->searchable()
+                            ->sortable()
+                            ->icon('heroicon-m-user')
+                            ->iconColor('primary'),
+
+                        TextColumn::make('donor.user.phone')
+                            ->label('رقم الهاتف')
+                            ->icon('heroicon-m-phone')
+                            ->color('gray')
+                            ->size('sm')
+                            ->default('لا يوجد'),
+                    ])->space(1),
+
+                    TextColumn::make('status')
+                        ->label('الحالة')
+                        ->badge()
+                        ->size('md')
+                        ->formatStateUsing(fn($state) => match ((int) $state) {
+                            RequestResponse::STATUS_PENDING => 'قيد الانتظار',
+                            RequestResponse::STATUS_ACCEPTED => 'قادم للتبرع',
+                            RequestResponse::STATUS_DECLINED => 'استبعاد طبي',
+                            RequestResponse::STATUS_COMPLETED => 'تم التبرع بنجاح',
+                            RequestResponse::STATUS_NO_SHOW => 'لم يحضر',
+                            default => RequestResponse::getStatusOptions()[$state] ?? $state,
+                        })
+                        ->color(fn($state): string => match ((int) $state) {
+                            RequestResponse::STATUS_ACCEPTED, RequestResponse::STATUS_COMPLETED => 'success',
+                            RequestResponse::STATUS_DECLINED, RequestResponse::STATUS_NO_SHOW => 'danger',
+                            default => 'warning',
+                        })
+                        ->description(fn(RequestResponse $record) =>
+                        !$record->donor->healthProfile?->is_eligible
+                            ? '🚫 غير مؤهل للتبرع حالياً'
+                            : null)
+                        ->grow(false),
+                ]),
+
+                // Panel: Blood Type & Timing Info
+                Panel::make([
+                    TableGrid::make(2)
+                        ->schema([
+                            Stack::make([
+                                TextColumn::make('blood_type_header')
+                                    ->label('الفصيلة')
+                                    ->state('فصيلة الدم')
+                                    ->size('xs')
+                                    ->color('gray')
+                                    ->weight(FontWeight::Medium),
+
+                                TextColumn::make('blood_type_display')
+                                    ->state(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ?? $record->donor->healthProfile?->blood_type ?? 'غير محدد')
+                                    ->badge()
+                                    ->size('lg')
+                                    ->icon(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ? 'heroicon-m-check-badge' : 'heroicon-m-question-mark-circle')
+                                    ->color(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ? 'success' : 'warning'),
+
+                                TextColumn::make('blood_verification')
+                                    ->state(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ? '✓ محققة مخبرياً' : '⚠ مصرح بها ذاتياً')
+                                    ->size('xs')
+                                    ->color(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ? 'success' : 'warning')
+                                    ->weight(FontWeight::SemiBold),
+                            ])->space(1),
+
+                            Stack::make([
+                                TextColumn::make('timing_header')
+                                    ->state('التوقيت')
+                                    ->size('xs')
+                                    ->color('gray')
+                                    ->weight(FontWeight::Medium),
+
+                                TextColumn::make('response_date')
+                                    ->label('تاريخ الاستجابة')
+                                    ->state(fn(RequestResponse $record) => $record->created_at->diffForHumans())
+                                    ->icon('heroicon-m-clock')
+                                    ->color('info')
+                                    ->size('sm')
+                                    ->weight(FontWeight::Medium),
+
+                                TextColumn::make('verification_date')
+                                    ->label('تاريخ التحقق')
+                                    ->state(fn(RequestResponse $record) => $record->verified_at ? Carbon::parse($record->verified_at)->format('Y/m/d h:i A') : 'لم يتم التحقق')
+                                    ->icon('heroicon-m-check-circle')
+                                    ->color(fn(RequestResponse $record) => $record->verified_at ? 'success' : 'gray')
+                                    ->size('xs'),
+                            ])->space(1),
+                        ]),
+                ])
+                    ->collapsible(),
+
             ])
-            ->actions([
-                // Verification / Completion Action
+                ->space(3),
+        ];
+    }
+
+    protected function getTableFilters(): array
+    {
+        return [
+            SelectFilter::make('status')
+                ->label('حالة الاستجابة')
+                ->options(RequestResponse::getStatusOptions())
+                ->placeholder('جميع الحالات')
+                ->native(false)
+                ->multiple(),
+
+            SelectFilter::make('blood_type')
+                ->label('فصيلة الدم')
+                ->options(BloodType::class)
+                ->placeholder('جميع الفصائل')
+                ->native(false)
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query->when(
+                        $data['value'],
+                        fn(Builder $query, $value): Builder => $query->whereHas('donor.healthProfile', function ($q) use ($value) {
+                            $q->where('verified_blood_type', $value)
+                                ->orWhere(function ($q2) use ($value) {
+                                    $q2->whereNull('verified_blood_type')
+                                        ->where('blood_type', $value);
+                                });
+                        })
+                    );
+                }),
+
+            TernaryFilter::make('verified')
+                ->label('التحقق المخبري')
+                ->placeholder('الكل')
+                ->trueLabel('فصيلة محققة')
+                ->falseLabel('فصيلة غير محققة')
+                ->queries(
+                    true: fn($query) => $query->whereHas('donor.healthProfile', fn($q) => $q->whereNotNull('verified_blood_type')),
+                    false: fn($query) => $query->whereHas('donor.healthProfile', fn($q) => $q->whereNull('verified_blood_type')),
+                ),
+
+            Filter::make('created_at')
+                ->label('فترة الاستجابة')
+                ->form([
+                    Grid::make(2)
+                        ->schema([
+                            DatePicker::make('created_from')
+                                ->label('من تاريخ')
+                                ->native(false)
+                                ->placeholder('اختر التاريخ'),
+                            DatePicker::make('created_until')
+                                ->label('إلى تاريخ')
+                                ->native(false)
+                                ->placeholder('اختر التاريخ'),
+                        ]),
+                ])
+                ->query(function (Builder $query, array $data): Builder {
+                    return $query
+                        ->when(
+                            $data['created_from'],
+                            fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
+                        )
+                        ->when(
+                            $data['created_until'],
+                            fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
+                        );
+                }),
+        ];
+    }
+
+    protected function getTableActions(): array
+    {
+        return [
+            ActionGroup::make([
                 Action::make('verify_donation')
                     ->label('تأكيد التبرع')
                     ->icon('heroicon-o-check-badge')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->visible(fn(RequestResponse $record) => $record->status !== RequestResponse::STATUS_COMPLETED)
+                    ->modalHeading('تأكيد اكتمال التبرع')
+                    ->modalDescription('هل تريد تأكيد أن المتبرع قد أكمل عملية التبرع بنجاح؟')
+                    ->modalSubmitActionLabel('نعم، تأكيد التبرع')
+                    ->modalIcon('heroicon-o-check-badge')
+                    ->visible(fn(RequestResponse $record) => $record->status === RequestResponse::STATUS_PENDING)
                     ->action(function (RequestResponse $record) {
                         DB::transaction(function () use ($record) {
                             $record->status = RequestResponse::STATUS_COMPLETED;
@@ -104,57 +293,279 @@ class ResponsesRelationManager extends RelationManager
 
                         Notification::make()
                             ->title('تم تأكيد التبرع بنجاح')
+                            ->body('تم تسجيل اكتمال عملية التبرع وتحديث العدادات')
                             ->success()
                             ->send();
                     }),
 
-                // No-Show Action
                 Action::make('mark_no_show')
-                    ->label('عدم حضور')
+                    ->label('تسجيل عدم حضور')
                     ->icon('heroicon-o-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
-                    ->visible(fn(RequestResponse $record) => in_array($record->status, [RequestResponse::STATUS_PENDING, RequestResponse::STATUS_ACCEPTED]))
+                    ->modalHeading('تسجيل عدم حضور المتبرع')
+                    ->modalDescription('هل تريد تسجيل أن المتبرع لم يحضر في الموعد المحدد؟')
+                    ->modalSubmitActionLabel('نعم، تسجيل عدم الحضور')
+                    ->modalIcon('heroicon-o-exclamation-triangle')
+                    ->visible(fn(RequestResponse $record) => $record->status === RequestResponse::STATUS_PENDING)
                     ->action(function (RequestResponse $record) {
                         $record->status = RequestResponse::STATUS_NO_SHOW;
                         $record->save();
 
                         Notification::make()
-                            ->title('تم تسجيل عدم حضور المتبرع')
+                            ->title('تم تسجيل عدم الحضور')
+                            ->body('تم تحديث حالة المتبرع إلى "عدم حضور"')
                             ->warning()
                             ->send();
                     }),
 
-                // Medical Action: Update/Verify Blood Type
-                Action::make('verify_blood_type')
-                    ->label('تحقق من الفصيلة')
+                Action::make('medical_results')
+                    ->label('التقييم والنتائج الطبية')
                     ->icon('heroicon-o-beaker')
                     ->color('info')
+                    ->modalHeading('نتائج الفحص الطبي وحالة التبرع')
+                    ->modalDescription('سجل نتائج الفحص المخبري وحالة التبرع للمتبرع. سيتم تحديث ملفه الطبي وإشعاره بالنتيجة.')
+                    ->modalSubmitActionLabel('حفظ النتائج وإبلاغ المتبرع')
+                    ->modalIcon('heroicon-o-beaker')
                     ->form([
-                        Select::make('verified_blood_type')
-                            ->label('الفصيلة الفعلية (من المختبر)')
-                            ->options(BloodType::class)
-                            ->required(),
-                        Textarea::make('lab_notes')
-                            ->label('ملاحظات المخبر')
-                            ->placeholder('أدخل أي ملاحظات هامة حول الفصيلة أو العملية...'),
+                        Section::make('التحقق من الفصيلة')
+                            ->description('تثبيت فصيلة الدم المخبرية المؤكدة')
+                            ->compact()
+                            ->schema([
+                                Select::make('verified_blood_type')
+                                    ->label('الفصيلة المؤكدة مخبرياً')
+                                    ->options(BloodType::class)
+                                    ->default(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ?? $record->donor->healthProfile?->blood_type)
+                                    ->required()
+                                    ->native(false)
+                                    ->columnSpan(1),
+                            ]),
+                        Section::make('التقييم الطبي والأهلية')
+                            ->description('تحديد مدى أهلية المتبرع بناءً على الفحص')
+                            ->compact()
+                            ->schema([
+                                Select::make('eligibility_status')
+                                    ->label('الحالة الصحية للتبرع')
+                                    ->options([
+                                        'eligible' => 'لائق طبيًا (تم التبرع بنجاح)',
+                                        'temporary' => 'غير لائق مؤقتًا (تأجيل التبرع)',
+                                        'permanent' => 'غير لائق دائمًا (استبعاد طبي)',
+                                    ])
+                                    ->required()
+                                    ->native(false)
+                                    ->live(),
+
+                                Select::make('rejection_reason')
+                                    ->label('سبب الاستبعاد الطبي')
+                                    ->options(fn($get) => match ($get('eligibility_status')) {
+                                        'temporary' => [
+                                            'low_hemoglobin' => 'نقص الهيموجلوبين',
+                                            'underweight' => 'نقص الوزن',
+                                            'recent_illness' => 'مرض حديث / مضادات حيوية',
+                                            'low_blood_pressure' => 'انخفاض ضغط الدم',
+                                            'other_temp' => 'أسباب طبية مؤقتة أخرى',
+                                        ],
+                                        'permanent' => [
+                                            'blood_virus' => 'وجود فيروسات في الدم (HCV/HBV/HIV)',
+                                            'chronic_disease' => 'مرض مزمن يمنع التبرع',
+                                            'heart_disease' => 'أمراض القلب',
+                                            'cancer' => 'تاريخ مرضي للسرطان',
+                                            'other_perm' => 'أسباب طبية دائمة أخرى',
+                                        ],
+                                        default => [],
+                                    })
+                                    ->required(fn($get) => in_array($get('eligibility_status'), ['temporary', 'permanent']))
+                                    ->visible(fn($get) => in_array($get('eligibility_status'), ['temporary', 'permanent']))
+                                    ->native(false),
+
+                                Select::make('delay_duration')
+                                    ->label('مدة الاستبعاد المؤقت')
+                                    ->options([
+                                        '1_week' => 'أسبوع واحد',
+                                        '2_weeks' => 'أسبوعين',
+                                        '1_month' => 'شهر واحد',
+                                        '2_months' => 'شهرين',
+                                        '3_months' => '3 أشهر',
+                                        '6_months' => '6 أشهر',
+                                        'custom' => 'تاريخ مخصص...',
+                                    ])
+                                    ->visible(fn($get) => $get('eligibility_status') === 'temporary')
+                                    ->required(fn($get) => $get('eligibility_status') === 'temporary')
+                                    ->default('3_months')
+                                    ->native(false)
+                                    ->live(),
+
+                                DatePicker::make('custom_date')
+                                    ->label('تحديد موعد مخصص')
+                                    ->native(false)
+                                    ->required(fn($get) => $get('delay_duration') === 'custom')
+                                    ->visible(fn($get) => $get('delay_duration') === 'custom')
+                                    ->minDate(now())
+                                    ->live(),
+
+                                Placeholder::make('next_date_preview')
+                                    ->label('موعد الأهلية القادم المتوقع')
+                                    ->content(function ($get) {
+                                        if (!$get('delay_duration')) {
+                                            return '-';
+                                        }
+
+                                        return match ($get('delay_duration')) {
+                                            '1_week' => now()->addWeek()->format('Y-m-d'),
+                                            '2_weeks' => now()->addWeeks(2)->format('Y-m-d'),
+                                            '1_month' => now()->addMonth()->format('Y-m-d'),
+                                            '2_months' => now()->addMonths(2)->format('Y-m-d'),
+                                            '3_months' => now()->addMonths(3)->format('Y-m-d'),
+                                            '6_months' => now()->addMonths(6)->format('Y-m-d'),
+                                            'custom' => $get('custom_date') ?? 'يرجى اختيار تاريخ',
+                                            default => now()->addMonths(3)->format('Y-m-d'),
+                                        };
+                                    })
+                                    ->visible(fn($get) => $get('eligibility_status') === 'temporary')
+                                    ->extraAttributes(['class' => 'text-primary-600 font-bold']),
+
+                                Textarea::make('lab_notes')
+                                    ->label('ملاحظات المرفق الطبي')
+                                    ->placeholder('ملاحظات داخلية حول الحالة أو النتائج...')
+                                    ->rows(2)
+                                    ->columnSpanFull(),
+                            ]),
                     ])
-                    ->visible(fn(RequestResponse $record) => $record->donor->healthProfile->verified_blood_type === null)
+                    ->visible(fn(RequestResponse $record) => in_array($record->status, [RequestResponse::STATUS_PENDING, RequestResponse::STATUS_COMPLETED]))
                     ->action(function (RequestResponse $record, array $data) {
                         $healthProfile = $record->donor->healthProfile;
+                        /** @var \App\Models\User $user */
+                        $user = Auth::user();
+                        $orgId = filament()->getTenant()?->id ?? $user->organization?->id;
 
-                        if ($healthProfile) {
-                            $healthProfile->verified_blood_type = $data['verified_blood_type'];
-                            $healthProfile->save();
-                        }
+                        DB::transaction(function () use ($record, $healthProfile, $data, $orgId) {
+                            // 0. Update Response Status (Confirm Arrival & Outcome)
+                            $record->verified_at = now();
+                            if ($data['eligibility_status'] === 'eligible') {
+                                $record->status = RequestResponse::STATUS_COMPLETED;
+                            } else {
+                                $record->status = RequestResponse::STATUS_DECLINED;
+                            }
+                            $record->save();
+
+                            // 1. Update Health Profile
+                            if ($healthProfile) {
+                                $healthProfile->verified_blood_type = $data['verified_blood_type'];
+                                $healthProfile->verified_by_organization_id = $orgId;
+                                $healthProfile->verified_at = now();
+
+                                if ($data['eligibility_status'] === 'permanent') {
+                                    $healthProfile->chronic_disease = true;
+                                    $healthProfile->is_eligible = false;
+                                } elseif ($data['eligibility_status'] === 'temporary') {
+                                    $healthProfile->is_eligible = false;
+
+                                    $nextDate = now();
+                                    $nextDate = match ($data['delay_duration']) {
+                                        '1_week' => $nextDate->addWeek(),
+                                        '2_weeks' => $nextDate->addWeeks(2),
+                                        '1_month' => $nextDate->addMonth(),
+                                        '2_months' => $nextDate->addMonths(2),
+                                        '3_months' => $nextDate->addMonths(3),
+                                        '6_months' => $nextDate->addMonths(6),
+                                        'custom' => Carbon::parse($data['custom_date']),
+                                        default => $nextDate->addMonths(3),
+                                    };
+
+                                    $healthProfile->next_eligible_date = $nextDate;
+                                } else {
+                                    $healthProfile->is_eligible = true;
+                                    $healthProfile->next_eligible_date = null;
+                                }
+
+                                $healthProfile->save();
+                            }
+
+                            // 2. Create Eligibility Log
+                            EligibilityLog::create([
+                                'donor_id' => $record->donor_id,
+                                'organization_id' => $orgId,
+                                'check_type' => EligibilityLog::TYPE_LAB_VERIFICATION,
+                                'is_eligible' => $data['eligibility_status'] === 'eligible',
+                                'is_permanent' => $data['eligibility_status'] === 'permanent',
+                                'rejection_reason' => $data['rejection_reason'] ?? null,
+                                'answers_snapshot' => [
+                                    'lab_notes' => $data['lab_notes'],
+                                    'blood_type_at_check' => $data['verified_blood_type'],
+                                ]
+                            ]);
+
+                            // 3. Send Notification to Donor
+                            $title = 'تحديث هام حول نتائج فحصك الطبي';
+                            $delayLabel = match ($data['delay_duration'] ?? '') {
+                                '1_week' => 'أسبوع',
+                                '2_weeks' => 'أسبوعين',
+                                '1_month' => 'شهر',
+                                '2_months' => 'شهرين',
+                                '3_months' => '3 أشهر',
+                                '6_months' => '6 أشهر',
+                                'custom' => 'تاريخ مخصص',
+                                default => '3 أشهر',
+                            };
+
+                            $message = match ($data['eligibility_status']) {
+                                'eligible' => "تم تأكيد فصيلة دمك ({$data['verified_blood_type']}) واكتمال عملية التبرع بنجاح. شكراً لعطائك.",
+                                'temporary' => "نعتذر، لا يمكنك التبرع حالياً لمدة ({$delayLabel}) بسبب " . ($data['rejection_reason'] === 'low_hemoglobin' ? 'نقص في الهيموجلوبين' : 'أسباب طبية مؤقتة') . ". يمكنك المحاولة مرة أخرى بعد تاريخ " . $healthProfile->next_eligible_date->format('Y-m-d') . ".",
+                                'permanent' => "إشعار طبي هام: بناءً على الفحوصات، لا يمكنك التبرع بالدم مستقبلاً لأسباب صحية. يرجى مراجعة المختبر للحصول على التقرير الطبي المفصل والمشورة الصحية.",
+                            };
+
+                            SystemNotification::create([
+                                'user_id' => $record->donor->user_id,
+                                'type' => SystemNotification::TYPE_PUSH,
+                                'title' => $title,
+                                'message' => $message,
+                                'data' => [
+                                    'org_id' => $orgId,
+                                    'type' => 'medical_result'
+                                ]
+                            ]);
+                        });
 
                         Notification::make()
-                            ->title('تم التحقق من فصيلة الدم وقفلها')
+                            ->title('تم حفظ النتائج وإبلاغ المتبرع')
                             ->success()
                             ->send();
                     }),
 
-                ViewAction::make(),
-            ]);
+                ViewAction::make()
+                    ->label('عرض التفاصيل')
+                    ->icon('heroicon-o-eye')
+                    ->color('gray')
+                    ->form([
+                        Section::make('التفاصيل الطبية الموثقة')
+                            ->description('معلومات التحقق المخبري والنتائج الطبية')
+                            ->schema([
+                                Grid::make(2)
+                                    ->schema([
+                                        Placeholder::make('verified_blood_type_view')
+                                            ->label('فصيلة الدم الموثقة')
+                                            ->content(fn($record) => $record->donor->healthProfile->verified_blood_type?->getLabel() ?? 'غير موثقة'),
+
+                                        Placeholder::make('verifying_org_view')
+                                            ->label('جهة التحقق')
+                                            ->content(fn($record) => $record->donor->healthProfile->verifyingOrganization?->org_name ?? 'غير متوفر'),
+
+                                        Placeholder::make('verified_at_view')
+                                            ->label('تاريخ التحقق')
+                                            ->content(fn($record) => $record->donor->healthProfile->verified_at?->format('Y-m-d H:i') ?? 'غير متوفر'),
+
+                                        Placeholder::make('eligibility_view')
+                                            ->label('حالة الأهلية')
+                                            ->content(fn($record) => $record->donor->healthProfile->is_eligible ? 'مؤهل للتبرع' : 'غير مؤهل حالياً'),
+                                    ]),
+                            ]),
+                    ]),
+            ])
+                ->label('الإجراءات')
+                ->icon('heroicon-m-ellipsis-vertical')
+                ->size('sm')
+                ->color('primary')
+                ->button(),
+        ];
     }
 }
