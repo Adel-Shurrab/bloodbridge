@@ -18,7 +18,7 @@ class RequestResponse extends Model
     {
         return [
             self::STATUS_PENDING => 'قيد الانتظار',
-            self::STATUS_ACCEPTED => 'مقبول',
+            self::STATUS_ACCEPTED => 'قادم للتبرع',
             self::STATUS_DECLINED => 'مرفوض',
             self::STATUS_COMPLETED => 'مكتمل',
             self::STATUS_IGNORED => 'متجاهل',
@@ -38,6 +38,11 @@ class RequestResponse extends Model
         'decline_reason',
         'responded_at',
         'appointment_id',
+    ];
+
+    protected $casts = [
+        'verified_at' => 'datetime',
+        'responded_at' => 'datetime',
     ];
 
     public function bloodRequest()

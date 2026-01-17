@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Donor;
+use App\Models\Organization;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -17,11 +18,19 @@ return new class extends Migration
                 ->constrained()
                 ->cascadeOnDelete();
 
+            $table->foreignIdFor(Organization::class)
+                ->nullable()
+                ->constrained()
+                ->nullOnDelete();
+
             // The 3 Contexts (Points 1, 2, 3 from your text)
             $table->unsignedTinyInteger('check_type')->index();
 
             // The Result
             $table->boolean('is_eligible')->default(true)->index();
+
+            $table->boolean('is_permanent')
+                ->default(false);
 
             // "Why did they fail?" (e.g., "Answered Yes to Recent Surgery")
             $table->text('rejection_reason')->nullable();

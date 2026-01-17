@@ -29,14 +29,10 @@ class RequestResponseSeeder extends Seeder
         }
 
         foreach ($bloodRequests as $request) {
-            // تحديد عدد عشوائي من الاستجابات لكل طلب (من 0 إلى 5)
-            $responsesCount = rand(0, 5);
-
-            // اختيار متبرعين عشوائيين لهذا الطلب
+            $responsesCount = rand(2, 6); // At least some responses for each request
             $randomDonors = $donors->random(min($responsesCount, $donors->count()));
 
             foreach ($randomDonors as $donor) {
-                // التحقق من عدم وجود استجابة مسبقة لنفس المتبرع على نفس الطلب
                 if (\App\Models\RequestResponse::where('blood_request_id', $request->id)
                     ->where('donor_id', $donor->id)
                     ->exists()
@@ -44,24 +40,38 @@ class RequestResponseSeeder extends Seeder
                     continue;
                 }
 
-                $status = $faker->randomElement(array_keys(\App\Models\RequestResponse::getStatusOptions()));
-                $createdAt = $faker->dateTimeBetween('-2 months', 'now');
+                // Status logic: Most are accepted/completed, some pending, some excluded
+                $status = $faker->randomElement([
+                    \App\Models\RequestResponse::STATUS_PENDING,
+                    \App\Models\RequestResponse::STATUS_ACCEPTED,
+                    \App\Models\RequestResponse::STATUS_ACCEPTED,
+                    \App\Models\RequestResponse::STATUS_COMPLETED,
+                    \App\Models\RequestResponse::STATUS_COMPLETED,
+                    \App\Models\RequestResponse::STATUS_DECLINED, // Medical Exclusion
+                    \App\Models\RequestResponse::STATUS_NO_SHOW,
+                ]);
+
+                // 1. Creation of request is the baseline
+                $requestCreated = $request->created_at;
+
+                // 2. Response (Application) is 5 mins to 24 hours after request
+                $respondedAt = (clone $requestCreated)->modify('+' . rand(5, 1440) . ' minutes');
 
                 $verifiedAt = null;
                 $declineReason = null;
-                $respondedAt = (clone $createdAt)->modify('+' . rand(1, 48) . ' hours');
 
-                if ($status == \App\Models\RequestResponse::STATUS_COMPLETED) {
-                    $verifiedAt = (clone $respondedAt)->modify('+' . rand(1, 24) . ' hours');
+                // 3. Verification happens ONLY for Completed or Medically Excluded
+                // It must be AFTER responded_at
+                if ($status == \App\Models\RequestResponse::STATUS_COMPLETED || $status == \App\Models\RequestResponse::STATUS_DECLINED) {
+                    $verifiedAt = (clone $respondedAt)->modify('+' . rand(30, 1440) . ' minutes');
                 }
 
                 if ($status == \App\Models\RequestResponse::STATUS_DECLINED) {
                     $declineReason = $faker->randomElement([
-                        'غير متواجد في المدينة حالياً',
-                        'أعاني من تعب صحي بسيط',
-                        'تبرعت مؤخراً (قبل أقل من 3 أشهر)',
-                        'لا يمكنني الوصول إلى المركز حالياً',
-                        'أسباب شخصية أخرى',
+                        'استبعاد طبي: نقص حاد في الهيموجلوبين',
+                        'استبعاد طبي: انخفاض ضغط الدم',
+                        'استبعاد طبي: وجود أعراض إنفلونزا حادة',
+                        'استبعاد طبي: تاريخ حديث لإجراء جراحي',
                     ]);
                 }
 
@@ -73,7 +83,7 @@ class RequestResponseSeeder extends Seeder
                     'verified_at' => $verifiedAt,
                     'decline_reason' => $declineReason,
                     'responded_at' => $respondedAt,
-                    'created_at' => $createdAt,
+                    'created_at' => $respondedAt, // Record of response creation
                 ]);
             }
         }
