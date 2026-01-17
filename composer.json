@@ -7,10 +7,12 @@
     "license": "MIT",
     "require": {
         "php": "^8.3",
+        "dotswan/filament-map-picker": "^2.1",
         "filament/spatie-laravel-settings-plugin": "*",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "pusher/pusher-php-server": "^7.2",
+        "simplesoftwareio/simple-qrcode": "^4.2",
         "spatie/laravel-permission": "^6.23"
     },
     "require-dev": {
