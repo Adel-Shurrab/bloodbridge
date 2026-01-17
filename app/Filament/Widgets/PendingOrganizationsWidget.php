@@ -50,7 +50,8 @@ class PendingOrganizationsWidget extends TableWidget
                     ->color('success')
                     ->requiresConfirmation()
                     ->action(function (Organization $record) {
-                        $record->update(['approval_status' => Organization::STATUS_APPROVED]);
+                        $record->approval_status = Organization::STATUS_APPROVED;
+                        $record->save();
 
                         Notification::make()
                             ->title('تمت الموافقة بنجاح')
@@ -63,7 +64,8 @@ class PendingOrganizationsWidget extends TableWidget
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function (Organization $record) {
-                        $record->update(['approval_status' => Organization::STATUS_REJECTED]);
+                        $record->approval_status = Organization::STATUS_REJECTED;
+                        $record->save();
 
                         Notification::make()
                             ->title('تم رفض المنظمة')

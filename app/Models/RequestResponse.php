@@ -12,6 +12,7 @@ class RequestResponse extends Model
     public const STATUS_DECLINED = 2;
     public const STATUS_COMPLETED = 3;
     public const STATUS_IGNORED = 4;
+    public const STATUS_NO_SHOW = 5;
 
     public static function getStatusOptions(): array
     {
@@ -21,6 +22,7 @@ class RequestResponse extends Model
             self::STATUS_DECLINED => 'مرفوض',
             self::STATUS_COMPLETED => 'مكتمل',
             self::STATUS_IGNORED => 'متجاهل',
+            self::STATUS_NO_SHOW => 'عدم حضور',
         ];
     }
 

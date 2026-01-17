@@ -36,10 +36,10 @@ class EditOrganization extends EditRecord
         $record->update($data);
 
         if ($record->user) {
-            $record->user->update([
-                'name' => $data['user_name'] ?? $record->user->name,
-                'email' => $data['user_email'] ?? $record->user->email,
-            ]);
+            $user = $record->user;
+            $user->name = $data['user_name'] ?? $user->name;
+            $user->email = $data['user_email'] ?? $user->email;
+            $user->save();
         }
 
         return $record;
