@@ -1,3 +1,4 @@
+/.history
 *.log
 .DS_Store
 .env
