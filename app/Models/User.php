@@ -7,10 +7,13 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Filament\Models\Contracts\FilamentUser;
+use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
-use Illuminate\Database\Eloquent\SoftDeletes; // Added this line
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Collection;
 
-class User extends Authenticatable implements FilamentUser
+class User extends Authenticatable implements FilamentUser, HasTenants
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, Notifiable, SoftDeletes;
@@ -43,7 +46,6 @@ class User extends Authenticatable implements FilamentUser
         'phone',
         'role',
         'is_active',
-        'organization_id'
     ];
 
     /**
@@ -61,7 +63,9 @@ class User extends Authenticatable implements FilamentUser
         return match ($this->role) {
             self::ROLE_ADMIN => route('filament.admin.pages.dashboard'),
             self::ROLE_DONOR => route('filament.donor.pages.dashboard'),
-            self::ROLE_ORGANIZATION => route('filament.organization.pages.dashboard'),
+            self::ROLE_ORGANIZATION => ($org = $this->organization)
+                ? route('filament.organization.pages.dashboard', ['tenant' => $org->slug])
+                : route('home'),
             default => route('home'),
         };
     }
@@ -76,6 +80,16 @@ class User extends Authenticatable implements FilamentUser
             'organization' => $this->role === self::ROLE_ORGANIZATION,
             default => false,
         };
+    }
+
+    public function getTenants(Panel $panel): array|Collection
+    {
+        return $this->organization ? collect([$this->organization]) : collect();
+    }
+
+    public function canAccessTenant(Model $tenant): bool
+    {
+        return $this->organization?->id === $tenant->id;
     }
 
     /**

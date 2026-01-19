@@ -115,17 +115,11 @@ class ResponsesRelationManager extends RelationManager
                         ->label('الحالة')
                         ->badge()
                         ->size('md')
-                        ->formatStateUsing(fn($state) => match ((int) $state) {
-                            RequestResponse::STATUS_PENDING,
-                            RequestResponse::STATUS_ACCEPTED,
-                            RequestResponse::STATUS_DECLINED,
-                            RequestResponse::STATUS_COMPLETED,
-                            RequestResponse::STATUS_NO_SHOW => 'لم يحضر',
-                            default => RequestResponse::getStatusOptions()[$state] ?? $state,
-                        })
+                        ->formatStateUsing(fn($state) => RequestResponse::getStatusOptions()[$state] ?? $state)
                         ->color(fn($state): string => match ((int) $state) {
-                            RequestResponse::STATUS_ACCEPTED, RequestResponse::STATUS_COMPLETED => 'success',
-                            RequestResponse::STATUS_DECLINED, RequestResponse::STATUS_NO_SHOW => 'danger',
+                            RequestResponse::STATUS_COMPLETED => 'success',
+                            RequestResponse::STATUS_ACCEPTED => 'info',
+                            RequestResponse::STATUS_DECLINED, RequestResponse::STATUS_NO_SHOW, RequestResponse::STATUS_IGNORED => 'danger',
                             default => 'warning',
                         })
                         ->description(fn(RequestResponse $record) =>
@@ -148,7 +142,12 @@ class ResponsesRelationManager extends RelationManager
                                     ->weight(FontWeight::Medium),
 
                                 TextColumn::make('blood_type_display')
-                                    ->state(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ?? $record->donor->healthProfile?->blood_type ?? 'غير محدد')
+                                    ->state(
+                                        fn(RequestResponse $record) =>
+                                        $record->donor->healthProfile?->verified_blood_type?->getLabel() ??
+                                            $record->donor->healthProfile?->blood_type?->getLabel() ??
+                                            'غير محدد'
+                                    )
                                     ->badge()
                                     ->size('lg')
                                     ->icon(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ? 'heroicon-m-check-badge' : 'heroicon-m-question-mark-circle')

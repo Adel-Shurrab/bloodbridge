@@ -5,7 +5,6 @@ namespace App\Filament\Organization\Resources\BloodRequests\Schemas;
 use App\Models\BloodRequest;
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Schemas\Components\Grid;
-use Filament\Forms\Components\Hidden;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
@@ -20,9 +19,6 @@ class BloodRequestForm
         return $schema
             ->columns(1)
             ->components([
-                Hidden::make('organization_id')
-                    ->default(fn() => auth()->user()->organization?->id),
-
                 Section::make('معلومات الطلب الأساسية')
                     ->description('حدد تفاصيل فصيلة الدم والكمية المطلوبة')
                     ->icon('heroicon-o-heart')

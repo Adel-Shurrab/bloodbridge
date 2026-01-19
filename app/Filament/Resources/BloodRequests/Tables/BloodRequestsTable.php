@@ -4,6 +4,7 @@ namespace App\Filament\Resources\BloodRequests\Tables;
 
 use App\Models\BloodRequest;
 use App\Models\Donor;
+use Filament\Tables;
 use Filament\Actions\ActionGroup;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
@@ -12,7 +13,6 @@ use Filament\Actions\EditAction;
 use Filament\Actions\RestoreAction;
 use Filament\Actions\RestoreBulkAction;
 use Filament\Actions\ViewAction;
-use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
 
@@ -29,7 +29,7 @@ class BloodRequestsTable
                     ->sortable(),
                 TextColumn::make('blood_type')
                     ->label('فصيلة الدم')
-                    ->formatStateUsing(fn($state) => Donor::getBloodTypeOptions()[$state] ?? $state)
+                    ->formatStateUsing(fn($state) => $state?->getLabel() ?? '-')
                     ->badge()
                     ->color('danger'),
                 TextColumn::make('units_needed')
@@ -52,8 +52,9 @@ class BloodRequestsTable
                     ->badge()
                     ->color(fn(string $state): string => match ((int)$state) {
                         BloodRequest::STATUS_FULFILLED => 'success',
-                        BloodRequest::STATUS_CANCELLED, BloodRequest::STATUS_EXPIRED => 'gray',
-                        default => 'warning',
+                        BloodRequest::STATUS_CANCELLED, BloodRequest::STATUS_EXPIRED => 'danger',
+                        BloodRequest::STATUS_BROADCASTED, BloodRequest::STATUS_MATCHED => 'warning',
+                        default => 'gray',
                     })
                     ->sortable(),
                 TextColumn::make('created_at')

@@ -18,6 +18,8 @@ use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
 use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
+use App\Models\Organization;
+use App\Filament\Organization\Pages\EditOrganizationProfile;
 
 class OrganizationPanelProvider extends PanelProvider
 {
@@ -54,6 +56,8 @@ class OrganizationPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->tenant(Organization::class, slugAttribute: 'slug')
+            ->tenantProfile(EditOrganizationProfile::class);
     }
 }

@@ -4,8 +4,10 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Filament\Models\Contracts\HasName;
+use Illuminate\Support\Str;
 
-class Organization extends Model
+class Organization extends Model implements HasName
 {
     use SoftDeletes;
     // Approval Statuses
@@ -35,6 +37,7 @@ class Organization extends Model
     protected $fillable = [
         'user_id',
         'org_name',
+        'slug',
         'governorate_id',
         'description',
         'license_number',
@@ -51,6 +54,12 @@ class Organization extends Model
         'daily_capacity',
         'approval_status',
     ];
+
+    public function getFilamentName(): string
+    {
+        return $this->org_name;
+    }
+
 
     public function governorate()
     {

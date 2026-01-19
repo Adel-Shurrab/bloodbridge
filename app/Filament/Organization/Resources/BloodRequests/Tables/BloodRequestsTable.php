@@ -17,10 +17,10 @@ class BloodRequestsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('organization_id', auth()->user()->organization?->id))
             ->columns([
                 TextColumn::make('blood_type')
                     ->label('فصيلة الدم')
+                    ->formatStateUsing(fn($state) => $state?->getLabel() ?? '-')
                     ->badge()
                     ->sortable(),
 
@@ -36,7 +36,7 @@ class BloodRequestsTable
                     ->color(fn(string $state): string => match ((int)$state) {
                         BloodRequest::URGENCY_CRITICAL => 'danger',
                         BloodRequest::URGENCY_HIGH => 'warning',
-                        default => 'gray',
+                        default => 'success',
                     })
                     ->sortable(),
 
@@ -46,8 +46,8 @@ class BloodRequestsTable
                     ->formatStateUsing(fn(string $state): string => BloodRequest::getStatusOptions()[$state] ?? $state)
                     ->color(fn(string $state): string => match ((int)$state) {
                         BloodRequest::STATUS_FULFILLED => 'success',
-                        BloodRequest::STATUS_CANCELLED => 'danger',
-                        BloodRequest::STATUS_BROADCASTED => 'warning',
+                        BloodRequest::STATUS_CANCELLED, BloodRequest::STATUS_EXPIRED => 'danger',
+                        BloodRequest::STATUS_BROADCASTED, BloodRequest::STATUS_MATCHED => 'warning',
                         default => 'gray',
                     })
                     ->sortable(),
@@ -56,7 +56,7 @@ class BloodRequestsTable
                     ->label('المتبرعين')
                     ->state(fn(BloodRequest $record) => "{$record->donors_completed} / {$record->units_needed}")
                     ->badge()
-                    ->color(fn(BloodRequest $record) => $record->donors_completed >= $record->units_needed ? 'success' : 'gray'),
+                    ->color(fn(BloodRequest $record) => $record->donors_completed >= $record->units_needed ? 'success' : 'info'),
 
                 TextColumn::make('created_at')
                     ->label('تاريخ الطلب')

@@ -16,6 +16,7 @@ use App\Models\DonorHealthProfile;
 use App\Models\Organization;
 use Illuminate\Support\Facades\DB;
 use App\Models\Governorate;
+use Illuminate\Support\Str;
 
 class RegisteredUserController extends Controller
 {
@@ -169,6 +170,7 @@ class RegisteredUserController extends Controller
             $organization = Organization::create([
                 'user_id' => $user->id,
                 'org_name' => $request->organizationName,
+                'slug' => Str::slug($request->organizationName),
                 'description' => $request->organizationDescription,
                 'governorate_id' => $request->governorate_id,
                 'license_number' => $request->licenseNumber,
@@ -186,8 +188,7 @@ class RegisteredUserController extends Controller
                 'approval_status' => Organization::STATUS_PENDING,
             ]);
 
-            // 4. Link User to Organization
-            $user->update(['organization_id' => $organization->id]);
+
 
             // 5. Trigger Events & Login
             event(new Registered($user));
