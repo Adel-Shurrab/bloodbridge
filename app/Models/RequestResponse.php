@@ -19,10 +19,10 @@ class RequestResponse extends Model
         return [
             self::STATUS_PENDING => 'قيد الانتظار',
             self::STATUS_ACCEPTED => 'قادم للتبرع',
-            self::STATUS_DECLINED => 'مرفوض',
-            self::STATUS_COMPLETED => 'مكتمل',
+            self::STATUS_DECLINED => 'استبعاد طبي',
+            self::STATUS_COMPLETED => 'تم التبرع بنجاح',
             self::STATUS_IGNORED => 'متجاهل',
-            self::STATUS_NO_SHOW => 'عدم حضور',
+            self::STATUS_NO_SHOW => 'لم يحضر',
         ];
     }
 

@@ -116,10 +116,10 @@ class ResponsesRelationManager extends RelationManager
                         ->badge()
                         ->size('md')
                         ->formatStateUsing(fn($state) => match ((int) $state) {
-                            RequestResponse::STATUS_PENDING => 'قيد الانتظار',
-                            RequestResponse::STATUS_ACCEPTED => 'قادم للتبرع',
-                            RequestResponse::STATUS_DECLINED => 'استبعاد طبي',
-                            RequestResponse::STATUS_COMPLETED => 'تم التبرع بنجاح',
+                            RequestResponse::STATUS_PENDING,
+                            RequestResponse::STATUS_ACCEPTED,
+                            RequestResponse::STATUS_DECLINED,
+                            RequestResponse::STATUS_COMPLETED,
                             RequestResponse::STATUS_NO_SHOW => 'لم يحضر',
                             default => RequestResponse::getStatusOptions()[$state] ?? $state,
                         })
