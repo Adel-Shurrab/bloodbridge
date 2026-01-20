@@ -29,6 +29,7 @@ class Donor extends Model
         'national_id',
         'gender',
         'birth_date',
+        'auto_location_address',
         'lat',
         'lng',
     ];

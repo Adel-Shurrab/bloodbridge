@@ -690,6 +690,58 @@
     min-width: 200px;
 }
 
+/* GPS Button specific styles */
+#gps-location-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+#gps-location-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(211, 47, 47, 0.2);
+}
+
+#gps-location-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#gps-location-btn svg {
+    transition: transform 0.3s ease;
+}
+
+#gps-location-btn:hover:not(:disabled) svg {
+    transform: scale(1.1);
+}
+
+/* Location input with readonly state */
+#auto_location_address[readonly] {
+    cursor: default;
+    color: #059669;
+    font-weight: 500;
+}
+
+#auto_location_address:empty,
+#auto_location_address[value=""] {
+    color: #9ca3af;
+    font-weight: 400;
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+    #gps-location-btn span {
+        display: none;
+    }
+
+    #gps-location-btn {
+        padding: 0.875rem 1rem !important;
+        min-width: auto !important;
+    }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .registration-organization-section {

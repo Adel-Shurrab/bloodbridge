@@ -10,7 +10,7 @@
         minHeight: {{ $settings->min_donor_height }},
         minDaysBetweenDonations: {{ $settings->min_days_between_donations }},
         minDaysAfterSurgery: {{ $settings->min_days_after_surgery }}
-              };
+                  };
     </script>
   @endpush
 
@@ -120,6 +120,36 @@
                   @endforeach
                 </select>
                 <span class="error-message"></span>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group full-width">
+                <label for="auto_location_address">
+                  الموقع التلقائي
+                  <span style="color: #999; font-weight: normal;">(اختياري)</span>
+                </label>
+                <div style="position: relative; display: flex; gap: 0.5rem;">
+                  <input type="text" id="auto_location_address" name="auto_location_address"
+                    value="{{ old('auto_location_address') }}" placeholder="اضغط على زر الموقع لتحديد موقعك تلقائياً"
+                    readonly style="flex: 1; background: #f9fafb; cursor: pointer;" />
+                  <button type="button" id="gps-location-btn" class="btn btn-outline"
+                    style="padding: 0.875rem 1.5rem; white-space: nowrap; min-width: auto;"
+                    title="تحديد الموقع تلقائياً">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                      style="display: inline-block;">
+                      <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span style="margin-right: 0.5rem;">تحديد موقعي</span>
+                  </button>
+                </div>
+                <span class="helper-text">سيتم استخدام موقعك لمطابقتك مع طلبات التبرع القريبة</span>
+                <span class="error-message"></span>
+
+                <!-- Hidden inputs for coordinates -->
+                <input type="hidden" id="auto_lat" name="auto_lat" value="{{ old('auto_lat') }}">
+                <input type="hidden" id="auto_lng" name="auto_lng" value="{{ old('auto_lng') }}">
               </div>
             </div>
 

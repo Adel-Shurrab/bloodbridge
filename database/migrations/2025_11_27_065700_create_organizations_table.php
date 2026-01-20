@@ -28,9 +28,9 @@ return new class extends Migration
             $table->string('responsible_person_email')->nullable();
             $table->string('contact_email')->unique();
             $table->string('contact_phone')->unique();
+            $table->string('auto_location_address', 500)->nullable();
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();
-            $table->string('street_address')->nullable();
             $table->time('opening_time')->nullable();
             $table->time('closing_time')->nullable();
             $table->json('working_days')->nullable();

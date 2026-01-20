@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('national_id', 9)->unique()->index()->comment('National/ID number');
             $table->enum('gender', array_column(\App\Enums\Gender::cases(), 'value'))->index();
             $table->date('birth_date')->nullable()->index();
+            $table->string('auto_location_address', 500)->nullable();
             $table->decimal('lat', 10, 7)->nullable()->comment('Latitude for location');
             $table->decimal('lng', 10, 7)->nullable()->comment('Longitude for location');
             $table->unsignedInteger('points')->default(0)->comment('Loyalty/reward points');

@@ -40,6 +40,7 @@ class Organization extends Model implements HasName
         'contact_email',
         'contact_phone',
         'street_address',
+        'auto_location_address',
         'lat',
         'lng',
         'opening_time',
