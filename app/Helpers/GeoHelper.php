@@ -2,12 +2,15 @@
 
 namespace App\Helpers;
 
+use App\Models\Donor;
+use Illuminate\Database\Eloquent\Builder;
+
 class GeoHelper
 {
     /**
-     * Calculate distance between two coordinates using Haversine formula
-     * 
-     * @param float $lat1 Latitude of point 1
+     * Calculate distance between two coordinates using PHP Math (Haversine formula)
+     * Useful for single point-to-point calculations without database queries.
+     * * @param float $lat1 Latitude of point 1
      * @param float $lng1 Longitude of point 1
      * @param float $lat2 Latitude of point 2
      * @param float $lng2 Longitude of point 2
@@ -24,15 +27,20 @@ class GeoHelper
         if (($lat1 == $lat2) && ($lng1 == $lng2)) {
             return 0;
         }
+
         $theta = $lng1 - $lng2;
         $dist = sin(deg2rad($lat1)) * sin(deg2rad($lat2))
             + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
             * cos(deg2rad($theta));
 
+        // Fix for floating point precision: maintain domain between -1 and 1
+        $dist = min(max($dist, -1.0), 1.0);
+
         $dist = acos($dist);
         $dist = rad2deg($dist);
         $miles = $dist * 60 * 1.1515;
         $unit = strtoupper($unit);
+
         if ($unit == "K") {
             return ($miles * 1.609344); // Kilometers
         } elseif ($unit == "N") {
@@ -41,47 +49,21 @@ class GeoHelper
             return $miles; // Miles
         }
     }
+
     /**
-     * Find donors within specified radius of a location
-     * 
-     * @param float $centerLat Center point latitude
+     * Find donors within specified radius using MySQL Spatial Math
+     * @deprecated Use Donor::withinRadius() instead
+     * * @param float $centerLat Center point latitude
      * @param float $centerLng Center point longitude
      * @param int $radiusKm Search radius in kilometers
-     * @return \Illuminate\Database\Eloquent\Builder|\Illuminate\Database\Query\Builder
+     * @return Builder
      */
     public static function getDonorsWithinRadius(
         float $centerLat,
         float $centerLng,
-        int $radiusKm
-    ) {
-        if (config('database.default') === 'sqlite') {
-            return \App\Models\Donor::select('donors.*')
-                ->selectRaw("
-                (
-                    6371 * acos(
-                        cos(radians({$centerLat})) 
-                        * cos(radians(lat)) 
-                        * cos(radians(lng) - radians({$centerLng})) 
-                        + sin(radians({$centerLat})) 
-                        * sin(radians(lat))
-                    )
-                ) AS distance
-            ")
-                ->having('distance', '<=', $radiusKm);
-        }
-
-        return \App\Models\Donor::select('donors.*')
-            ->selectRaw("
-                (
-                    6371 * acos(
-                        cos(radians(?)) 
-                        * cos(radians(lat)) 
-                        * cos(radians(lng) - radians(?)) 
-                        + sin(radians(?)) 
-                        * sin(radians(lat))
-                    )
-                ) AS distance
-            ", [$centerLat, $centerLng, $centerLat])
-            ->having('distance', '<=', $radiusKm);
+        int $radiusKm,
+        ?int $governorateId = null
+    ): Builder {
+        return Donor::withinRadius($centerLat, $centerLng, $radiusKm, $governorateId);
     }
 }

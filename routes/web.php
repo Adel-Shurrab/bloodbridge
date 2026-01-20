@@ -3,8 +3,13 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use App\Http\Controllers\TestMatchingController;
 
 use App\Http\Controllers\PublicPagesController;
+
+// Test Routes (Development Only)
+Route::get('/test-matching', [TestMatchingController::class, 'testMatching'])->name('test.matching');
+Route::get('/api/test-matching', [TestMatchingController::class, 'testMatchingApi'])->name('api.test.matching');
 
 // Public Pages
 Route::get('/', [PublicPagesController::class, 'home'])->name('home');

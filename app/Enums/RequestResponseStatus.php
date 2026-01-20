@@ -17,8 +17,8 @@ enum RequestResponseStatus: int implements HasLabel, HasColor
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::PENDING => 'قيد الانتظار',
-            self::ACCEPTED => 'قادم للتبرع',
+            self::PENDING => 'وافق',
+            self::ACCEPTED => 'حضر',
             self::DECLINED => 'استبعاد طبي',
             self::COMPLETED => 'تم التبرع بنجاح',
             self::IGNORED => 'متجاهل',
@@ -30,7 +30,7 @@ enum RequestResponseStatus: int implements HasLabel, HasColor
     {
         return match ($this) {
             self::PENDING => 'warning',
-            self::ACCEPTED => 'info',
+            self::ACCEPTED => 'success',
             self::DECLINED, self::IGNORED, self::NO_SHOW => 'danger',
             self::COMPLETED => 'success',
         };

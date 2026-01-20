@@ -29,6 +29,7 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
             $table->index(['user_id', 'national_id']);
+            $table->index(['lat', 'lng']);
         });
     }
 
