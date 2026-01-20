@@ -23,7 +23,7 @@ class CreateDonor extends CreateRecord
                     'email' => $data['new_user_email'],
                     'phone' => $data['new_user_phone'],
                     'password' => Hash::make($data['new_user_password']),
-                    'role' => User::ROLE_DONOR,
+                    'role' => \App\Enums\UserRole::DONOR,
                     'is_active' => User::DEFAULT_IS_ACTIVE,
                 ]);
 

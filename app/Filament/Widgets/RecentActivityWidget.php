@@ -15,11 +15,9 @@ class RecentActivityWidget extends Widget
     public function getActivities(): array
     {
         $activities = collect();
-        $bloodTypeOptions = Donor::getBloodTypeOptions();
-
         // Latest Blood Requests
-        BloodRequest::latest()->limit(5)->get()->each(function ($request) use ($activities, $bloodTypeOptions) {
-            $bloodLabel = $bloodTypeOptions[$request->blood_type] ?? $request->blood_type;
+        BloodRequest::latest()->limit(5)->get()->each(function ($request) use ($activities) {
+            $bloodLabel = $request->blood_type?->getLabel() ?? $request->blood_type;
             $activities->push([
                 'title' => "تم إنشاء طلب تبرع جديد لـ {$bloodLabel}.",
                 'time' => $request->created_at->diffForHumans(),
@@ -41,7 +39,7 @@ class RecentActivityWidget extends Widget
         });
 
         // Latest Organizations Approved
-        Organization::where('approval_status', Organization::STATUS_APPROVED)
+        Organization::where('approval_status', \App\Enums\OrganizationStatus::APPROVED)
             ->latest('updated_at')
             ->limit(5)
             ->get()

@@ -50,8 +50,8 @@ class OrganizationResource extends Resource
                                 ->schema([
                                     Select::make('approval_status')
                                         ->label('حالة الموافقة')
-                                        ->options(Organization::getStatusOptions())
-                                        ->default(Organization::STATUS_PENDING)
+                                        ->options(\App\Enums\OrganizationStatus::class)
+                                        ->default(\App\Enums\OrganizationStatus::PENDING)
                                         ->required()
                                         ->columnSpanFull(),
                                 ]),

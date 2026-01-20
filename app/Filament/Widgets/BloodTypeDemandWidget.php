@@ -30,12 +30,19 @@ class BloodTypeDemandWidget extends Widget
             ];
         }
 
-        $bloodTypeOptions = Donor::getBloodTypeOptions();
+        $statsFirst = $stats->first();
+        $mostNeeded = $statsFirst
+            ? ($statsFirst->blood_type instanceof \App\Enums\BloodType
+                ? $statsFirst->blood_type->getLabel()
+                : \App\Enums\BloodType::from($statsFirst->blood_type)->getLabel())
+            : 'N/A';
 
         return [
-            'most_needed' => $bloodTypeOptions[$stats->first()->blood_type] ?? 'Unknown',
+            'most_needed' => $mostNeeded,
             'breakdown' => $stats->take(4)->map(fn($stat) => [
-                'label' => $bloodTypeOptions[$stat->blood_type] ?? $stat->blood_type,
+                'label' => $stat->blood_type instanceof \App\Enums\BloodType
+                    ? $stat->blood_type->getLabel()
+                    : \App\Enums\BloodType::from($stat->blood_type)->getLabel(),
                 'value' => round(($stat->count / $totalCount) * 100) . '%',
             ])->toArray(),
         ];

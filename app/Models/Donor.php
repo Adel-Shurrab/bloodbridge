@@ -11,33 +11,11 @@ class Donor extends Model
 {
     use SoftDeletes, HasFactory;
 
-    // Gender
-    public const GENDER_MALE = 'male';
-    public const GENDER_FEMALE = 'female';
 
-    public const GENDER_LIST = [
-        self::GENDER_MALE,
-        self::GENDER_FEMALE,
-    ];
-
-    public static function getGenderOptions(): array
-    {
-        return [
-            self::GENDER_MALE => 'ذكر',
-            self::GENDER_FEMALE => 'أنثى',
-        ];
-    }
-
-    // Blood Types
-    public static function getBloodTypeOptions(): array
-    {
-        return collect(BloodType::cases())
-            ->mapWithKeys(fn(BloodType $type) => [$type->value => $type->getLabel()])
-            ->toArray();
-    }
 
     protected $casts = [
         'blood_type' => BloodType::class,
+        'gender' => \App\Enums\Gender::class,
     ];
 
     // Defaults
@@ -73,5 +51,10 @@ class Donor extends Model
     public function responses()
     {
         return $this->hasMany(RequestResponse::class);
+    }
+
+    public function eligibilityLogs()
+    {
+        return $this->hasMany(EligibilityLog::class);
     }
 }

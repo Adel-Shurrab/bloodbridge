@@ -24,7 +24,7 @@ class ResponsesRelationManager extends RelationManager
             ->components([
                 Select::make('status')
                     ->label('الحالة')
-                    ->options(RequestResponse::getStatusOptions())
+                    ->options(\App\Enums\RequestResponseStatus::class)
                     ->required(),
             ]);
     }
@@ -40,23 +40,10 @@ class ResponsesRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('bloodRequest.urgency_level')
                     ->label('مستوى الاستعجال')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => BloodRequest::getUrgencyOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int) $state) {
-                        BloodRequest::URGENCY_CRITICAL => 'danger',
-                        BloodRequest::URGENCY_HIGH => 'warning',
-                        default => 'success',
-                    }),
+                    ->badge(),
                 TextColumn::make('status')
                     ->label('الحالة')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => RequestResponse::getStatusOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int) $state) {
-                        RequestResponse::STATUS_COMPLETED => 'success',
-                        RequestResponse::STATUS_ACCEPTED => 'info',
-                        RequestResponse::STATUS_DECLINED, RequestResponse::STATUS_NO_SHOW, RequestResponse::STATUS_IGNORED => 'danger',
-                        default => 'warning',
-                    }),
+                    ->badge(),
                 TextColumn::make('created_at')
                     ->label('تاريخ الاستجابة')
                     ->dateTime('Y/m/d h:i A')
@@ -65,7 +52,7 @@ class ResponsesRelationManager extends RelationManager
             ->filters([
                 SelectFilter::make('status')
                     ->label('الحالة')
-                    ->options(RequestResponse::getStatusOptions()),
+                    ->options(\App\Enums\RequestResponseStatus::class),
             ])
             ->headerActions([
                 //

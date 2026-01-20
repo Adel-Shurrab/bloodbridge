@@ -19,7 +19,7 @@ return new class extends Migration
             $table->string('email')->unique();
             $table->string('phone')->unique();
             $table->string('password');
-            $table->unsignedTinyInteger('role')->default(User::ROLE_DONOR)->index();
+            $table->unsignedTinyInteger('role')->default(\App\Enums\UserRole::DONOR->value)->index();
             $table->boolean('is_active')->default(true)->index();
             $table->timestamp('email_verified_at')->nullable();
             $table->timestamp('phone_verified_at')->nullable();

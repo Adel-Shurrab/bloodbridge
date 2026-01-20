@@ -79,7 +79,7 @@ class OrganizationForm
                         Select::make('user_id')
                             ->label('الحساب المرتبط')
                             ->relationship('user', 'name', function ($query) {
-                                return $query->where('role', User::ROLE_ORGANIZATION)
+                                return $query->where('role', \App\Enums\UserRole::ORGANIZATION)
                                     ->orderByRaw('EXISTS (SELECT 1 FROM organizations WHERE organizations.user_id = users.id) ASC')
                                     ->orderBy('name');
                             })

@@ -26,7 +26,7 @@ class DonorInfolist
                                     ->copyable(),
                                 TextEntry::make('gender')
                                     ->label('الجنس')
-                                    ->formatStateUsing(fn($state) => \App\Models\Donor::getGenderOptions()[$state] ?? $state),
+                                    ->badge(),
                                 TextEntry::make('user.email')
                                     ->label('البريد الإلكتروني')
                                     ->copyable(),
@@ -46,9 +46,7 @@ class DonorInfolist
                             ->components([
                                 TextEntry::make('healthProfile.blood_type')
                                     ->label('فصيلة الدم')
-                                    ->formatStateUsing(fn($state) => \App\Models\Donor::getBloodTypeOptions()[$state] ?? $state)
-                                    ->badge()
-                                    ->color(Color::Red),
+                                    ->badge(),
                                 TextEntry::make('healthProfile.weight')
                                     ->label('الوزن (كجم)')
                                     ->suffix(' كجم'),

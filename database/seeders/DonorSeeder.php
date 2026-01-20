@@ -17,7 +17,7 @@ class DonorSeeder extends Seeder
         $firstNames = ['محمد', 'أحمد', 'محمود', 'عبد الله', 'يوسف', 'خالد', 'إبراهيم', 'عمر', 'علي', 'حسين', 'سارة', 'فاطمة', 'مريم', 'ليلى', 'نور', 'منى', 'أسماء', 'رشا', 'هبة', 'منة'];
         $lastNames = ['سليمان', 'أبو كمال', 'الحسن', 'عوض', 'صالحة', 'النجار', 'المصري', 'حمودة', 'عبيد', 'شاهين', 'بركة', 'عقل', 'داوود', 'خليل', 'ياسين', 'الأسطل', 'قدرة', 'صيام', 'أبو حطب', 'الأطرش'];
 
-        $orgIds = Organization::pluck('id')->toArray();
+        $orgIds = Organization::pluck('id', null)->toArray();
 
         for ($i = 1; $i <= 50; $i++) {
             $firstName = $firstNames[array_rand($firstNames)];
@@ -25,14 +25,14 @@ class DonorSeeder extends Seeder
             $name = $firstName . ' ' . $lastName;
             $email = "donor{$i}@bloodbridge.ps";
             $nationalId = '4' . str_pad($i, 8, '0', STR_PAD_LEFT);
-            $gender = in_array($firstName, ['سارة', 'فاطمة', 'مريم', 'ليلى', 'نور', 'منى', 'أسماء', 'رشا', 'هبة', 'منة']) ? Donor::GENDER_FEMALE : Donor::GENDER_MALE;
+            $gender = in_array($firstName, ['سارة', 'فاطمة', 'مريم', 'ليلى', 'نور', 'منى', 'أسماء', 'رشا', 'هبة', 'منة']) ? \App\Enums\Gender::FEMALE : \App\Enums\Gender::MALE;
 
             $user = User::create([
                 'name' => $name,
                 'email' => $email,
                 'password' => Hash::make('password'),
                 'phone' => '0595' . str_pad($i, 6, '0', STR_PAD_LEFT),
-                'role' => User::ROLE_DONOR,
+                'role' => \App\Enums\UserRole::DONOR,
                 'is_active' => true,
             ]);
 
@@ -43,7 +43,7 @@ class DonorSeeder extends Seeder
                 'birth_date' => Carbon::now()->subYears(rand(18, 60)),
                 'lat' => 31.5 + (rand(-200, 200) / 1000),
                 'lng' => 34.4 + (rand(-100, 100) / 1000),
-                'governorate_id' => \App\Models\Governorate::inRandomOrder()->first()?->id,
+                'governorate_id' => \App\Models\Governorate::inRandomOrder('')->first()?->id,
             ]);
 
             // Create Health Profile with varied data
@@ -64,7 +64,7 @@ class DonorSeeder extends Seeder
                 'has_recent_surgery' => $hasSurgery,
                 'surgery_date' => $hasSurgery ? Carbon::now()->subDays(rand(5, 60)) : null,
                 'total_donations' => rand(0, 20),
-                'is_eligible' => true, // Will be auto-calculated by model booted method
+                'is_eligible' => true,
             ]);
         }
     }

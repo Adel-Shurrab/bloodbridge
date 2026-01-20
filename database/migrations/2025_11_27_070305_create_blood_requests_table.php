@@ -26,6 +26,9 @@ return new class extends Migration
                 ->index();
             $table->text('additional_notes')->nullable();
             $table->unsignedInteger('search_radius_km')->default(10);
+            $table->decimal('lat', 10, 7)->nullable();
+            $table->decimal('lng', 10, 7)->nullable();
+            $table->string('location_address')->nullable();
             $table->unsignedTinyInteger('status')
                 ->default(BloodRequest::DEFAULT_STATUS)
                 ->index();

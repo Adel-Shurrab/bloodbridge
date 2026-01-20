@@ -18,25 +18,25 @@ class StatsOverview extends Widget
         return [
             $this->makeStat(
                 label: 'عمليات التحقق المعلقة',
-                value: Organization::where('approval_status', Organization::STATUS_PENDING)->count(),
+                value: Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::PENDING, 'and')->count('*'),
                 icon: 'heroicon-s-document-text',
                 theme: 'red',
             ),
             $this->makeStat(
                 label: 'إجمالي المتبرعين',
-                value: number_format(Donor::count()),
+                value: number_format(Donor::count('*')),
                 icon: 'heroicon-s-users',
                 theme: 'blue',
             ),
             $this->makeStat(
                 label: 'المؤسسات المعتمدة',
-                value: Organization::where('approval_status', Organization::STATUS_APPROVED)->count(),
+                value: Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::APPROVED, 'and')->count('*'),
                 icon: 'heroicon-s-check',
                 theme: 'emerald',
             ),
             $this->makeStat(
                 label: 'التبرعات المكتملة',
-                value: BloodRequest::where('status', BloodRequest::STATUS_FULFILLED)->count(),
+                value: BloodRequest::where('status', '=', \App\Enums\BloodRequestStatus::FULFILLED, 'and')->count('*'),
                 icon: 'heroicon-s-heart',
                 theme: 'pink',
             ),

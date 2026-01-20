@@ -6,22 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
 {
-    // Statuses
-    public const STATUS_SCHEDULED = 0;
-    public const STATUS_COMPLETED = 1;
-    public const STATUS_CANCELLED = 2;
 
-    public static function getStatusOptions(): array
-    {
-        return [
-            self::STATUS_SCHEDULED => 'مجدول',
-            self::STATUS_COMPLETED => 'مكتمل',
-            self::STATUS_CANCELLED => 'ملغي',
-        ];
-    }
 
     // Defaults
-    public const DEFAULT_STATUS = self::STATUS_SCHEDULED;
+    public const DEFAULT_STATUS = \App\Enums\AppointmentStatus::SCHEDULED;
+
+    protected $casts = [
+        'status' => \App\Enums\AppointmentStatus::class,
+    ];
 
     protected $fillable = [
         'donor_id',

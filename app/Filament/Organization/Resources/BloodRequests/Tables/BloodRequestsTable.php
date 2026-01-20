@@ -20,7 +20,6 @@ class BloodRequestsTable
             ->columns([
                 TextColumn::make('blood_type')
                     ->label('فصيلة الدم')
-                    ->formatStateUsing(fn($state) => $state?->getLabel() ?? '-')
                     ->badge()
                     ->sortable(),
 
@@ -32,24 +31,11 @@ class BloodRequestsTable
                 TextColumn::make('urgency_level')
                     ->label('الاستعجال')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => BloodRequest::getUrgencyOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int)$state) {
-                        BloodRequest::URGENCY_CRITICAL => 'danger',
-                        BloodRequest::URGENCY_HIGH => 'warning',
-                        default => 'success',
-                    })
                     ->sortable(),
 
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => BloodRequest::getStatusOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int)$state) {
-                        BloodRequest::STATUS_FULFILLED => 'success',
-                        BloodRequest::STATUS_CANCELLED, BloodRequest::STATUS_EXPIRED => 'danger',
-                        BloodRequest::STATUS_BROADCASTED, BloodRequest::STATUS_MATCHED => 'warning',
-                        default => 'gray',
-                    })
                     ->sortable(),
 
                 TextColumn::make('donors_completed')
@@ -67,10 +53,10 @@ class BloodRequestsTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('تصفية حسب الحالة')
-                    ->options(BloodRequest::getStatusOptions()),
+                    ->options(\App\Enums\BloodRequestStatus::class),
                 SelectFilter::make('urgency_level')
                     ->label('تصفية حسب الاستعجال')
-                    ->options(BloodRequest::getUrgencyOptions()),
+                    ->options(\App\Enums\UrgencyLevel::class),
                 TrashedFilter::make(),
             ])
             ->recordActions([

@@ -26,7 +26,7 @@ class CreateOrganization extends CreateRecord
                     'email' => $data['new_user_email'],
                     'phone' => $data['new_user_phone'],
                     'password' => Hash::make($data['new_user_password']),
-                    'role' => User::ROLE_ORGANIZATION,
+                    'role' => \App\Enums\UserRole::ORGANIZATION,
                     'is_active' => User::DEFAULT_IS_ACTIVE,
                 ]);
 

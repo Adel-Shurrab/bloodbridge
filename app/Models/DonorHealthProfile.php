@@ -3,22 +3,14 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Carbon\Carbon;
 use App\Enums\BloodType;
 
 class DonorHealthProfile extends Model
 {
-    use SoftDeletes;
-
-    // Eligibility Statuses
-    public const STATUS_ELIGIBLE = 'eligible';
-    public const STATUS_INELIGIBLE = 'ineligible';
-
-    // Check Types
-    public const CHECK_TYPE_REGISTRATION = 'registration';
-    public const CHECK_TYPE_REQUEST_ACCEPTANCE = 'request_acceptance';
-    public const CHECK_TYPE_PROFILE_UPDATE = 'profile_update';
+    use SoftDeletes, HasFactory;
 
     // Defaults
     public const DEFAULT_CHRONIC_DISEASE = false;

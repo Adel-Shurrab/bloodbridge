@@ -19,7 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Governorate::class)->nullable()->constrained()->nullOnDelete();
             $table->string('national_id', 9)->unique()->index()->comment('National/ID number');
-            $table->enum('gender', Donor::GENDER_LIST)->index();
+            $table->enum('gender', array_column(\App\Enums\Gender::cases(), 'value'))->index();
             $table->date('birth_date')->nullable()->index();
             $table->decimal('lat', 10, 7)->nullable()->comment('Latitude for location');
             $table->decimal('lng', 10, 7)->nullable()->comment('Longitude for location');

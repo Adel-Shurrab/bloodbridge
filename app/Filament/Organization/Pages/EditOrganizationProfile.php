@@ -3,6 +3,7 @@
 namespace App\Filament\Organization\Pages;
 
 use Filament\Forms\Components\CheckboxList;
+use Filament\Forms\Components\Hidden;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Group;
 use Filament\Forms\Components\Placeholder;
@@ -11,8 +12,12 @@ use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\TimePicker;
 use Filament\Forms\Components\Toggle;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 use Filament\Pages\Tenancy\EditTenantProfile;
+use Dotswan\MapPicker\Fields\Map;
+use App\Constants\PalestineCoordinates;
 
 class EditOrganizationProfile extends EditTenantProfile
 {
@@ -97,6 +102,48 @@ class EditOrganizationProfile extends EditTenantProfile
                                     ->prefixIcon('heroicon-m-map-pin')
                                     ->helperText('العنوان الكامل لتسهيل الوصول إلى المركز')
                                     ->columnSpan(2),
+
+                                // Map Picker Component
+                                Map::make('location')
+                                    ->label('موقع المنظمة على الخريطة')
+                                    ->columnSpanFull()
+                                    ->defaultLocation(
+                                        PalestineCoordinates::GAZA['lat'],
+                                        PalestineCoordinates::GAZA['lng']
+                                    )
+                                    ->afterStateUpdated(function (Get $get, Set $set, ?array $state): void {
+                                        $set('lat', $state['lat']);
+                                        $set('lng', $state['lng']);
+                                    })
+                                    ->afterStateHydrated(function ($state, $record, Set $set): void {
+                                        $set('location', [
+                                            'lat' => $record?->lat ?? PalestineCoordinates::GAZA['lat'],
+                                            'lng' => $record?->lng ?? PalestineCoordinates::GAZA['lng']
+                                        ]);
+                                    })
+                                    ->extraStyles([
+                                        'min-height: 50vh',
+                                        'border-radius: 10px'
+                                    ])
+                                    ->liveLocation(true, true, 10000)
+                                    ->showMarker(true)
+                                    ->markerColor("#be123cff")
+                                    ->showFullscreenControl(true)
+                                    ->showZoomControl(true)
+                                    ->draggable(true)
+                                    ->tilesUrl("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+                                    ->zoom(PalestineCoordinates::ZOOM_CITY)
+                                    ->detectRetina(true)
+                                    ->showMyLocationButton(true)
+                                    ->extraTileControl([])
+                                    ->extraControl([
+                                        'zoomDelta' => 1,
+                                        'zoomSnap' => 2,
+                                    ]),
+
+                                // Hidden fields to store coordinates
+                                Hidden::make('lat'),
+                                Hidden::make('lng'),
                             ]),
                     ]),
 
@@ -139,8 +186,8 @@ class EditOrganizationProfile extends EditTenantProfile
                                             ->prefixIcon('heroicon-m-clock')
                                             ->helperText('وقت بدء استقبال المتبرعين')
                                             ->displayFormat('H:i')
-                                            ->visible(fn (callable $get) => !$get('emergency_available'))
-                                            ->required(fn (callable $get) => !$get('emergency_available'))
+                                            ->visible(fn(callable $get) => !$get('emergency_available'))
+                                            ->required(fn(callable $get) => !$get('emergency_available'))
                                             ->columnSpan(1),
 
                                         TimePicker::make('closing_time')
@@ -152,8 +199,8 @@ class EditOrganizationProfile extends EditTenantProfile
                                             ->helperText('وقت انتهاء استقبال المتبرعين')
                                             ->displayFormat('H:i')
                                             ->after('opening_time')
-                                            ->visible(fn (callable $get) => !$get('emergency_available'))
-                                            ->required(fn (callable $get) => !$get('emergency_available'))
+                                            ->visible(fn(callable $get) => !$get('emergency_available'))
+                                            ->required(fn(callable $get) => !$get('emergency_available'))
                                             ->columnSpan(1),
 
                                         TextInput::make('daily_capacity')
@@ -167,7 +214,7 @@ class EditOrganizationProfile extends EditTenantProfile
                                             ->suffix('متبرع/يوم')
                                             ->prefixIcon('heroicon-m-user-group')
                                             ->helperText('عدد المتبرعين الذين يمكن استقبالهم يومياً')
-                                            ->columnSpan(fn (callable $get) => $get('emergency_available') ? 3 : 1),
+                                            ->columnSpan(fn(callable $get) => $get('emergency_available') ? 3 : 1),
                                     ]),
                             ]),
 

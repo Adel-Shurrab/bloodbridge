@@ -5,7 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
-use Illuminate\Notifications\Notifiable;
+
 use Filament\Models\Contracts\FilamentUser;
 use Filament\Models\Contracts\HasTenants;
 use Filament\Panel;
@@ -16,21 +16,9 @@ use Illuminate\Support\Collection;
 class User extends Authenticatable implements FilamentUser, HasTenants
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable, SoftDeletes;
+    use HasFactory, SoftDeletes;
 
-    // Roles
-    public const ROLE_DONOR = 1;
-    public const ROLE_ORGANIZATION = 2;
-    public const ROLE_ADMIN = 3;
 
-    public static function getRoleOptions(): array
-    {
-        return [
-            self::ROLE_DONOR => 'متبرع',
-            self::ROLE_ORGANIZATION => 'منظمة',
-            self::ROLE_ADMIN => 'مسؤول النظام',
-        ];
-    }
 
     public const DEFAULT_IS_ACTIVE = true;
 
@@ -61,9 +49,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants
     public function getDashboardUrl(): string
     {
         return match ($this->role) {
-            self::ROLE_ADMIN => route('filament.admin.pages.dashboard'),
-            self::ROLE_DONOR => route('filament.donor.pages.dashboard'),
-            self::ROLE_ORGANIZATION => ($org = $this->organization)
+            \App\Enums\UserRole::ADMIN => route('filament.admin.pages.dashboard'),
+            \App\Enums\UserRole::DONOR => route('filament.donor.pages.dashboard'),
+            \App\Enums\UserRole::ORGANIZATION => ($org = $this->organization)
                 ? route('filament.organization.pages.dashboard', ['tenant' => $org->slug])
                 : route('home'),
             default => route('home'),
@@ -75,9 +63,9 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         $panelId = $panel->getId();
 
         return match ($panelId) {
-            'admin' => $this->role === self::ROLE_ADMIN,
-            'donor' => $this->role === self::ROLE_DONOR,
-            'organization' => $this->role === self::ROLE_ORGANIZATION,
+            'admin' => $this->role === \App\Enums\UserRole::ADMIN,
+            'donor' => $this->role === \App\Enums\UserRole::DONOR,
+            'organization' => $this->role === \App\Enums\UserRole::ORGANIZATION,
             default => false,
         };
     }
@@ -102,6 +90,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'role' => \App\Enums\UserRole::class,
         ];
     }
 

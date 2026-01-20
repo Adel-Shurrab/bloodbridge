@@ -29,33 +29,18 @@ class BloodRequestsTable
                     ->sortable(),
                 TextColumn::make('blood_type')
                     ->label('فصيلة الدم')
-                    ->formatStateUsing(fn($state) => $state?->getLabel() ?? '-')
-                    ->badge()
-                    ->color('danger'),
+                    ->badge(),
                 TextColumn::make('units_needed')
                     ->label('الوحدات')
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('urgency_level')
                     ->label('الاستعجال')
-                    ->formatStateUsing(fn($state) => BloodRequest::getUrgencyOptions()[$state] ?? $state)
                     ->badge()
-                    ->color(fn(string $state): string => match ((int)$state) {
-                        BloodRequest::URGENCY_CRITICAL => 'danger',
-                        BloodRequest::URGENCY_HIGH => 'warning',
-                        default => 'success',
-                    })
                     ->sortable(),
                 TextColumn::make('status')
                     ->label('الحالة')
-                    ->formatStateUsing(fn($state) => BloodRequest::getStatusOptions()[$state] ?? $state)
                     ->badge()
-                    ->color(fn(string $state): string => match ((int)$state) {
-                        BloodRequest::STATUS_FULFILLED => 'success',
-                        BloodRequest::STATUS_CANCELLED, BloodRequest::STATUS_EXPIRED => 'danger',
-                        BloodRequest::STATUS_BROADCASTED, BloodRequest::STATUS_MATCHED => 'warning',
-                        default => 'gray',
-                    })
                     ->sortable(),
                 TextColumn::make('created_at')
                     ->label('تاريخ الطلب')
@@ -67,10 +52,10 @@ class BloodRequestsTable
                 Tables\Filters\TrashedFilter::make()->label('المحذوفات'),
                 Tables\Filters\SelectFilter::make('status')
                     ->label('الحالة')
-                    ->options(BloodRequest::getStatusOptions()),
+                    ->options(\App\Enums\BloodRequestStatus::class),
                 Tables\Filters\SelectFilter::make('urgency_level')
                     ->label('الاستعجال')
-                    ->options(BloodRequest::getUrgencyOptions()),
+                    ->options(\App\Enums\UrgencyLevel::class),
             ])
             ->actions([
                 ActionGroup::make([

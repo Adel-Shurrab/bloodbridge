@@ -43,13 +43,6 @@ class UsersTable
                 TextColumn::make('role')
                     ->label('نوع الحساب')
                     ->badge()
-                    ->formatStateUsing(fn($state) => User::getRoleOptions()[$state] ?? $state)
-                    ->color(fn($state) => match ($state) {
-                        User::ROLE_ADMIN => 'danger',
-                        User::ROLE_ORGANIZATION => 'success',
-                        User::ROLE_DONOR => 'info',
-                        default => 'gray',
-                    })
                     ->sortable(),
 
                 ToggleColumn::make('is_active')
@@ -64,7 +57,7 @@ class UsersTable
             ->filters([
                 SelectFilter::make('role')
                     ->label('نوع الحساب')
-                    ->options(User::getRoleOptions()),
+                    ->options(\App\Enums\UserRole::class),
                 TernaryFilter::make('is_active')
                     ->label('نشط'),
                 TrashedFilter::make()->label('المحذوفات'),

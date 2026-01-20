@@ -33,8 +33,8 @@ class RequestResponseSeeder extends Seeder
             $randomDonors = $donors->random(min($responsesCount, $donors->count()));
 
             foreach ($randomDonors as $donor) {
-                if (\App\Models\RequestResponse::where('blood_request_id', $request->id)
-                    ->where('donor_id', $donor->id)
+                if (\App\Models\RequestResponse::where('blood_request_id', '=', $request->id, 'and')
+                    ->where('donor_id', '=', $donor->id, 'and')
                     ->exists()
                 ) {
                     continue;
@@ -42,13 +42,13 @@ class RequestResponseSeeder extends Seeder
 
                 // Status logic: Most are accepted/completed, some pending, some excluded
                 $status = $faker->randomElement([
-                    \App\Models\RequestResponse::STATUS_PENDING,
-                    \App\Models\RequestResponse::STATUS_ACCEPTED,
-                    \App\Models\RequestResponse::STATUS_ACCEPTED,
-                    \App\Models\RequestResponse::STATUS_COMPLETED,
-                    \App\Models\RequestResponse::STATUS_COMPLETED,
-                    \App\Models\RequestResponse::STATUS_DECLINED, // Medical Exclusion
-                    \App\Models\RequestResponse::STATUS_NO_SHOW,
+                    \App\Enums\RequestResponseStatus::PENDING,
+                    \App\Enums\RequestResponseStatus::ACCEPTED,
+                    \App\Enums\RequestResponseStatus::ACCEPTED,
+                    \App\Enums\RequestResponseStatus::COMPLETED,
+                    \App\Enums\RequestResponseStatus::COMPLETED,
+                    \App\Enums\RequestResponseStatus::DECLINED, // Medical Exclusion
+                    \App\Enums\RequestResponseStatus::NO_SHOW,
                 ]);
 
                 // 1. Creation of request is the baseline
@@ -62,11 +62,11 @@ class RequestResponseSeeder extends Seeder
 
                 // 3. Verification happens ONLY for Completed or Medically Excluded
                 // It must be AFTER responded_at
-                if ($status == \App\Models\RequestResponse::STATUS_COMPLETED || $status == \App\Models\RequestResponse::STATUS_DECLINED) {
+                if ($status === \App\Enums\RequestResponseStatus::COMPLETED || $status === \App\Enums\RequestResponseStatus::DECLINED) {
                     $verifiedAt = (clone $respondedAt)->modify('+' . rand(30, 1440) . ' minutes');
                 }
 
-                if ($status == \App\Models\RequestResponse::STATUS_DECLINED) {
+                if ($status === \App\Enums\RequestResponseStatus::DECLINED) {
                     $declineReason = $faker->randomElement([
                         'استبعاد طبي: نقص حاد في الهيموجلوبين',
                         'استبعاد طبي: انخفاض ضغط الدم',
@@ -79,7 +79,7 @@ class RequestResponseSeeder extends Seeder
                     'blood_request_id' => $request->id,
                     'donor_id' => $donor->id,
                     'status' => $status,
-                    'verification_qr_code' => $status == \App\Models\RequestResponse::STATUS_COMPLETED,
+                    'verification_qr_code' => $status === \App\Enums\RequestResponseStatus::COMPLETED,
                     'verified_at' => $verifiedAt,
                     'decline_reason' => $declineReason,
                     'responded_at' => $respondedAt,

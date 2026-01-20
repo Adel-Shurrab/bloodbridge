@@ -38,7 +38,7 @@ class UserForm
 
                         Select::make('role')
                             ->label('نوع الحساب')
-                            ->options(User::getRoleOptions())
+                            ->options(\App\Enums\UserRole::class)
                             ->required(),
 
                         Toggle::make('is_active')

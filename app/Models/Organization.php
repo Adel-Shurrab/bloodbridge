@@ -5,33 +5,25 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Filament\Models\Contracts\HasName;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Str;
 
 class Organization extends Model implements HasName
 {
-    use SoftDeletes;
-    // Approval Statuses
-    public const STATUS_PENDING = 0;
-    public const STATUS_APPROVED = 1;
-    public const STATUS_REJECTED = 2;
+    use SoftDeletes, HasFactory;
 
-    public static function getStatusOptions(): array
-    {
-        return [
-            self::STATUS_PENDING => 'قيد الانتظار',
-            self::STATUS_APPROVED => 'معتمدة',
-            self::STATUS_REJECTED => 'مرفوض',
-        ];
-    }
 
     // Defaults
-    public const DEFAULT_APPROVAL_STATUS = self::STATUS_PENDING;
+    public const DEFAULT_APPROVAL_STATUS = \App\Enums\OrganizationStatus::PENDING;
     public const DEFAULT_DAILY_CAPACITY = 0;
     public const DEFAULT_TOTAL_REQUEST_CREATED = 0;
     public const DEFAULT_TOTAL_DONATION_VERIFIED = 0;
 
     protected $casts = [
         'working_days' => 'array',
+        'approval_status' => \App\Enums\OrganizationStatus::class,
+        'lat' => 'decimal:7',
+        'lng' => 'decimal:7',
     ];
 
     protected $fillable = [
@@ -48,6 +40,8 @@ class Organization extends Model implements HasName
         'contact_email',
         'contact_phone',
         'street_address',
+        'lat',
+        'lng',
         'opening_time',
         'closing_time',
         'working_days',

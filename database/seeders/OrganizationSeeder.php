@@ -150,7 +150,7 @@ class OrganizationSeeder extends Seeder
                 'email' => $email,
                 'password' => Hash::make('password'),
                 'phone' => '0599' . str_pad($index + 10, 6, '0', STR_PAD_LEFT),
-                'role' => User::ROLE_ORGANIZATION,
+                'role' => \App\Enums\UserRole::ORGANIZATION,
                 'is_active' => true,
             ]);
 
@@ -171,7 +171,7 @@ class OrganizationSeeder extends Seeder
                 'closing_time' => $data['closing_time'],
                 'working_days' => $data['working_days'],
                 'daily_capacity' => $data['daily_capacity'],
-                'approval_status' => Organization::STATUS_APPROVED,
+                'approval_status' => \App\Enums\OrganizationStatus::APPROVED,
             ]);
         }
     }
