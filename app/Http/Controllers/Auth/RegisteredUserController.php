@@ -73,6 +73,10 @@ class RegisteredUserController extends Controller
             'surgery_date' => ['required_if:has_recent_surgery,1', 'nullable', 'date', 'before_or_equal:' . now()->subDays(app(\App\Settings\GeneralSettings::class)->min_days_after_surgery)->format('Y-m-d')],
             'last_donation_date' => ['required_if:recent_donation,1', 'nullable', 'date', 'before_or_equal:' . now()->subDays(app(\App\Settings\GeneralSettings::class)->min_days_between_donations)->format('Y-m-d')],
             'blood_type' => ['nullable', 'in:' . implode(',', array_column(\App\Enums\BloodType::cases(), 'value'))],
+            // Auto-locate fields with Palestine-specific bounds
+            'auto_location_address' => ['nullable', 'string', 'max:500'],
+            'auto_lat' => ['nullable', 'numeric', 'between:31.2,32.6'], // Palestine latitude range
+            'auto_lng' => ['nullable', 'numeric', 'between:34.2,35.6'], // Palestine longitude range
         ], [
             'chronic_disease.in' => 'عذراً، المتبرعون الذين يعانون من أمراض مزمنة غير مؤهلين للتبرع.',
         ]);
@@ -95,6 +99,9 @@ class RegisteredUserController extends Controller
                 'national_id' => $request->national_id,
                 'birth_date' => $request->birth_date,
                 'gender' => $request->gender,
+                'auto_location_address' => $request->auto_location_address,
+                'lat' => $request->auto_lat,
+                'lng' => $request->auto_lng,
                 'blood_type' => null,
             ]);
 
@@ -139,7 +146,7 @@ class RegisteredUserController extends Controller
             // Contact Info
             'contactEmail' => ['required', 'string', 'email', 'max:255', 'unique:organizations,contact_email'],
             'contactPhone' => ['required', 'string', 'max:20', 'unique:organizations,contact_phone'],
-            'streetAddress' => ['required', 'string', 'max:255'],
+
             'governorate_id' => ['required', 'exists:governorates,id'],
 
             // Admin & License Info
@@ -149,6 +156,10 @@ class RegisteredUserController extends Controller
             'responsible_person_position' => ['required', 'string', 'max:255'],
             'adminEmail' => ['required', 'string', 'email', 'max:255', 'unique:users,email'], // إيميل تسجيل الدخول
             'adminPassword' => ['required', 'confirmed', Rules\Password::defaults()],
+            // Auto-locate fields with Palestine-specific bounds
+            'auto_location_address' => ['nullable', 'string', 'max:500'],
+            'auto_lat' => ['nullable', 'numeric', 'between:31.2,32.6'], // Palestine latitude range
+            'auto_lng' => ['nullable', 'numeric', 'between:34.2,35.6'], // Palestine longitude range
         ]);
 
         $user = DB::transaction(function () use ($request) {
@@ -182,7 +193,10 @@ class RegisteredUserController extends Controller
                 'responsible_person_email' => $request->adminEmail,
                 'contact_email' => $request->contactEmail,
                 'contact_phone' => $request->contactPhone,
-                'street_address' => $request->streetAddress,
+
+                'auto_location_address' => $request->auto_location_address,
+                'lat' => $request->auto_lat,
+                'lng' => $request->auto_lng,
                 'opening_time' => $request->opening_time,
                 'closing_time' => $request->closing_time,
                 'working_days' => $request->working_days,

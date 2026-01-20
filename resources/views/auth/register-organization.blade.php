@@ -167,15 +167,6 @@
 
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label for="streetAddress">اسم الشارع <span class="required">*</span></label>
-                                <input type="text" id="streetAddress" name="streetAddress"
-                                    value="{{ old('streetAddress') }}" placeholder="123 الشارع الرئيسي" />
-                                <span class="error-message"></span>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group full-width">
                                 <label for="governorate_id">المحافظة <span class="required">*</span></label>
                                 <select id="governorate_id" name="governorate_id">
                                     <option value="" disabled selected>اختر المحافظة</option>
@@ -189,8 +180,46 @@
                             </div>
                         </div>
 
+                        <div class="form-row">
+                            <div class="form-group full-width">
+                                <label for="auto_location_address">
+                                    الموقع التلقائي للمنظمة
+                                    <span style="color: #999; font-weight: normal;">(اختياري)</span>
+                                </label>
+                                <div style="position: relative; display: flex; gap: 0.5rem;">
+                                    <input 
+                                        type="text" 
+                                        id="auto_location_address" 
+                                        name="auto_location_address"
+                                        value="{{ old('auto_location_address') }}"
+                                        placeholder="اضغط على زر الموقع لتحديد موقع المنظمة تلقائياً"
+                                        readonly
+                                        style="flex: 1; background: #f9fafb; cursor: pointer;"
+                                    />
+                                    <button 
+                                        type="button" 
+                                        id="gps-location-btn"
+                                        class="btn btn-outline"
+                                        style="padding: 0.875rem 1.5rem; white-space: nowrap; min-width: auto;"
+                                        title="تحديد الموقع تلقائياً"
+                                    >
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block;">
+                                            <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
+                                            <circle cx="12" cy="12" r="3"/>
+                                        </svg>
+                                        <span style="margin-right: 0.5rem;">تحديد الموقع</span>
+                                    </button>
+                                </div>
+                                <span class="helper-text">سيساعد هذا المتبرعين في العثور على موقع المنظمة بسهولة</span>
+                                <span class="error-message"></span>
+        
+                                <!-- Hidden inputs for coordinates -->
+                                <input type="hidden" id="auto_lat" name="auto_lat" value="{{ old('auto_lat') }}">
+                                <input type="hidden" id="auto_lng" name="auto_lng" value="{{ old('auto_lng') }}">
+                            </div>
+                        </div>
+                        </div>
                     </div>
-
                     <div class="form-step" id="step3">
                         <h2 class="step-title">التوثيق والإدارة</h2>
 

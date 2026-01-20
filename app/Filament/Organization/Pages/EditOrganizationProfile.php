@@ -94,14 +94,7 @@ class EditOrganizationProfile extends EditTenantProfile
                                     ->helperText('رقم الهاتف الأرضي أو المحمول')
                                     ->columnSpan(1),
 
-                                TextInput::make('street_address')
-                                    ->label('العنوان التفصيلي')
-                                    ->placeholder('المدينة، الحي، الشارع، رقم المبنى')
-                                    ->required()
-                                    ->maxLength(255)
-                                    ->prefixIcon('heroicon-m-map-pin')
-                                    ->helperText('العنوان الكامل لتسهيل الوصول إلى المركز')
-                                    ->columnSpan(2),
+
 
                                 // Map Picker Component
                                 Map::make('location')

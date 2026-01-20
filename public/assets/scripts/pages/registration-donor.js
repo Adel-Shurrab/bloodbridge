@@ -718,6 +718,128 @@ function showStep(step) {
     }
 }
 
+/**
+ * Initialize GPS location button functionality
+ */
+function initGPSLocation() {
+    const gpsBtn = document.getElementById('gps-location-btn');
+    const locationInput = document.getElementById('auto_location_address');
+    const latInput = document.getElementById('auto_lat');
+    const lngInput = document.getElementById('auto_lng');
+
+    if (!gpsBtn || !locationInput) return;
+
+    let lastRequestTime = 0;
+    const COOLDOWN_MS = 2000; // 2 seconds between requests
+
+    gpsBtn.addEventListener('click', async function (e) {
+        e.preventDefault();
+
+        // Rate limiting check
+        const now = Date.now();
+        if (now - lastRequestTime < COOLDOWN_MS) {
+            showError('auto_location_address', 'يرجى الانتظار قليلاً قبل المحاولة مرة أخرى');
+            return;
+        }
+        lastRequestTime = now;
+
+        // Show loading state
+        const originalHTML = gpsBtn.innerHTML;
+        gpsBtn.innerHTML = '<span style="animation: spin 1s linear infinite;">⌛</span>';
+        gpsBtn.disabled = true;
+
+        try {
+            // Check if geolocation is supported
+            if (!navigator.geolocation) {
+                throw new Error('المتصفح لا يدعم تحديد الموقع الجغرافي');
+            }
+
+            // Get user's position
+            const position = await new Promise((resolve, reject) => {
+                navigator.geolocation.getCurrentPosition(resolve, reject, {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                });
+            });
+
+            const { latitude, longitude } = position.coords;
+
+            // Store coordinates in hidden inputs if they exist
+            if (latInput) latInput.value = latitude.toFixed(6);
+            if (lngInput) lngInput.value = longitude.toFixed(6);
+
+            // Reverse geocode to get address using Nominatim (OpenStreetMap)
+            // Note: Nominatim requires a User-Agent header for identification
+            const response = await fetch(
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`,
+                {
+                    headers: {
+                        'User-Agent': 'BloodBridge/1.0' // Required by Nominatim usage policy
+                    }
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error('فشل في الحصول على العنوان');
+            }
+
+            const data = await response.json();
+
+            // Extract address components
+            const address = data.address || {};
+            const addressParts = [
+                address.road || address.neighbourhood,
+                address.suburb || address.city_district,
+                address.city || address.town || address.village,
+                address.state
+            ].filter(Boolean);
+
+            const fullAddress = addressParts.join('، ') || data.display_name;
+
+            // Update input with address
+            locationInput.value = fullAddress;
+            clearError('auto_location_address');
+
+            // Show success message briefly
+            gpsBtn.innerHTML = '<span style="color: #10b981;">✓</span>';
+            setTimeout(() => {
+                gpsBtn.innerHTML = originalHTML;
+                gpsBtn.disabled = false;
+            }, 2000);
+
+        } catch (error) {
+            console.error('GPS Error:', error);
+
+            let errorMessage = 'فشل في تحديد الموقع';
+
+            if (error.code === 1) {
+                errorMessage = 'يرجى السماح بالوصول إلى موقعك';
+            } else if (error.code === 2) {
+                errorMessage = 'الموقع غير متاح حالياً';
+            } else if (error.code === 3) {
+                errorMessage = 'انتهت مهلة الطلب';
+            }
+
+            showError('auto_location_address', errorMessage);
+
+            // Reset button
+            gpsBtn.innerHTML = originalHTML;
+            gpsBtn.disabled = false;
+        }
+    });
+}
+
+// Add spin animation for loading state
+const spinStyle = document.createElement('style');
+spinStyle.textContent = `
+    @keyframes spin {
+        from { transform: rotate(0deg); }
+        to { transform: rotate(360deg); }
+    }
+`;
+document.head.appendChild(spinStyle);
+
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
     // Call conditional inputs first to set up initial visibility
@@ -726,6 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initPasswordToggle();
     initHealthProfileChangeListeners();
     initClearDateButtons();
+    initGPSLocation();
     // Add shake style
     const style = document.createElement('style');
     style.textContent = `@keyframes shake { 0%, 100% { transform: translateX(0); } 10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); } 20%, 40%, 60%, 80% { transform: translateX(5px); } }`;

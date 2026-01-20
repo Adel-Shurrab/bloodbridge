@@ -198,10 +198,7 @@ class OrganizationForm
                                     ->searchable()
                                     ->preload(),
 
-                                TextInput::make('street_address')
-                                    ->label('العنوان بالتفصيل')
-                                    ->required()
-                                    ->maxLength(255),
+
 
                                 TimePicker::make('opening_time')
                                     ->label('وقت الفتح'),
