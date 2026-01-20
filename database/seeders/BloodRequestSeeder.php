@@ -46,7 +46,7 @@ class BloodRequestSeeder extends Seeder
             $org = $organizations->random();
             $createdAt = Carbon::now()->subDays(rand(0, 60)); // More recent focus
 
-            $status = rand(0, 10) > 4 ? BloodRequest::STATUS_FULFILLED : BloodRequest::STATUS_BROADCASTED;
+            $status = rand(0, 10) > 4 ? \App\Enums\BloodRequestStatus::FULFILLED : \App\Enums\BloodRequestStatus::BROADCASTED;
 
             BloodRequest::create([
                 'organization_id' => $org->id,
@@ -59,7 +59,7 @@ class BloodRequestSeeder extends Seeder
                 'created_at' => $createdAt,
                 'updated_at' => $createdAt->copy()->addMinutes(rand(60, 10000)),
                 'broadcasted_at' => $createdAt->copy()->addMinutes(rand(5, 30)),
-                'fulfilled_at' => $status === BloodRequest::STATUS_FULFILLED ? $createdAt->copy()->addHours(rand(1, 72)) : null,
+                'fulfilled_at' => $status === \App\Enums\BloodRequestStatus::FULFILLED ? $createdAt->copy()->addHours(rand(1, 72)) : null,
             ]);
         }
     }

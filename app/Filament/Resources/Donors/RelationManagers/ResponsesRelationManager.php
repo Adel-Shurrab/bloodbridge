@@ -2,20 +2,14 @@
 
 namespace App\Filament\Resources\Donors\RelationManagers;
 
-use Filament\Actions\AssociateAction;
-use Filament\Actions\BulkActionGroup;
-use Filament\Actions\CreateAction;
-use Filament\Actions\DeleteAction;
-use Filament\Actions\DeleteBulkAction;
-use Filament\Actions\DissociateAction;
-use Filament\Actions\DissociateBulkAction;
-use Filament\Actions\EditAction;
-use Filament\Actions\ViewAction;
-use Filament\Forms\Components\TextInput;
-use Filament\Infolists\Components\TextEntry;
+use App\Models\RequestResponse;
+use App\Models\BloodRequest;
+use Filament\Forms\Components\Select;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
+use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 
 class ResponsesRelationManager extends RelationManager
@@ -28,9 +22,9 @@ class ResponsesRelationManager extends RelationManager
     {
         return $schema
             ->components([
-                \Filament\Forms\Components\Select::make('status')
+                Select::make('status')
                     ->label('الحالة')
-                    ->options(\App\Models\RequestResponse::getStatusOptions())
+                    ->options(\App\Enums\RequestResponseStatus::class)
                     ->required(),
             ]);
     }
@@ -46,31 +40,19 @@ class ResponsesRelationManager extends RelationManager
                     ->sortable(),
                 TextColumn::make('bloodRequest.urgency_level')
                     ->label('مستوى الاستعجال')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => \App\Models\BloodRequest::getUrgencyOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int) $state) {
-                        \App\Models\BloodRequest::URGENCY_CRITICAL => 'danger',
-                        \App\Models\BloodRequest::URGENCY_HIGH => 'warning',
-                        default => 'info',
-                    }),
+                    ->badge(),
                 TextColumn::make('status')
                     ->label('الحالة')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => \App\Models\RequestResponse::getStatusOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int) $state) {
-                        \App\Models\RequestResponse::STATUS_ACCEPTED, \App\Models\RequestResponse::STATUS_COMPLETED => 'success',
-                        \App\Models\RequestResponse::STATUS_DECLINED, \App\Models\RequestResponse::STATUS_IGNORED => 'danger',
-                        default => 'warning',
-                    }),
+                    ->badge(),
                 TextColumn::make('created_at')
                     ->label('تاريخ الاستجابة')
                     ->dateTime('Y/m/d h:i A')
                     ->sortable(),
             ])
             ->filters([
-                \Filament\Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->label('الحالة')
-                    ->options(\App\Models\RequestResponse::getStatusOptions()),
+                    ->options(\App\Enums\RequestResponseStatus::class),
             ])
             ->headerActions([
                 //

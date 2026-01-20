@@ -3,15 +3,14 @@
 namespace App\Filament\Resources\BloodRequests\RelationManagers;
 
 use App\Models\RequestResponse;
-use Filament\Forms;
 use Filament\Forms\Components\Select;
-use Filament\Schemas\Schema;
 use Filament\Resources\RelationManagers\RelationManager;
+use Filament\Schemas\Schema;
 use Filament\Actions\ViewAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Table;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
+use Filament\Tables\Table;
 
 class ResponsesRelationManager extends RelationManager
 {
@@ -25,7 +24,7 @@ class ResponsesRelationManager extends RelationManager
             ->schema([
                 Select::make('status')
                     ->label('الحالة')
-                    ->options(RequestResponse::getStatusOptions())
+                    ->options(\App\Enums\RequestResponseStatus::class)
                     ->required(),
             ]);
     }
@@ -42,13 +41,7 @@ class ResponsesRelationManager extends RelationManager
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge()
-                    ->formatStateUsing(fn($state) => RequestResponse::getStatusOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int) $state) {
-                        RequestResponse::STATUS_ACCEPTED, RequestResponse::STATUS_COMPLETED => 'success',
-                        RequestResponse::STATUS_DECLINED, RequestResponse::STATUS_IGNORED => 'danger',
-                        default => 'warning',
-                    })
-                    ->description(fn(RequestResponse $record) => $record->status == RequestResponse::STATUS_DECLINED ? $record->decline_reason : null),
+                    ->description(fn(RequestResponse $record) => $record->status === \App\Enums\RequestResponseStatus::DECLINED ? $record->decline_reason : null),
                 TextColumn::make('verified_at')
                     ->label('تم التحقق')
                     ->dateTime('Y/m/d h:i A')
@@ -63,7 +56,7 @@ class ResponsesRelationManager extends RelationManager
             ->filters([
                 SelectFilter::make('status')
                     ->label('الحالة')
-                    ->options(RequestResponse::getStatusOptions()),
+                    ->options(\App\Enums\RequestResponseStatus::class),
                 TernaryFilter::make('verified_at')
                     ->label('حالة التحقق')
                     ->placeholder('الكل')

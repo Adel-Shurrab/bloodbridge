@@ -31,7 +31,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use App\Models\EligibilityLog;
-use App\Models\SystemNotification;
+
 use Illuminate\Support\Facades\Auth;
 use Filament\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
@@ -54,7 +54,7 @@ class ResponsesRelationManager extends RelationManager
                     ->schema([
                         Select::make('status')
                             ->label('الحالة')
-                            ->options(RequestResponse::getStatusOptions())
+                            ->options(\App\Enums\RequestResponseStatus::class)
                             ->required()
                             ->native(false)
                             ->placeholder('اختر الحالة')
@@ -115,19 +115,6 @@ class ResponsesRelationManager extends RelationManager
                         ->label('الحالة')
                         ->badge()
                         ->size('md')
-                        ->formatStateUsing(fn($state) => match ((int) $state) {
-                            RequestResponse::STATUS_PENDING,
-                            RequestResponse::STATUS_ACCEPTED,
-                            RequestResponse::STATUS_DECLINED,
-                            RequestResponse::STATUS_COMPLETED,
-                            RequestResponse::STATUS_NO_SHOW => 'لم يحضر',
-                            default => RequestResponse::getStatusOptions()[$state] ?? $state,
-                        })
-                        ->color(fn($state): string => match ((int) $state) {
-                            RequestResponse::STATUS_ACCEPTED, RequestResponse::STATUS_COMPLETED => 'success',
-                            RequestResponse::STATUS_DECLINED, RequestResponse::STATUS_NO_SHOW => 'danger',
-                            default => 'warning',
-                        })
                         ->description(fn(RequestResponse $record) =>
                         !$record->donor->healthProfile?->is_eligible
                             ? '🚫 غير مؤهل للتبرع حالياً'
@@ -148,7 +135,12 @@ class ResponsesRelationManager extends RelationManager
                                     ->weight(FontWeight::Medium),
 
                                 TextColumn::make('blood_type_display')
-                                    ->state(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ?? $record->donor->healthProfile?->blood_type ?? 'غير محدد')
+                                    ->state(
+                                        fn(RequestResponse $record) =>
+                                        $record->donor->healthProfile?->verified_blood_type?->getLabel() ??
+                                            $record->donor->healthProfile?->blood_type?->getLabel() ??
+                                            'غير محدد'
+                                    )
                                     ->badge()
                                     ->size('lg')
                                     ->icon(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ? 'heroicon-m-check-badge' : 'heroicon-m-question-mark-circle')
@@ -197,7 +189,7 @@ class ResponsesRelationManager extends RelationManager
         return [
             SelectFilter::make('status')
                 ->label('حالة الاستجابة')
-                ->options(RequestResponse::getStatusOptions())
+                ->options(\App\Enums\RequestResponseStatus::class)
                 ->placeholder('جميع الحالات')
                 ->native(false)
                 ->multiple(),
@@ -272,10 +264,10 @@ class ResponsesRelationManager extends RelationManager
                     ->modalDescription('هل تريد تأكيد أن المتبرع قد أكمل عملية التبرع بنجاح؟')
                     ->modalSubmitActionLabel('نعم، تأكيد التبرع')
                     ->modalIcon('heroicon-o-check-badge')
-                    ->visible(fn(RequestResponse $record) => $record->status === RequestResponse::STATUS_PENDING)
+                    ->visible(fn(RequestResponse $record) => $record->status === \App\Enums\RequestResponseStatus::PENDING)
                     ->action(function (RequestResponse $record) {
                         DB::transaction(function () use ($record) {
-                            $record->status = RequestResponse::STATUS_COMPLETED;
+                            $record->status = \App\Enums\RequestResponseStatus::COMPLETED;
                             $record->verified_at = now();
                             $record->save();
 
@@ -285,7 +277,7 @@ class ResponsesRelationManager extends RelationManager
 
                             // Update Request status to FULFILLED if units reached
                             if ($request->donors_completed >= $request->units_needed) {
-                                $request->status = BloodRequest::STATUS_FULFILLED;
+                                $request->status = \App\Enums\BloodRequestStatus::FULFILLED;
                                 $request->fulfilled_at = now();
                                 $request->save();
                             }
@@ -307,9 +299,9 @@ class ResponsesRelationManager extends RelationManager
                     ->modalDescription('هل تريد تسجيل أن المتبرع لم يحضر في الموعد المحدد؟')
                     ->modalSubmitActionLabel('نعم، تسجيل عدم الحضور')
                     ->modalIcon('heroicon-o-exclamation-triangle')
-                    ->visible(fn(RequestResponse $record) => $record->status === RequestResponse::STATUS_PENDING)
+                    ->visible(fn(RequestResponse $record) => $record->status === \App\Enums\RequestResponseStatus::PENDING)
                     ->action(function (RequestResponse $record) {
-                        $record->status = RequestResponse::STATUS_NO_SHOW;
+                        $record->status = \App\Enums\RequestResponseStatus::NO_SHOW;
                         $record->save();
 
                         Notification::make()
@@ -431,7 +423,7 @@ class ResponsesRelationManager extends RelationManager
                                     ->columnSpanFull(),
                             ]),
                     ])
-                    ->visible(fn(RequestResponse $record) => in_array($record->status, [RequestResponse::STATUS_PENDING, RequestResponse::STATUS_COMPLETED]))
+                    ->visible(fn(RequestResponse $record) => in_array($record->status, [\App\Enums\RequestResponseStatus::PENDING, \App\Enums\RequestResponseStatus::COMPLETED]))
                     ->action(function (RequestResponse $record, array $data) {
                         $healthProfile = $record->donor->healthProfile;
                         /** @var \App\Models\User $user */
@@ -442,9 +434,9 @@ class ResponsesRelationManager extends RelationManager
                             // 0. Update Response Status (Confirm Arrival & Outcome)
                             $record->verified_at = now();
                             if ($data['eligibility_status'] === 'eligible') {
-                                $record->status = RequestResponse::STATUS_COMPLETED;
+                                $record->status = \App\Enums\RequestResponseStatus::COMPLETED;
                             } else {
-                                $record->status = RequestResponse::STATUS_DECLINED;
+                                $record->status = \App\Enums\RequestResponseStatus::DECLINED;
                             }
                             $record->save();
 
@@ -494,40 +486,10 @@ class ResponsesRelationManager extends RelationManager
                                     'blood_type_at_check' => $data['verified_blood_type'],
                                 ]
                             ]);
-
-                            // 3. Send Notification to Donor
-                            $title = 'تحديث هام حول نتائج فحصك الطبي';
-                            $delayLabel = match ($data['delay_duration'] ?? '') {
-                                '1_week' => 'أسبوع',
-                                '2_weeks' => 'أسبوعين',
-                                '1_month' => 'شهر',
-                                '2_months' => 'شهرين',
-                                '3_months' => '3 أشهر',
-                                '6_months' => '6 أشهر',
-                                'custom' => 'تاريخ مخصص',
-                                default => '3 أشهر',
-                            };
-
-                            $message = match ($data['eligibility_status']) {
-                                'eligible' => "تم تأكيد فصيلة دمك ({$data['verified_blood_type']}) واكتمال عملية التبرع بنجاح. شكراً لعطائك.",
-                                'temporary' => "نعتذر، لا يمكنك التبرع حالياً لمدة ({$delayLabel}) بسبب " . ($data['rejection_reason'] === 'low_hemoglobin' ? 'نقص في الهيموجلوبين' : 'أسباب طبية مؤقتة') . ". يمكنك المحاولة مرة أخرى بعد تاريخ " . $healthProfile->next_eligible_date->format('Y-m-d') . ".",
-                                'permanent' => "إشعار طبي هام: بناءً على الفحوصات، لا يمكنك التبرع بالدم مستقبلاً لأسباب صحية. يرجى مراجعة المختبر للحصول على التقرير الطبي المفصل والمشورة الصحية.",
-                            };
-
-                            SystemNotification::create([
-                                'user_id' => $record->donor->user_id,
-                                'type' => SystemNotification::TYPE_PUSH,
-                                'title' => $title,
-                                'message' => $message,
-                                'data' => [
-                                    'org_id' => $orgId,
-                                    'type' => 'medical_result'
-                                ]
-                            ]);
                         });
 
                         Notification::make()
-                            ->title('تم حفظ النتائج وإبلاغ المتبرع')
+                            ->title('تم حفظ النتائج بنجاح')
                             ->success()
                             ->send();
                     }),

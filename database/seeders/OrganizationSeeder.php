@@ -24,6 +24,7 @@ class OrganizationSeeder extends Seeder
         $orgs = [
             [
                 'org_name' => 'مجمع الشفاء الطبي',
+                'slug' => 'al-shifa-medical-complex',
                 'description' => 'المستشفى الأكبر في قطاع غزة، يقدم خدمات تخصصية متكاملة وبنك دم مركزي يعمل على مدار الساعة.',
                 'governorate' => 'غزة',
                 'responsible_person' => 'د. محمد صبحي سليم',
@@ -36,6 +37,7 @@ class OrganizationSeeder extends Seeder
             ],
             [
                 'org_name' => 'مجمع ناصر الطبي',
+                'slug' => 'nasser-medical-complex',
                 'description' => 'مركز طبي رائد يخدم المنطقة الجنوبية، مجهز بأحدث تقنيات نقل الدم والجراحة.',
                 'governorate' => 'خانيونس',
                 'responsible_person' => 'د. عاطف الحوت',
@@ -48,6 +50,7 @@ class OrganizationSeeder extends Seeder
             ],
             [
                 'org_name' => 'المستشفى الإندونيسي',
+                'slug' => 'indonesian-hospital',
                 'description' => 'مرفق طبي حيوي يخدم منطقة شمال غزة، متخصص في الطوارئ والجراحة العامة.',
                 'governorate' => 'شمال غزة',
                 'responsible_person' => 'د. شوقي سالم',
@@ -60,6 +63,7 @@ class OrganizationSeeder extends Seeder
             ],
             [
                 'org_name' => 'مستشفى شهداء الأقصى',
+                'slug' => 'al-aqsa-martyrs-hospital',
                 'description' => 'المركز الطبي الرئيسي في المنطقة الوسطى، يقدم خدمات الرعاية الصحية الشاملة وحملات التبرع بالدم.',
                 'governorate' => 'دير البلح',
                 'responsible_person' => 'د. إياد كمال الجبري',
@@ -72,6 +76,7 @@ class OrganizationSeeder extends Seeder
             ],
             [
                 'org_name' => 'مستشفى أبو يوسف النجار',
+                'slug' => 'abu-yousef-al-najjar-hospital',
                 'description' => 'يخدم مدينة رفح والمناطق الحدودية، يوفر خدمات الرعاية الأولية وبنك دم فرعي.',
                 'governorate' => 'رفح',
                 'responsible_person' => 'د. كامل صيام',
@@ -84,6 +89,7 @@ class OrganizationSeeder extends Seeder
             ],
             [
                 'org_name' => 'مستشفى القدس - الهلال الأحمر',
+                'slug' => 'al-quds-hospital',
                 'description' => 'يتبع لجمعية الهلال الأحمر الفلسطيني، متميز في خدمات الجراحة والمختبرات المتقدمة.',
                 'governorate' => 'غزة',
                 'responsible_person' => 'د. بشار مراد',
@@ -96,6 +102,7 @@ class OrganizationSeeder extends Seeder
             ],
             [
                 'org_name' => 'مركز صحي الرمال المركزي',
+                'slug' => 'al-remal-health-center',
                 'description' => 'أقدم وأكبر مراكز الرعاية الأولية في مدينة غزة، يشرف على حملات التبرع الميدانية.',
                 'governorate' => 'غزة',
                 'responsible_person' => 'أ. صهيب الهسي',
@@ -108,6 +115,7 @@ class OrganizationSeeder extends Seeder
             ],
             [
                 'org_name' => 'مستشفى العودة - جباليا',
+                'slug' => 'al-awda-hospital',
                 'description' => 'مؤسسة طبية أهلية تقدم خدمات جراحة العظام والسمعيات وبنك دم متخصص.',
                 'governorate' => 'شمال غزة',
                 'responsible_person' => 'د. رأفت المجدلاوي',
@@ -120,6 +128,7 @@ class OrganizationSeeder extends Seeder
             ],
             [
                 'org_name' => 'المستشفى الكويتي التخصصي',
+                'slug' => 'kuwaiti-specialist-hospital',
                 'description' => 'مستشفى خاص يقدم خدمات طبية متميزة في رفح، مجهز بمختبرات حديثة.',
                 'governorate' => 'رفح',
                 'responsible_person' => 'د. صهيب الهمص',
@@ -141,13 +150,14 @@ class OrganizationSeeder extends Seeder
                 'email' => $email,
                 'password' => Hash::make('password'),
                 'phone' => '0599' . str_pad($index + 10, 6, '0', STR_PAD_LEFT),
-                'role' => User::ROLE_ORGANIZATION,
+                'role' => \App\Enums\UserRole::ORGANIZATION,
                 'is_active' => true,
             ]);
 
             Organization::create([
                 'user_id' => $user->id,
                 'org_name' => $data['org_name'],
+                'slug' => $data['slug'],
                 'description' => $data['description'],
                 'governorate_id' => $governorate ? $governorate->id : null,
                 'license_number' => $data['license'],
@@ -161,7 +171,7 @@ class OrganizationSeeder extends Seeder
                 'closing_time' => $data['closing_time'],
                 'working_days' => $data['working_days'],
                 'daily_capacity' => $data['daily_capacity'],
-                'approval_status' => Organization::STATUS_APPROVED,
+                'approval_status' => \App\Enums\OrganizationStatus::APPROVED,
             ]);
         }
     }

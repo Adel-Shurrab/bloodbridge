@@ -24,7 +24,7 @@ class CheckForMaintenanceMode
             $user = $request->user();
 
             // 1. Always allow authenticated admins to bypass everything (including public site)
-            if ($user && $user->role === \App\Models\User::ROLE_ADMIN) {
+            if ($user && $user->role === \App\Enums\UserRole::ADMIN) {
                 return $next($request);
             }
 

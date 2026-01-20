@@ -42,13 +42,6 @@ class OrganizationsTable
                 TextColumn::make('approval_status')
                     ->label('الحالة')
                     ->badge()
-                    ->color(fn(int $state): string => match ($state) {
-                        Organization::STATUS_APPROVED => 'success',
-                        Organization::STATUS_REJECTED => 'danger',
-                        Organization::STATUS_PENDING => 'warning',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn(int $state): string => Organization::getStatusOptions()[$state] ?? '-')
                     ->sortable(),
 
                 TextColumn::make('created_at')
@@ -61,7 +54,7 @@ class OrganizationsTable
             ->filters([
                 SelectFilter::make('approval_status')
                     ->label('حالة الموافقة')
-                    ->options(Organization::getStatusOptions()),
+                    ->options(\App\Enums\OrganizationStatus::class),
                 SelectFilter::make('governorate_id')
                     ->label('المحافظة')
                     ->relationship('governorate', 'name'),
@@ -80,9 +73,9 @@ class OrganizationsTable
                         ->icon('heroicon-o-check')
                         ->color('success')
                         ->requiresConfirmation()
-                        ->visible(fn(Organization $record) => $record->approval_status === Organization::STATUS_PENDING)
+                        ->visible(fn(Organization $record) => $record->approval_status === \App\Enums\OrganizationStatus::PENDING)
                         ->action(function (Organization $record) {
-                            $record->approval_status = Organization::STATUS_APPROVED;
+                            $record->approval_status = \App\Enums\OrganizationStatus::APPROVED;
                             $record->save();
                             Notification::make()->title('تمت الموافقة')->success()->send();
                         }),
@@ -93,9 +86,9 @@ class OrganizationsTable
                         ->icon('heroicon-o-x-mark')
                         ->color('danger')
                         ->requiresConfirmation()
-                        ->visible(fn(Organization $record) => $record->approval_status === Organization::STATUS_PENDING)
+                        ->visible(fn(Organization $record) => $record->approval_status === \App\Enums\OrganizationStatus::PENDING)
                         ->action(function (Organization $record) {
-                            $record->approval_status = Organization::STATUS_REJECTED;
+                            $record->approval_status = \App\Enums\OrganizationStatus::REJECTED;
                             $record->save();
                             Notification::make()->title('تم الرفض')->danger()->send();
                         }),

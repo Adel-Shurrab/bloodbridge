@@ -21,7 +21,7 @@ class PendingOrganizationsWidget extends TableWidget
     {
         return $table
             ->query(
-                fn() => Organization::where('approval_status', Organization::STATUS_PENDING)
+                fn() => Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::PENDING, 'and')
             )
             ->columns([
                 Tables\Columns\TextColumn::make('org_name')
@@ -50,7 +50,7 @@ class PendingOrganizationsWidget extends TableWidget
                     ->color('success')
                     ->requiresConfirmation()
                     ->action(function (Organization $record) {
-                        $record->approval_status = Organization::STATUS_APPROVED;
+                        $record->approval_status = \App\Enums\OrganizationStatus::APPROVED;
                         $record->save();
 
                         Notification::make()
@@ -64,7 +64,7 @@ class PendingOrganizationsWidget extends TableWidget
                     ->color('danger')
                     ->requiresConfirmation()
                     ->action(function (Organization $record) {
-                        $record->approval_status = Organization::STATUS_REJECTED;
+                        $record->approval_status = \App\Enums\OrganizationStatus::REJECTED;
                         $record->save();
 
                         Notification::make()

@@ -16,6 +16,7 @@ use App\Models\DonorHealthProfile;
 use App\Models\Organization;
 use Illuminate\Support\Facades\DB;
 use App\Models\Governorate;
+use Illuminate\Support\Str;
 
 class RegisteredUserController extends Controller
 {
@@ -33,7 +34,9 @@ class RegisteredUserController extends Controller
     public function showDonorRegistrationForm(): View
     {
         $governorates = Governorate::all();
-        $bloodTypes = Donor::getBloodTypeOptions();
+        $bloodTypes = collect(\App\Enums\BloodType::cases())
+            ->mapWithKeys(fn(\App\Enums\BloodType $type) => [$type->value => $type->getLabel()])
+            ->toArray();
         return view('auth.register-donor', compact('governorates', 'bloodTypes'));
     }
 
@@ -58,7 +61,7 @@ class RegisteredUserController extends Controller
             'phone' => ['required', 'string', 'max:15', 'unique:' . User::class],
             'national_id' => ['required', 'string', 'digits:9', 'unique:' . Donor::class],
             'birth_date' => ['required', 'date', 'before_or_equal:-' . app(\App\Settings\GeneralSettings::class)->min_donor_age . ' years', 'after_or_equal:-' . app(\App\Settings\GeneralSettings::class)->max_donor_age . ' years'],
-            'gender' => ['required', 'in:' . implode(',', Donor::GENDER_LIST)],
+            'gender' => ['required', 'in:' . implode(',', array_column(\App\Enums\Gender::cases(), 'value'))],
             'governorate_id' => ['required', 'exists:governorates,id'],
             // Health Profile Fields
             'weight' => ['required', 'integer', 'min:' . app(\App\Settings\GeneralSettings::class)->min_donor_weight, 'max:300'],
@@ -69,7 +72,7 @@ class RegisteredUserController extends Controller
             'has_recent_surgery' => ['required', 'boolean'],
             'surgery_date' => ['required_if:has_recent_surgery,1', 'nullable', 'date', 'before_or_equal:' . now()->subDays(app(\App\Settings\GeneralSettings::class)->min_days_after_surgery)->format('Y-m-d')],
             'last_donation_date' => ['required_if:recent_donation,1', 'nullable', 'date', 'before_or_equal:' . now()->subDays(app(\App\Settings\GeneralSettings::class)->min_days_between_donations)->format('Y-m-d')],
-            'blood_type' => ['nullable', 'in:' . implode(',', array_keys(Donor::getBloodTypeOptions()))],
+            'blood_type' => ['nullable', 'in:' . implode(',', array_column(\App\Enums\BloodType::cases(), 'value'))],
         ], [
             'chronic_disease.in' => 'عذراً، المتبرعون الذين يعانون من أمراض مزمنة غير مؤهلين للتبرع.',
         ]);
@@ -81,7 +84,7 @@ class RegisteredUserController extends Controller
                 'email' => $request->email,
                 'phone' => $request->phone,
                 'password' => Hash::make($request->password),
-                'role' => User::ROLE_DONOR,
+                'role' => \App\Enums\UserRole::DONOR,
                 'is_active' => User::DEFAULT_IS_ACTIVE,
             ]);
 
@@ -161,7 +164,7 @@ class RegisteredUserController extends Controller
                 'email' => $request->adminEmail,
                 'phone' => $request->contactPhone,
                 'password' => Hash::make($request->adminPassword),
-                'role' => User::ROLE_ORGANIZATION,
+                'role' => \App\Enums\UserRole::ORGANIZATION,
                 'is_active' => User::DEFAULT_IS_ACTIVE,
             ]);
 
@@ -169,6 +172,7 @@ class RegisteredUserController extends Controller
             $organization = Organization::create([
                 'user_id' => $user->id,
                 'org_name' => $request->organizationName,
+                'slug' => Str::slug($request->organizationName),
                 'description' => $request->organizationDescription,
                 'governorate_id' => $request->governorate_id,
                 'license_number' => $request->licenseNumber,
@@ -183,11 +187,10 @@ class RegisteredUserController extends Controller
                 'closing_time' => $request->closing_time,
                 'working_days' => $request->working_days,
                 'daily_capacity' => $request->daily_capacity,
-                'approval_status' => Organization::STATUS_PENDING,
+                'approval_status' => \App\Enums\OrganizationStatus::PENDING,
             ]);
 
-            // 4. Link User to Organization
-            $user->update(['organization_id' => $organization->id]);
+
 
             // 5. Trigger Events & Login
             event(new Registered($user));

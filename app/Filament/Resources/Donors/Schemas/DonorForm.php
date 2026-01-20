@@ -72,18 +72,18 @@ class DonorForm
                         Select::make('user_id')
                             ->label('الحساب المرتبط')
                             ->relationship('user', 'name', function ($query) {
-                                return $query->where('role', User::ROLE_DONOR)
+                                return $query->where('role', \App\Enums\UserRole::DONOR)
                                     ->orderByRaw('EXISTS (SELECT 1 FROM donors WHERE donors.user_id = users.id) ASC')
                                     ->orderBy('name');
                             })
                             ->getOptionLabelFromRecordUsing(function (User $user, $record) {
-                                $isOccupied = Donor::where('user_id', $user->id)
+                                $isOccupied = Donor::where('user_id', '=', $user->id, 'and')
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->exists();
                                 return $isOccupied ? "{$user->name} (مشغول)" : $user->name;
                             })
                             ->disableOptionWhen(function (string $value, $record) {
-                                return Donor::where('user_id', $value)
+                                return Donor::where('user_id', '=', $value, 'and')
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->exists();
                             })
@@ -107,7 +107,7 @@ class DonorForm
 
                         Select::make('gender')
                             ->label('الجنس')
-                            ->options(Donor::getGenderOptions())
+                            ->options(\App\Enums\Gender::class)
                             ->required()
                             ->native(false),
 
@@ -156,7 +156,7 @@ class DonorForm
                             ->schema([
                                 Select::make('blood_type')
                                     ->label('فصيلة الدم')
-                                    ->options(Donor::getBloodTypeOptions())
+                                    ->options(\App\Enums\BloodType::class)
                                     ->required()
                                     ->native(false),
 

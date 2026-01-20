@@ -4,13 +4,14 @@ namespace App\Filament\Organization\Resources\BloodRequests\Schemas;
 
 use App\Models\BloodRequest;
 use Dotswan\MapPicker\Fields\Map;
-use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\Hidden;
+use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
 use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Schemas\Schema;
 
 class BloodRequestForm
@@ -20,9 +21,6 @@ class BloodRequestForm
         return $schema
             ->columns(1)
             ->components([
-                Hidden::make('organization_id')
-                    ->default(fn() => auth()->user()->organization?->id),
-
                 Section::make('معلومات الطلب الأساسية')
                     ->description('حدد تفاصيل فصيلة الدم والكمية المطلوبة')
                     ->icon('heroicon-o-heart')
@@ -51,9 +49,9 @@ class BloodRequestForm
 
                                 Select::make('urgency_level')
                                     ->label('درجة الاستعجال')
-                                    ->options(BloodRequest::getUrgencyOptions())
+                                    ->options(\App\Enums\UrgencyLevel::class)
                                     ->required()
-                                    ->default(BloodRequest::URGENCY_LOW)
+                                    ->default(\App\Enums\UrgencyLevel::LOW)
                                     ->native(false)
                                     ->columnSpan(1)
                                     ->placeholder('حدد مستوى الأولوية'),
@@ -82,19 +80,54 @@ class BloodRequestForm
                                     ->minValue(1)
                                     ->maxValue(100)
                                     ->suffix('كم')
-                                    ->columnSpan(1),
-
-                                Grid::make(1)
-                                    ->schema([
-                                        Map::make('location')
-                                            ->label('موقع الحالة على الخريطة')
-                                            ->helperText('انقر على الخريطة لتحديد الموقع بدقة')
-                                            ->columnSpanFull()
-                                            ->defaultLocation(31.5, 34.4667)
-                                            ->afterStateUpdated(function (Get $get, $state) {})
-                                            ->reactive(),
-                                    ])
                                     ->columnSpan(2),
+
+                                // Map Component
+                                Map::make('location')
+                                    ->label('موقع الحالة على الخريطة')
+                                    ->helperText('انقر على الخريطة أو اسحب العلامة لتحديد موقع الحالة بدقة')
+                                    ->columnSpanFull()
+                                    ->defaultLocation(
+                                        latitude: \App\Constants\PalestineCoordinates::GAZA['lat'],
+                                        longitude: \App\Constants\PalestineCoordinates::GAZA['lng']
+                                    )
+                                    ->afterStateUpdated(function (Get $get, Set $set, ?array $state): void {
+                                        $set('lat', $state['lat'] ?? null);
+                                        $set('lng', $state['lng'] ?? null);
+                                    })
+                                    ->afterStateHydrated(function ($state, $record, Set $set): void {
+                                        $set('location', [
+                                            'lat' => $record?->lat ?? \App\Constants\PalestineCoordinates::GAZA['lat'],
+                                            'lng' => $record?->lng ?? \App\Constants\PalestineCoordinates::GAZA['lng']
+                                        ]);
+                                    })
+                                    ->extraStyles([
+                                        'min-height: 40vh',
+                                        'border-radius: 8px'
+                                    ])
+                                    ->liveLocation(true, true, 5000)
+                                    ->showMarker(true)
+                                    ->markerColor("#ef4444")
+                                    ->showFullscreenControl(true)
+                                    ->showZoomControl(true)
+                                    ->draggable(true)
+                                    ->tilesUrl("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+                                    ->zoom(\App\Constants\PalestineCoordinates::ZOOM_REGION)
+                                    ->detectRetina(true)
+                                    ->showMyLocationButton(true)
+                                    ->clickable(true),
+
+                                // Hidden fields to store coordinates
+                                Hidden::make('lat'),
+                                Hidden::make('lng'),
+
+                                // Optional: Address field to display selected location
+                                TextInput::make('location_address')
+                                    ->label('العنوان المحدد')
+                                    ->placeholder('سيتم تحديده تلقائياً من الخريطة')
+                                    ->helperText('يمكنك تعديل العنوان يدوياً إذا لزم الأمر')
+                                    ->maxLength(500)
+                                    ->columnSpanFull(),
                             ]),
                     ]),
             ]);

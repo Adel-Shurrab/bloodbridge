@@ -19,7 +19,7 @@ class RequestResponseFactory extends Factory
         return [
             'blood_request_id' => \App\Models\BloodRequest::factory(),
             'donor_id' => \App\Models\Donor::factory(),
-            'status' => $this->faker->randomElement(array_keys(\App\Models\RequestResponse::getStatusOptions())),
+            'status' => $this->faker->randomElement(\App\Enums\RequestResponseStatus::cases()),
             'verification_qr_code' => false,
             'verified_at' => null,
             'decline_reason' => null,
@@ -32,7 +32,7 @@ class RequestResponseFactory extends Factory
     public function completed(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status' => \App\Models\RequestResponse::STATUS_COMPLETED,
+            'status' => \App\Enums\RequestResponseStatus::COMPLETED,
             'verification_qr_code' => true,
             'verified_at' => now(),
         ]);
@@ -41,7 +41,7 @@ class RequestResponseFactory extends Factory
     public function declined(): static
     {
         return $this->state(fn(array $attributes) => [
-            'status' => \App\Models\RequestResponse::STATUS_DECLINED,
+            'status' => \App\Enums\RequestResponseStatus::DECLINED,
             'decline_reason' => $this->faker->sentence(),
         ]);
     }

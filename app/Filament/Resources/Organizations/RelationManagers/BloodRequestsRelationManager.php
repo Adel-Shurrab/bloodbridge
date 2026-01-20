@@ -30,7 +30,7 @@ class BloodRequestsRelationManager extends RelationManager
             ->components([
                 \Filament\Forms\Components\Select::make('blood_type')
                     ->label('فصيلة الدم')
-                    ->options(\App\Models\Donor::getBloodTypeOptions())
+                    ->options(\App\Enums\BloodType::class)
                     ->required(),
                 TextInput::make('units_needed')
                     ->label('عدد الوحدات المطلوبة')
@@ -39,7 +39,7 @@ class BloodRequestsRelationManager extends RelationManager
                     ->minValue(1),
                 \Filament\Forms\Components\Select::make('urgency_level')
                     ->label('مستوى الاستعجال')
-                    ->options(\App\Models\BloodRequest::getUrgencyOptions())
+                    ->options(\App\Enums\UrgencyLevel::class)
                     ->required(),
                 \Filament\Forms\Components\Textarea::make('additional_notes')
                     ->label('ملاحظات إضافية')
@@ -54,29 +54,16 @@ class BloodRequestsRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('blood_type')
                     ->label('فصيلة الدم')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => \App\Models\Donor::getBloodTypeOptions()[$state] ?? $state),
+                    ->badge(),
                 TextColumn::make('units_needed')
                     ->label('الوحدات')
                     ->sortable(),
                 TextColumn::make('urgency_level')
                     ->label('الاستعجال')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => \App\Models\BloodRequest::getUrgencyOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int) $state) {
-                        \App\Models\BloodRequest::URGENCY_CRITICAL => 'danger',
-                        \App\Models\BloodRequest::URGENCY_HIGH => 'warning',
-                        default => 'info',
-                    }),
+                    ->badge(),
                 TextColumn::make('status')
                     ->label('الحالة')
-                    ->badge()
-                    ->formatStateUsing(fn($state) => \App\Models\BloodRequest::getStatusOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int) $state) {
-                        \App\Models\BloodRequest::STATUS_FULFILLED => 'success',
-                        \App\Models\BloodRequest::STATUS_CANCELLED => 'danger',
-                        default => 'warning',
-                    }),
+                    ->badge(),
                 TextColumn::make('created_at')
                     ->label('تاريخ الطلب')
                     ->dateTime('Y/m/d h:i A')
@@ -85,7 +72,7 @@ class BloodRequestsRelationManager extends RelationManager
             ->filters([
                 \Filament\Tables\Filters\SelectFilter::make('status')
                     ->label('الحالة')
-                    ->options(\App\Models\BloodRequest::getStatusOptions()),
+                    ->options(\App\Enums\BloodRequestStatus::class),
             ])
             ->headerActions([
                 CreateAction::make()

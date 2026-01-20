@@ -20,7 +20,7 @@ class DatabaseSeeder extends Seeder
             'email' => 'admin@bloodbridge.ps',
             'phone' => '0599000000',
             'password' => bcrypt('password'),
-            'role' => User::ROLE_ADMIN,
+            'role' => \App\Enums\UserRole::ADMIN,
         ]);
 
         $this->call([

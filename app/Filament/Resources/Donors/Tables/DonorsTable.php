@@ -34,10 +34,10 @@ class DonorsTable
                     ->searchable(),
                 TextColumn::make('gender')
                     ->label('الجنس')
-                    ->formatStateUsing(fn($state) => Donor::getGenderOptions()[$state] ?? $state),
+                    ->badge(),
                 TextColumn::make('healthProfile.blood_type')
                     ->label('فصيلة الدم')
-                    ->formatStateUsing(fn($state) => Donor::getBloodTypeOptions()[$state] ?? $state)
+                    ->badge()
                     ->sortable(),
                 TextColumn::make('healthProfile.total_donations')
                     ->label('إجمالي التبرعات')
@@ -82,7 +82,7 @@ class DonorsTable
                 TrashedFilter::make(),
                 SelectFilter::make('gender')
                     ->label('الجنس')
-                    ->options(Donor::getGenderOptions()),
+                    ->options(\App\Enums\Gender::class),
                 SelectFilter::make('governorate_id')
                     ->label('المحافظة')
                     ->relationship('governorate', 'name')
@@ -90,13 +90,13 @@ class DonorsTable
                     ->preload(),
                 SelectFilter::make('blood_type')
                     ->label('فصيلة الدم')
-                    ->options(Donor::getBloodTypeOptions())
+                    ->options(\App\Enums\BloodType::class)
                     ->query(function (Builder $query, array $data) {
                         if (empty($data['value'])) {
                             return $query;
                         }
                         return $query->whereHas('healthProfile', function ($query) use ($data) {
-                            $query->where('blood_type', $data['value']);
+                            $query->where('blood_type', '=', $data['value'], 'and');
                         });
                     }),
             ])

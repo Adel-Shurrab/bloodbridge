@@ -25,7 +25,7 @@ class DonorFactory extends Factory
         return [
             'user_id' => User::factory(),
             'national_id' => $this->faker->unique()->numerify('#########'), // 9 digits
-            'gender' => $this->faker->randomElement(Donor::GENDER_LIST),
+            'gender' => $this->faker->randomElement(array_column(\App\Enums\Gender::cases(), 'value')),
             'birth_date' => $this->faker->date(),
             'lat' => $this->faker->latitude(),
             'lng' => $this->faker->longitude(),

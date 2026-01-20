@@ -24,16 +24,16 @@ class BloodRequestForm
                     ->preload(),
                 Select::make('blood_type')
                     ->label('فصيلة الدم')
-                    ->options(Donor::getBloodTypeOptions()),
+                    ->options(\App\Enums\BloodType::class),
                 TextInput::make('units_needed')
                     ->label('الوحدات المطلوبة')
                     ->numeric(),
                 Select::make('urgency_level')
                     ->label('مستوى الاستعجال')
-                    ->options(BloodRequest::getUrgencyOptions()),
+                    ->options(\App\Enums\UrgencyLevel::class),
                 Select::make('status')
                     ->label('الحالة')
-                    ->options(BloodRequest::getStatusOptions()),
+                    ->options(\App\Enums\BloodRequestStatus::class),
                 Textarea::make('additional_notes')
                     ->label('ملاحظات إضافية')
                     ->columnSpanFull(),

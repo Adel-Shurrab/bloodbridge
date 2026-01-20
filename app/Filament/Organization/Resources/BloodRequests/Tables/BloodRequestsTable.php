@@ -17,7 +17,6 @@ class BloodRequestsTable
     public static function configure(Table $table): Table
     {
         return $table
-            ->modifyQueryUsing(fn(Builder $query) => $query->where('organization_id', auth()->user()->organization?->id))
             ->columns([
                 TextColumn::make('blood_type')
                     ->label('فصيلة الدم')
@@ -32,31 +31,18 @@ class BloodRequestsTable
                 TextColumn::make('urgency_level')
                     ->label('الاستعجال')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => BloodRequest::getUrgencyOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int)$state) {
-                        BloodRequest::URGENCY_CRITICAL => 'danger',
-                        BloodRequest::URGENCY_HIGH => 'warning',
-                        default => 'gray',
-                    })
                     ->sortable(),
 
                 TextColumn::make('status')
                     ->label('الحالة')
                     ->badge()
-                    ->formatStateUsing(fn(string $state): string => BloodRequest::getStatusOptions()[$state] ?? $state)
-                    ->color(fn(string $state): string => match ((int)$state) {
-                        BloodRequest::STATUS_FULFILLED => 'success',
-                        BloodRequest::STATUS_CANCELLED => 'danger',
-                        BloodRequest::STATUS_BROADCASTED => 'warning',
-                        default => 'gray',
-                    })
                     ->sortable(),
 
                 TextColumn::make('donors_completed')
                     ->label('المتبرعين')
                     ->state(fn(BloodRequest $record) => "{$record->donors_completed} / {$record->units_needed}")
                     ->badge()
-                    ->color(fn(BloodRequest $record) => $record->donors_completed >= $record->units_needed ? 'success' : 'gray'),
+                    ->color(fn(BloodRequest $record) => $record->donors_completed >= $record->units_needed ? 'success' : 'info'),
 
                 TextColumn::make('created_at')
                     ->label('تاريخ الطلب')
@@ -67,10 +53,10 @@ class BloodRequestsTable
             ->filters([
                 SelectFilter::make('status')
                     ->label('تصفية حسب الحالة')
-                    ->options(BloodRequest::getStatusOptions()),
+                    ->options(\App\Enums\BloodRequestStatus::class),
                 SelectFilter::make('urgency_level')
                     ->label('تصفية حسب الاستعجال')
-                    ->options(BloodRequest::getUrgencyOptions()),
+                    ->options(\App\Enums\UrgencyLevel::class),
                 TrashedFilter::make(),
             ])
             ->recordActions([

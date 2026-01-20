@@ -19,6 +19,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Governorate::class)->nullable()->constrained()->nullOnDelete();
             $table->string('org_name')->index();
+            $table->string('slug')->nullable()->unique();
             $table->text('description')->nullable();
             $table->string('license_number')->unique()->index();
             $table->string('license_document_path')->nullable();
