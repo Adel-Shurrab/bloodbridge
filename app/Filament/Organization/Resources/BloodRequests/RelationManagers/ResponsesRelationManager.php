@@ -255,6 +255,27 @@ class ResponsesRelationManager extends RelationManager
     {
         return [
             ActionGroup::make([
+                Action::make('mark_arrived')
+                    ->label('تأكيد الحضور')
+                    ->icon('heroicon-o-user-plus')
+                    ->color('info')
+                    ->requiresConfirmation()
+                    ->modalHeading('تأكيد وصول المتبرع')
+                    ->modalDescription('هل وصل المتبرع إلى المستشفى وجاهز للفحص الطبي؟')
+                    ->modalSubmitActionLabel('نعم، وصل')
+                    ->modalIcon('heroicon-o-check-circle')
+                    ->visible(fn(RequestResponse $record) => $record->status === \App\Enums\RequestResponseStatus::PENDING)
+                    ->action(function (RequestResponse $record) {
+                        $record->status = \App\Enums\RequestResponseStatus::ACCEPTED;
+                        $record->save();
+
+                        Notification::make()
+                            ->title('تم تأكيد الحضور')
+                            ->body('يمكنك الآن إجراء الفحص الطبي للمتبرع')
+                            ->success()
+                            ->send();
+                    }),
+
                 Action::make('verify_donation')
                     ->label('تأكيد التبرع')
                     ->icon('heroicon-o-check-badge')
@@ -423,7 +444,7 @@ class ResponsesRelationManager extends RelationManager
                                     ->columnSpanFull(),
                             ]),
                     ])
-                    ->visible(fn(RequestResponse $record) => in_array($record->status, [\App\Enums\RequestResponseStatus::PENDING, \App\Enums\RequestResponseStatus::COMPLETED]))
+                    ->visible(fn(RequestResponse $record) => $record->status === \App\Enums\RequestResponseStatus::ACCEPTED)
                     ->action(function (RequestResponse $record, array $data) {
                         $healthProfile = $record->donor->healthProfile;
                         /** @var \App\Models\User $user */

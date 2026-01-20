@@ -24,10 +24,13 @@ class DatabaseSeeder extends Seeder
         ]);
 
         $this->call([
-            OrganizationSeeder::class,
+            OrganizationSeeder::class, 
+            
             DonorSeeder::class,
+            
             BloodRequestSeeder::class,
-            RequestResponseSeeder::class,
+            
+            InteractionSeeder::class,
         ]);
     }
 }

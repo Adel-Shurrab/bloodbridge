@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\BloodType;
+use Illuminate\Database\Eloquent\Builder;
 
 class Donor extends Model
 {
@@ -57,5 +58,84 @@ class Donor extends Model
     public function eligibilityLogs()
     {
         return $this->hasMany(EligibilityLog::class);
+    }
+
+    /**
+     * Scope a query to only include donors within a given radius.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  float|null  $lat
+     * @param  float|null  $lng
+     * @param  int  $radiusKm
+     * @param  int|null  $governorateId
+     * @return \Illuminate\Database\Eloquent\Builder
+     */
+    public function scopeWithinRadius(Builder $query, ?float $lat, ?float $lng, int $radiusKm, ?int $governorateId = null): Builder
+    {
+        $hasLocation = !is_null($lat) && !is_null($lng) && $lat != 0 && $lng != 0;
+
+        $haversine = null;
+        $bbox = [];
+
+        if ($hasLocation) {
+            $haversine = "(
+                6371 * acos(
+                    cos(radians(?))
+                    * cos(radians(lat))
+                    * cos(radians(lng) - radians(?))
+                    + sin(radians(?))
+                    * sin(radians(lat))
+                )
+            )";
+
+            $cosLat = cos(deg2rad($lat));
+            $cosLat = abs($cosLat) > 0.0001 ? $cosLat : 0.0001;
+
+            $latChange = $radiusKm / 111;
+            $lngChange = abs($radiusKm / (111 * $cosLat));
+
+            $bbox = [
+                'minLat' => $lat - $latChange,
+                'maxLat' => $lat + $latChange,
+                'minLng' => $lng - $lngChange,
+                'maxLng' => $lng + $lngChange,
+            ];
+        }
+
+        $query->select('donors.*');
+        
+        if ($hasLocation) {
+            $query->selectRaw("{$haversine} AS distance", [$lat, $lng, $lat]);
+        }
+
+        $query->where(function ($group) use ($hasLocation, $bbox, $radiusKm, $governorateId, $lat, $lng, $haversine) {
+            
+            if ($hasLocation) {
+                $group->where(function ($q) use ($bbox, $radiusKm, $lat, $lng, $haversine) {
+                    $q->whereNotNull('lat')
+                      ->whereNotNull('lng')
+                      // الفلترة السريعة (Bounding Box)
+                      ->whereBetween('lat', [$bbox['minLat'], $bbox['maxLat']])
+                      ->whereBetween('lng', [$bbox['minLng'], $bbox['maxLng']])
+                      ->whereRaw("{$haversine} <= ?", [$lat, $lng, $lat, $radiusKm]);
+                });
+            }
+
+            if ($governorateId) {
+                $method = $hasLocation ? 'orWhere' : 'where';
+                
+                $group->$method(function ($q) use ($governorateId) {
+                    $q->whereNull('lat')
+                      ->whereNull('lng')
+                      ->where('governorate_id', $governorateId);
+                });
+            }
+        });
+
+        if ($hasLocation) {
+            $query->orderByRaw('ISNULL(distance), distance ASC');
+        }
+
+        return $query;
     }
 }

@@ -2,11 +2,14 @@
 
 namespace Database\Seeders;
 
+use Illuminate\Database\Seeder;
+use App\Models\User;
 use App\Models\Donor;
 use App\Models\DonorHealthProfile;
-use App\Models\User;
-use App\Models\Organization;
-use Illuminate\Database\Seeder;
+use App\Models\Governorate;
+use App\Enums\UserRole;
+use App\Enums\Gender;
+use App\Enums\BloodType;
 use Illuminate\Support\Facades\Hash;
 use Carbon\Carbon;
 
@@ -14,58 +17,74 @@ class DonorSeeder extends Seeder
 {
     public function run(): void
     {
-        $firstNames = ['محمد', 'أحمد', 'محمود', 'عبد الله', 'يوسف', 'خالد', 'إبراهيم', 'عمر', 'علي', 'حسين', 'سارة', 'فاطمة', 'مريم', 'ليلى', 'نور', 'منى', 'أسماء', 'رشا', 'هبة', 'منة'];
-        $lastNames = ['سليمان', 'أبو كمال', 'الحسن', 'عوض', 'صالحة', 'النجار', 'المصري', 'حمودة', 'عبيد', 'شاهين', 'بركة', 'عقل', 'داوود', 'خليل', 'ياسين', 'الأسطل', 'قدرة', 'صيام', 'أبو حطب', 'الأطرش'];
+        // 1. متبرعون GPS (شمال غزة - قريب من الإندونيسي)
+        $this->createDonor('كريم المصري', 'karim@test.com', 'شمال غزة', 31.552000, 34.504000, BloodType::O_POSITIVE, true);
+        
+        // 2. متبرعون GPS (غزة - الرمال - قريب من الشفاء)
+        $this->createDonor('سعيد الحداد', 'saeed@test.com', 'غزة', 31.523000, 34.446000, BloodType::A_POSITIVE, true);
+        
+        // 3. متبرعون GPS (دير البلح - قريب من الأقصى)
+        $this->createDonor('ماهر أبو دقة', 'maher@test.com', 'دير البلح', 31.419000, 34.352000, BloodType::B_NEGATIVE, true);
 
-        $orgIds = Organization::pluck('id', null)->toArray();
+        // 4. متبرعون GPS (خانيونس - قريب من ناصر)
+        $this->createDonor('يحيى السنوار', 'yahya@test.com', 'خانيونس', 31.353000, 34.290000, BloodType::AB_POSITIVE, true);
 
-        for ($i = 1; $i <= 50; $i++) {
-            $firstName = $firstNames[array_rand($firstNames)];
-            $lastName = $lastNames[array_rand($lastNames)];
-            $name = $firstName . ' ' . $lastName;
-            $email = "donor{$i}@bloodbridge.ps";
-            $nationalId = '4' . str_pad($i, 8, '0', STR_PAD_LEFT);
-            $gender = in_array($firstName, ['سارة', 'فاطمة', 'مريم', 'ليلى', 'نور', 'منى', 'أسماء', 'رشا', 'هبة', 'منة']) ? \App\Enums\Gender::FEMALE : \App\Enums\Gender::MALE;
+        // 5. متبرعون GPS (رفح - قريب من النجار)
+        $this->createDonor('خليل الحية', 'khalil@test.com', 'رفح', 31.274000, 34.256000, BloodType::O_NEGATIVE, true);
 
-            $user = User::create([
-                'name' => $name,
-                'email' => $email,
-                'password' => Hash::make('password'),
-                'phone' => '0595' . str_pad($i, 6, '0', STR_PAD_LEFT),
-                'role' => \App\Enums\UserRole::DONOR,
-                'is_active' => true,
-            ]);
+        // 6. متبرعون "بدون GPS" (يعتمدون على المحافظة فقط)
+        $this->createDonor('منير البردويل', 'munir@test.com', 'غزة', null, null, BloodType::A_NEGATIVE, true);
+        $this->createDonor('رامي حمدان', 'rami@test.com', 'شمال غزة', null, null, BloodType::B_POSITIVE, true);
 
-            $donor = Donor::create([
-                'user_id' => $user->id,
-                'national_id' => $nationalId,
-                'gender' => $gender,
-                'birth_date' => Carbon::now()->subYears(rand(18, 60)),
-                'lat' => 31.5 + (rand(-200, 200) / 1000),
-                'lng' => 34.4 + (rand(-100, 100) / 1000),
-                'governorate_id' => \App\Models\Governorate::inRandomOrder('')->first()?->id,
-            ]);
+        // 7. متبرع "غير مؤهل" (تبرع حديثاً)
+        $this->createDonor('حازم قاسم', 'hazem@test.com', 'غزة', 31.520000, 34.440000, BloodType::O_POSITIVE, false, 'recent');
 
-            // Create Health Profile with varied data
-            $hasRecentDonation = rand(0, 10) > 7;
-            $hasSurgery = rand(0, 10) > 8;
+        // 8. متبرع "غير مؤهل" (مرض مزمن)
+        $this->createDonor('فوزي برهوم', 'fawzi@test.com', 'رفح', null, null, BloodType::AB_NEGATIVE, false, 'disease');
+    }
 
-            DonorHealthProfile::create([
-                'donor_id' => $donor->id,
-                'weight' => rand(55, 110),
-                'height' => rand(155, 195),
-                'blood_type' => rand(1, 8),
-                'verified_blood_type' => $hasVerifiedBloodType = (rand(0, 10) > 6 ? rand(1, 8) : null),
-                'verified_by_organization_id' => $hasVerifiedBloodType && !empty($orgIds) ? $orgIds[array_rand($orgIds)] : null,
-                'verified_at' => $hasVerifiedBloodType ? Carbon::now()->subDays(rand(5, 365)) : null,
-                'chronic_disease' => rand(0, 10) > 9,
-                'recent_donation' => $hasRecentDonation,
-                'last_donation_date' => $hasRecentDonation ? Carbon::now()->subDays(rand(10, 150)) : null,
-                'has_recent_surgery' => $hasSurgery,
-                'surgery_date' => $hasSurgery ? Carbon::now()->subDays(rand(5, 60)) : null,
-                'total_donations' => rand(0, 20),
-                'is_eligible' => true,
-            ]);
+    private function createDonor($name, $email, $govName, $lat, $lng, $bloodType, $isEligible, $ineligibleReason = null)
+    {
+        $gov = Governorate::where('name', $govName)->first();
+        
+        $user = User::create([
+            'name' => $name,
+            'email' => $email,
+            'phone' => '059' . rand(1000000, 9999999),
+            'password' => Hash::make('password'),
+            'role' => UserRole::DONOR,
+            'is_active' => true,
+        ]);
+
+        $donor = Donor::create([
+            'user_id' => $user->id,
+            'governorate_id' => $gov->id,
+            'national_id' => rand(400000000, 499999999),
+            'gender' => Gender::MALE,
+            'birth_date' => '1995-01-01',
+            'lat' => $lat,
+            'lng' => $lng,
+            'auto_location_address' => $lat ? 'عنوان تلقائي من الخريطة' : null,
+        ]);
+
+        $profileData = [
+            'donor_id' => $donor->id,
+            'blood_type' => $bloodType,
+            'weight' => 75,
+            'height' => 175,
+            'is_eligible' => $isEligible,
+            'total_donations' => $isEligible ? 5 : 6,
+        ];
+
+        if ($ineligibleReason === 'recent') {
+            $profileData['recent_donation'] = true;
+            $profileData['last_donation_date'] = Carbon::now()->subDays(10);
+        } elseif ($ineligibleReason === 'disease') {
+            $profileData['chronic_disease'] = true;
+        } else {
+            $profileData['last_donation_date'] = Carbon::now()->subMonths(6);
         }
+
+        DonorHealthProfile::create($profileData);
     }
 }

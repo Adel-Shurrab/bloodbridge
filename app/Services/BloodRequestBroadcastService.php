@@ -76,10 +76,11 @@ class BloodRequestBroadcastService
     {
         $compatibleBloodTypes = $bloodRequest->blood_type->getCompatibleDonorTypes();
 
-        return GeoHelper::getDonorsWithinRadius(
+        return Donor::withinRadius(
             $bloodRequest->lat,
             $bloodRequest->lng,
-            $bloodRequest->search_radius_km
+            $bloodRequest->search_radius_km,
+            $bloodRequest->organization->governorate_id
         )
             ->whereHas('healthProfile', function ($query) use ($compatibleBloodTypes) {
                 $query->where(function ($q) use ($compatibleBloodTypes) {
