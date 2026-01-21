@@ -3,57 +3,90 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\BloodRequest;
+use App\Models\Donor;
 use App\Models\RequestResponse;
 use App\Enums\RequestResponseStatus;
 use Carbon\Carbon;
+use Faker\Factory as Faker;
 
 class InteractionSeeder extends Seeder
 {
     public function run(): void
     {
-        // 1. سيناريو "سعيد الحداد" استجاب لطلب الشفاء (قريب منه) -> وتم التبرع بنجاح
-        $donorSaeed = User::where('email', 'saeed@test.com')->first()->donor;
-        $shifaRequest = BloodRequest::where('units_needed', 10)->first(); // طلب الشفاء العاجل
+        $faker = Faker::create();
 
-        RequestResponse::create([
-            'blood_request_id' => $shifaRequest->id,
-            'donor_id' => $donorSaeed->id,
-            'status' => RequestResponseStatus::COMPLETED, // تبرع
-            'responded_at' => Carbon::now()->subHours(1),
-            'verified_at' => Carbon::now()->subMinutes(30),
-            'verification_qr_code' => true,
-        ]);
+        // جلب كل الطلبات النشطة أو المكتملة
+        $requests = BloodRequest::all();
 
-        // تحديث الطلب ليعكس قبول متبرع واحد
-        $shifaRequest->increment('donors_accepted');
-        $shifaRequest->increment('donors_completed');
+        foreach ($requests as $request) {
+            // سنجعل لكل طلب ما بين 5 إلى 15 متبرع مستجيب
+            $responsesCount = rand(5, 15);
 
-        // 2. سيناريو "منير البردويل" (بدون GPS) استجاب لنفس طلب الشفاء -> ولكنه لم يصل بعد
-        $donorMunir = User::where('email', 'munir@test.com')->first()->donor;
+            // جلب متبرعين عشوائيين (يفضل أن يكونوا نفس فصيلة الدم ليكون منطقياً)
+            // ملاحظة: في حالات الطوارئ O- يعطي الجميع، لكن للتبسيط هنا سنجلب نفس الفصيلة
+            $potentialDonors = Donor::whereHas('healthProfile', function ($q) use ($request) {
+                $q->where('blood_type', $request->blood_type)
+                    ->where('is_eligible', true);
+            })->inRandomOrder()->take($responsesCount)->get();
 
-        RequestResponse::create([
-            'blood_request_id' => $shifaRequest->id,
-            'donor_id' => $donorMunir->id,
-            'status' => RequestResponseStatus::PENDING, // وافق وفي الطريق
-            'responded_at' => Carbon::now()->subMinutes(10),
-        ]);
-        $shifaRequest->increment('donors_accepted');
+            // إذا لم نجد كفاية، خذ أي متبرعين (محاكاة لضغط الناس)
+            if ($potentialDonors->count() < $responsesCount) {
+                $extraDonors = Donor::inRandomOrder()->take($responsesCount - $potentialDonors->count())->get();
+                $potentialDonors = $potentialDonors->merge($extraDonors);
+            }
 
-        // 3. سيناريو "يحيى" استجاب لطلب مستشفى ناصر -> ولكن تم رفضه طبياً في المستشفى
-        $donorYahya = User::where('email', 'yahya@test.com')->first()->donor;
-        $nasserRequest = BloodRequest::where('units_needed', 3)->first();
+            foreach ($potentialDonors as $donor) {
+                // تحديد حالة الاستجابة عشوائياً بناءً على حالة الطلب
+                $status = RequestResponseStatus::PENDING;
+                $verifiedAt = null;
+                $declineReason = null;
 
-        RequestResponse::create([
-            'blood_request_id' => $nasserRequest->id,
-            'donor_id' => $donorYahya->id,
-            'status' => RequestResponseStatus::DECLINED, // رفض طبي
-            'responded_at' => Carbon::now()->subHours(2),
-            'decline_reason' => 'انخفاض مفاجئ في ضغط الدم عند الفحص السريري',
-            'verified_at' => Carbon::now()->subHours(1),
-        ]);
-        // ملاحظة: لا نزيد donors_completed لأنه رفض، ولكن نزيد donors_accepted لأنه استجاب
-        $nasserRequest->increment('donors_accepted');
+                $rand = rand(1, 100);
+
+                if ($request->status === \App\Enums\BloodRequestStatus::FULFILLED) {
+                    // إذا الطلب مكتمل، معظم الاستجابات تكون مكتملة أو مرفوضة (وصلوا متأخرين)
+                    if ($rand <= 40) {
+                        $status = RequestResponseStatus::COMPLETED;
+                        $verifiedAt = Carbon::now()->subHours(rand(1, 24));
+                        $request->increment('donors_accepted');
+                        $request->increment('donors_completed');
+                    } elseif ($rand <= 70) {
+                        $status = RequestResponseStatus::DECLINED; // رفض في المستشفى (استبعاد طبي)
+                        $verifiedAt = Carbon::now();
+                        $declineReason = 'هيموجلوبين منخفض';
+                        $request->increment('donors_accepted');
+                    } else {
+                        $status = RequestResponseStatus::NO_SHOW; // سجل وما اجاش (لم يحضر)
+                        $request->increment('donors_accepted');
+                    }
+                } else {
+                    // إذا الطلب لسا شغال
+                    if ($rand <= 50) {
+                        $status = RequestResponseStatus::PENDING; // لسا في الطريق
+                        $request->increment('donors_accepted');
+                    } elseif ($rand <= 80) {
+                        $status = RequestResponseStatus::ACCEPTED; // وصل المستشفى وبستنى الدور (حضر)
+                        $request->increment('donors_accepted');
+                    } else {
+                        $status = RequestResponseStatus::IGNORED; // تجاهل/ألغى الطلب بنفسه
+                        $declineReason = 'ظرف طارئ منعني من الحضور';
+                    }
+                }
+
+                // منع التكرار (لأن الـ Factory ممكن يختار نفس المتبرع لطلب آخر بالصدفة)
+                // في Seeder بسيط نستخدم firstOrCreate
+                RequestResponse::firstOrCreate([
+                    'blood_request_id' => $request->id,
+                    'donor_id' => $donor->id,
+                ], [
+                    'status' => $status,
+                    'responded_at' => Carbon::now()->subMinutes(rand(10, 300)),
+                    'verified_at' => $verifiedAt,
+                    'verification_qr_code' => ($status === RequestResponseStatus::COMPLETED || $status === RequestResponseStatus::ACCEPTED),
+                    'decline_reason' => $declineReason,
+                ]);
+            }
+        }
     }
 }
