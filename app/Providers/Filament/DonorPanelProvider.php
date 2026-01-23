@@ -56,6 +56,6 @@ class DonorPanelProvider extends PanelProvider
             ->authMiddleware([
                 Authenticate::class,
             ])
-            ->databaseNotifications(); // Enable notification bell for donors
+            ->databaseNotifications();
     }
 }
