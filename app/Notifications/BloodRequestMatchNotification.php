@@ -7,6 +7,9 @@ use App\Models\Donor;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Filament\Notifications\Notification as FilamentNotification;
+use Filament\Actions\Action;
+
 
 class BloodRequestMatchNotification extends Notification implements ShouldQueue
 {
@@ -40,6 +43,7 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
     public function toDatabase(object $notifiable): array
     {
         $organization = $this->bloodRequest->organization;
+        $orgName = $organization?->org_name ?? 'مستشفى غير محدد';
         $bloodType = $this->bloodRequest->blood_type->getLabel();
         $urgency = $this->bloodRequest->urgency_level->getLabel();
         $units = $this->bloodRequest->units_needed;
@@ -50,43 +54,32 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
             default => '🩸 طلب تبرع بالدم'
         };
 
-        $body = "يحتاج {$organization->name} إلى {$units} وحدة من فصيلة {$bloodType}";
+        $body = "يحتاج {$orgName} إلى {$units} وحدة من فصيلة {$bloodType}";
 
         if ($this->distance) {
             $body .= " - البعد: " . round($this->distance, 1) . " كم";
         }
 
-        // Return database notification data
-        return [
-            'title' => $title,
-            'body' => $body,
-            'icon' => match ($this->bloodRequest->urgency_level->value) {
+        return FilamentNotification::make()
+            ->title($title)
+            ->body($body)
+            ->icon(match ($this->bloodRequest->urgency_level->value) {
                 \App\Enums\UrgencyLevel::CRITICAL->value => 'heroicon-o-exclamation-triangle',
                 default => 'heroicon-o-heart'
-            },
-            'iconColor' => match ($this->bloodRequest->urgency_level->value) {
+            })
+            ->iconColor(match ($this->bloodRequest->urgency_level->value) {
                 \App\Enums\UrgencyLevel::CRITICAL->value => 'danger',
                 \App\Enums\UrgencyLevel::HIGH->value => 'warning',
                 default => 'primary'
-            },
-            'blood_request_id' => $this->bloodRequest->id,
-            'organization_name' => $organization->name,
-            'blood_type' => $bloodType,
-            'urgency_level' => $urgency,
-            'units_needed' => $units,
-            'distance' => $this->distance,
-            'actions' => [
-                [
-                    'name' => 'view',
-                    'label' => 'عرض الطلب',
-                    'url' => route('filament.donor.pages.dashboard'),
-                ],
-                [
-                    'name' => 'ignore',
-                    'label' => 'تجاهل',
-                ],
-            ],
-        ];
+            })
+            ->actions([
+                Action::make('view')
+                    ->label('عرض الطلب')
+                    ->url(route('filament.donor.pages.dashboard'))
+                    ->button()
+                    ->markAsRead(),
+            ])
+            ->getDatabaseMessage();
     }
 
     /**
