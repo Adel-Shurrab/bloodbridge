@@ -266,12 +266,16 @@ class ResponsesRelationManager extends RelationManager
                     ->modalIcon('heroicon-o-check-circle')
                     ->visible(fn(RequestResponse $record) => $record->status === \App\Enums\RequestResponseStatus::PENDING)
                     ->action(function (RequestResponse $record) {
-                        $record->status = \App\Enums\RequestResponseStatus::ACCEPTED;
+                        $record->status = \App\Enums\RequestResponseStatus::PENDING;
                         $record->save();
 
+                        // Notify organization
+                        $record->bloodRequest->organization->user->notify(
+                            new \App\Notifications\DonorResponseNotification($record)
+                        );
+
                         Notification::make()
-                            ->title('تم تأكيد الحضور')
-                            ->body('يمكنك الآن إجراء الفحص الطبي للمتبرع')
+                            ->title('تم تأكيد موافقة المتبرع')
                             ->success()
                             ->send();
                     }),
@@ -285,16 +289,30 @@ class ResponsesRelationManager extends RelationManager
                     ->modalDescription('هل تريد تأكيد أن المتبرع قد أكمل عملية التبرع بنجاح؟')
                     ->modalSubmitActionLabel('نعم، تأكيد التبرع')
                     ->modalIcon('heroicon-o-check-badge')
-                    ->visible(fn(RequestResponse $record) => $record->status === \App\Enums\RequestResponseStatus::PENDING)
+                    ->visible(fn(RequestResponse $record) => in_array($record->status, [\App\Enums\RequestResponseStatus::PENDING, \App\Enums\RequestResponseStatus::ACCEPTED]))
                     ->action(function (RequestResponse $record) {
                         DB::transaction(function () use ($record) {
                             $record->status = \App\Enums\RequestResponseStatus::COMPLETED;
                             $record->verified_at = now();
                             $record->save();
 
+                            // Update donor health profile - CRITICAL for 90-day cooldown
+                            $healthProfile = $record->donor->healthProfile;
+                            if ($healthProfile) {
+                                $healthProfile->recent_donation = true; // Must set this or booted() will erase last_donation_date!
+                                $healthProfile->last_donation_date = now();
+                                $healthProfile->total_donations = ($healthProfile->total_donations ?? 0) + 1;
+                                $healthProfile->save();
+                            }
+
                             // Increment counters in BloodRequest
                             $request = $record->bloodRequest;
                             $request->increment('donors_completed', 1);
+
+                            // Notify organization
+                            $request->organization->user->notify(
+                                new \App\Notifications\DonorResponseNotification($record)
+                            );
 
                             // Update Request status to FULFILLED if units reached
                             if ($request->donors_completed >= $request->units_needed) {
@@ -325,9 +343,14 @@ class ResponsesRelationManager extends RelationManager
                         $record->status = \App\Enums\RequestResponseStatus::NO_SHOW;
                         $record->save();
 
+                        // Notify organization
+                        $record->bloodRequest->organization->user->notify(
+                            new \App\Notifications\DonorResponseNotification($record)
+                        );
+
                         Notification::make()
                             ->title('تم تسجيل عدم الحضور')
-                            ->body('تم تحديث حالة المتبرع إلى "عدم حضور"')
+                            ->body('تم تحديث حالة المتبرع إلى لم يحضر')
                             ->warning()
                             ->send();
                     }),
@@ -351,7 +374,19 @@ class ResponsesRelationManager extends RelationManager
                                     ->default(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ?? $record->donor->healthProfile?->blood_type)
                                     ->required()
                                     ->native(false)
-                                    ->columnSpan(1),
+                                    ->columnSpan(1)
+                                    // Lock field if already verified by another organization
+                                    ->disabled(
+                                        fn(RequestResponse $record) =>
+                                        $record->donor->healthProfile?->verified_blood_type !== null &&
+                                            $record->donor->healthProfile?->verified_by_organization_id !== null
+                                    )
+                                    ->helperText(
+                                        fn(RequestResponse $record) =>
+                                        $record->donor->healthProfile?->verified_blood_type
+                                            ? '🔒 الفصيلة محققة مخبرياً ولا يمكن تغييرها'
+                                            : 'سيتم تثبيت هذه الفصيلة بعد التحقق'
+                                    ),
                             ]),
                         Section::make('التقييم الطبي والأهلية')
                             ->description('تحديد مدى أهلية المتبرع بناءً على الفحص')
@@ -444,7 +479,7 @@ class ResponsesRelationManager extends RelationManager
                                     ->columnSpanFull(),
                             ]),
                     ])
-                    ->visible(fn(RequestResponse $record) => $record->status === \App\Enums\RequestResponseStatus::ACCEPTED)
+                    ->visible(fn(RequestResponse $record) => in_array($record->status, [\App\Enums\RequestResponseStatus::ACCEPTED, \App\Enums\RequestResponseStatus::COMPLETED]))
                     ->action(function (RequestResponse $record, array $data) {
                         $healthProfile = $record->donor->healthProfile;
                         /** @var \App\Models\User $user */
@@ -454,18 +489,28 @@ class ResponsesRelationManager extends RelationManager
                         DB::transaction(function () use ($record, $healthProfile, $data, $orgId) {
                             // 0. Update Response Status (Confirm Arrival & Outcome)
                             $record->verified_at = now();
-                            if ($data['eligibility_status'] === 'eligible') {
-                                $record->status = \App\Enums\RequestResponseStatus::COMPLETED;
-                            } else {
-                                $record->status = \App\Enums\RequestResponseStatus::DECLINED;
+
+                            // For ACCEPTED: change status based on eligibility
+                            // For COMPLETED: keep as COMPLETED (donation already happened, just update profile)
+                            if ($record->status === \App\Enums\RequestResponseStatus::ACCEPTED) {
+                                if ($data['eligibility_status'] === 'eligible') {
+                                    $record->status = \App\Enums\RequestResponseStatus::COMPLETED;
+                                } else {
+                                    $record->status = \App\Enums\RequestResponseStatus::DECLINED;
+                                }
                             }
+                            // If already COMPLETED, status stays COMPLETED regardless of test results
+
                             $record->save();
 
                             // 1. Update Health Profile
                             if ($healthProfile) {
-                                $healthProfile->verified_blood_type = $data['verified_blood_type'];
-                                $healthProfile->verified_by_organization_id = $orgId;
-                                $healthProfile->verified_at = now();
+                                // Only update verified_blood_type if not already verified, or if same org is re-verifying
+                                if (!$healthProfile->verified_blood_type || $healthProfile->verified_by_organization_id === $orgId) {
+                                    $healthProfile->verified_blood_type = $data['verified_blood_type'];
+                                    $healthProfile->verified_by_organization_id = $orgId;
+                                    $healthProfile->verified_at = now();
+                                }
 
                                 if ($data['eligibility_status'] === 'permanent') {
                                     $healthProfile->chronic_disease = true;
@@ -487,8 +532,14 @@ class ResponsesRelationManager extends RelationManager
 
                                     $healthProfile->next_eligible_date = $nextDate;
                                 } else {
+                                    // Donation successful - update eligibility and donation date
                                     $healthProfile->is_eligible = true;
                                     $healthProfile->next_eligible_date = null;
+
+                                    // CRITICAL: Update last_donation_date to activate 90-day cooldown
+                                    $healthProfile->recent_donation = true; // Must set this or booted() will erase last_donation_date!
+                                    $healthProfile->last_donation_date = now();
+                                    $healthProfile->total_donations = ($healthProfile->total_donations ?? 0) + 1;
                                 }
 
                                 $healthProfile->save();

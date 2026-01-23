@@ -34,12 +34,24 @@ class BloodRequestBroadcastService
                 $eligibleDonors = $this->findEligibleDonors($bloodRequest);
                 $donorsCount = $eligibleDonors->count();
 
+                // Send notifications to matched donors
+                $notifiedCount = 0;
+                foreach ($eligibleDonors as $donor) {
+                    // Only notify donors who have user accounts
+                    if ($donor->user) {
+                        $distance = $donor->distance ?? null; // Distance from scopeWithinRadius
+                        $donor->user->notify(new \App\Notifications\BloodRequestMatchNotification($bloodRequest, $distance));
+                        $notifiedCount++;
+                    }
+                }
+
                 // Update blood request status
                 $this->updateBroadcastStatus($bloodRequest);
 
-                Log::info('Blood request broadcasted successfully (Donors found but not notified as feature is disabled)', [
+                Log::info('Blood request broadcasted successfully', [
                     'blood_request_id' => $bloodRequest->id,
                     'donors_found' => $donorsCount,
+                    'notifications_sent' => $notifiedCount,
                 ]);
 
                 return $donorsCount;
@@ -76,10 +88,21 @@ class BloodRequestBroadcastService
     {
         $compatibleBloodTypes = $bloodRequest->blood_type->getCompatibleDonorTypes();
 
+        // Urgency-based logic: Critical requests get expanded radius and reduced cooldown
+        $isCritical = $bloodRequest->urgency_level === \App\Enums\UrgencyLevel::CRITICAL;
+
+        $searchRadius = $isCritical
+            ? $bloodRequest->search_radius_km * 3  // Triple radius for critical
+            : $bloodRequest->search_radius_km;
+
+        $notificationCooldownHours = $isCritical
+            ? 0.5  // 30 minutes for critical (allows re-notification faster)
+            : 2;   // 2 hours for normal/low urgency
+
         return Donor::withinRadius(
             $bloodRequest->lat,
             $bloodRequest->lng,
-            $bloodRequest->search_radius_km,
+            $searchRadius,
             $bloodRequest->organization->governorate_id
         )
             ->whereHas('healthProfile', function ($query) use ($compatibleBloodTypes) {
@@ -90,11 +113,24 @@ class BloodRequestBroadcastService
                                 ->whereIn('blood_type', $compatibleBloodTypes);
                         });
                 })
-                    ->where('is_eligible', '=', true, 'and');
+                    ->where('is_eligible', '=', true, 'and')
+                    ->where(function ($q) {
+                        $q->whereNull('next_eligible_date')
+                            ->orWhereDate('next_eligible_date', '<=', now());
+                    });
             })
             ->whereDoesntHave('eligibilityLogs', function ($query) {
                 $query->where('is_eligible', '=', false, 'and')
                     ->where('is_permanent', '=', true, 'and');
+            })
+            // Time-based notification de-duplication: urgency-based cooldown
+            // Critical: 30 min, Normal/Low: 2 hours
+            ->whereDoesntHave('responses', function ($query) use ($notificationCooldownHours) {
+                $query->where('created_at', '>=', now()->subHours($notificationCooldownHours))
+                    ->whereIn('status', [
+                        \App\Enums\RequestResponseStatus::PENDING,
+                        \App\Enums\RequestResponseStatus::ACCEPTED
+                    ]);
             })
             ->get();
     }

@@ -79,13 +79,34 @@ class TestMatchingController extends Controller
                 return false;
             }
 
+            // Defense in depth: also check next_eligible_date explicitly
+            if ($donor->healthProfile->next_eligible_date) {
+                $nextEligibleDate = \Carbon\Carbon::parse($donor->healthProfile->next_eligible_date)->startOfDay();
+                if ($nextEligibleDate->isFuture()) {
+                    return false; // Still in cooldown period
+                }
+            }
+
             // Check for permanent exclusions
             $hasPermanentExclusion = $donor->eligibilityLogs()
                 ->where('is_eligible', false)
                 ->where('is_permanent', true)
                 ->exists();
 
-            return !$hasPermanentExclusion;
+            if ($hasPermanentExclusion) {
+                return false;
+            }
+
+            // Time-based notification de-duplication: check if notified within last 2 hours
+            $recentlyNotified = $donor->responses()
+                ->where('created_at', '>=', \Carbon\Carbon::now()->subHours(2))
+                ->whereIn('status', [
+                    \App\Enums\RequestResponseStatus::PENDING,
+                    \App\Enums\RequestResponseStatus::ACCEPTED
+                ])
+                ->exists();
+
+            return !$recentlyNotified;
         });
 
         // Calculate distances for all donors
