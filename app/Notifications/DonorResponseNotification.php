@@ -7,6 +7,8 @@ use App\Models\BloodRequest;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Filament\Notifications\Notification as FilamentNotification;
+use Filament\Actions\Action;
 
 class DonorResponseNotification extends Notification implements ShouldQueue
 {
@@ -56,35 +58,31 @@ class DonorResponseNotification extends Notification implements ShouldQueue
             $body .= " - " . round($this->response->distance, 1) . " كم";
         }
 
-        return [
-            'title' => $title,
-            'body' => $body,
-            'icon' => match ($status->value) {
+        return FilamentNotification::make()
+            ->title($title)
+            ->body($body)
+            ->icon(match ($status->value) {
                 \App\Enums\RequestResponseStatus::COMPLETED->value => 'heroicon-o-check-circle',
                 \App\Enums\RequestResponseStatus::DECLINED->value,
                 \App\Enums\RequestResponseStatus::NO_SHOW->value => 'heroicon-o-x-circle',
                 default => 'heroicon-o-user'
-            },
-            'iconColor' => match ($status->value) {
+            })
+            ->iconColor(match ($status->value) {
                 \App\Enums\RequestResponseStatus::COMPLETED->value => 'success',
                 \App\Enums\RequestResponseStatus::DECLINED->value,
                 \App\Enums\RequestResponseStatus::NO_SHOW->value => 'danger',
                 \App\Enums\RequestResponseStatus::ACCEPTED->value => 'info',
                 default => 'warning'
-            },
-            'response_id' => $this->response->id,
-            'blood_request_id' => $bloodRequest->id,
-            'donor_name' => $donor->user->name,
-            'status' => $status->getLabel(),
-            'actions' => [
-                [
-                    'name' => 'view',
-                    'label' => 'عرض الرد',
-                    'url' => route('filament.organization.resources.blood-requests.index', [
+            })
+            ->actions([
+                Action::make('view')
+                    ->label('عرض الرد')
+                    ->url(route('filament.organization.resources.blood-requests.index', [
                         'tenant' => $bloodRequest->organization->slug
-                    ]),
-                ],
-            ],
-        ];
+                    ]))
+                    ->button()
+                    ->markAsRead(),
+            ])
+            ->getDatabaseMessage();
     }
 }
