@@ -28,3 +28,4 @@ donor_health_profiles.sql
 donors.sql
 notifications.sql
 users.sql
+testsprite_tests/tmp/config.json
