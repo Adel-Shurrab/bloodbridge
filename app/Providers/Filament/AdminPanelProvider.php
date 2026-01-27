@@ -10,8 +10,6 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
-use Filament\Widgets\AccountWidget;
-use Filament\Widgets\FilamentInfoWidget;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -19,6 +17,9 @@ use Illuminate\Routing\Middleware\SubstituteBindings;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Middleware\CheckForMaintenanceMode;
+use App\Settings\GeneralSettings;
+use App\Filament\Admin\Widgets;
 
 class AdminPanelProvider extends PanelProvider
 {
@@ -28,22 +29,21 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName(fn() => app(\App\Settings\GeneralSettings::class)->site_name)
-            ->favicon(fn() => app(\App\Settings\GeneralSettings::class)->site_favicon ? Storage::disk('public')->url(app(\App\Settings\GeneralSettings::class)->site_favicon) : asset('assets/images/logo.jpg'))
+            ->brandName(fn() => app(GeneralSettings::class)->site_name)
+            ->favicon(fn() => app(GeneralSettings::class)->site_favicon ? Storage::disk('public')->url(app(GeneralSettings::class)->site_favicon) : asset('assets/images/logo.jpg'))
             ->font('Cairo')
             ->colors([
                 'primary' => Color::Red,
             ])
-            ->discoverResources(in: app_path('Filament/Resources'), for: 'App\Filament\Resources')
-            ->discoverPages(in: app_path('Filament/Pages'), for: 'App\Filament\Pages')
+            ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
+            ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
             ->pages([
-                \App\Filament\Pages\Dashboard::class,
+                Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Widgets'), for: 'App\Filament\Widgets')
             ->widgets([
-                \App\Filament\Widgets\DashboardHeaderWidget::class,
-                \App\Filament\Widgets\StatsOverview::class,
-                \App\Filament\Widgets\PendingOrganizationsWidget::class,
+                Widgets\DashboardHeaderWidget::class,
+                Widgets\StatsOverview::class,
+                Widgets\PendingOrganizationsWidget::class,
             ])
             ->databaseNotifications()
             ->middleware([
@@ -56,10 +56,20 @@ class AdminPanelProvider extends PanelProvider
                 SubstituteBindings::class,
                 DisableBladeIconComponents::class,
                 DispatchServingFilamentEvent::class,
-                \App\Http\Middleware\CheckForMaintenanceMode::class,
+                CheckForMaintenanceMode::class,
             ])
             ->authMiddleware([
                 Authenticate::class,
             ]);
+    }
+
+    public function boot(): void
+    {
+        // Manually register widgets as Livewire components to make them available
+        // for the Statistics page without adding them to the Dashboard
+        \Livewire\Livewire::component('app.filament.admin.widgets.advanced-stats-overview', Widgets\AdvancedStatsOverview::class);
+        \Livewire\Livewire::component('app.filament.admin.widgets.blood-type-demand-widget', Widgets\BloodTypeDemandWidget::class);
+        \Livewire\Livewire::component('app.filament.admin.widgets.engagement-chart-widget', Widgets\EngagementChartWidget::class);
+        \Livewire\Livewire::component('app.filament.admin.widgets.recent-activity-widget', Widgets\RecentActivityWidget::class);
     }
 }

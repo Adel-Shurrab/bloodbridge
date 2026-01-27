@@ -14,7 +14,7 @@
                 <div class="profile-info">
                     <span class="profile-name">{{ auth()->user()->name }}</span>
                     <span class="profile-role">
-                        {{ auth()->user()->role === \App\Models\User::ROLE_ADMIN ? 'مسؤول النظام' : 'مؤسسة' }}
+                        {{ auth()->user()->role === \App\Enums\UserRole::ADMIN ? 'مسؤول النظام' : 'مؤسسة' }}
                     </span>
                 </div>
                 <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="Profile" class="profile-img">
