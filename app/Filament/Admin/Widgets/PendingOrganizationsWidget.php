@@ -23,6 +23,8 @@ class PendingOrganizationsWidget extends TableWidget
             ->query(
                 fn() => Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::PENDING, 'and')
             )
+            ->modelLabel('منظمة')
+            ->pluralModelLabel('منظمات')
             ->columns([
                 Tables\Columns\TextColumn::make('org_name')
                     ->label('اسم المنظمة')

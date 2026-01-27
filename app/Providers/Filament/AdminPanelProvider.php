@@ -62,4 +62,14 @@ class AdminPanelProvider extends PanelProvider
                 Authenticate::class,
             ]);
     }
+
+    public function boot(): void
+    {
+        // Manually register widgets as Livewire components to make them available
+        // for the Statistics page without adding them to the Dashboard
+        \Livewire\Livewire::component('app.filament.admin.widgets.advanced-stats-overview', Widgets\AdvancedStatsOverview::class);
+        \Livewire\Livewire::component('app.filament.admin.widgets.blood-type-demand-widget', Widgets\BloodTypeDemandWidget::class);
+        \Livewire\Livewire::component('app.filament.admin.widgets.engagement-chart-widget', Widgets\EngagementChartWidget::class);
+        \Livewire\Livewire::component('app.filament.admin.widgets.recent-activity-widget', Widgets\RecentActivityWidget::class);
+    }
 }
