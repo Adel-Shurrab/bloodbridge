@@ -21,22 +21,22 @@
 
         {{-- Stats Grid --}}
         <div class="stats-section mb-8">
-            @livewire(\App\Filament\Widgets\AdvancedStatsOverview::class)
+            @livewire(\App\Filament\Admin\Widgets\AdvancedStatsOverview::class)
         </div>
 
         {{-- Middle Section: Activity and Demand --}}
         <div class="middle-grid">
             <div class="grid-col">
-                @livewire(\App\Filament\Widgets\RecentActivityWidget::class)
+                @livewire(\App\Filament\Admin\Widgets\RecentActivityWidget::class)
             </div>
             <div class="grid-col">
-                @livewire(\App\Filament\Widgets\BloodTypeDemandWidget::class)
+                @livewire(\App\Filament\Admin\Widgets\BloodTypeDemandWidget::class)
             </div>
         </div>
 
         {{-- Bottom Section: Chart --}}
         <div class="chart-section mt-8">
-            @livewire(\App\Filament\Widgets\EngagementChartWidget::class)
+            @livewire(\App\Filament\Admin\Widgets\EngagementChartWidget::class)
         </div>
     </div>
 
