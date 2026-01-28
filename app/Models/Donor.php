@@ -17,6 +17,8 @@ class Donor extends Model
     protected $casts = [
         'blood_type' => BloodType::class,
         'gender' => \App\Enums\Gender::class,
+        'birth_date' => 'date',
+
     ];
 
     // Defaults
@@ -103,13 +105,13 @@ class Donor extends Model
         }
 
         $query->select('donors.*');
-        
+
         if ($hasLocation) {
             $query->selectRaw("{$haversine} AS distance", [$lat, $lng, $lat]);
         }
 
         $query->where(function ($group) use ($hasLocation, $bbox, $radiusKm, $governorateId, $lat, $lng, $haversine) {
-            
+
             if ($hasLocation) {
                 $group->where(function ($q) use ($bbox, $radiusKm, $lat, $lng, $haversine) {
                     $q->whereNotNull('lat')
@@ -123,7 +125,7 @@ class Donor extends Model
 
             if ($governorateId) {
                 $method = $hasLocation ? 'orWhere' : 'where';
-                
+
                 $group->$method(function ($q) use ($governorateId) {
                     $q->whereNull('lat')
                       ->whereNull('lng')
