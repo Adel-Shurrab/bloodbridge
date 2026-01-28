@@ -33,6 +33,7 @@ class BloodRequest extends Model
         'donors_completed',
         'broadcasted_at',
         'fulfilled_at',
+        'actual_search_radius_km',
     ];
 
     protected $casts = [
@@ -41,6 +42,7 @@ class BloodRequest extends Model
         'urgency_level' => \App\Enums\UrgencyLevel::class,
         'lat' => 'float',
         'lng' => 'float',
+        'actual_search_radius_km' => 'integer',
     ];
 
     public function organization()
@@ -62,5 +64,46 @@ class BloodRequest extends Model
     public function broadcastToEligibleDonors(): int
     {
         return app(\App\Services\BloodRequestBroadcastService::class)->broadcast($this);
+    }
+
+    /**
+     * Check if radius was expanded during broadcast
+     */
+    public function wasExpanded(): bool
+    {
+        return $this->actual_search_radius_km && $this->actual_search_radius_km > $this->search_radius_km;
+    }
+
+    /**
+     * Get number of expansion steps (computed)
+     */
+    public function getExpansionStepsAttribute(): int
+    {
+        if (!$this->actual_search_radius_km || $this->actual_search_radius_km <= $this->search_radius_km) {
+            return 0;
+        }
+
+        return (int) (($this->actual_search_radius_km - $this->search_radius_km) / 5);
+    }
+
+    /**
+     * Get number of donors found (computed from responses)
+     */
+    public function getDonorsFoundAttribute(): int
+    {
+        return $this->responses()->count();
+    }
+
+    /**
+     * Get human-readable expansion summary
+     */
+    public function getExpansionSummary(): string
+    {
+        if (!$this->wasExpanded()) {
+            return "Searched at {$this->search_radius_km}km";
+        }
+
+        $steps = $this->expansion_steps;
+        return "Expanded from {$this->search_radius_km}km to {$this->actual_search_radius_km}km ({$steps} expansion" . ($steps > 1 ? 's' : '') . ")";
     }
 }
