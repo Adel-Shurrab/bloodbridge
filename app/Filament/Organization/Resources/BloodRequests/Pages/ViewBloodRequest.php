@@ -45,15 +45,53 @@ class ViewBloodRequest extends ViewRecord
                                     ->columnSpanFull(),
                             ]),
 
-                        Section::make('Statistics')
-                            ->columnSpan(1)
+                        Section::make('نطاق البحث عن المتبرعين')
+                            ->columnSpan(3)
                             ->schema([
-                                TextEntry::make('donors_completed')
-                                    ->label('تحقق التبرع')
-                                    ->suffix(' / ' . $this->record->units_needed),
-                                TextEntry::make('created_at')
-                                    ->label('تاريخ الطلب')
-                                    ->dateTime(),
+                                Grid::make(4)
+                                    ->schema([
+                                        TextEntry::make('search_radius_km')
+                                            ->label('النطاق الأولي')
+                                            ->suffix(' كم')
+                                            ->badge()
+                                            ->color('gray'),
+                                        TextEntry::make('actual_search_radius_km')
+                                            ->label('النطاق النهائي')
+                                            ->suffix(' كم')
+                                            ->badge()
+                                            ->color(fn() => $this->record->wasExpanded() ? 'warning' : 'success')
+                                            ->visible(fn() => $this->record->actual_search_radius_km !== null),
+                                        TextEntry::make('expansion_steps')
+                                            ->label('مرات التوسع')
+                                            ->suffix(fn($state) => $state > 0 ? ' ' . ($state > 1 ? 'مرات' : 'مرة') : '')
+                                            ->badge()
+                                            ->color(fn($state) => $state > 0 ? 'warning' : 'success')
+                                            ->visible(fn() => $this->record->expansion_steps !== null),
+                                        TextEntry::make('donors_found')
+                                            ->label('المتبرعين المحتملين')
+                                            ->badge()
+                                            ->color(fn($state) => $state > 0 ? 'success' : 'danger')
+                                            ->visible(fn() => $this->record->donors_found !== null),
+                                    ]),
+                            ])
+                            ->visible(fn() => $this->record->status === \App\Enums\BloodRequestStatus::BROADCASTED),
+
+                        Section::make('Statistics')
+                            ->columnSpan(3)
+                            ->schema([
+                                Grid::make(3)
+                                    ->schema([
+                                        TextEntry::make('donors_completed')
+                                            ->label('تحقق التبرع')
+                                            ->suffix(' / ' . $this->record->units_needed),
+                                        TextEntry::make('created_at')
+                                            ->label('تاريخ الطلب')
+                                            ->dateTime(),
+                                        TextEntry::make('broadcasted_at')
+                                            ->label('تاريخ البث')
+                                            ->dateTime()
+                                            ->visible(fn() => $this->record->broadcasted_at !== null),
+                                    ]),
                             ]),
                     ]),
             ]);

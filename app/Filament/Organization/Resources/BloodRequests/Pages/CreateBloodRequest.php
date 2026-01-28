@@ -22,18 +22,22 @@ class CreateBloodRequest extends CreateRecord
 
             // Show success notification
             if ($notifiedCount > 0) {
+                $expansionInfo = $this->record->wasExpanded()
+                    ? "\nنطاق البحث: {$this->record->search_radius_km}كم → {$this->record->actual_search_radius_km}كم"
+                    : "\nنطاق البحث: {$this->record->search_radius_km}كم";
+
                 Notification::make()
-                    ->title('تم إنشاء الطلب بنجاح')
-                    ->body("تم العثور على {$notifiedCount} متبرع محتمل في النطاق المحدد")
+                    ->title('تم إنشاء الطلب بنجاح ✓')
+                    ->body("تم العثور على {$notifiedCount} متبرع محتمل{$expansionInfo}")
                     ->success()
-                    ->duration(5000)
+                    ->duration(6000)
                     ->send();
             } else {
                 Notification::make()
                     ->title('تم إنشاء الطلب')
-                    ->body('لم يتم العثور على متبرعين مناسبين في النطاق المحدد. يرجى مراجعة نطاق البحث أو الموقع.')
+                    ->body('لم يتم العثور على متبرعين مناسبين حتى نطاق ' . $this->record->actual_search_radius_km . 'كم. يرجى مراجعة الموقع أو توسيع نطاق البحث.')
                     ->warning()
-                    ->duration(7000)
+                    ->duration(8000)
                     ->send();
             }
         } catch (\Exception $e) {
