@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\Models\RequestResponse;
 use App\Enums\RequestResponseStatus;
+use App\Enums\UrgencyLevel;
 use Carbon\Carbon;
 
 class CleanupStaleResponses extends Command
@@ -28,20 +29,14 @@ class CleanupStaleResponses extends Command
      */
     public function handle()
     {
-        $timeoutHours = $this->option('hours');
-        $cutoffTime = Carbon::now()->subHours($timeoutHours);
+        RequestResponse::where('status', RequestResponseStatus::PENDING)
+            ->whereHas('bloodRequest', fn($q) => $q->where('urgency_level', UrgencyLevel::CRITICAL))
+            ->where('created_at', '<=', now()->subHours(8))
+            ->update(['status' => RequestResponseStatus::UNREACHABLE]);
 
-        $this->info("Cleaning up PENDING responses older than {$timeoutHours} hours (before {$cutoffTime})...");
-
-        $updated = RequestResponse::where('status', RequestResponseStatus::PENDING)
-            ->where('created_at', '<', $cutoffTime)
-            ->update([
-                'status' => RequestResponseStatus::IGNORED,
-                'updated_at' => now()
-            ]);
-
-        $this->info("✓ Marked {$updated} stale PENDING responses as IGNORED.");
-
-        return 0;
+        RequestResponse::where('status', RequestResponseStatus::PENDING)
+            ->whereHas('bloodRequest', fn($q) => $q->where('urgency_level', UrgencyLevel::NORMAL))
+            ->where('created_at', '<=', now()->subHours(48))
+            ->update(['status' => RequestResponseStatus::UNREACHABLE]);
     }
 }

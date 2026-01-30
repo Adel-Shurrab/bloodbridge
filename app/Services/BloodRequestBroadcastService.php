@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\BloodRequestStatus;
+use App\Enums\BloodType;
 use App\Enums\RequestResponseStatus;
 use App\Enums\UrgencyLevel;
 use App\Models\BloodRequest;
@@ -98,21 +99,21 @@ class BloodRequestBroadcastService
         $targetDonorCount = $this->calculateTargetDonorCount($bloodRequest, $isCritical);
         $currentRadius = $this->getInitialSearchRadius($bloodRequest, $isCritical);
 
-        $donors = collect();
+        $matchedDonors = collect();
         $expansionAttempts = 0;
 
-        // Progressive expansion loop
-        while ($this->shouldContinueExpansion($donors, $targetDonorCount, $currentRadius)) {
-            $donors = $this->searchDonorsInRadius(
+        // Progressive expansion loop for matched blood types
+        while ($this->shouldContinueExpansion($matchedDonors, $targetDonorCount, $currentRadius)) {
+            $matchedDonors = $this->searchDonorsInRadius(
                 $bloodRequest,
                 $compatibleBloodTypes,
                 $currentRadius,
                 $isCritical
             );
 
-            $this->logExpansionAttempt($bloodRequest, $currentRadius, $donors, $targetDonorCount, $expansionAttempts);
+            $this->logExpansionAttempt($bloodRequest, $currentRadius, $matchedDonors, $targetDonorCount, $expansionAttempts);
 
-            if ($this->targetDonorCountMet($donors, $targetDonorCount)) {
+            if ($this->targetDonorCountMet($matchedDonors, $targetDonorCount)) {
                 break;
             }
 
@@ -125,10 +126,24 @@ class BloodRequestBroadcastService
             $expansionAttempts++;
         }
 
-        $this->saveExpansionResults($bloodRequest, $currentRadius);
-        $this->logExpansionCompletion($bloodRequest, $currentRadius, $donors, $targetDonorCount, $expansionAttempts);
+        // Phase 2: Search UNKNOWN donors as backup (NORMAL requests only)
+        $finalDonors = $matchedDonors;
+        if (!$this->targetDonorCountMet($matchedDonors, $targetDonorCount) && !$isCritical) {
+            $unknownDonors = $this->searchUnknownDonors($bloodRequest, $currentRadius, $isCritical);
+            $finalDonors = $matchedDonors->merge($unknownDonors);
 
-        return $donors;
+            Log::info('Added UNKNOWN blood type donors as fallback', [
+                'blood_request_id' => $bloodRequest->id,
+                'matched_donors' => $matchedDonors->count(),
+                'unknown_donors' => $unknownDonors->count(),
+                'total_donors' => $finalDonors->count(),
+            ]);
+        }
+
+        $this->saveExpansionResults($bloodRequest, $currentRadius);
+        $this->logExpansionCompletion($bloodRequest, $currentRadius, $finalDonors, $targetDonorCount, $expansionAttempts);
+
+        return $finalDonors;
     }
 
     /**
@@ -233,6 +248,42 @@ class BloodRequestBroadcastService
             ->whereDoesntHave('responses', fn($q) => $this->applyRecentNotificationFilter($q, $cooldownHours))
             ->get();
     }
+
+    /**
+     * Search for UNKNOWN blood type donors as fallback (NORMAL requests only)
+     *
+     * @param BloodRequest $bloodRequest
+     * @param int $radiusKm Search radius in kilometers
+     * @param bool $isCritical
+     * @return Collection<Donor>
+     */
+    private function searchUnknownDonors(
+        BloodRequest $bloodRequest,
+        int $radiusKm,
+        bool $isCritical
+    ): Collection {
+        // UNKNOWN donors only for NORMAL urgency (critical is too risky)
+        if ($isCritical) {
+            return collect([]);
+        }
+
+        $cooldownHours = $this->getNotificationCooldownHours($isCritical);
+        $lat = $bloodRequest->lat;
+        $lng = $bloodRequest->lng;
+        $governorateId = $bloodRequest->organization->governorate_id;
+
+        return Donor::withinRadius($lat, $lng, $radiusKm, $governorateId)
+            ->whereHas('healthProfile', function ($query) {
+                // Only unverified UNKNOWN donors
+                $query->where('blood_type', BloodType::UNKNOWN)
+                    ->whereNull('verified_blood_type');
+                $this->applyEligibilityFilter($query);
+            })
+            ->whereDoesntHave('eligibilityLogs', fn($q) => $this->applyPermanentExclusionFilter($q))
+            ->whereDoesntHave('responses', fn($q) => $this->applyRecentNotificationFilter($q, $cooldownHours))
+            ->get();
+    }
+
 
     /**
      * Get notification cooldown period based on urgency

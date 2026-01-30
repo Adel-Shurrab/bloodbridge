@@ -4,6 +4,7 @@ namespace App\Notifications;
 
 use App\Models\BloodRequest;
 use App\Models\Donor;
+use App\Enums\BloodType;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -54,6 +55,11 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
         };
 
         $body = "يحتاج {$orgName} إلى {$units} وحدة من فصيلة {$bloodType}";
+
+        // Add note for unknown blood type donors
+        if ($notifiable->healthProfile?->blood_type === BloodType::UNKNOWN) {
+            $body .= "\n⚠️ ملاحظة: سيتم تحديد فصيلة دمك في المستشفى";
+        }
 
         if ($this->distance) {
             $body .= " - البعد: " . round($this->distance, 1) . " كم";
