@@ -66,16 +66,23 @@ class BloodRequestBroadcastService
     }
 
     /**
-     * Validate that blood request has required location data
+     * Validate that blood request has location data (GPS or governorate)
      *
      * @param BloodRequest $bloodRequest
      * @return bool True if location data is valid
      */
     private function hasValidLocation(BloodRequest $bloodRequest): bool
     {
-        return $bloodRequest->lat !== null
+        // Has precise GPS coordinates
+        $hasCoordinates = $bloodRequest->lat !== null
             && $bloodRequest->lng !== null
             && $bloodRequest->search_radius_km > 0;
+
+        // Has organization with governorate (fallback)
+        $hasGovernorate = $bloodRequest->organization
+            && $bloodRequest->organization->governorate_id !== null;
+
+        return $hasCoordinates || $hasGovernorate;
     }
 
     /**
@@ -107,6 +114,11 @@ class BloodRequestBroadcastService
 
             if ($this->targetDonorCountMet($donors, $targetDonorCount)) {
                 break;
+            }
+
+            // Check if we're about to exceed max radius
+            if ($currentRadius >= self::MAX_SEARCH_RADIUS_KM) {
+                break; // Stop expansion at max radius
             }
 
             $currentRadius += self::RADIUS_EXPANSION_STEP_KM;
@@ -202,11 +214,16 @@ class BloodRequestBroadcastService
     ): Collection {
         $cooldownHours = $this->getNotificationCooldownHours($isCritical);
 
+        // Use coordinates if available, otherwise fall back to governorate-only search
+        $lat = $bloodRequest->lat;
+        $lng = $bloodRequest->lng;
+        $governorateId = $bloodRequest->organization->governorate_id;
+
         return Donor::withinRadius(
-            $bloodRequest->lat,
-            $bloodRequest->lng,
+            $lat, // null is okay - will trigger governorate-only search
+            $lng, // null is okay - will trigger governorate-only search
             $radiusKm,
-            $bloodRequest->organization->governorate_id
+            $governorateId
         )
             ->whereHas('healthProfile', function ($query) use ($compatibleBloodTypes) {
                 $this->applyBloodTypeFilter($query, $compatibleBloodTypes);
