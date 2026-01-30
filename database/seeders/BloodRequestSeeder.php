@@ -35,7 +35,7 @@ class BloodRequestSeeder extends Seeder
             'organization_id' => $nasser->id,
             'blood_type' => BloodType::A_NEGATIVE,
             'units_needed' => 3,
-            'urgency_level' => UrgencyLevel::MEDIUM,
+            'urgency_level' => UrgencyLevel::NORMAL,
             'search_radius_km' => 15, // نطاق أوسع
             'lat' => $nasser->lat,
             'lng' => $nasser->lng,
@@ -49,7 +49,7 @@ class BloodRequestSeeder extends Seeder
             'organization_id' => $indo->id,
             'blood_type' => BloodType::B_POSITIVE,
             'units_needed' => 5,
-            'urgency_level' => UrgencyLevel::HIGH,
+            'urgency_level' => UrgencyLevel::NORMAL,
             'lat' => $indo->lat,
             'lng' => $indo->lng,
             'status' => BloodRequestStatus::FULFILLED,

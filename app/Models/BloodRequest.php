@@ -13,7 +13,7 @@ class BloodRequest extends Model
 
     // Defaults
     public const DEFAULT_STATUS = \App\Enums\BloodRequestStatus::PENDING;
-    public const DEFAULT_URGENCY_LEVEL = \App\Enums\UrgencyLevel::LOW;
+    public const DEFAULT_URGENCY_LEVEL = \App\Enums\UrgencyLevel::NORMAL;
     public const DEFAULT_SEARCH_RADIUS_KM = 10;
     public const DEFAULT_DONORS_ACCEPTED = 0;
     public const DEFAULT_DONORS_COMPLETED = 0;
