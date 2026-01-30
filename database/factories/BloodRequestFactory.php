@@ -20,7 +20,7 @@ class BloodRequestFactory extends Factory
             'organization_id' => \App\Models\Organization::factory(),
             'blood_type' => $this->faker->randomElement(\App\Enums\BloodType::cases()),
             'units_needed' => $this->faker->numberBetween(1, 10),
-            'urgency_level' => \App\Enums\UrgencyLevel::MEDIUM,
+            'urgency_level' => \App\Enums\UrgencyLevel::NORMAL,
             'search_radius_km' => 10,
             'lat' => \App\Constants\PalestineCoordinates::GAZA['lat'],
             'lng' => \App\Constants\PalestineCoordinates::GAZA['lng'],

@@ -50,7 +50,6 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
 
         $title = match ($this->bloodRequest->urgency_level->value) {
             \App\Enums\UrgencyLevel::CRITICAL->value => '🚨 طلب تبرع عاجل جداً',
-            \App\Enums\UrgencyLevel::HIGH->value => '⚠️ طلب تبرع عاجل',
             default => '🩸 طلب تبرع بالدم'
         };
 
@@ -69,7 +68,6 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
             })
             ->iconColor(match ($this->bloodRequest->urgency_level->value) {
                 \App\Enums\UrgencyLevel::CRITICAL->value => 'danger',
-                \App\Enums\UrgencyLevel::HIGH->value => 'warning',
                 default => 'primary'
             })
             ->actions([

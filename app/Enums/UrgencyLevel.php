@@ -7,17 +7,13 @@ use Filament\Support\Contracts\HasLabel;
 
 enum UrgencyLevel: int implements HasLabel, HasColor
 {
-    case LOW = 1;
-    case MEDIUM = 2;
-    case HIGH = 3;
-    case CRITICAL = 4;
+    case NORMAL = 1;
+    case CRITICAL = 2;
 
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::LOW => 'منخفض',
-            self::MEDIUM => 'متوسط',
-            self::HIGH => 'عالي',
+            self::NORMAL => 'عادي',
             self::CRITICAL => 'حرج',
         };
     }
@@ -25,9 +21,7 @@ enum UrgencyLevel: int implements HasLabel, HasColor
     public function getColor(): string|array|null
     {
         return match ($this) {
-            self::LOW => 'gray',
-            self::MEDIUM => 'info',
-            self::HIGH => 'warning',
+            self::NORMAL => 'info',
             self::CRITICAL => 'danger',
         };
     }

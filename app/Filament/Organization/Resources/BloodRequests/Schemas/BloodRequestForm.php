@@ -51,7 +51,7 @@ class BloodRequestForm
                                     ->label('درجة الاستعجال')
                                     ->options(\App\Enums\UrgencyLevel::class)
                                     ->required()
-                                    ->default(\App\Enums\UrgencyLevel::LOW)
+                                    ->default(\App\Enums\UrgencyLevel::NORMAL)
                                     ->native(false)
                                     ->columnSpan(1)
                                     ->placeholder('حدد مستوى الأولوية'),
