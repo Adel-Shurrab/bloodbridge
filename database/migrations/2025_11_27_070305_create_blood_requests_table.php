@@ -26,6 +26,8 @@ return new class extends Migration
                 ->index();
             $table->text('additional_notes')->nullable();
             $table->unsignedInteger('search_radius_km')->default(10);
+            $table->integer('actual_search_radius_km')->nullable()
+                ->comment('Final radius used after expansion');
             $table->decimal('lat', 10, 7)->nullable();
             $table->decimal('lng', 10, 7)->nullable();
             $table->string('location_address')->nullable();
