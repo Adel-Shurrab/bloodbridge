@@ -15,6 +15,7 @@ enum BloodType: int implements HasLabel, HasColor
     case B_NEGATIVE = 6;
     case AB_POSITIVE = 7;
     case AB_NEGATIVE = 8;
+    case UNKNOWN = 9;
 
     public function getLabel(): ?string
     {
@@ -27,12 +28,16 @@ enum BloodType: int implements HasLabel, HasColor
             self::B_NEGATIVE => 'B-',
             self::AB_POSITIVE => 'AB+',
             self::AB_NEGATIVE => 'AB-',
+            self::UNKNOWN => 'غير معروف',
         };
     }
 
     public function getColor(): string|array|null
     {
-        return 'danger';
+        return match ($this) {
+            self::UNKNOWN => 'gray',
+            default => 'danger',
+        };
     }
 
     /**
