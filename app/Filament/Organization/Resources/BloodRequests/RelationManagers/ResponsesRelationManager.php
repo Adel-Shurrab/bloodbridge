@@ -4,8 +4,8 @@ namespace App\Filament\Organization\Resources\BloodRequests\RelationManagers;
 
 use App\Models\RequestResponse;
 use BackedEnum;
-use App\Models\BloodRequest;
 use App\Enums\BloodType;
+use App\Enums\RequestResponseStatus;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Placeholder;
@@ -31,7 +31,6 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
 use App\Models\EligibilityLog;
-
 use Illuminate\Support\Facades\Auth;
 use Filament\Actions\ActionGroup;
 use Filament\Tables\Enums\FiltersLayout;
@@ -167,6 +166,24 @@ class ResponsesRelationManager extends RelationManager
                                     ->color('info')
                                     ->size('sm')
                                     ->weight(FontWeight::Medium),
+
+                                TextColumn::make('connectivity_status')
+                                    ->label('حالة الاتصال')
+                                    ->badge()
+                                    ->size('xs')
+                                    ->visible(fn(?RequestResponse $record) => $record?->status === RequestResponseStatus::PENDING)
+                                    ->color(fn(?RequestResponse $record) => match (true) {
+                                        !$record => 'success',
+                                        $record->created_at->diffInHours(now()) > 4 => 'danger',
+                                        $record->created_at->diffInHours(now()) > 2 => 'warning',
+                                        default => 'success',
+                                    })
+                                    ->formatStateUsing(fn(?RequestResponse $record) => match (true) {
+                                        !$record => 'في الانتظار',
+                                        $record->created_at->diffInHours(now()) > 4 => 'غالباً خارج التغطية',
+                                        $record->created_at->diffInHours(now()) > 2 => 'تأخر في الرد',
+                                        default => 'في الانتظار',
+                                    }),
 
                                 TextColumn::make('verification_date')
                                     ->label('تاريخ التحقق')
