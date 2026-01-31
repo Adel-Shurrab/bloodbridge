@@ -2,11 +2,12 @@
     @php($data = $this->getEligibilityData())
 
     <div class="timer-banner">
+        @if(!$data['eligible_now'])
 
         <p class="timer-label">
             أهلية التبرع التالية في :
         </p>
-
+        @endif
         <div class="timer-display">
 
             <i class="fa-regular fa-hourglass-half"></i>
