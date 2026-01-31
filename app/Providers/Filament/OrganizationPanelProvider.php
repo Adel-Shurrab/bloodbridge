@@ -35,7 +35,7 @@ class OrganizationPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Organization/Resources'), for: 'App\Filament\Organization\Resources')
             ->discoverPages(in: app_path('Filament/Organization/Pages'), for: 'App\Filament\Organization\Pages')
             ->pages([
-                Dashboard::class,
+                \App\Filament\Organization\Pages\OrganizationDashboard::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Organization/Widgets'), for: 'App\Filament\Organization\Widgets')
             ->widgets([

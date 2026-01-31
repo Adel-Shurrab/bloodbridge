@@ -161,6 +161,11 @@ class EditOrganizationProfile extends EditTenantProfile
                                     ->default(false)
                                     ->inline(false)
                                     ->live()
+                                    ->afterStateHydrated(function (Toggle $component, $record) {
+                                        if ($record) {
+                                            $component->state($record->opening_time === null && $record->closing_time === null);
+                                        }
+                                    })
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state) {
                                             // Clear opening and closing times when emergency mode is enabled
@@ -181,6 +186,7 @@ class EditOrganizationProfile extends EditTenantProfile
                                             ->displayFormat('H:i')
                                             ->visible(fn(callable $get) => !$get('emergency_available'))
                                             ->required(fn(callable $get) => !$get('emergency_available'))
+                                            ->dehydrated()
                                             ->columnSpan(1),
 
                                         TimePicker::make('closing_time')
@@ -194,6 +200,7 @@ class EditOrganizationProfile extends EditTenantProfile
                                             ->after('opening_time')
                                             ->visible(fn(callable $get) => !$get('emergency_available'))
                                             ->required(fn(callable $get) => !$get('emergency_available'))
+                                            ->dehydrated()
                                             ->columnSpan(1),
 
                                         TextInput::make('daily_capacity')
@@ -238,5 +245,17 @@ class EditOrganizationProfile extends EditTenantProfile
                             ->columnSpanFull(),
                     ]),
             ]);
+    }
+
+    protected function handleRecordUpdate(\Illuminate\Database\Eloquent\Model $record, array $data): \Illuminate\Database\Eloquent\Model
+    {
+        if ($data['emergency_available'] ?? false) {
+            $data['opening_time'] = null;
+            $data['closing_time'] = null;
+        }
+
+        $record->update($data);
+
+        return $record;
     }
 }
