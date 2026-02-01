@@ -65,7 +65,7 @@ class BloodRequestForm
                     ]),
 
                 Section::make('الموقع ونطاق البحث')
-                    ->description('حدد موقع الحالة ونطاق البحث عن المتبرعين')
+                    ->description('حدد موقع الحالة ونطاق البحث عن المتبرعين. ملاحظة: استخدم الخريطة فقط إذا كان مكان التبرع خارج مقر المؤسسة.')
                     ->icon('heroicon-o-map-pin')
                     ->collapsible()
                     ->schema([
@@ -84,8 +84,7 @@ class BloodRequestForm
 
                                 // Map Component
                                 Map::make('location')
-                                    ->label('موقع الحالة على الخريطة')
-                                    ->helperText('انقر على الخريطة أو اسحب العلامة لتحديد موقع الحالة بدقة')
+                                    ->label('موقع الحالة على الخريطة (اختياري)')
                                     ->columnSpanFull()
                                     ->defaultLocation(
                                         latitude: \App\Constants\PalestineCoordinates::GAZA['lat'],
@@ -124,8 +123,8 @@ class BloodRequestForm
                                 // Optional: Address field to display selected location
                                 TextInput::make('location_address')
                                     ->label('العنوان المحدد')
-                                    ->placeholder('سيتم تحديده تلقائياً من الخريطة')
-                                    ->helperText('يمكنك تعديل العنوان يدوياً إذا لزم الأمر')
+                                    ->placeholder('أدخل تفاصيل العنوان يدوياً (مثلاً: المبنى الخارجي، الطابق الثاني...)')
+                                    ->helperText('يرجى كتابة العنوان بالتفصيل لمساعدة المتبرع في الوصول.')
                                     ->maxLength(500)
                                     ->columnSpanFull(),
                             ]),
