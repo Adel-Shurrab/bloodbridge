@@ -83,7 +83,7 @@ class InteractionSeeder extends Seeder
                     'status' => $status,
                     'responded_at' => Carbon::now()->subMinutes(rand(10, 300)),
                     'verified_at' => $verifiedAt,
-                    'verification_qr_code' => ($status === RequestResponseStatus::COMPLETED || $status === RequestResponseStatus::ACCEPTED),
+                    'verification_qr_code' => ($status === RequestResponseStatus::COMPLETED || $status === RequestResponseStatus::ACCEPTED) ? \Illuminate\Support\Str::uuid()->toString() : null,
                     'decline_reason' => $declineReason,
                 ]);
             }

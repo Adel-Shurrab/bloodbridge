@@ -62,6 +62,10 @@ class OrganizationPanelProvider extends PanelProvider
             ])
             ->databaseNotifications() // Enable notification bell for organizations
             ->tenant(Organization::class, slugAttribute: 'slug')
-            ->tenantProfile(EditOrganizationProfile::class);
+            ->tenantProfile(EditOrganizationProfile::class)
+            ->renderHook(
+                'panels::head.end',
+                fn(): string => \Illuminate\Support\Facades\Blade::render('@vite("resources/css/app.css")'),
+            );
     }
 }
