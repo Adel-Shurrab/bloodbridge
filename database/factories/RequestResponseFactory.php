@@ -20,7 +20,7 @@ class RequestResponseFactory extends Factory
             'blood_request_id' => \App\Models\BloodRequest::factory(),
             'donor_id' => \App\Models\Donor::factory(),
             'status' => $this->faker->randomElement(\App\Enums\RequestResponseStatus::cases()),
-            'verification_qr_code' => false,
+            'verification_qr_code' => null,
             'verified_at' => null,
             'decline_reason' => null,
             'responded_at' => $this->faker->dateTimeBetween('-1 month', 'now'),
@@ -33,7 +33,7 @@ class RequestResponseFactory extends Factory
     {
         return $this->state(fn(array $attributes) => [
             'status' => \App\Enums\RequestResponseStatus::COMPLETED,
-            'verification_qr_code' => true,
+            'verification_qr_code' => \Illuminate\Support\Str::uuid()->toString(),
             'verified_at' => now(),
         ]);
     }

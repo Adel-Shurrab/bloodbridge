@@ -16,6 +16,7 @@ class RequestResponse extends Model
         'donor_id',
         'status',
         'verification_qr_code',
+        'qr_code_expires_at',
         'verified_at',
         'decline_reason',
         'responded_at',
@@ -26,6 +27,7 @@ class RequestResponse extends Model
         'status' => \App\Enums\RequestResponseStatus::class,
         'verified_at' => 'datetime',
         'responded_at' => 'datetime',
+        'qr_code_expires_at' => 'datetime',
     ];
 
     public function bloodRequest()
