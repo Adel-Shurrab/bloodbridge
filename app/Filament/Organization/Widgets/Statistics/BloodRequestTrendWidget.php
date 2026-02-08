@@ -5,6 +5,8 @@ namespace App\Filament\Organization\Widgets\Statistics;
 use App\Models\BloodRequest;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
+use Flowframe\Trend\Trend;
+use Flowframe\Trend\TrendValue;
 
 class BloodRequestTrendWidget extends ChartWidget
 {
@@ -16,32 +18,32 @@ class BloodRequestTrendWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $organization = Auth::user()->organization;
+        // Cache organization ID for this request using once() to avoid repeated DB queries
+        $organizationId = once(fn() => Auth::user()->organization->id);
 
-        $data = [];
-        $labels = [];
+        // Use Trend library to replace loop - single aggregated query
+        $data = Trend::query(
+            BloodRequest::query()->where('organization_id', $organizationId)
+        )
+            ->between(
+                start: now()->subDays(29),
+                end: now(),
+            )
+            ->perDay()
+            ->count();
 
-        for ($i = 29; $i >= 0; $i--) {
-            $date = now()->subDays($i);
-            $count = BloodRequest::where('organization_id', $organization->id)
-                ->whereDate('created_at', $date)
-                ->count();
-
-            $data[] = $count;
-            $labels[] = $date->format('M d');
-        }
-
+        // Format data for chart
         return [
             'datasets' => [
                 [
                     'label' => 'طلبات الدم',
-                    'data' => $data,
+                    'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
                     'borderColor' => '#3b82f6',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
                     'fill' => true,
                 ],
             ],
-            'labels' => $labels,
+            'labels' => $data->map(fn(TrendValue $value) => $value->date),
         ];
     }
 

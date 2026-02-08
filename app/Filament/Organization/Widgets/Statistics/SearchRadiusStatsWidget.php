@@ -16,7 +16,8 @@ class SearchRadiusStatsWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $organization = Auth::user()->organization;
+        // Cache organization for this request to avoid repeated DB queries
+        $organization = once(fn() => Auth::user()->organization);
 
         // Group by actual_search_radius_km
         $radiusGroups = BloodRequest::where('organization_id', $organization->id)

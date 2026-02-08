@@ -25,12 +25,15 @@ class AdminPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
+        // Cache settings instance to avoid multiple app() resolutions
+        $settings = app(GeneralSettings::class);
+
         return $panel
             ->default()
             ->id('admin')
             ->path('admin')
-            ->brandName(fn() => app(GeneralSettings::class)->site_name)
-            ->favicon(fn() => app(GeneralSettings::class)->site_favicon ? Storage::disk('public')->url(app(GeneralSettings::class)->site_favicon) : asset('assets/images/logo.jpg'))
+            ->brandName(fn() => $settings->site_name)
+            ->favicon(fn() => $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.jpg'))
             ->font('Cairo')
             ->colors([
                 'primary' => Color::Red,

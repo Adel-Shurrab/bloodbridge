@@ -3,7 +3,6 @@
 namespace App\Notifications;
 
 use App\Models\BloodRequest;
-use App\Models\Donor;
 use App\Enums\BloodType;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
