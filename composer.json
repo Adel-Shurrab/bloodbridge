@@ -12,6 +12,7 @@
         "php": "^8.3",
         "dotswan/filament-map-picker": "^2.1",
         "filament/spatie-laravel-settings-plugin": "*",
+        "flowframe/laravel-trend": "^0.4.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "pusher/pusher-php-server": "^7.2",
@@ -19,6 +20,7 @@
         "spatie/laravel-permission": "^6.23"
     },
     "require-dev": {
+        "barryvdh/laravel-debugbar": "^4.0",
         "fakerphp/faker": "^1.23",
         "laravel/breeze": "^2.3",
         "laravel/pail": "^1.2.2",

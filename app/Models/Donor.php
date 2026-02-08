@@ -115,11 +115,11 @@ class Donor extends Model
             if ($hasLocation) {
                 $group->where(function ($q) use ($bbox, $radiusKm, $lat, $lng, $haversine) {
                     $q->whereNotNull('lat')
-                      ->whereNotNull('lng')
-                      // الفلترة السريعة (Bounding Box)
-                      ->whereBetween('lat', [$bbox['minLat'], $bbox['maxLat']])
-                      ->whereBetween('lng', [$bbox['minLng'], $bbox['maxLng']])
-                      ->whereRaw("{$haversine} <= ?", [$lat, $lng, $lat, $radiusKm]);
+                        ->whereNotNull('lng')
+                        // الفلترة السريعة (Bounding Box)
+                        ->whereBetween('lat', [$bbox['minLat'], $bbox['maxLat']])
+                        ->whereBetween('lng', [$bbox['minLng'], $bbox['maxLng']])
+                        ->whereRaw("{$haversine} <= ?", [$lat, $lng, $lat, $radiusKm]);
                 });
             }
 
@@ -128,8 +128,8 @@ class Donor extends Model
 
                 $group->$method(function ($q) use ($governorateId) {
                     $q->whereNull('lat')
-                      ->whereNull('lng')
-                      ->where('governorate_id', $governorateId);
+                        ->whereNull('lng')
+                        ->where('governorate_id', $governorateId);
                 });
             }
         });
@@ -139,5 +139,42 @@ class Donor extends Model
         }
 
         return $query;
+    }
+
+    /**
+     * Scope a query to only include donors compatible with specific blood types.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  array  $bloodTypes
+     * @return void
+     */
+    public function scopeCompatibleWith(Builder $query, array $bloodTypes): void
+    {
+        $query->whereHas('healthProfile', function ($q) use ($bloodTypes) {
+            $q->where(function ($subQuery) use ($bloodTypes) {
+                $subQuery->whereIn('verified_blood_type', $bloodTypes)
+                    ->orWhere(function ($q2) use ($bloodTypes) {
+                        $q2->whereNull('verified_blood_type')
+                            ->whereIn('blood_type', $bloodTypes);
+                    });
+            });
+        });
+    }
+
+    /**
+     * Scope a query to only include eligible donors.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return void
+     */
+    public function scopeEligible(Builder $query): void
+    {
+        $query->whereHas('healthProfile', function ($q) {
+            $q->where('is_eligible', true)
+                ->where(function ($sq) {
+                    $sq->whereNull('next_eligible_date')
+                        ->orWhereDate('next_eligible_date', '<=', now());
+                });
+        });
     }
 }
