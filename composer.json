@@ -13,6 +13,7 @@
         "dotswan/filament-map-picker": "^2.1",
         "endroid/qr-code": "^5.0",
         "filament/spatie-laravel-settings-plugin": "*",
+        "flowframe/laravel-trend": "^0.4.0",
         "laravel/framework": "^12.0",
         "laravel/tinker": "^2.10.1",
         "pusher/pusher-php-server": "^7.2",
