@@ -30,13 +30,13 @@ class StatsOverview extends Widget
             ),
             $this->makeStat(
                 label: 'المؤسسات المعتمدة',
-                value: Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::APPROVED, 'and')->count('*'),
+                value: Organization::where('approval_status', \App\Enums\OrganizationStatus::APPROVED)->count('*'),
                 icon: 'heroicon-s-check',
                 theme: 'emerald',
             ),
             $this->makeStat(
                 label: 'التبرعات المكتملة',
-                value: BloodRequest::where('status', '=', \App\Enums\BloodRequestStatus::FULFILLED, 'and')->count('*'),
+                value: BloodRequest::where('status', \App\Enums\BloodRequestStatus::FULFILLED)->count('*'),
                 icon: 'heroicon-s-heart',
                 theme: 'pink',
             ),

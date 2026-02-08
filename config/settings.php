@@ -35,6 +35,6 @@ return [
      * Cache configuration.
      */
     'cache' => [
-        'enabled' => env('SETTINGS_CACHE_ENABLED', false),
+        'enabled' => env('SETTINGS_CACHE_ENABLED', true),
     ],
 ];

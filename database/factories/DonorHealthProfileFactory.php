@@ -24,7 +24,6 @@ class DonorHealthProfileFactory extends Factory
             'recent_donation' => false,
             'infection' => false,
             'is_eligible' => true,
-            'is_smoker' => $this->faker->boolean(),
             'has_recent_surgery' => false,
             'blood_type' => $this->faker->randomElement(\App\Enums\BloodType::cases())->value,
             'total_donations' => 0,
