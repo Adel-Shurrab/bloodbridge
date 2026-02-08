@@ -15,9 +15,17 @@ class BloodTypeDistributionWidget extends ChartWidget
 
     protected function getData(): array
     {
-        $organization = Auth::user()->organization;
+        // Cache organization ID for this request using once() to avoid repeated DB queries
+        $organizationId = once(fn() => Auth::user()->organization->id);
 
-        $bloodTypes = BloodType::cases();
+        // Single aggregated query with GROUP BY instead of N+1 queries
+        $stats = BloodRequest::query()
+            ->where('organization_id', $organizationId)
+            ->selectRaw('blood_type, count(*) as total')
+            ->groupBy('blood_type')
+            ->pluck('total', 'blood_type')
+            ->toArray();
+
         $data = [];
         $labels = [];
         $colors = [];
@@ -34,10 +42,9 @@ class BloodTypeDistributionWidget extends ChartWidget
             'UNKNOWN' => '#6b7280',
         ];
 
-        foreach ($bloodTypes as $type) {
-            $count = BloodRequest::where('organization_id', $organization->id)
-                ->where('blood_type', $type)
-                ->count();
+        // Process in memory instead of database lookups
+        foreach (BloodType::cases() as $type) {
+            $count = $stats[$type->value] ?? 0;
 
             if ($count > 0) {
                 $data[] = $count;
@@ -52,6 +59,8 @@ class BloodTypeDistributionWidget extends ChartWidget
                     'label' => 'الطلبات',
                     'data' => $data,
                     'backgroundColor' => $colors,
+                    'borderWidth' => 0,
+                    'hoverOffset' => 4,
                 ],
             ],
             'labels' => $labels,

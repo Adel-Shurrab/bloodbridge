@@ -7,12 +7,15 @@ use App\Models\RequestResponse;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
+use Flowframe\Trend\Trend;
+use Flowframe\Trend\TrendValue;
 
 class OverviewStatsWidget extends BaseWidget
 {
     protected function getStats(): array
     {
-        $organization = Auth::user()->organization;
+        // Cache organization for this request to avoid multiple DB queries
+        $organization = once(fn() => Auth::user()->organization);
 
         // Total Requests (all time)
         $totalRequests = BloodRequest::where('organization_id', $organization->id)->count();
@@ -65,18 +68,20 @@ class OverviewStatsWidget extends BaseWidget
 
     private function getRequestsTrend(): array
     {
-        $organization = Auth::user()->organization;
+        // Cache organization ID for this request
+        $organizationId = once(fn() => Auth::user()->organization->id);
 
-        // Get last 7 days trend
-        $trend = [];
-        for ($i = 6; $i >= 0; $i--) {
-            $date = now()->subDays($i)->startOfDay();
-            $count = BloodRequest::where('organization_id', $organization->id)
-                ->whereDate('created_at', $date)
-                ->count();
-            $trend[] = $count;
-        }
+        // Use Trend library instead of loop - single aggregated query (7 queries -> 1)
+        $data = Trend::query(
+            BloodRequest::query()->where('organization_id', $organizationId)
+        )
+            ->between(
+                start: now()->subDays(6)->startOfDay(),
+                end: now(),
+            )
+            ->perDay()
+            ->count();
 
-        return $trend;
+        return $data->map(fn(TrendValue $value) => $value->aggregate)->toArray();
     }
 }
