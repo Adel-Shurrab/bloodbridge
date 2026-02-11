@@ -5,7 +5,6 @@ namespace App\Filament\Donor\Pages;
 use App\Enums\BloodType;
 use App\Enums\Gender;
 use App\Filament\Donor\Widgets\EligibilityCountdownWidget;
-
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\Hidden;
@@ -14,16 +13,13 @@ use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Toggle;
 use Filament\Forms\Concerns\InteractsWithForms;
 use Filament\Forms\Contracts\HasForms;
-
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
-
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
-
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -32,7 +28,7 @@ class EditProfile extends Page implements HasForms
     use InteractsWithForms;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-m-user-circle';
-    // protected static ?string $navigationLabel = 'ملفي الشخصي';
+    protected static ?string $navigationLabel = 'ملفي الشخصي';
     protected static ?int $navigationSort = 2;
 
     // ✅ Filament v4: non-static view
@@ -73,6 +69,11 @@ class EditProfile extends Page implements HasForms
         $lat = $donor?->lat ?? \App\Constants\PalestineCoordinates::GAZA['lat'];
         $lng = $donor?->lng ?? \App\Constants\PalestineCoordinates::GAZA['lng'];
 
+        // ✅ Organization name that verified blood type (if any)
+        $verifyingOrgName = $healthProfile?->verifyingOrganization?->org_name
+            ?? $healthProfile?->verifyingOrganization?->name
+            ?? null;
+
         $this->form->fill([
             // users
             'name' => $user?->name,
@@ -104,7 +105,10 @@ class EditProfile extends Page implements HasForms
 
             // blood types
             'blood_type' => $healthProfile?->blood_type?->value ?? $healthProfile?->blood_type,
-            'verified_blood_type' => $healthProfile?->verified_blood_type,
+            'verified_blood_type' => $healthProfile?->verified_blood_type?->value ?? $healthProfile?->verified_blood_type,
+
+            // ✅ verified by org (display only)
+            'verified_by_org_name' => $verifyingOrgName,
         ]);
     }
 
@@ -171,7 +175,7 @@ class EditProfile extends Page implements HasForms
                                     ->maxLength(500)
                                     ->columnSpanFull(),
 
-                                // ✅ Map Component (Final: marker stays)
+                                // ✅ Map Component (marker stays)
                                 Map::make('location')
                                     ->label('موقعك على الخريطة')
                                     ->helperText('انقر على الخريطة أو اسحب العلامة لتحديد موقعك بدقة')
@@ -286,6 +290,13 @@ class EditProfile extends Page implements HasForms
                                     ->disabled()
                                     ->dehydrated(false)
                                     ->visible(fn () => $this->bloodTypeLocked),
+
+                                // ✅ Show which organization verified it
+                                TextInput::make('verified_by_org_name')
+                                    ->label('تم تأكيد فصيلة الدم بواسطة')
+                                    ->disabled()
+                                    ->dehydrated(false)
+                                    ->visible(fn () => $this->bloodTypeLocked),
                             ])
                             ->columns(2),
                     ]),
@@ -324,7 +335,7 @@ class EditProfile extends Page implements HasForms
                 ]
             );
 
-            // 3) Update/Create health profile (Required always: weight/height)
+            // 3) Update/Create health profile
             $healthUpdate = [
                 'weight' => (int) $data['weight'],
                 'height' => (int) $data['height'],
@@ -334,7 +345,7 @@ class EditProfile extends Page implements HasForms
                 'surgery_date' => ((bool) ($data['has_recent_surgery'] ?? false)) ? ($data['surgery_date'] ?? null) : null,
             ];
 
-            // ✅ blood_type only if not locked (we unset it above when locked)
+            // ✅ blood_type only if not locked
             if (array_key_exists('blood_type', $data)) {
                 $healthUpdate['blood_type'] = $data['blood_type'];
             }
