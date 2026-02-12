@@ -56,7 +56,7 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
         $body = "يحتاج {$orgName} إلى {$units} وحدة من فصيلة {$bloodType}";
 
         // Add note for unknown blood type donors
-        if ($notifiable->healthProfile?->blood_type === BloodType::UNKNOWN) {
+        if ($notifiable->donor?->healthProfile?->blood_type === BloodType::UNKNOWN) {
             $body .= "\n⚠️ ملاحظة: سيتم تحديد فصيلة دمك في المستشفى";
         }
 

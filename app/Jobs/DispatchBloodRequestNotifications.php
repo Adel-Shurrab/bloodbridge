@@ -47,9 +47,9 @@ class DispatchBloodRequestNotifications implements ShouldQueue
 
         $userIds = array_keys($this->donorData);
 
-        // Eager load healthProfile to prevent N+1 queries (used in notification)
+        // Eager load donor.healthProfile to prevent N+1 queries (used in notification)
         /** @var \Illuminate\Support\Collection<int, User> $users */
-        User::with('healthProfile')
+        User::with('donor.healthProfile')
             ->whereIn('id', $userIds)
             ->chunk(10, function (\Illuminate\Support\Collection $users) use ($bloodRequest) {
                 foreach ($users as $user) {
