@@ -7,6 +7,7 @@ use App\Filament\Organization\Resources\BloodRequests\Pages\EditBloodRequest;
 use App\Filament\Organization\Resources\BloodRequests\Pages\ListBloodRequests;
 use App\Filament\Organization\Resources\BloodRequests\Pages\ViewBloodRequest;
 use App\Filament\Organization\Resources\BloodRequests\Schemas\BloodRequestForm;
+use App\Filament\Organization\Resources\BloodRequests\Schemas\BloodRequestInfolist;
 use App\Filament\Organization\Resources\BloodRequests\Tables\BloodRequestsTable;
 use App\Models\BloodRequest;
 use BackedEnum;
@@ -30,6 +31,11 @@ class BloodRequestResource extends Resource
     public static function form(Schema $schema): Schema
     {
         return BloodRequestForm::configure($schema);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return BloodRequestInfolist::configure($schema);
     }
 
     public static function table(Table $table): Table

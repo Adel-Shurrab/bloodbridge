@@ -78,7 +78,7 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
             ->actions([
                 Action::make('view')
                     ->label('عرض الطلب')
-                    ->url(route('filament.donor.pages.dashboard'))
+                    ->url(route('filament.donor.pages.blood-requests'))
                     ->button()
                     ->markAsRead(),
             ])
@@ -94,7 +94,7 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
     {
         return [
             'blood_request_id' => $this->bloodRequest->id,
-            'organization_name' => $this->bloodRequest->organization->name,
+            'organization_name' => $this->bloodRequest->organization->org_name,
             'blood_type' => $this->bloodRequest->blood_type->value,
             'urgency_level' => $this->bloodRequest->urgency_level->value,
             'units_needed' => $this->bloodRequest->units_needed,

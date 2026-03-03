@@ -66,6 +66,11 @@ class Organization extends Model implements HasName
         return $this->belongsTo(User::class);
     }
 
+    public function approvedBy()
+    {
+        return $this->belongsTo(User::class, 'approved_by');
+    }
+
     public function bloodRequests()
     {
         return $this->hasMany(BloodRequest::class);

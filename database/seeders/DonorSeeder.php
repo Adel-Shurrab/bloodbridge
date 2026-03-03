@@ -11,82 +11,712 @@ use App\Enums\UserRole;
 use App\Enums\Gender;
 use App\Enums\BloodType;
 use Illuminate\Support\Facades\Hash;
-use Faker\Factory as Faker;
+use Carbon\Carbon;
 
 class DonorSeeder extends Seeder
 {
     public function run(): void
     {
-        $faker = Faker::create('ar_SA'); // بيانات عربية
         $password = Hash::make('password');
 
-        // حدود تقريبية للمحافظات (Latitude/Longitude Bounds)
-        // لضمان أن النقاط تقع فعلاً داخل المدن
-        $govBounds = [
-            'شمال غزة' => ['min_lat' => 31.540, 'max_lat' => 31.590, 'min_lng' => 34.480, 'max_lng' => 34.540],
-            'غزة'      => ['min_lat' => 31.480, 'max_lat' => 31.540, 'min_lng' => 34.420, 'max_lng' => 34.480],
-            'دير البلح' => ['min_lat' => 31.400, 'max_lat' => 31.450, 'min_lng' => 34.330, 'max_lng' => 34.380],
-            'خانيونس'  => ['min_lat' => 31.320, 'max_lat' => 31.380, 'min_lng' => 34.270, 'max_lng' => 34.330],
-            'رفح'      => ['min_lat' => 31.250, 'max_lat' => 31.300, 'min_lng' => 34.220, 'max_lng' => 34.280],
+        /**
+         * Each donor entry:
+         *   name, national_id, email, phone, gender, birth_date,
+         *   gov (governorate name), lat, lng,
+         *   blood_type, weight, height,
+         *   is_smoker, chronic_disease, infection,
+         *   has_recent_surgery, surgery_date,
+         *   recent_donation (bool), last_donation_date,
+         *   total_donations,
+         *   verified_blood_type (null = not verified),
+         *   notes (comment only, not stored)
+         *
+         * is_eligible and next_eligible_date are AUTO-COMPUTED by DonorHealthProfile::booted()
+         */
+        $donors = [
+
+            // ── غزة ─────────────────────────────────────────────────────────────────
+
+            [
+                // SCENARIO: Fully eligible, GPS set, 5 donations, high points
+                'name'              => 'محمد خالد أبو عمر',
+                'national_id'       => '400123456',
+                'email'             => 'mohammad.abuomar@gmail.com',
+                'phone'             => '0591234001',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1990-05-15',
+                'gov'               => 'غزة',
+                'lat'               => 31.501500,
+                'lng'               => 34.466000,
+                'blood_type'        => BloodType::O_POSITIVE,
+                'weight'            => 78,
+                'height'            => 178,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,   // last donation was 7 months ago — not "recent_donation" anymore
+                'total_donations'   => 5,
+                'verified_blood_type' => BloodType::O_POSITIVE, // 5 donations → hospital verified
+                'points'            => 250,
+            ],
+            [
+                // SCENARIO: Eligible, no GPS (gov-only matching)
+                'name'              => 'أحمد يوسف الحسن',
+                'national_id'       => '400234567',
+                'email'             => 'ahmad.alhassan@hotmail.com',
+                'phone'             => '0591234002',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1988-11-22',
+                'gov'               => 'غزة',
+                'lat'               => null,
+                'lng'               => null,
+                'blood_type'        => BloodType::A_POSITIVE,
+                'weight'            => 82,
+                'height'            => 175,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 2,
+                'verified_blood_type' => BloodType::A_POSITIVE, // 2 donations → verified
+                'points'            => 100,
+            ],
+            [
+                // SCENARIO: Donated 2 months ago → next_eligible_date in ~1 month (90-day rule)
+                'name'              => 'عمر سعيد الشريف',
+                'national_id'       => '400345678',
+                'email'             => 'omar.alsharif@gmail.com',
+                'phone'             => '0591234003',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1995-03-08',
+                'gov'               => 'غزة',
+                'lat'               => 31.510000,
+                'lng'               => 34.461000,
+                'blood_type'        => BloodType::B_POSITIVE,
+                'weight'            => 73,
+                'height'            => 172,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => true,
+                'last_donation_date' => Carbon::now()->subDays(60)->format('Y-m-d'), // 60 days ago → needs 30 more
+                'total_donations'   => 3,
+                'verified_blood_type' => BloodType::B_POSITIVE, // 3 donations → verified
+                'points'            => 150,
+            ],
+            [
+                // SCENARIO: Eligible, blood type verified by hospital in seeder (set by InteractionSeeder)
+                'name'              => 'خالد إبراهيم النجار',
+                'national_id'       => '400456789',
+                'email'             => 'khalid.najjar@yahoo.com',
+                'phone'             => '0591234004',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1993-07-19',
+                'gov'               => 'غزة',
+                'lat'               => 31.519000,
+                'lng'               => 34.447000,
+                'blood_type'        => BloodType::AB_POSITIVE,
+                'weight'            => 85,
+                'height'            => 180,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 4,
+                'verified_blood_type' => BloodType::AB_POSITIVE, // verified
+                'points'            => 200,
+            ],
+            [
+                // SCENARIO: O- universal donor, fully eligible, high points
+                'name'              => 'يوسف عادل زعرب',
+                'national_id'       => '400567890',
+                'email'             => 'yousef.zarb@gmail.com',
+                'phone'             => '0591234005',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1992-01-30',
+                'gov'               => 'غزة',
+                'lat'               => 31.498000,
+                'lng'               => 34.456000,
+                'blood_type'        => BloodType::O_NEGATIVE,
+                'weight'            => 76,
+                'height'            => 174,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 7,
+                'verified_blood_type' => BloodType::O_NEGATIVE, // 7 donations → verified
+                'points'            => 350,
+            ],
+
+            // ── شمال غزة ────────────────────────────────────────────────────────────
+
+            [
+                // SCENARIO: New donor, 0 donations, fully eligible, GPS set
+                'name'              => 'سامي رامي سلامة',
+                'national_id'       => '410123456',
+                'email'             => 'sami.salama@gmail.com',
+                'phone'             => '0591234006',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1999-09-14',
+                'gov'               => 'شمال غزة',
+                'lat'               => 31.560000,
+                'lng'               => 34.503000,
+                'blood_type'        => BloodType::A_NEGATIVE,
+                'weight'            => 68,
+                'height'            => 170,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 0,
+                'verified_blood_type' => null,
+                'points'            => 0,
+            ],
+            [
+                // SCENARIO: Chronic disease → PERMANENTLY INELIGIBLE
+                'name'              => 'فراس ناصر العمري',
+                'national_id'       => '410234567',
+                'email'             => 'feras.omari@gmail.com',
+                'phone'             => '0591234007',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1985-04-02',
+                'gov'               => 'شمال غزة',
+                'lat'               => 31.558000,
+                'lng'               => 34.499000,
+                'blood_type'        => BloodType::B_NEGATIVE,
+                'weight'            => 70,
+                'height'            => 168,
+                'is_smoker'         => false,
+                'chronic_disease'   => true, // ← DISQUALIFIER
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 0,
+                'verified_blood_type' => null,
+                'points'            => 0,
+            ],
+            [
+                // SCENARIO: Had surgery 10 days ago → temp ineligible (28-day rule, 18 more days to wait)
+                'name'              => 'طارق جمال الدبعي',
+                'national_id'       => '410345678',
+                'email'             => 'tariq.dabai@gmail.com',
+                'phone'             => '0591234008',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1997-12-25',
+                'gov'               => 'شمال غزة',
+                'lat'               => 31.562000,
+                'lng'               => 34.508000,
+                'blood_type'        => BloodType::O_POSITIVE,
+                'weight'            => 77,
+                'height'            => 176,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => true,
+                'surgery_date'      => Carbon::now()->subDays(10)->format('Y-m-d'), // 10 days ago → 18 more days wait
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 1,
+                'verified_blood_type' => null,
+                'points'            => 50,
+            ],
+            [
+                // SCENARIO: Eligible but smoker (informational flag, not a disqualifier)
+                'name'              => 'باسل حازم حمدان',
+                'national_id'       => '410456789',
+                'email'             => 'basel.hamdan@gmail.com',
+                'phone'             => '0591234009',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1991-08-17',
+                'gov'               => 'شمال غزة',
+                'lat'               => 31.555000,
+                'lng'               => 34.493000,
+                'blood_type'        => BloodType::A_POSITIVE,
+                'weight'            => 80,
+                'height'            => 177,
+                'is_smoker'         => true, // smoker but still eligible per system rules
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 2,
+                'verified_blood_type' => BloodType::A_POSITIVE, // 2 donations → verified
+                'points'            => 100,
+            ],
+            [
+                // SCENARIO: Eligible, 2 donations, GPS set
+                'name'              => 'نادر وليد الشوبكي',
+                'national_id'       => '410567890',
+                'email'             => 'nader.shobaki@hotmail.com',
+                'phone'             => '0591234010',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1994-06-03',
+                'gov'               => 'شمال غزة',
+                'lat'               => 31.552000,
+                'lng'               => 34.488000,
+                'blood_type'        => BloodType::B_POSITIVE,
+                'weight'            => 75,
+                'height'            => 173,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 2,
+                'verified_blood_type' => BloodType::B_POSITIVE, // 2 donations → verified
+                'points'            => 100,
+            ],
+
+            // ── دير البلح ────────────────────────────────────────────────────────────
+
+            [
+                // SCENARIO: Eligible, O+ with verified blood type from hospital
+                'name'              => 'حسن منير أبو حسن',
+                'national_id'       => '420123456',
+                'email'             => 'hassan.abuhasan@gmail.com',
+                'phone'             => '0591234011',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1989-02-11',
+                'gov'               => 'دير البلح',
+                'lat'               => 31.420000,
+                'lng'               => 34.352000,
+                'blood_type'        => BloodType::O_POSITIVE,
+                'weight'            => 83,
+                'height'            => 179,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 6,
+                'verified_blood_type' => BloodType::O_POSITIVE,
+                'points'            => 300,
+            ],
+            [
+                // SCENARIO: Current infection → temp ineligible 14 days
+                'name'              => 'إياد رفيق الغصين',
+                'national_id'       => '420234567',
+                'email'             => 'iyad.ghusain@gmail.com',
+                'phone'             => '0591234012',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1996-10-29',
+                'gov'               => 'دير البلح',
+                'lat'               => 31.416000,
+                'lng'               => 34.348000,
+                'blood_type'        => BloodType::A_NEGATIVE,
+                'weight'            => 71,
+                'height'            => 171,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => true, // ← temp ineligible
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 1,
+                'verified_blood_type' => null,
+                'points'            => 50,
+            ],
+            [
+                // SCENARIO: 8 donations, high level, eligible
+                'name'              => 'ماجد صلاح عبدالله',
+                'national_id'       => '420345678',
+                'email'             => 'majed.abdullah@gmail.com',
+                'phone'             => '0591234013',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1987-07-07',
+                'gov'               => 'دير البلح',
+                'lat'               => 31.422000,
+                'lng'               => 34.360000,
+                'blood_type'        => BloodType::AB_POSITIVE,
+                'weight'            => 88,
+                'height'            => 182,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 8,
+                'verified_blood_type' => BloodType::AB_POSITIVE, // 8 donations → verified
+                'points'            => 400,
+            ],
+            [
+                // SCENARIO: Underweight (47 kg) → ineligible (< 50 kg rule)
+                'name'              => 'رامي عزيز الكردي',
+                'national_id'       => '420456789',
+                'email'             => 'rami.kurdi@gmail.com',
+                'phone'             => '0591234014',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '2001-03-15',
+                'gov'               => 'دير البلح',
+                'lat'               => 31.413000,
+                'lng'               => 34.344000,
+                'blood_type'        => BloodType::B_NEGATIVE,
+                'weight'            => 47, // ← below 50kg threshold
+                'height'            => 162,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 0,
+                'verified_blood_type' => null,
+                'points'            => 0,
+            ],
+            [
+                // SCENARIO: O-, donated 4 months ago → eligible now
+                'name'              => 'وائل حمدي سعد',
+                'national_id'       => '420567890',
+                'email'             => 'wael.saad@gmail.com',
+                'phone'             => '0591234015',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1993-12-01',
+                'gov'               => 'دير البلح',
+                'lat'               => 31.424000,
+                'lng'               => 34.365000,
+                'blood_type'        => BloodType::O_NEGATIVE,
+                'weight'            => 74,
+                'height'            => 174,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,     // donation was > 90 days ago → eligible
+                'total_donations'   => 1,
+                'verified_blood_type' => null,
+                'points'            => 50,
+            ],
+
+            // ── خانيونس ──────────────────────────────────────────────────────────────
+
+            [
+                // SCENARIO: Top donor — 10 donations, fully eligible
+                'name'              => 'سلمان أمين الرنتيسي',
+                'national_id'       => '430123456',
+                'email'             => 'salman.rantisi@gmail.com',
+                'phone'             => '0591234016',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1984-09-20',
+                'gov'               => 'خانيونس',
+                'lat'               => 31.345000,
+                'lng'               => 34.299000,
+                'blood_type'        => BloodType::A_POSITIVE,
+                'weight'            => 86,
+                'height'            => 181,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 10,
+                'verified_blood_type' => BloodType::A_POSITIVE, // 10 donations → verified
+                'points'            => 500,
+            ],
+            [
+                // SCENARIO: Eligible, no GPS
+                'name'              => 'أنس حسين المصري',
+                'national_id'       => '430234567',
+                'email'             => 'anas.masri@gmail.com',
+                'phone'             => '0591234017',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1998-01-05',
+                'gov'               => 'خانيونس',
+                'lat'               => null,
+                'lng'               => null,
+                'blood_type'        => BloodType::B_POSITIVE,
+                'weight'            => 72,
+                'height'            => 170,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 3,
+                'verified_blood_type' => BloodType::B_POSITIVE, // 3 donations → verified
+                'points'            => 150,
+            ],
+            [
+                // SCENARIO: Donated 1 month ago → temp ineligible (60 days remain)
+                'name'              => 'بلال واصف الجمل',
+                'national_id'       => '430345678',
+                'email'             => 'bilal.jamal@gmail.com',
+                'phone'             => '0591234018',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1992-06-18',
+                'gov'               => 'خانيونس',
+                'lat'               => 31.360000,
+                'lng'               => 34.310000,
+                'blood_type'        => BloodType::O_POSITIVE,
+                'weight'            => 79,
+                'height'            => 176,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => true,
+                'last_donation_date' => Carbon::now()->subDays(30)->format('Y-m-d'), // 30 days ago → 60 more days
+                'total_donations'   => 4,
+                'verified_blood_type' => BloodType::O_POSITIVE, // 4 donations → verified
+                'points'            => 200,
+            ],
+            [
+                // SCENARIO: Eligible, AB- rare, verified blood type
+                'name'              => 'زياد مروان الأسطل',
+                'national_id'       => '430456789',
+                'email'             => 'ziad.astal@gmail.com',
+                'phone'             => '0591234019',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1990-11-11',
+                'gov'               => 'خانيونس',
+                'lat'               => 31.352000,
+                'lng'               => 34.288000,
+                'blood_type'        => BloodType::AB_NEGATIVE,
+                'weight'            => 82,
+                'height'            => 178,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 2,
+                'verified_blood_type' => BloodType::AB_NEGATIVE,
+                'points'            => 100,
+            ],
+            [
+                // SCENARIO: Eligible, 3 donations
+                'name'              => 'إبراهيم توفيق قاسم',
+                'national_id'       => '430567890',
+                'email'             => 'ibrahim.qasim@hotmail.com',
+                'phone'             => '0591234020',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1994-04-25',
+                'gov'               => 'خانيونس',
+                'lat'               => 31.348000,
+                'lng'               => 34.283000,
+                'blood_type'        => BloodType::A_NEGATIVE,
+                'weight'            => 76,
+                'height'            => 173,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 3,
+                'verified_blood_type' => BloodType::A_NEGATIVE, // 3 donations → verified
+                'points'            => 150,
+            ],
+
+            // ── رفح ────────────────────────────────────────────────────────────────
+
+            [
+                // SCENARIO: Eligible, GPS set
+                'name'              => 'جمال رشيد أبو دقة',
+                'national_id'       => '440123456',
+                'email'             => 'jamal.abudaqa@gmail.com',
+                'phone'             => '0591234021',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1988-08-30',
+                'gov'               => 'رفح',
+                'lat'               => 31.275000,
+                'lng'               => 34.262000,
+                'blood_type'        => BloodType::O_POSITIVE,
+                'weight'            => 84,
+                'height'            => 179,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 4,
+                'verified_blood_type' => BloodType::O_POSITIVE, // 4 donations → verified
+                'points'            => 200,
+            ],
+            [
+                // SCENARIO: New donor, 0 donations
+                'name'              => 'عدنان نبيل الزواوي',
+                'national_id'       => '440234567',
+                'email'             => 'adnan.zawawi@gmail.com',
+                'phone'             => '0591234022',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '2000-02-14',
+                'gov'               => 'رفح',
+                'lat'               => 31.268000,
+                'lng'               => 34.255000,
+                'blood_type'        => BloodType::B_POSITIVE,
+                'weight'            => 67,
+                'height'            => 169,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 0,
+                'verified_blood_type' => null,
+                'points'            => 0,
+            ],
+            [
+                // SCENARIO: Eligible, 1 donation
+                'name'              => 'حاتم فارس الدالي',
+                'national_id'       => '440345678',
+                'email'             => 'hatem.dali@gmail.com',
+                'phone'             => '0591234023',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1995-05-09',
+                'gov'               => 'رفح',
+                'lat'               => 31.279000,
+                'lng'               => 34.265000,
+                'blood_type'        => BloodType::A_POSITIVE,
+                'weight'            => 73,
+                'height'            => 172,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 1,
+                'verified_blood_type' => null,
+                'points'            => 50,
+            ],
+            [
+                // SCENARIO: Has current infection → temp ineligible for 14 days
+                'name'              => 'نبيل كريم جودة',
+                'national_id'       => '440456789',
+                'email'             => 'nabil.joda@gmail.com',
+                'phone'             => '0591234024',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1991-09-03',
+                'gov'               => 'رفح',
+                'lat'               => 31.272000,
+                'lng'               => 34.258000,
+                'blood_type'        => BloodType::O_NEGATIVE,
+                'weight'            => 69,
+                'height'            => 168,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => true, // ← temp ineligible
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 2,
+                'verified_blood_type' => BloodType::O_NEGATIVE, // 2 donations → verified
+                'points'            => 100,
+            ],
+            [
+                // SCENARIO: Eligible, 6 donations, GPS set
+                'name'              => 'صلاح الدين عمر البح',
+                'national_id'       => '440567890',
+                'email'             => 'salahuddin.bah@gmail.com',
+                'phone'             => '0591234025',
+                'gender'            => Gender::MALE,
+                'birth_date'        => '1986-12-20',
+                'gov'               => 'رفح',
+                'lat'               => 31.265000,
+                'lng'               => 34.252000,
+                'blood_type'        => BloodType::AB_POSITIVE,
+                'weight'            => 90,
+                'height'            => 183,
+                'is_smoker'         => false,
+                'chronic_disease'   => false,
+                'infection'         => false,
+                'has_recent_surgery' => false,
+                'surgery_date'      => null,
+                'recent_donation'   => false,
+                'last_donation_date' => null,
+                'total_donations'   => 6,
+                'verified_blood_type' => BloodType::AB_POSITIVE, // 6 donations → verified
+                'points'            => 300,
+            ],
         ];
 
-        // إنشاء 10 متبرعين لكل محافظة (المجموع 50)
-        foreach ($govBounds as $govName => $bounds) {
-            $governorate = Governorate::where('name', $govName)->first();
+        foreach ($donors as $data) {
+            $gov = Governorate::where('name', $data['gov'])->first();
 
-            if (!$governorate) continue;
+            $user = User::create([
+                'name'      => $data['name'],
+                'email'     => $data['email'],
+                'phone'     => $data['phone'],
+                'password'  => $password,
+                'role'      => UserRole::DONOR,
+                'is_active' => true,
+            ]);
 
-            for ($i = 0; $i < 10; $i++) {
-                // 1. تحديد هل المتبرع لديه GPS أم لا (80% نعم)
-                $hasGps = rand(1, 10) <= 8;
+            $donor = Donor::create([
+                'user_id'               => $user->id,
+                'governorate_id'        => $gov?->id,
+                'national_id'           => $data['national_id'],
+                'gender'                => $data['gender'],
+                'birth_date'            => $data['birth_date'],
+                'lat'                   => $data['lat'],
+                'lng'                   => $data['lng'],
+                'auto_location_address' => $data['lat'] ? "محافظة {$data['gov']}، قطاع غزة" : null,
+                'points'                => $data['points'],
+            ]);
 
-                $lat = null;
-                $lng = null;
+            // Build health profile — is_eligible & next_eligible_date are auto-computed by the model's booted()
+            $profileData = [
+                'donor_id'                      => $donor->id,
+                'blood_type'                    => $data['blood_type'],
+                'weight'                        => $data['weight'],
+                'height'                        => $data['height'],
+                'chronic_disease'               => $data['chronic_disease'],
+                'infection'                     => $data['infection'],
+                'has_recent_surgery'            => $data['has_recent_surgery'],
+                'surgery_date'                  => $data['surgery_date'],
+                'recent_donation'               => $data['recent_donation'],
+                'last_donation_date'            => $data['last_donation_date'],
+                'total_donations'               => $data['total_donations'],
+                'verified_blood_type'           => $data['verified_blood_type'],
+            ];
 
-                if ($hasGps) {
-                    // توليد إحداثيات عشوائية ولكن "داخل حدود المحافظة"
-                    $lat = $faker->randomFloat(6, $bounds['min_lat'], $bounds['max_lat']);
-                    $lng = $faker->randomFloat(6, $bounds['min_lng'], $bounds['max_lng']);
-                }
-
-                // 2. إنشاء المستخدم
-                $user = User::create([
-                    'name' => $faker->name('male'), // أسماء عربية
-                    'email' => $faker->unique()->userName . rand(100, 999) . '@example.com',
-                    'phone' => '059' . $faker->unique()->numberBetween(1000000, 9999999),
-                    'password' => $password,
-                    'role' => UserRole::DONOR,
-                    'is_active' => true,
-                ]);
-
-                // 3. إنشاء المتبرع
-                $donor = Donor::create([
-                    'user_id' => $user->id,
-                    'governorate_id' => $governorate->id,
-                    'national_id' => $faker->unique()->numberBetween(400000000, 499999999),
-                    'gender' => Gender::MALE,
-                    'birth_date' => $faker->dateTimeBetween('-40 years', '-18 years')->format('Y-m-d'),
-                    'lat' => $lat,
-                    'lng' => $lng,
-                    'auto_location_address' => $lat ? "شارع {$faker->streetName}، $govName" : null,
-                ]);
-
-                // 4. الملف الصحي
-                // 90% مؤهلين، 10% غير مؤهلين
-                $isEligible = rand(1, 100) <= 90;
-                $bloodType = $faker->randomElement(BloodType::cases());
-
-                DonorHealthProfile::create([
-                    'donor_id' => $donor->id,
-                    'blood_type' => $bloodType,
-                    'weight' => $faker->numberBetween(60, 95),
-                    'height' => $faker->numberBetween(165, 190),
-                    'is_eligible' => $isEligible,
-                    'chronic_disease' => !$isEligible, // إذا غير مؤهل نفترض مرض مزمن للتبسيط
-                    'total_donations' => $isEligible ? rand(0, 10) : 0,
-                    'last_donation_date' => $isEligible ? $faker->dateTimeBetween('-2 years', '-4 months') : null,
-                ]);
-            }
+            DonorHealthProfile::create($profileData);
         }
     }
 }

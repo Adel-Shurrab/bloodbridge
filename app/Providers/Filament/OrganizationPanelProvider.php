@@ -6,7 +6,6 @@ use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\AuthenticateSession;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -28,6 +27,7 @@ class OrganizationPanelProvider extends PanelProvider
         return $panel
             ->id('organization')
             ->path('org')
+            ->viteTheme('resources/css/filament/organization/theme.css')
             ->brandName(fn(\App\Settings\GeneralSettings $settings) => $settings->site_name)
             ->colors([
                 'primary' => Color::Blue,
@@ -61,11 +61,8 @@ class OrganizationPanelProvider extends PanelProvider
                 \App\Http\Middleware\CheckOrganizationApproved::class,
             ])
             ->databaseNotifications() // Enable notification bell for organizations
+            ->databaseNotificationsPolling('30s')
             ->tenant(Organization::class, slugAttribute: 'slug')
-            ->tenantProfile(EditOrganizationProfile::class)
-            ->renderHook(
-                'panels::head.end',
-                fn(): string => \Illuminate\Support\Facades\Blade::render('@vite("resources/css/app.css")'),
-            );
+            ->tenantProfile(EditOrganizationProfile::class);
     }
 }

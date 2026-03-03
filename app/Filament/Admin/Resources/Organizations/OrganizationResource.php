@@ -4,6 +4,7 @@ namespace App\Filament\Admin\Resources\Organizations;
 
 use App\Filament\Admin\Resources\Organizations\Pages\ListOrganizations;
 use App\Filament\Admin\Resources\Organizations\Schemas\OrganizationForm;
+use App\Filament\Admin\Resources\Organizations\Schemas\OrganizationInfolist;
 use App\Filament\Admin\Resources\Organizations\Tables\OrganizationsTable;
 use App\Filament\Admin\Resources\Organizations\RelationManagers\BloodRequestsRelationManager;
 use App\Models\Organization;
@@ -76,6 +77,11 @@ class OrganizationResource extends Resource
     public static function table(Table $table): Table
     {
         return OrganizationsTable::configure($table);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return OrganizationInfolist::configure($schema);
     }
 
     public static function getRelations(): array

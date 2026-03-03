@@ -3,8 +3,6 @@
 namespace App\Filament\Donor\Widgets;
 
 use App\Enums\RequestResponseStatus;
-use App\Models\Appointment;
-use App\Models\BloodRequest;
 use App\Models\RequestResponse;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -39,41 +37,39 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
         $lastDonation = $profile?->last_donation_date;
         $lastDonationLabel = $lastDonation ? $lastDonation->toDateString() : '—';
 
-        // 3) Requests Received (الطلبات المطابقة لفصيلة دم المتبرع + ما زالت فعّالة)
-        $bloodType = $profile?->blood_type?->value;
-
-        $requestsReceived = $bloodType
-            ? BloodRequest::query()
-            ->where('blood_type', $bloodType)
-            ->whereNotIn('status', [
-                \App\Enums\BloodRequestStatus::FULFILLED,
-                \App\Enums\BloodRequestStatus::CANCELLED,
-                \App\Enums\BloodRequestStatus::EXPIRED,
-            ])
-            ->count()
-            : 0;
-
-        // 4) Requests Accepted (من جدول request_responses للمتبرع)
-        $responsesQuery = RequestResponse::query()->where('donor_id', $donor->id);
-
-        $accepted = (int) $responsesQuery->clone()
-            ->where('status', RequestResponseStatus::ACCEPTED)
+        // 3) Requests Received = طلبات أُرسلت للمتبرع فعلياً (صفوف request_responses)
+        $requestsReceived = RequestResponse::query()
+            ->where('donor_id', $donor->id)
             ->count();
 
+        // 4) Requests Accepted / Declined / Completed (من جدول request_responses للمتبرع)
+        $responsesQuery = RequestResponse::query()->where('donor_id', $donor->id);
+
+        // وافق = PENDING (الحالة الأولى بعد الإرسال تعني الموافقة من المتبرع)
+        $accepted = (int) $responsesQuery->clone()
+            ->where('status', RequestResponseStatus::PENDING)
+            ->count();
+
+        // رفض / اعتذر / لم يحضر / غير متاح
         $declined = (int) $responsesQuery->clone()
-            ->where('status', RequestResponseStatus::DECLINED)
+            ->whereIn('status', [
+                RequestResponseStatus::DECLINED,
+                RequestResponseStatus::IGNORED,
+                RequestResponseStatus::NO_SHOW,
+                RequestResponseStatus::UNREACHABLE,
+            ])
             ->count();
 
         $completed = (int) $responsesQuery->clone()
             ->where('status', RequestResponseStatus::COMPLETED)
             ->count();
 
-        // 5) Acceptance Rate = accepted / (accepted+declined)
-        $responded = $accepted + $declined;
-        $acceptanceRate = $responded > 0 ? round(($accepted / $responded) * 100) : 0;
+        // 5) Acceptance Rate = وافق / (وافق + رفض + اعتذار + لم يحضر + غير متاح)
+        $responded = $accepted + $declined + $completed;
+        $acceptanceRate = $responded > 0 ? round((($accepted + $completed) / $responded) * 100) : 0;
 
-        // 6) Completion Rate = completed / accepted
-        $completionRate = $accepted > 0 ? round(($completed / $accepted) * 100) : 0;
+        // 6) Completion Rate = تم التبرع بنجاح / إجمالي الطلبات المستلمة
+        $completionRate = $requestsReceived > 0 ? round(($completed / $requestsReceived) * 100) : 0;
 
         return [
             Stat::make('إجمالي التبرعات', $totalDonations)
@@ -91,7 +87,7 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
                 ->color('primary') // 🟣/🔵 عنصر أساسي (طلبات)
                 ->description('طلبات مطابقة لفصيلة دمك'),
 
-            Stat::make('الطلبات المقبولة', $accepted)
+            Stat::make('الطلبات المقبولة', $accepted + $completed)
                 ->icon('heroicon-m-check-badge')
                 ->color('success') // 🟢 قبول
                 ->description('عدد الطلبات التي وافقت عليها'),

@@ -2,29 +2,36 @@
 
 namespace App\Filament\Donor\Pages;
 
-use App\Enums\BloodRequestStatus;
 use App\Enums\BloodType;
 use App\Enums\RequestResponseStatus;
 use App\Filament\Donor\Widgets\EligibilityCountdownWidget;
 use App\Models\BloodRequest;
+use App\Models\Donor;
 use App\Models\RequestResponse;
+use App\Services\BloodRequestActionService;
 use App\Services\QRCodeService;
 use Filament\Actions\Action;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Tables;
-use Filament\Tables\Contracts\HasTable;
-use Filament\Tables\Table;
 use Filament\Tables\Concerns\InteractsWithTable;
+use Filament\Tables\Contracts\HasTable;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
-use Endroid\QrCode\Builder\Builder as QrBuilder;
-use Endroid\QrCode\Writer\PngWriter;
+use Symfony\Component\HttpFoundation\StreamedResponse;
+use App\Enums\UrgencyLevel;
+
 class BloodRequests extends Page implements HasTable
 {
     use InteractsWithTable;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-m-megaphone';
+    protected ?Collection $donorResponses = null;
+    protected ?Donor $cachedDonor = null;
+    protected bool $donorLoaded = false;
     protected static ?string $navigationLabel = 'طلبات الدم';
     protected static ?int $navigationSort = 4;
 
@@ -35,6 +42,21 @@ class BloodRequests extends Page implements HasTable
         return '';
     }
 
+    public static function getNavigationBadge(): ?string
+    {
+        /** @var static $page */
+        $page = new static();
+
+        $count = $page->getRequestsQuery()->count();
+
+        return $count > 0 ? (string) $count : null;
+    }
+
+    public static function getNavigationBadgeColor(): ?string
+    {
+        return 'danger';
+    }
+
     protected function getHeaderWidgets(): array
     {
         return [
@@ -42,178 +64,294 @@ class BloodRequests extends Page implements HasTable
         ];
     }
 
+    // -------------------------------------------------------------------------
+    //  Donor context (cached per request)
+    // -------------------------------------------------------------------------
+
     /**
-     * Requests shown to donor:
-     * - blood type match (verified -> fallback)
-     * - status in [BROADCASTED, MATCHED]
-     * - not fulfilled
-     * - optionally sorted by distance (if donor has lat/lng)
+     * Get the authenticated donor with health profile eager-loaded.
+     *
+     * Uses once() to avoid redundant queries across the page lifecycle.
      */
-    protected function getRequestsQuery(): Builder
+    protected function getDonor(): ?Donor
     {
-        $donor = Auth::user()?->donor;
-        $profile = $donor?->healthProfile;
-
-        $donorBloodType = $profile?->verified_blood_type ?? $profile?->blood_type;
-
-        $query = BloodRequest::query()
-            ->with(['organization'])
-            ->whereIn('status', [
-                BloodRequestStatus::BROADCASTED,
-                BloodRequestStatus::MATCHED,
-            ])
-            ->whereNull('fulfilled_at')
-            ->when($donorBloodType !== null, fn(Builder $q) => $q->where('blood_type',  $donorBloodType));
-
-        // ✅ Optional distance ordering if donor has location
-        if (! is_null($donor?->lat) && ! is_null($donor?->lng)) {
-            $lat = (float) $donor->lat;
-            $lng = (float) $donor->lng;
-
-            // Haversine (MySQL)
-            $query->selectRaw(
-                "blood_requests.*,
-                 (6371 * acos(
-                    cos(radians(?)) * cos(radians(lat)) * cos(radians(lng) - radians(?)) +
-                    sin(radians(?)) * sin(radians(lat))
-                 )) AS distance_km",
-                [$lat, $lng, $lat]
-            )
-                ->orderByRaw('distance_km ASC');
+        if (! $this->donorLoaded) {
+            $this->cachedDonor = Auth::user()?->donor?->load('healthProfile');
+            $this->donorLoaded = true;
         }
 
-        return $query->orderByDesc('broadcasted_at');
+        return $this->cachedDonor;
+    }
+
+    /**
+     * Resolve the donor's effective blood type (verified takes priority).
+     */
+    protected function getDonorBloodType(): ?BloodType
+    {
+        $profile = $this->getDonor()?->healthProfile;
+
+        return $profile?->verified_blood_type ?? $profile?->blood_type;
+    }
+
+    /**
+     * Get the authenticated donor ID, or null if unavailable.
+     */
+    protected function getDonorId(): ?int
+    {
+        return $this->getDonor()?->id;
+    }
+
+    /**
+     * Check if the donor is currently eligible to donate.
+     */
+    protected function isEligibleNow(): bool
+    {
+        $profile = $this->getDonor()?->healthProfile;
+
+        if (! $profile) {
+            return false;
+        }
+
+        // If the stored flag says eligible, trust it.
+        if ($profile->is_eligible) {
+            return true;
+        }
+
+        // The stored `is_eligible` flag can go STALE — it only updates when the
+        // profile is saved. If the cooldown date has already passed, the donor is
+        // effectively eligible again even if the flag hasn't been flipped yet.
+        // This mirrors the same logic used in Donor::scopeEligible().
+        if ($profile->next_eligible_date === null) {
+            // No date means permanent disqualifier (e.g. chronic disease) — truly ineligible.
+            return false;
+        }
+
+        return $profile->next_eligible_date->startOfDay()->isPast()
+            || $profile->next_eligible_date->startOfDay()->isToday();
+    }
+
+    // -------------------------------------------------------------------------
+    //  Query & table
+    // -------------------------------------------------------------------------
+
+    /**
+     * Build the query for blood requests visible to this donor.
+     *
+     * Filters:
+     *  - status in [BROADCASTED, MATCHED] (via scopeActive)
+     *  - not yet fulfilled
+     *  - compatible blood type (or all if UNKNOWN / no profile)
+     */
+    protected function getRequestsQuery(): Builder|\Illuminate\Database\Query\Builder
+    {
+        $donor = $this->getDonor();
+
+        // Ineligible donors must not see any blood requests at all.
+        // Return an empty result set without hitting any other tables.
+        if (! $this->isEligibleNow()) {
+            return BloodRequest::query()->whereRaw('0 = 1');
+        }
+
+        return BloodRequest::query()
+            ->with('organization')
+            ->active()
+            ->compatibleWithDonor($this->getDonorBloodType())
+            ->withDistance($donor?->lat, $donor?->lng)
+            // Only show requests where the donor hasn't responded OR has responded with PENDING (Accepted)
+            // Exclude if donor has a response that is NOT Pending (e.g. Ignored, Completed, etc.)
+            ->whereDoesntHave('responses', function ($query) use ($donor) {
+                $query->where('donor_id', $donor->id)
+                    ->where('status', '!=', RequestResponseStatus::PENDING);
+            })
+            ->orderBy('distance_km')
+            ->orderByDesc('broadcasted_at');
     }
 
     public function table(Table $table): Table
     {
         return $table
             ->query($this->getRequestsQuery())
-            ->columns([
-                Tables\Columns\TextColumn::make('organization.org_name')
+            ->columns($this->getTableColumns())
+            ->actions($this->getTableActions())
+            ->filters([
+                SelectFilter::make('urgency_level')
+                    ->label('مستوى الاستعجال')
+                    ->options(UrgencyLevel::class),
+
+                SelectFilter::make('blood_type')
+                    ->label('فصيلة الدم')
+                    ->options(BloodType::class),
+
+                SelectFilter::make('organization')
                     ->label('المؤسسة')
+                    ->relationship('organization', 'org_name')
                     ->searchable()
-                    ->sortable(),
-
-                Tables\Columns\TextColumn::make('distance_km')
-                    ->label('المسافة')
-                    ->state(
-                        fn($record) => isset($record->distance_km)
-                            ? number_format((float) $record->distance_km, 1) . ' كم'
-                            : '—'
-                    ),
-
-                Tables\Columns\TextColumn::make('blood_type')
-                    ->label('فصيلة الدم المطلوبة')
-                    ->state(fn(BloodRequest $record) => $record->blood_type?->getLabel()),
-
-
-                Tables\Columns\TextColumn::make('units_needed')
-                    ->label('الكمية المطلوبة (وحدات)')
-                    ->numeric()
-                    ->sortable(),
-
-                Tables\Columns\BadgeColumn::make('status')
-                    ->label('حالة الطلب')
-                    ->formatStateUsing(fn(BloodRequest $record) => $record->status->getLabel())
-                    ->color(fn(BloodRequest $record) => $record->status->getColor()),
-
-
-                Tables\Columns\BadgeColumn::make('my_status')
-                    ->label('حالتك')
-                    ->getStateUsing(fn(BloodRequest $record) => $this->getMyResponse($record)?->status)
-                    ->formatStateUsing(
-                        fn($state) => $state
-                            ? $state->getLabel()
-                            : 'لم ترد'
-                    )
-                    ->color(
-                        fn($state) => $state
-                            ? $state->getColor()
-                            : 'gray'
-                    ),
-
-            ])
-            ->actions([
-                Action::make('accept')
-                    ->label('قبول')
-                    ->icon('heroicon-m-check-circle')
-                    ->visible(fn(BloodRequest $record) => $this->canAccept($record))
-                    ->disabled(fn() => ! $this->isEligibleNow())
-                    ->action(fn(BloodRequest $record) => $this->accept($record)),
-
-                Action::make('ignore')
-                    ->label('تجاهل')
-                    ->icon('heroicon-m-x-circle')
-                    ->color('danger')
-                    ->visible(fn(BloodRequest $record) => $this->canIgnore($record))
-                    ->action(fn(BloodRequest $record) => $this->ignore($record)),
-
-                Action::make('download_qr')
-                    ->label('تنزيل QR')
-                    ->icon('heroicon-m-qr-code')
-                    ->visible(fn(BloodRequest $record) => $this->canDownloadQr($record))
-                    ->action(fn(BloodRequest $record) => $this->downloadQr($record)),
+                    ->preload(),
             ]);
     }
 
-    // -------------------------
-    // Helpers
-    // -------------------------
-
-    protected function isEligibleNow(): bool
+    /**
+     * @return array<Tables\Columns\Column>
+     */
+    private function getTableColumns(): array
     {
-        $profile = Auth::user()?->donor?->healthProfile;
-        return (bool) ($profile?->is_eligible ?? false);
+        return [
+            Tables\Columns\TextColumn::make('organization.org_name')
+                ->label('المؤسسة')
+                ->searchable()
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('distance_km')
+                ->label('المسافة')
+                ->state(
+                    fn($record) => isset($record->distance_km)
+                        ? number_format((float) $record->distance_km, 1) . ' كم'
+                        : '—'
+                ),
+
+            Tables\Columns\TextColumn::make('blood_type')
+                ->label('فصيلة الدم المطلوبة')
+                ->badge(),
+
+            Tables\Columns\TextColumn::make('units_needed')
+                ->label('الكمية المطلوبة (وحدات)')
+                ->numeric()
+                ->sortable(),
+
+            Tables\Columns\TextColumn::make('status')
+                ->label('حالة الطلب')
+                ->badge(),
+
+            Tables\Columns\TextColumn::make('my_status')
+                ->label('حالتك')
+                ->badge()
+                ->getStateUsing(fn(BloodRequest $record) => $this->getDonorResponseForRequest($record)?->status)
+                ->formatStateUsing(fn($state) => $state ? $state->getLabel() : 'لم ترد')
+                ->color(fn($state) => $state ? $state->getColor() : 'gray'),
+        ];
     }
 
-    protected function getMyResponse(BloodRequest $request): ?RequestResponse
+    /**
+     * @return array<Action>
+     */
+    private function getTableActions(): array
     {
-        $donorId = Auth::user()?->donor?->id;
+        return [
+            Action::make('accept')
+                ->label('قبول')
+                ->icon('heroicon-m-check-circle')
+                ->visible(fn(BloodRequest $record) => $this->canAccept($record))
+                ->disabled(fn() => ! $this->isEligibleNow())
+                ->action(fn(BloodRequest $record, BloodRequestActionService $service) => $this->accept($record, $service)),
 
-        if (! $donorId) {
-            return null;
+            Action::make('ignore')
+                ->label('اعتذار')
+                ->icon('heroicon-m-x-circle')
+                ->color('danger')
+                ->visible(fn(BloodRequest $record) => $this->canIgnore($record))
+                ->action(fn(BloodRequest $record, BloodRequestActionService $service) => $this->ignore($record, $service)),
+
+            Action::make('cancel')
+                ->label('تراجع')
+                ->color('gray')
+                ->icon('heroicon-m-arrow-uturn-left')
+                ->requiresConfirmation()
+                ->modalHeading('تأكيد التراجع')
+                ->modalDescription('هل أنت متأكد من رغبتك في التراجع عن قبول هذا الطلب؟ سيتم إلغاء رمز QR الحالي.')
+                ->modalSubmitActionLabel('نعم، تراجع')
+                ->visible(fn(BloodRequest $record) => $this->canCancel($record))
+                ->action(fn(BloodRequest $record, BloodRequestActionService $service) => $this->cancel($record, $service)),
+
+            Action::make('download_qr')
+                ->label('تنزيل QR')
+                ->icon('heroicon-m-qr-code')
+                ->visible(fn(BloodRequest $record) => $this->canDownloadQr($record))
+                ->action(fn(BloodRequest $record, QRCodeService $qrService) => $this->downloadQr($record, $qrService)),
+        ];
+    }
+
+    // -------------------------------------------------------------------------
+    //  Donor response helpers
+    // -------------------------------------------------------------------------
+
+    /**
+     * Get all responses for this donor, cached and indexed by blood_request_id.
+     *
+     * Eliminates N+1 queries by fetching all donor responses at once.
+     */
+    protected function getDonorResponses(): Collection
+    {
+        if ($this->donorResponses !== null) {
+            return $this->donorResponses;
         }
 
-        return RequestResponse::query()
+        $donorId = $this->getDonorId();
+
+        if (! $donorId) {
+            return $this->donorResponses = collect();
+        }
+
+        return $this->donorResponses = RequestResponse::query()
             ->where('donor_id', $donorId)
-            ->where('blood_request_id', $request->id)
-            ->first();
+            ->get()
+            ->keyBy('blood_request_id');
     }
 
+    /**
+     * Get the donor's existing response for a specific blood request from the cached collection.
+     */
+    protected function getDonorResponseForRequest(BloodRequest $request): ?RequestResponse
+    {
+        return $this->getDonorResponses()->get($request->id);
+    }
+
+    /**
+     * Check if the blood request is still active (not fulfilled or cancelled).
+     */
     protected function requestIsActive(BloodRequest $request): bool
     {
-        return in_array($request->status, [
-            BloodRequestStatus::BROADCASTED,
-            BloodRequestStatus::MATCHED,
-        ], true)
-            && is_null($request->fulfilled_at)
-            && is_null($request->deleted_at);
+        return $request->isActive();
     }
 
+    // -------------------------------------------------------------------------
+    //  Action visibility guards
+    // -------------------------------------------------------------------------
+
+    /**
+     * Donor can accept if the request is active, they haven't already accepted this one,
+     * and they don't have a PENDING acceptance on any other request.
+     */
     protected function canAccept(BloodRequest $request): bool
     {
         if (! $this->requestIsActive($request)) {
             return false;
         }
 
-        $response = $this->getMyResponse($request);
+        $response = $this->getDonorResponseForRequest($request);
 
-        // ✅ allow accept if no response OR previously ignored
-        if (! $response) {
-            return true;
+        // Cannot accept if already pending/accepted on THIS specific request
+        if ($response && $response->status !== RequestResponseStatus::IGNORED) {
+            return false;
         }
 
-        return $response->status === RequestResponseStatus::IGNORED;
+        // Cannot accept if the donor already has a PENDING acceptance on a DIFFERENT request
+        $hasActivePending = $this->getDonorResponses()
+            ->reject(fn($r) => $r->blood_request_id === $request->id)
+            ->contains(fn($r) => $r->status === RequestResponseStatus::PENDING);
+
+        return ! $hasActivePending;
     }
 
+    /**
+     * Donor can ignore if the request is active and they haven't already committed.
+     */
     protected function canIgnore(BloodRequest $request): bool
     {
         if (! $this->requestIsActive($request)) {
             return false;
         }
 
-        $response = $this->getMyResponse($request);
+        $response = $this->getDonorResponseForRequest($request);
 
         if (! $response) {
             return true;
@@ -223,7 +361,7 @@ class BloodRequests extends Page implements HasTable
             return false;
         }
 
-        // do not allow ignore after accept / verified / completed
+        // Cannot ignore after accepting, completing, or pending verification
         return ! in_array($response->status, [
             RequestResponseStatus::PENDING,
             RequestResponseStatus::ACCEPTED,
@@ -231,163 +369,144 @@ class BloodRequests extends Page implements HasTable
         ], true);
     }
 
+    /**
+     * Donor can download QR only when they have a pending, unexpired response.
+     */
     protected function canDownloadQr(BloodRequest $request): bool
     {
         if (! $this->requestIsActive($request)) {
             return false;
         }
 
-        $response = $this->getMyResponse($request);
+        $response = $this->getDonorResponseForRequest($request);
 
-        if (! $response) {
-            return false;
-        }
-
-        if ($response->status !== RequestResponseStatus::PENDING) {
-            return false;
-        }
-
-        if (! $response->verification_qr_code) {
-            return false;
-        }
-
-        if ($response->verified_at) {
-            return false;
-        }
-
-        if ($response->qr_code_expires_at && $response->qr_code_expires_at->isPast()) {
-            return false;
-        }
-
-        return true;
+        return $response
+            && $response->status === RequestResponseStatus::PENDING
+            && $response->verification_qr_code
+            && ! $response->verified_at
+            && ! ($response->qr_code_expires_at?->isPast());
     }
 
-    // -------------------------
-    // Actions
-    // -------------------------
-
-    protected function accept(BloodRequest $request): void
+    /**
+     * Check if the donor can cancel their acceptance (only if PENDING).
+     */
+    protected function canCancel(BloodRequest $request): bool
     {
         if (! $this->requestIsActive($request)) {
-            Notification::make()->danger()->title('هذا الطلب غير متاح الآن')->send();
-            return;
+            return false;
         }
 
-        if (! $this->isEligibleNow()) {
-            Notification::make()
-                ->danger()
-                ->title('غير مؤهل للتبرع حاليًا')
-                ->body('سيصبح زر القبول متاحًا عند عودتك للأهلية للتبرع.')
-                ->send();
-            return;
-        }
+        $response = $this->getDonorResponseForRequest($request);
 
-        $donorId = Auth::user()?->donor?->id;
+        return $response && $response->status === RequestResponseStatus::PENDING;
+    }
 
-        if (! $donorId) {
+    // -------------------------------------------------------------------------
+    //  Actions
+    // -------------------------------------------------------------------------
+
+    /**
+     * Accept a blood request — creates/updates the donor's response to PENDING.
+     */
+    protected function accept(BloodRequest $request, BloodRequestActionService $service): void
+    {
+        $donor = $this->getDonor();
+
+        if (! $donor) {
             Notification::make()->danger()->title('تعذر تحديد بيانات المتبرع')->send();
             return;
         }
 
-        // ✅ upsert (unique donor_id + blood_request_id)
-        $response = RequestResponse::query()->updateOrCreate(
-            [
-                'donor_id' => $donorId,
-                'blood_request_id' => $request->id,
-            ],
-            [
-                'status' => RequestResponseStatus::PENDING->value, // وافق
-                'responded_at' => now(),
-            ]
-        );
-
-        // ✅ Generate token + expires via service (7 days by your service)
         try {
-            /** @var QRCodeService $qr */
-            $qr = app(QRCodeService::class);
-            $qr->generate($response, true);
-        } catch (\Throwable $e) {
+            $service->accept($donor, $request);
+
+            // Invalidate cache to update UI immediately
+            $this->donorResponses = null;
+
+            Notification::make()
+                ->success()
+                ->title('تم قبول الطلب')
+                ->body('يمكنك الآن تنزيل رمز QR وإبرازه للمؤسسة عند الحضور.')
+                ->send();
+        } catch (\Exception $e) {
             Notification::make()
                 ->danger()
-                ->title('حدث خطأ أثناء إنشاء QR')
+                ->title('حدث خطأ')
                 ->body($e->getMessage())
                 ->send();
-            return;
         }
-
-        Notification::make()
-            ->success()
-            ->title('تم قبول الطلب ✅')
-            ->body('يمكنك الآن تنزيل رمز QR وإبرازه للمؤسسة عند الحضور.')
-            ->send();
     }
 
-    protected function ignore(BloodRequest $request): void
+    /**
+     * Ignore a blood request — sets the donor's response to IGNORED.
+     */
+    protected function ignore(BloodRequest $request, BloodRequestActionService $service): void
     {
-        if (! $this->requestIsActive($request)) {
-            Notification::make()->danger()->title('هذا الطلب غير متاح الآن')->send();
+        $donor = $this->getDonor();
+
+        if (! $donor) {
             return;
         }
 
-        $donorId = Auth::user()?->donor?->id;
-
-        if (! $donorId) {
-            Notification::make()->danger()->title('تعذر تحديد بيانات المتبرع')->send();
-            return;
-        }
-
-        $response = RequestResponse::query()->updateOrCreate(
-            [
-                'donor_id' => $donorId,
-                'blood_request_id' => $request->id,
-            ],
-            [
-                'status' => RequestResponseStatus::IGNORED->value, // متجاهل
-                'responded_at' => now(),
-            ]
-        );
-
-        // ✅ revoke any existing QR
         try {
-            /** @var QRCodeService $qr */
-            $qr = app(QRCodeService::class);
-            $qr->revoke($response);
-        } catch (\Throwable $e) {
-            // ignore revoke errors
+            $service->ignore($donor, $request);
+
+            // Invalidate cache to update UI immediately
+            $this->donorResponses = null;
+
+            Notification::make()
+                ->success()
+                ->title('تم تجاهل الطلب')
+                ->send();
+        } catch (\Exception $e) {
+            Notification::make()->danger()->title($e->getMessage())->send();
+        }
+    }
+
+    /**
+     * Cancel (undo) a previously accepted request.
+     */
+    protected function cancel(BloodRequest $request, BloodRequestActionService $service): void
+    {
+        $donor = $this->getDonor();
+
+        if (! $donor) {
+            return;
         }
 
-        Notification::make()
-            ->success()
-            ->title('تم تجاهل الطلب')
-            ->send();
+        try {
+            $service->cancel($donor, $request);
+
+            // Invalidate cache to update UI immediately
+            $this->donorResponses = null;
+
+            Notification::make()
+                ->success()
+                ->title('تم التراجع بنجاح')
+                ->send();
+        } catch (\Exception $e) {
+            Notification::make()->danger()->title($e->getMessage())->send();
+        }
     }
 
-protected function downloadQr(BloodRequest $request)
-{
-    $response = $this->getMyResponse($request);
+    /**
+     * Download the QR code image for a pending response.
+     */
+    protected function downloadQr(BloodRequest $request, QRCodeService $qrService): ?StreamedResponse
+    {
+        $response = $this->getDonorResponseForRequest($request);
 
-    if (! $response || ! $this->canDownloadQr($request)) {
-        Notification::make()->danger()->title('لا يمكن تنزيل QR الآن')->send();
-        return null;
+        if (! $response || ! $this->canDownloadQr($request)) {
+            Notification::make()->danger()->title('لا يمكن تنزيل QR الآن')->send();
+            return null;
+        }
+
+        $filename = 'bloodbridge-qr-' . $request->id . '.svg';
+
+        return response()->streamDownload(function () use ($qrService, $response) {
+            echo $qrService->render($response->verification_qr_code);
+        }, $filename, [
+            'Content-Type' => 'image/svg+xml',
+        ]);
     }
-
-    $token = $response->verification_qr_code;
-
-    // ✅ PNG بدون Imagick (Endroid)
-    $result = QrBuilder::create()
-        ->writer(new PngWriter())
-        ->data($token)
-        ->size(420)      // حجم مناسب للجوال
-        ->margin(12)
-        ->build();
-
-    $filename = 'bloodbridge-qr-' . $request->id . '.png';
-
-    return response()->streamDownload(function () use ($result) {
-        echo $result->getString(); // raw png bytes
-    }, $filename, [
-        'Content-Type' => 'image/png',
-    ]);
-}
-
 }

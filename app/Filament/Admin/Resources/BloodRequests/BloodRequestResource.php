@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\BloodRequests\Pages\EditBloodRequest;
 use App\Filament\Admin\Resources\BloodRequests\Pages\ListBloodRequests;
 use App\Filament\Admin\Resources\BloodRequests\Pages\ViewBloodRequest;
 use App\Filament\Admin\Resources\BloodRequests\Schemas\BloodRequestForm;
+use App\Filament\Admin\Resources\BloodRequests\Schemas\BloodRequestInfolist;
 use App\Filament\Admin\Resources\BloodRequests\Tables\BloodRequestsTable;
 use App\Models\BloodRequest;
 use Filament\Resources\Resource;
@@ -37,6 +38,11 @@ class BloodRequestResource extends Resource
     public static function table(Table $table): Table
     {
         return BloodRequestsTable::configure($table);
+    }
+
+    public static function infolist(Schema $schema): Schema
+    {
+        return BloodRequestInfolist::configure($schema);
     }
 
     public static function getRelations(): array

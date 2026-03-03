@@ -17,7 +17,6 @@ class EligibilityCountdownWidget extends Widget
         $donor = $user?->donor;
         $profile = $donor?->healthProfile;
 
-        // حماية
         if (! $profile) {
             return [
                 'eligible_now' => false,
@@ -26,8 +25,16 @@ class EligibilityCountdownWidget extends Widget
             ];
         }
 
-        // مؤهل الآن
-        if ($profile->is_eligible) {
+        // Dynamically check if eligible:
+        // The stored `is_eligible` flag can be STALE — it only updates on profile save.
+        // If next_eligible_date has already passed, treat the donor as eligible now.
+        $dateHasPassed = $profile->next_eligible_date !== null
+            && (
+                $profile->next_eligible_date->startOfDay()->isPast()
+                || $profile->next_eligible_date->startOfDay()->isToday()
+            );
+
+        if ($profile->is_eligible || $dateHasPassed) {
             return [
                 'eligible_now' => true,
                 'message' => 'أنت مؤهل للتبرع الآن',
@@ -35,7 +42,7 @@ class EligibilityCountdownWidget extends Widget
             ];
         }
 
-        // غير مؤهل + لا يوجد تاريخ
+        // Permanently ineligible (chronic disease, etc.) — no date set
         if (! $profile->next_eligible_date) {
             return [
                 'eligible_now' => false,
@@ -44,7 +51,7 @@ class EligibilityCountdownWidget extends Widget
             ];
         }
 
-        // غير مؤهل + يوجد تاريخ
+        // Still on cooldown — show the countdown
         $target = $profile->next_eligible_date->startOfDay();
 
         return [

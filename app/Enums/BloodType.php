@@ -91,6 +91,27 @@ enum BloodType: int implements HasLabel, HasColor
                 self::B_NEGATIVE,
                 self::O_NEGATIVE,
             ],
+            self::UNKNOWN => [],
         };
+    }
+
+    /**
+     * Get blood types that this blood type can donate to (reverse compatibility).
+     *
+     * Computed from getCompatibleDonorTypes() to keep the two maps in sync.
+     *
+     * @return array<self>
+     */
+    public function getCompatibleRecipientTypes(): array
+    {
+        if ($this === self::UNKNOWN) {
+            return [];
+        }
+
+        return array_values(array_filter(
+            self::cases(),
+            fn(self $recipient) => $recipient !== self::UNKNOWN
+                && in_array($this, $recipient->getCompatibleDonorTypes(), true),
+        ));
     }
 }

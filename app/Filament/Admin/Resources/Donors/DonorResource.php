@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Donors;
 use App\Filament\Admin\Resources\Donors\Pages\CreateDonor;
 use App\Filament\Admin\Resources\Donors\Pages\EditDonor;
 use App\Filament\Admin\Resources\Donors\Pages\ListDonors;
+use App\Filament\Admin\Resources\Donors\Pages\ViewDonor;
 use App\Filament\Admin\Resources\Donors\Schemas\DonorForm;
 use App\Filament\Admin\Resources\Donors\Schemas\DonorInfolist;
 use App\Filament\Admin\Resources\Donors\Tables\DonorsTable;
@@ -60,9 +61,10 @@ class DonorResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => ListDonors::route('/'),
+            'index'  => ListDonors::route('/'),
             'create' => CreateDonor::route('/create'),
-            'edit' => EditDonor::route('/{record}/edit'),
+            'view'   => ViewDonor::route('/{record}'),
+            'edit'   => EditDonor::route('/{record}/edit'),
         ];
     }
 
