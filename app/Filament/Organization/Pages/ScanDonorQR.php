@@ -26,6 +26,7 @@ class ScanDonorQR extends Page
     protected static ?int $navigationSort = 2;
 
     public ?string $scannedCode = null;
+    public ?RequestResponse $foundResponse = null;
 
     public function verifyQRCode($code = null): bool
     {
@@ -49,31 +50,54 @@ class ScanDonorQR extends Page
         // Validation: QR code not found or invalid
         if (!$response) {
             $this->notify('QR Code غير صالح', 'هذا الكود غير موجود، منتهي الصلاحية، أو لا يتبع لهذه المنظمة.', 'danger');
+            $this->foundResponse = null;
             return false;
         }
 
         // Status Validation: Check donor status
         if (!$this->validateDonorStatus($response)) {
+            $this->foundResponse = null;
             return false;
         }
 
+        // Found! Show details for confirmation
+        $this->foundResponse = $response;
+        $this->scannedCode = null; // Clear input
+
+        return true;
+    }
+
+    public function confirmAdmission(): void
+    {
+        if (! $this->foundResponse) {
+            return;
+        }
+
         // Success: Update Status
-        $response->update([
+        $this->foundResponse->update([
             'status' => RequestResponseStatus::ACCEPTED,
             'verified_at' => now(),
         ]);
 
         $this->notify(
             '✅ تم تسجيل الحضور',
-            "المتبرع: {$response->donor->user->name}",
+            "المتبرع: {$this->foundResponse->donor->user->name}",
             'success',
             true
         );
 
-        // Clear input for next scan
-        $this->scannedCode = null;
+        $this->resetState();
+    }
 
-        return true;
+    public function cancelAdmission(): void
+    {
+        $this->resetState();
+    }
+
+    private function resetState(): void
+    {
+        $this->foundResponse = null;
+        $this->scannedCode = null;
     }
 
     private function checkRateLimit(): bool

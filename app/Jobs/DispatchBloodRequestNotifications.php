@@ -53,6 +53,26 @@ class DispatchBloodRequestNotifications implements ShouldQueue
             ->whereIn('id', $userIds)
             ->chunk(10, function (\Illuminate\Support\Collection $users) use ($bloodRequest) {
                 foreach ($users as $user) {
+                    // Re-check eligibility at send time to handle race conditions where
+                    // the donor's status changed between job dispatch and job execution
+                    // (e.g. they just donated to a previous request and triggered a cooldown).
+                    $healthProfile = $user->donor?->healthProfile;
+
+                    if (! $healthProfile) {
+                        continue;
+                    }
+
+                    $isStillEligible = $healthProfile->is_eligible
+                        && (
+                            is_null($healthProfile->next_eligible_date)
+                            || $healthProfile->next_eligible_date->startOfDay()->isPast()
+                            || $healthProfile->next_eligible_date->startOfDay()->isToday()
+                        );
+
+                    if (! $isStillEligible) {
+                        continue;
+                    }
+
                     $distance = $this->donorData[$user->id] ?? null;
                     $user->notify(new BloodRequestMatchNotification($bloodRequest, $distance));
                 }

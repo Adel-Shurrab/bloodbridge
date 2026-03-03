@@ -38,6 +38,12 @@ class BloodRequestsTable
                     ->badge()
                     ->sortable(),
 
+                TextColumn::make('responses_count')
+                    ->counts('responses')
+                    ->label('الردود')
+                    ->badge()
+                    ->sortable(),
+
                 TextColumn::make('donors_completed')
                     ->label('المتبرعين')
                     ->state(fn(BloodRequest $record) => "{$record->donors_completed} / {$record->units_needed}")

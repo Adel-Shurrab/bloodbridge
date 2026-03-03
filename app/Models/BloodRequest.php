@@ -106,4 +106,79 @@ class BloodRequest extends Model
         $steps = $this->expansion_steps;
         return "Expanded from {$this->search_radius_km}km to {$this->actual_search_radius_km}km ({$steps} expansion" . ($steps > 1 ? 's' : '') . ")";
     }
+
+    /**
+     * Scope to only include active blood requests (BROADCASTED or MATCHED, not fulfilled).
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @return void
+     */
+    public function scopeActive(\Illuminate\Database\Eloquent\Builder $query): void
+    {
+        $query->whereIn('status', [
+            \App\Enums\BloodRequestStatus::BROADCASTED,
+            \App\Enums\BloodRequestStatus::MATCHED,
+        ])
+            ->whereNull('fulfilled_at');
+    }
+
+    /**
+     * Scope to filter requests compatible with a donor's blood type.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  \App\Enums\BloodType|null  $donorBloodType
+     * @return void
+     */
+    public function scopeCompatibleWithDonor(\Illuminate\Database\Eloquent\Builder $query, ?\App\Enums\BloodType $donorBloodType): void
+    {
+        if ($donorBloodType === null || $donorBloodType === \App\Enums\BloodType::UNKNOWN) {
+            return;
+        }
+
+        $compatibleTypes = $donorBloodType->getCompatibleRecipientTypes();
+
+        if (! empty($compatibleTypes)) {
+            $query->whereIn('blood_type', $compatibleTypes);
+        }
+    }
+
+    /**
+     * Check if this blood request is currently active.
+     *
+     * @return bool
+     */
+    public function isActive(): bool
+    {
+        return in_array($this->status, [
+            \App\Enums\BloodRequestStatus::BROADCASTED,
+            \App\Enums\BloodRequestStatus::MATCHED,
+        ], true)
+            && is_null($this->fulfilled_at)
+            && is_null($this->deleted_at);
+    }
+
+    /**
+     * Scope to add distance_km column relative to given coordinates.
+     *
+     * @param  \Illuminate\Database\Eloquent\Builder  $query
+     * @param  float|null  $lat
+     * @param  float|null  $lng
+     * @return void
+     */
+    public function scopeWithDistance(\Illuminate\Database\Eloquent\Builder $query, ?float $lat, ?float $lng): void
+    {
+        if ($lat === null || $lng === null) {
+            return;
+        }
+
+        $query->selectRaw(
+            "*, (
+                6371 * acos(
+                    cos(radians(?)) * cos(radians(lat)) * cos(radians(lng) - radians(?)) +
+                    sin(radians(?)) * sin(radians(lat))
+                )
+            ) AS distance_km",
+            [$lat, $lng, $lat]
+        );
+    }
 }

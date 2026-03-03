@@ -31,14 +31,12 @@ class EditProfile extends Page implements HasForms
     protected static ?string $navigationLabel = 'ملفي الشخصي';
     protected static ?int $navigationSort = 2;
 
-    // ✅ Filament v4: non-static view
     protected string $view = 'filament.donor.pages.edit-profile';
 
     public ?array $data = [];
 
     public bool $bloodTypeLocked = false;
 
-    // ✅ Hide heading so countdown becomes first
     public function getHeading(): string
     {
         return '';
@@ -62,19 +60,23 @@ class EditProfile extends Page implements HasForms
         $donor = $user?->donor;
         $healthProfile = $donor?->healthProfile;
 
-        // ✅ lock ONLY blood_type if verified
-        $this->bloodTypeLocked = ! is_null($healthProfile?->verified_at);
+        $this->bloodTypeLocked = ! is_null($healthProfile?->verified_blood_type);
 
-        // ✅ Location defaults (saved or Gaza)
+        $this->form->fill(
+            $this->getInitialFormData($user, $donor, $healthProfile)
+        );
+    }
+
+    private function getInitialFormData($user, $donor, $healthProfile): array
+    {
         $lat = $donor?->lat ?? \App\Constants\PalestineCoordinates::GAZA['lat'];
         $lng = $donor?->lng ?? \App\Constants\PalestineCoordinates::GAZA['lng'];
 
-        // ✅ Organization name that verified blood type (if any)
         $verifyingOrgName = $healthProfile?->verifyingOrganization?->org_name
             ?? $healthProfile?->verifyingOrganization?->name
             ?? null;
 
-        $this->form->fill([
+        return [
             // users
             'name' => $user?->name,
             'email' => $user?->email,
@@ -85,17 +87,14 @@ class EditProfile extends Page implements HasForms
             'gender' => $donor?->gender?->value ?? $donor?->gender,
             'address' => $donor?->auto_location_address ?? $donor?->address,
 
-            // ✅ coordinates
             'lat' => $lat,
             'lng' => $lng,
 
-            // ✅ map state (marker stability)
             'location' => [
                 'lat' => $lat,
                 'lng' => $lng,
             ],
 
-            // health profile (✅ Required fields + booleans)
             'weight' => $healthProfile?->weight,
             'height' => $healthProfile?->height,
             'chronic_disease' => (bool) ($healthProfile?->chronic_disease ?? false),
@@ -107,199 +106,223 @@ class EditProfile extends Page implements HasForms
             'blood_type' => $healthProfile?->blood_type?->value ?? $healthProfile?->blood_type,
             'verified_blood_type' => $healthProfile?->verified_blood_type?->value ?? $healthProfile?->verified_blood_type,
 
-            // ✅ verified by org (display only)
             'verified_by_org_name' => $verifyingOrgName,
-        ]);
+        ];
     }
 
     public function form(Schema $schema): Schema
     {
-        $bloodTypeOptions = collect(BloodType::cases())
-            ->mapWithKeys(fn ($case) => [
-                $case->value => method_exists($case, 'getLabel') ? $case->getLabel() : $case->name,
-            ])
-            ->toArray();
-
-        $genderOptions = collect(Gender::cases())
-            ->mapWithKeys(fn ($case) => [
-                $case->value => method_exists($case, 'getLabel') ? $case->getLabel() : $case->name,
-            ])
-            ->toArray();
-
         return $schema
             ->statePath('data')
             ->components([
+                $this->getProfileSection(),
+                $this->getHealthSection(),
+            ]);
+    }
 
-                // =========================
-                // Section 1: الملف الشخصي
-                // =========================
-                Section::make('الملف الشخصي')
-                    ->description('قم بتحديث بياناتك الأساسية وبيانات المتبرع')
+    private function getProfileSection(): Section
+    {
+        $genderOptions = collect(Gender::cases())
+            ->mapWithKeys(fn($case) => [
+                $case->value => method_exists($case, 'getLabel') ? $case->getLabel() : $case->name,
+            ])
+            ->toArray();
+
+        return Section::make('الملف الشخصي')
+            ->description('قم بتحديث بياناتك الأساسية وبيانات المتبرع')
+            ->schema([
+                Fieldset::make('المعلومات الأساسية')
                     ->schema([
+                        TextInput::make('name')
+                            ->label('الاسم الكامل')
+                            ->required()
+                            ->maxLength(255),
 
-                        Fieldset::make('المعلومات الأساسية')
-                            ->schema([
-                                TextInput::make('name')
-                                    ->label('الاسم الكامل')
-                                    ->required()
-                                    ->maxLength(255),
+                        TextInput::make('email')
+                            ->label('البريد الإلكتروني')
+                            ->email()
+                            ->required()
+                            ->maxLength(255),
 
-                                TextInput::make('email')
-                                    ->label('البريد الإلكتروني')
-                                    ->email()
-                                    ->required()
-                                    ->maxLength(255),
+                        TextInput::make('phone')
+                            ->label('رقم الهاتف')
+                            ->tel()
+                            ->required()
+                            ->maxLength(30),
+                    ])
+                    ->columns(2),
 
-                                TextInput::make('phone')
-                                    ->label('رقم الهاتف')
-                                    ->tel()
-                                    ->required()
-                                    ->maxLength(30),
-                            ])
-                            ->columns(2),
-
-                        Fieldset::make('بيانات المتبرع')
-                            ->schema([
-                                DatePicker::make('birth_date')
-                                    ->label('تاريخ الميلاد')
-                                    ->required(),
-
-                                Select::make('gender')
-                                    ->label('الجنس')
-                                    ->options($genderOptions)
-                                    ->required()
-                                    ->native(false),
-
-                                TextInput::make('address')
-                                    ->label('العنوان')
-                                    ->maxLength(500)
-                                    ->columnSpanFull(),
-
-                                // ✅ Map Component (marker stays)
-                                Map::make('location')
-                                    ->label('موقعك على الخريطة')
-                                    ->helperText('انقر على الخريطة أو اسحب العلامة لتحديد موقعك بدقة')
-                                    ->columnSpanFull()
-                                    ->defaultLocation(
-                                        latitude: \App\Constants\PalestineCoordinates::GAZA['lat'],
-                                        longitude: \App\Constants\PalestineCoordinates::GAZA['lng']
-                                    )
-                                    ->afterStateUpdated(function (Set $set, ?array $state): void {
-                                        if (! is_array($state)) {
-                                            return;
-                                        }
-
-                                        $lat = $state['lat'] ?? null;
-                                        $lng = $state['lng'] ?? null;
-
-                                        // ✅ keep marker after re-render
-                                        if ($lat !== null && $lng !== null) {
-                                            $set('location', ['lat' => $lat, 'lng' => $lng]);
-                                        }
-
-                                        $set('lat', $lat);
-                                        $set('lng', $lng);
-                                    })
-                                    ->live()
-                                    ->extraStyles([
-                                        'min-height: 40vh',
-                                        'border-radius: 8px',
-                                    ])
-                                    ->showMarker(true)
-                                    ->markerColor("#ef4444")
-                                    ->showFullscreenControl(true)
-                                    ->showZoomControl(true)
-                                    ->draggable(true)
-                                    ->tilesUrl("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
-                                    ->zoom(\App\Constants\PalestineCoordinates::ZOOM_REGION)
-                                    ->detectRetina(true)
-                                    ->showMyLocationButton(true)
-                                    ->clickable(true),
-
-                                Hidden::make('lat'),
-                                Hidden::make('lng'),
-                            ])
-                            ->columns(2),
-                    ]),
-
-                // =========================
-                // Section 2: الملف الصحي
-                // =========================
-                Section::make('الملف الصحي')
-                    ->description('بيانات صحية تساعد على تحديد الأهلية للتبرع')
+                Fieldset::make('بيانات المتبرع')
                     ->schema([
+                        DatePicker::make('birth_date')
+                            ->label('تاريخ الميلاد')
+                            ->required(),
 
-                        Fieldset::make('القياسات')
-                            ->schema([
-                                TextInput::make('weight')
-                                    ->label('الوزن (كغ)')
-                                    ->numeric()
-                                    ->required()
-                                    ->minValue(30)
-                                    ->maxValue(300),
+                        Select::make('gender')
+                            ->label('الجنس')
+                            ->options($genderOptions)
+                            ->required()
+                            ->native(false),
 
-                                TextInput::make('height')
-                                    ->label('الطول (سم)')
-                                    ->numeric()
-                                    ->required()
-                                    ->minValue(100)
-                                    ->maxValue(250),
+                        TextInput::make('address')
+                            ->label('عنوان السكن (يتم تعبئته من الخريطة)')
+                            ->required()
+                            ->columnSpanFull()
+                            ->helperText('يمكنك تعديل العنوان يدوياً إذا رغبت بدقة أكبر، أو حرك الدبوس على الخريطة لتحديثه.'),
+
+                        Map::make('location')
+                            ->label('تحديد الموقع بدقة على الخريطة')
+                            ->columnSpanFull()
+                            ->defaultLocation(
+                                \App\Constants\PalestineCoordinates::GAZA['lat'],
+                                \App\Constants\PalestineCoordinates::GAZA['lng']
+                            )
+                            ->afterStateUpdated(function (Get $get, Set $set, ?array $state): void {
+                                if (!$state) return;
+
+                                $lat = round((float)$state['lat'], 6);
+                                $lng = round((float)$state['lng'], 6);
+
+                                $set('lat', $lat);
+                                $set('lng', $lng);
+
+                                try {
+                                    $response = \Illuminate\Support\Facades\Http::withHeaders([
+                                        'User-Agent' => 'BloodBridge/1.0',
+                                    ])->get("https://nominatim.openstreetmap.org/reverse", [
+                                        'format' => 'json',
+                                        'lat' => $lat,
+                                        'lon' => $lng,
+                                        'accept-language' => 'ar'
+                                    ]);
+
+                                    if ($response->successful()) {
+                                        $nomData = $response->json();
+
+                                        // Fallback to JS-style parsing exactly
+                                        $address = $nomData['address'] ?? [];
+                                        $addressParts = array_filter([
+                                            $address['road'] ?? $address['neighbourhood'] ?? null,
+                                            $address['suburb'] ?? $address['city_district'] ?? null,
+                                            $address['city'] ?? $address['town'] ?? $address['village'] ?? null,
+                                            $address['state'] ?? null
+                                        ]);
+
+                                        $fullAddress = !empty($addressParts)
+                                            ? implode('، ', $addressParts)
+                                            : ($nomData['display_name'] ?? '');
+
+                                        $set('address', $fullAddress);
+                                    }
+                                } catch (\Exception $e) {
+                                    // Silently fail if API is down
+                                }
+                            })
+                            ->extraStyles([
+                                'min-height: 50vh',
+                                'border-radius: 10px'
                             ])
-                            ->columns(2),
+                            ->liveLocation(true, true, 10000)
+                            ->showMarker(true)
+                            ->markerColor("#be123cff")
+                            ->showFullscreenControl(true)
+                            ->showZoomControl(true)
+                            ->draggable(true)
+                            ->tilesUrl("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
+                            ->zoom(\App\Constants\PalestineCoordinates::ZOOM_CITY)
+                            ->detectRetina(true)
+                            ->showMyLocationButton(true)
+                            ->extraControl([
+                                'zoomDelta' => 1,
+                                'zoomSnap' => 2,
+                            ]),
 
-                        Fieldset::make('الحالة الصحية')
-                            ->schema([
-                                Toggle::make('chronic_disease')
-                                    ->label('هل لديك مرض مزمن؟')
-                                    ->default(false),
+                        Hidden::make('lat'),
+                        Hidden::make('lng'),
+                    ])
+                    ->columns(2),
+            ]);
+    }
 
-                                Toggle::make('infection')
-                                    ->label('هل لديك عدوى نشطة حالياً؟')
-                                    ->default(false),
+    private function getHealthSection(): Section
+    {
+        $bloodTypeOptions = collect(BloodType::cases())
+            ->mapWithKeys(fn($case) => [
+                $case->value => method_exists($case, 'getLabel') ? $case->getLabel() : $case->name,
+            ])
+            ->toArray();
 
-                                Toggle::make('has_recent_surgery')
-                                    ->label('هل أجريت عملية جراحية مؤخراً؟')
-                                    ->default(false)
-                                    ->live(),
+        return Section::make('الملف الصحي')
+            ->description('بيانات صحية تساعد على تحديد الأهلية للتبرع')
+            ->schema([
+                Fieldset::make('القياسات')
+                    ->schema([
+                        TextInput::make('weight')
+                            ->label('الوزن (كغ)')
+                            ->numeric()
+                            ->required()
+                            ->minValue(30)
+                            ->maxValue(300),
 
-                                DatePicker::make('surgery_date')
-                                    ->label('تاريخ العملية')
-                                    ->visible(fn (Get $get) => (bool) $get('has_recent_surgery'))
-                                    ->required(fn (Get $get) => (bool) $get('has_recent_surgery')),
-                            ])
-                            ->columns(2),
+                        TextInput::make('height')
+                            ->label('الطول (سم)')
+                            ->numeric()
+                            ->required()
+                            ->minValue(100)
+                            ->maxValue(250),
+                    ])
+                    ->columns(2),
 
-                        Fieldset::make('فصيلة الدم')
-                            ->schema([
-                                // ✅ Donor self-declared blood type (LOCKED only if verified_at)
-                                Select::make('blood_type')
-                                    ->label('فصيلة الدم (حسب تصريحك)')
-                                    ->options($bloodTypeOptions)
-                                    ->required()
-                                    ->native(false)
-                                    ->disabled(fn () => $this->bloodTypeLocked)
-                                    ->helperText(fn () => $this->bloodTypeLocked
-                                        ? 'تم تأكيد فصيلة الدم من قبل المؤسسة، ولا يمكن تعديلها.'
-                                        : 'يمكنك تعديل فصيلة الدم قبل تأكيدها من المؤسسة.'
-                                    ),
+                Fieldset::make('الحالة الصحية')
+                    ->schema([
+                        Toggle::make('chronic_disease')
+                            ->label('هل لديك مرض مزمن؟')
+                            ->default(false),
 
-                                // ✅ Hospital verified blood type (read-only)
-                                Select::make('verified_blood_type')
-                                    ->label('فصيلة الدم (مؤكدة من المؤسسة)')
-                                    ->options($bloodTypeOptions)
-                                    ->disabled()
-                                    ->dehydrated(false)
-                                    ->visible(fn () => $this->bloodTypeLocked),
+                        Toggle::make('infection')
+                            ->label('هل لديك عدوى نشطة حالياً؟')
+                            ->default(false),
 
-                                // ✅ Show which organization verified it
-                                TextInput::make('verified_by_org_name')
-                                    ->label('تم تأكيد فصيلة الدم بواسطة')
-                                    ->disabled()
-                                    ->dehydrated(false)
-                                    ->visible(fn () => $this->bloodTypeLocked),
-                            ])
-                            ->columns(2),
-                    ]),
+                        Toggle::make('has_recent_surgery')
+                            ->label('هل أجريت عملية جراحية مؤخراً؟')
+                            ->default(false)
+                            ->live(),
+
+                        DatePicker::make('surgery_date')
+                            ->label('تاريخ العملية')
+                            ->visible(fn(Get $get) => (bool) $get('has_recent_surgery'))
+                            ->required(fn(Get $get) => (bool) $get('has_recent_surgery')),
+                    ])
+                    ->columns(2),
+
+                Fieldset::make('فصيلة الدم')
+                    ->schema([
+                        Select::make('blood_type')
+                            ->label('فصيلة الدم (حسب تصريحك)')
+                            ->options($bloodTypeOptions)
+                            ->required()
+                            ->native(false)
+                            ->disabled(fn() => $this->bloodTypeLocked)
+                            ->helperText(
+                                fn() => $this->bloodTypeLocked
+                                    ? 'تم تأكيد فصيلة الدم من قبل المؤسسة، ولا يمكن تعديلها.'
+                                    : 'يمكنك تعديل فصيلة الدم قبل تأكيدها من المؤسسة.'
+                            ),
+
+                        Select::make('verified_blood_type')
+                            ->label('فصيلة الدم (مؤكدة من المؤسسة)')
+                            ->options($bloodTypeOptions)
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->visible(fn() => $this->bloodTypeLocked),
+
+                        TextInput::make('verified_by_org_name')
+                            ->label('تم تأكيد فصيلة الدم بواسطة')
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->visible(fn() => $this->bloodTypeLocked),
+                    ])
+                    ->columns(2),
             ]);
     }
 
@@ -308,9 +331,8 @@ class EditProfile extends Page implements HasForms
         $data = $this->form->getState();
         $user = Auth::user();
 
-        // ✅ enforce blood_type lock server-side (ONLY blood_type)
         $existingHealthProfile = $user?->donor?->healthProfile;
-        if (! is_null($existingHealthProfile?->verified_at)) {
+        if (! is_null($existingHealthProfile?->verified_blood_type)) {
             unset($data['blood_type']);
         }
 
@@ -345,7 +367,6 @@ class EditProfile extends Page implements HasForms
                 'surgery_date' => ((bool) ($data['has_recent_surgery'] ?? false)) ? ($data['surgery_date'] ?? null) : null,
             ];
 
-            // ✅ blood_type only if not locked
             if (array_key_exists('blood_type', $data)) {
                 $healthUpdate['blood_type'] = $data['blood_type'];
             }
@@ -358,7 +379,7 @@ class EditProfile extends Page implements HasForms
 
         Notification::make()
             ->success()
-            ->title('تم حفظ البيانات بنجاح ✅')
+            ->title('تم حفظ البيانات بنجاح')
             ->send();
     }
 }

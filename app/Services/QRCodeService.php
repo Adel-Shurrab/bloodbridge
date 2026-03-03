@@ -8,6 +8,7 @@ use App\Models\RequestResponse;
 use App\Models\Organization;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Log;
+use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 class QRCodeService
 {
@@ -15,22 +16,18 @@ class QRCodeService
 
     public function generate(RequestResponse $response, bool $setExpiration = true): string
     {
-        // لازم يكون فيه طلب مرتبط
         $response->loadMissing('bloodRequest');
 
         if (! $response->bloodRequest) {
             throw new \RuntimeException('Response has no associated blood request.');
         }
 
-        // ✅ احصل على Status كـ Enum بشكل آمن
         $responseStatus = $this->asRequestResponseStatus($response->status);
 
-        // ✅ لا تولد QR إلا إذا الحالة PENDING (وافق)
         if ($responseStatus !== RequestResponseStatus::PENDING) {
             throw new \RuntimeException('QR can only be generated for PENDING responses.');
         }
 
-        // ✅ تحقق أن الطلب نشط
         $requestStatus = $this->asBloodRequestStatus($response->bloodRequest->status);
 
         if (! in_array($requestStatus, [
@@ -40,8 +37,7 @@ class QRCodeService
             throw new \RuntimeException('Cannot generate QR for inactive blood request.');
         }
 
-        // ✅ Token قوي (64 hex chars)
-        $qrCode = bin2hex(random_bytes(32));
+        $qrCode = bin2hex(random_bytes(16));
         $expiresAt = $setExpiration ? $this->calculateExpiration($response) : null;
 
         $response->update([
@@ -57,13 +53,22 @@ class QRCodeService
         return $qrCode;
     }
 
+    /**
+     * Render the QR code as an SVG string.
+     */
+    public function render(string $token): string
+    {
+        return QrCode::format('svg')
+            ->size(420)
+            ->margin(2)
+            ->generate($token);
+    }
+
     public function validate(string $code, Organization $organization): ?RequestResponse
     {
         return RequestResponse::query()
             ->where('verification_qr_code', $code)
-            // ✅ لازم تكون PENDING فقط (في DB نخزن القيمة)
-            ->where('status', RequestResponseStatus::PENDING->value)
-            ->whereNull('verified_at')
+            // Removed strict status checks to allow "Already Used" detection
             ->where(function ($q) {
                 $q->whereNull('qr_code_expires_at')
                     ->orWhere('qr_code_expires_at', '>', now());
@@ -87,7 +92,8 @@ class QRCodeService
         }
 
         $response->update([
-            'qr_code_expires_at' => now(),
+            'verification_qr_code' => null,
+            'qr_code_expires_at' => null,
         ]);
 
         Log::info('QR code revoked', [
@@ -102,7 +108,7 @@ class QRCodeService
     }
 
     /**
-     * ✅ Normalize response status (Enum OR int) into Enum
+     * Normalize response status (Enum OR int) into Enum
      */
     private function asRequestResponseStatus(RequestResponseStatus|int|null $status): RequestResponseStatus
     {
@@ -119,7 +125,7 @@ class QRCodeService
     }
 
     /**
-     * ✅ Normalize blood request status (Enum OR int) into Enum
+     * Normalize blood request status (Enum OR int) into Enum
      */
     private function asBloodRequestStatus(BloodRequestStatus|int|null $status): BloodRequestStatus
     {

@@ -39,4 +39,38 @@ class RequestResponse extends Model
     {
         return $this->belongsTo(Donor::class);
     }
+
+    public function getQrStateLabelAttribute(): string
+    {
+        if (blank($this->verification_qr_code)) {
+            return 'غير متوفر';
+        }
+
+        if (filled($this->verified_at)) {
+            return 'تم الاستخدام';
+        }
+
+        if (filled($this->qr_code_expires_at) && now()->greaterThan($this->qr_code_expires_at)) {
+            return 'منتهي';
+        }
+
+        return 'فعّال';
+    }
+
+    public function getQrStateColorAttribute(): string
+    {
+        if (blank($this->verification_qr_code)) {
+            return 'gray';
+        }
+
+        if (filled($this->verified_at)) {
+            return 'success';
+        }
+
+        if (filled($this->qr_code_expires_at) && now()->greaterThan($this->qr_code_expires_at)) {
+            return 'danger';
+        }
+
+        return 'warning';
+    }
 }

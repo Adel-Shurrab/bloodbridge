@@ -14,6 +14,7 @@ enum RequestResponseStatus: int implements HasLabel, HasColor
     case IGNORED = 4;
     case NO_SHOW = 5;
     case UNREACHABLE = 6;
+    case NOT_NEEDED = 7;
 
     public function getLabel(): ?string
     {
@@ -22,9 +23,10 @@ enum RequestResponseStatus: int implements HasLabel, HasColor
             self::ACCEPTED => 'حضر',
             self::DECLINED => 'استبعاد طبي',
             self::COMPLETED => 'تم التبرع بنجاح',
-            self::IGNORED => 'متجاهل',
+            self::IGNORED => 'معتذر',
             self::NO_SHOW => 'لم يحضر',
             self::UNREACHABLE => 'غير متاح',
+            self::NOT_NEEDED => 'لم يعد مطلوباً',
         };
     }
 
@@ -35,7 +37,7 @@ enum RequestResponseStatus: int implements HasLabel, HasColor
             self::ACCEPTED => 'success',
             self::DECLINED, self::IGNORED, self::NO_SHOW => 'danger',
             self::COMPLETED => 'success',
-            self::UNREACHABLE => 'danger',
+            self::UNREACHABLE, self::NOT_NEEDED => 'gray',
         };
     }
 }

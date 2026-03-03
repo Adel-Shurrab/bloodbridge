@@ -2,15 +2,17 @@
 
 namespace App\Filament\Donor\Pages;
 
-use App\Enums\BloodType;
 use App\Enums\RequestResponseStatus;
 use App\Models\RequestResponse;
 use Filament\Pages\Page;
-use Filament\Tables;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
 use Illuminate\Database\Eloquent\Builder;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Filament\Tables\Filters\Filter;
+use Filament\Forms\Components\DatePicker;
 
 class History extends Page implements HasTable
 {
@@ -29,149 +31,83 @@ class History extends Page implements HasTable
     public function table(Table $table): Table
     {
         return $table
-            ->query($this->getQuery())
+            ->query($this->getTableQuery())
             ->defaultSort('responded_at', 'desc')
             ->columns([
-                Tables\Columns\TextColumn::make('bloodRequest.organization.org_name')
+                TextColumn::make('bloodRequest.organization.org_name')
                     ->label('المؤسسة')
                     ->searchable()
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('bloodRequest.blood_type')
+                TextColumn::make('bloodRequest.blood_type')
                     ->label('فصيلة الطلب')
                     ->badge()
-                    ->sortable()
-                    ->formatStateUsing(fn ($state) => $this->asBloodType($state)?->getLabel() ?? (string) $state)
-                    ->color(fn ($state) => $this->asBloodType($state)?->getColor() ?? 'gray'),
+                    ->sortable(),
 
-                Tables\Columns\TextColumn::make('bloodRequest.units_needed')
+                TextColumn::make('bloodRequest.units_needed')
                     ->label('الوحدات المطلوبة')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('status')
+                TextColumn::make('status')
                     ->label('حالتي')
                     ->badge()
-                    ->sortable()
-                    ->formatStateUsing(fn ($state) => $this->asResponseStatus($state)?->getLabel() ?? (string) $state)
-                    ->color(fn ($state) => $this->asResponseStatus($state)?->getColor() ?? 'gray'),
+                    ->sortable(),
 
-                Tables\Columns\TextColumn::make('responded_at')
+                TextColumn::make('responded_at')
                     ->label('تاريخ الرد')
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('verified_at')
+                TextColumn::make('verified_at')
                     ->label('وقت التحقق')
                     ->dateTime('Y-m-d H:i')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
-                Tables\Columns\TextColumn::make('decline_reason')
+                TextColumn::make('decline_reason')
                     ->label('سبب الاستبعاد/الرفض')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->wrap()
                     ->limit(60)
-                    ->visible(fn (?RequestResponse $record) => filled($record?->decline_reason)),
+                    ->visible(fn(?RequestResponse $record) => filled($record?->decline_reason)),
 
-                Tables\Columns\TextColumn::make('qr_state')
+                TextColumn::make('qr_state')
                     ->label('حالة QR')
                     ->badge()
-                    ->state(function (?RequestResponse $record): string {
-                        if (!$record) {
-                            return 'غير متوفر';
-                        }
-
-                        if (blank($record->verification_qr_code)) {
-                            return 'غير متوفر';
-                        }
-
-                        if (filled($record->verified_at)) {
-                            return 'تم الاستخدام';
-                        }
-
-                        if (filled($record->qr_code_expires_at) && now()->greaterThan($record->qr_code_expires_at)) {
-                            return 'منتهي';
-                        }
-
-                        return 'فعّال';
-                    })
-                    ->color(function (?RequestResponse $record): string {
-                        if (!$record) {
-                            return 'gray';
-                        }
-
-                        if (blank($record->verification_qr_code)) {
-                            return 'gray';
-                        }
-
-                        if (filled($record->verified_at)) {
-                            return 'success';
-                        }
-
-                        if (filled($record->qr_code_expires_at) && now()->greaterThan($record->qr_code_expires_at)) {
-                            return 'danger';
-                        }
-
-                        return 'warning';
-                    }),
+                    ->state(fn(RequestResponse $record) => $record->qr_state_label)
+                    ->color(fn(RequestResponse $record) => $record->qr_state_color),
             ])
             ->filters([
-                Tables\Filters\SelectFilter::make('status')
+                SelectFilter::make('status')
                     ->label('الحالة')
-                    ->options(
-                        collect(RequestResponseStatus::cases())
-                            ->mapWithKeys(fn (RequestResponseStatus $case) => [$case->value => $case->getLabel()])
-                            ->all()
-                    ),
+                    ->options(RequestResponseStatus::class),
 
-                Tables\Filters\Filter::make('responded_at_range')
+                Filter::make('responded_at_range')
                     ->label('نطاق التاريخ')
                     ->form([
-                        \Filament\Forms\Components\DatePicker::make('from')->label('من'),
-                        \Filament\Forms\Components\DatePicker::make('until')->label('إلى'),
+                        DatePicker::make('from')->label('من'),
+                        DatePicker::make('until')->label('إلى'),
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query
-                            ->when($data['from'] ?? null, fn (Builder $q, $date) => $q->whereDate('responded_at', '>=', $date))
-                            ->when($data['until'] ?? null, fn (Builder $q, $date) => $q->whereDate('responded_at', '<=', $date));
+                            ->when($data['from'] ?? null, fn(Builder $q, $date) => $q->whereDate('responded_at', '>=', $date))
+                            ->when($data['until'] ?? null, fn(Builder $q, $date) => $q->whereDate('responded_at', '<=', $date));
                     }),
             ])
             ->paginated([10, 25, 50]);
     }
 
-    protected function getQuery(): Builder
+    protected function getTableQuery(): Builder
     {
-        $userId = auth()->id();
+        /** @var \App\Models\User $user */
+        $user = auth()->user();
 
         return RequestResponse::query()
             ->with(['bloodRequest.organization'])
-            ->whereHas('donor', fn (Builder $q) => $q->where('user_id', $userId))
-            ->whereNotNull('responded_at');
-    }
-
-    private function asBloodType(mixed $value): ?BloodType
-    {
-        if ($value instanceof BloodType) {
-            return $value;
-        }
-
-        if ($value instanceof \BackedEnum) {
-            $value = $value->value;
-        }
-
-        return is_numeric($value) ? BloodType::tryFrom((int) $value) : null;
-    }
-
-    private function asResponseStatus(mixed $value): ?RequestResponseStatus
-    {
-        if ($value instanceof RequestResponseStatus) {
-            return $value;
-        }
-
-        if ($value instanceof \BackedEnum) {
-            $value = $value->value;
-        }
-
-        return is_numeric($value) ? RequestResponseStatus::tryFrom((int) $value) : null;
+            ->where('donor_id', $user->donor?->id)
+            ->whereNotNull('responded_at')
+            // Exclude PENDING (Agreed) requests as they are still active/in-process
+            // and displayed on the main Blood Requests page.
+            ->where('status', '!=', RequestResponseStatus::PENDING);
     }
 }

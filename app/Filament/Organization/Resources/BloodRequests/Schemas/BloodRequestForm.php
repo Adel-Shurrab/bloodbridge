@@ -68,6 +68,7 @@ class BloodRequestForm
                     ->description('حدد موقع الحالة ونطاق البحث عن المتبرعين. ملاحظة: استخدم الخريطة فقط إذا كان مكان التبرع خارج مقر المؤسسة.')
                     ->icon('heroicon-o-map-pin')
                     ->collapsible()
+                    ->collapsed(false)
                     ->schema([
                         Grid::make(2)
                             ->schema([
