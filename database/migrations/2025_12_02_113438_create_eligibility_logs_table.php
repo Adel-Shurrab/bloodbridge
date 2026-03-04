@@ -21,8 +21,7 @@ return new class extends Migration
                 ->nullOnDelete();
             $table->unsignedTinyInteger('check_type')->index();
             $table->boolean('is_eligible')->default(true)->index();
-            $table->boolean('is_permanent')
-                ->default(false);
+            $table->boolean('is_permanent')->default(false);
             $table->text('rejection_reason')->nullable();
             $table->json('answers_snapshot')->nullable();
             $table->timestamps();
