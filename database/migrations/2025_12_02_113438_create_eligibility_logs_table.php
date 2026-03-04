@@ -12,27 +12,19 @@ return new class extends Migration
     {
         Schema::create('eligibility_logs', function (Blueprint $table) {
             $table->id();
-
             $table->foreignIdFor(Donor::class)
                 ->constrained()
                 ->cascadeOnDelete();
-
             $table->foreignIdFor(Organization::class)
                 ->nullable()
                 ->constrained()
                 ->nullOnDelete();
-
             $table->unsignedTinyInteger('check_type')->index();
-
             $table->boolean('is_eligible')->default(true)->index();
-
             $table->boolean('is_permanent')
                 ->default(false);
-
             $table->text('rejection_reason')->nullable();
-
             $table->json('answers_snapshot')->nullable();
-
             $table->timestamps();
         });
     }
