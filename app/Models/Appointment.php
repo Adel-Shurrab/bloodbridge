@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class Appointment extends Model
 {
 
-
-    // Defaults
     public const DEFAULT_STATUS = \App\Enums\AppointmentStatus::SCHEDULED;
 
     protected $casts = [

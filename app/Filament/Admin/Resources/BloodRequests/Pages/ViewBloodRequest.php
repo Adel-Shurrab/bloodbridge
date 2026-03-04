@@ -18,7 +18,7 @@ class ViewBloodRequest extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            // Broadcast — only when PENDING
+            
             Action::make('broadcast')
                 ->label('بث الطلب')
                 ->icon('heroicon-o-megaphone')
@@ -42,15 +42,11 @@ class ViewBloodRequest extends ViewRecord
                     $this->refreshFormData(['status', 'broadcasted_at']);
                 }),
 
-            // Mark as fulfilled — when BROADCASTED or MATCHED
             Action::make('fulfill')
                 ->label('تعيين كمكتمل')
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
-                ->visible(fn(BloodRequest $record) => in_array($record->status, [
-                    BloodRequestStatus::BROADCASTED,
-                    BloodRequestStatus::MATCHED,
-                ]))
+                ->visible(fn(BloodRequest $record) => $record->status === BloodRequestStatus::BROADCASTED)
                 ->requiresConfirmation()
                 ->modalHeading('إتمام الطلب')
                 ->modalDescription('هل تأكدت أن الوحدات المطلوبة قد تم التبرع بها؟')
@@ -69,7 +65,6 @@ class ViewBloodRequest extends ViewRecord
                     $this->refreshFormData(['status', 'fulfilled_at']);
                 }),
 
-            // Cancel — when PENDING or BROADCASTED
             Action::make('cancel')
                 ->label('إلغاء الطلب')
                 ->icon('heroicon-o-x-circle')

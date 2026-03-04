@@ -13,7 +13,6 @@ abstract class TestCase extends BaseTestCase
         if (config('database.default') === 'sqlite') {
             $db = \Illuminate\Support\Facades\DB::connection()->getPdo();
 
-            // These functions are needed for Haversine formula in SQLite
             @$db->sqliteCreateFunction('radians', fn($degrees) => deg2rad($degrees));
             @$db->sqliteCreateFunction('cos', fn($radians) => cos($radians));
             @$db->sqliteCreateFunction('sin', fn($radians) => sin($radians));

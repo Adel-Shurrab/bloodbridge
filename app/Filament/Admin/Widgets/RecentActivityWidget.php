@@ -15,7 +15,7 @@ class RecentActivityWidget extends Widget
     public function getActivities(): array
     {
         $activities = collect();
-        // Latest Blood Requests
+        
         BloodRequest::latest()->limit(5)->get()->each(function ($request) use ($activities) {
             $bloodLabel = $request->blood_type?->getLabel() ?? $request->blood_type;
             $activities->push([
@@ -27,7 +27,6 @@ class RecentActivityWidget extends Widget
             ]);
         });
 
-        // Latest Donors
         Donor::with('user')->latest()->limit(5)->get()->each(function ($donor) use ($activities) {
             $activities->push([
                 'title' => "متبرع جديد (" . ($donor->user->name ?? 'Unknown') . ") مسجل في النظام.",
@@ -38,7 +37,6 @@ class RecentActivityWidget extends Widget
             ]);
         });
 
-        // Latest Organizations Approved
         Organization::where('approval_status', \App\Enums\OrganizationStatus::APPROVED)
             ->latest('updated_at')
             ->limit(5)

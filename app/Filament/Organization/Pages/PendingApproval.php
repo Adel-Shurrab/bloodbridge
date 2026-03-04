@@ -32,7 +32,7 @@ class PendingApproval extends Page
 
     public static function canAccess(): bool
     {
-        // Always allow access to this page for organizations that are not approved
+        
         $tenant = Filament::getTenant();
         return $tenant && $tenant->approval_status !== OrganizationStatus::APPROVED;
     }

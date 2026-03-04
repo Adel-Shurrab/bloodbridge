@@ -13,38 +13,33 @@ class GeneralSettings extends Settings
     public ?string $site_logo = null;
     public ?string $site_favicon = null;
 
-    // Contact Information
     public string $support_email = 'info@bloodbridge.ps';
     public ?string $support_phone = null;
     public ?string $address = null;
     public ?string $working_days = null;
     public ?string $working_hours = null;
 
-    // Social Media Links
     public ?string $facebook_url = null;
     public ?string $twitter_url = null;
     public ?string $instagram_url = null;
     public ?string $linkedin_url = null;
     public ?string $youtube_url = null;
 
-    // SEO Settings
     public ?string $seo_title = null;
     public ?string $seo_description = null;
     public ?string $seo_keywords = null;
 
-    // Content - Home Page
     public ?string $home_hero_title = null;
     public ?string $home_hero_subtitle = null;
     public ?string $home_hero_image = null;
     public ?string $home_features_title = null;
     public ?string $home_features_subtitle = null;
-    public ?array $home_features = []; // [{icon, title, text}]
-    public ?array $home_how_it_works_donor = []; // [{title, text}]
-    public ?array $home_how_it_works_org = []; // [{title, text}]
+    public ?array $home_features = []; 
+    public ?array $home_how_it_works_donor = []; 
+    public ?array $home_how_it_works_org = []; 
     public ?string $home_cta_title = null;
     public ?string $home_cta_subtitle = null;
 
-    // Content - About Page
     public ?string $about_hero_title = null;
     public ?string $about_hero_subtitle = null;
     public ?string $about_mission_title1 = null;
@@ -55,21 +50,19 @@ class GeneralSettings extends Settings
     public ?string $about_mission_image2 = null;
     public ?string $about_values_title = null;
     public ?string $about_values_subtitle = null;
-    public ?array $about_values = []; // [{title, text, image}]
+    public ?array $about_values = []; 
     public ?string $about_team_title = null;
     public ?string $about_team_subtitle = null;
-    public ?array $about_team_members = []; // [{name, role, bio, image}]
+    public ?array $about_team_members = []; 
     public ?string $about_impact_title = null;
     public ?string $about_impact_text = null;
     public ?string $about_join_title = null;
     public ?string $about_join_subtitle = null;
 
-    // Content - Contact Page
     public ?string $contact_hero_title = null;
     public ?string $contact_hero_subtitle = null;
-    public ?array $contact_faqs = []; // [{question, answer}]
+    public ?array $contact_faqs = []; 
 
-    // Content - Auth Pages
     public ?string $login_title = null;
     public ?string $login_subtitle = null;
     public ?string $login_image = null;
@@ -90,7 +83,6 @@ class GeneralSettings extends Settings
     public ?string $org_register_subtitle = null;
     public ?string $org_register_image = null;
 
-    // Donation Rules & Limits
     public int $min_donor_age = 18;
     public int $max_donor_age = 65;
     public int $min_donor_weight = 50;

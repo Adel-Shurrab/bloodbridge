@@ -12,7 +12,7 @@ class BloodRequestInfolist
     {
         return $schema
             ->components([
-                // ── Core Info ───────────────────────────────────────────────────
+
                 Section::make('تفاصيل الطلب')
                     ->icon('heroicon-o-document-text')
                     ->columns(3)
@@ -68,7 +68,6 @@ class BloodRequestInfolist
                             ->placeholder('لا توجد ملاحظات'),
                     ]),
 
-                // ── Broadcast & Timeline ────────────────────────────────────────
                 Section::make('مواعيد الطلب')
                     ->icon('heroicon-o-clock')
                     ->columns(4)
@@ -99,7 +98,6 @@ class BloodRequestInfolist
                             ->icon('heroicon-o-arrow-path'),
                     ]),
 
-                // ── Search Radius ───────────────────────────────────────────────
                 Section::make('نطاق البحث')
                     ->icon('heroicon-o-signal')
                     ->columns(3)
@@ -124,7 +122,6 @@ class BloodRequestInfolist
                             ->visible(fn($record) => $record->status === \App\Enums\BloodRequestStatus::BROADCASTED || $record->status === \App\Enums\BloodRequestStatus::FULFILLED),
                     ]),
 
-                // ── Location ────────────────────────────────────────────────────
                 Section::make('موقع الطلب')
                     ->icon('heroicon-o-map-pin')
                     ->columns(3)
@@ -143,13 +140,13 @@ class BloodRequestInfolist
                             ->label('خط الطول')
                             ->placeholder('غير محدد'),
 
-                        TextEntry::make('lat_link')
+                        TextEntry::make('google_maps_link')
                             ->label('رابط خرائط Google')
-                            ->formatStateUsing(fn($record) => $record->lat
+                            ->getStateUsing(fn($record) => $record->lat
                                 ? "({$record->lat}, {$record->lng})"
-                                : 'لا توجد إحداثيات')
+                                : null)
                             ->url(fn($record) => $record->lat
-                                ? "https://www.google.com/maps/search/?api=1&query={$record->lat},{$record->lng}"
+                                ? "https://www.google.com/maps?q={$record->lat},{$record->lng}"
                                 : null, true)
                             ->placeholder('لا توجد إحداثيات'),
                     ]),

@@ -17,25 +17,21 @@ class UnknownDonorImpactWidget extends BaseWidget
     {
         $organization = Auth::user()->organization;
 
-        // UNKNOWN donors registered
         $unknownDonors = Donor::whereHas('healthProfile', function ($query) {
             $query->where('blood_type', BloodType::UNKNOWN)
                 ->whereNull('verified_blood_type');
         })
             ->count();
 
-        // UNKNOWN donors who got verified
         $verifiedUnknown = Donor::whereHas('healthProfile', function ($query) {
             $query->where('blood_type', BloodType::UNKNOWN)
                 ->whereNotNull('verified_blood_type');
         })
             ->count();
 
-        // Conversion rate
         $totalUnknown = $unknownDonors + $verifiedUnknown;
         $conversionRate = $totalUnknown > 0 ? round(($verifiedUnknown / $totalUnknown) * 100, 1) : 0;
 
-        // UNKNOWN donors who responded to this org
         $unknownResponses = RequestResponse::whereHas('bloodRequest', function ($query) use ($organization) {
             $query->where('organization_id', $organization->id);
         })

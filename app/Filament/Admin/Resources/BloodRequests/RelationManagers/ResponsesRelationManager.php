@@ -68,13 +68,13 @@ class ResponsesRelationManager extends RelationManager
                     ),
             ])
             ->headerActions([
-                //
+                
             ])
             ->actions([
                 ViewAction::make(),
             ])
             ->bulkActions([
-                //
+                
             ]);
     }
 }

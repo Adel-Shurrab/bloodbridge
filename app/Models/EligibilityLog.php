@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class EligibilityLog extends Model
 {
-    // Check Types
+    
     public const TYPE_REGISTRATION = 1;
     public const TYPE_REQUEST_ACCEPTANCE = 2;
     public const TYPE_PROFILE_UPDATE = 3;

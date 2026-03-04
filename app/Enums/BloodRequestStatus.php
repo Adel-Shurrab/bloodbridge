@@ -9,7 +9,6 @@ enum BloodRequestStatus: int implements HasLabel, HasColor
 {
     case PENDING = 0;
     case BROADCASTED = 1;
-    case MATCHED = 2;
     case FULFILLED = 3;
     case CANCELLED = 4;
     case EXPIRED = 5;
@@ -19,7 +18,6 @@ enum BloodRequestStatus: int implements HasLabel, HasColor
         return match ($this) {
             self::PENDING => 'قيد الانتظار',
             self::BROADCASTED => 'تم البث',
-            self::MATCHED => 'تمت المطابقة',
             self::FULFILLED => 'تم التنفيذ',
             self::CANCELLED => 'ملغي',
             self::EXPIRED => 'منتهي',
@@ -31,7 +29,6 @@ enum BloodRequestStatus: int implements HasLabel, HasColor
         return match ($this) {
             self::PENDING => 'warning',
             self::BROADCASTED => 'info',
-            self::MATCHED => 'primary',
             self::FULFILLED => 'success',
             self::CANCELLED, self::EXPIRED => 'danger',
         };

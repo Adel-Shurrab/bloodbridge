@@ -55,6 +55,7 @@ class DonorPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
+                \App\Http\Middleware\CheckDonorIneligibility::class,
             ])
             ->databaseNotifications()
             ->databaseNotificationsPolling('30s');

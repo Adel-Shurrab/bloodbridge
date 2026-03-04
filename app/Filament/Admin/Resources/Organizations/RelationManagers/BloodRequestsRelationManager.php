@@ -84,7 +84,7 @@ class BloodRequestsRelationManager extends RelationManager
                 DeleteAction::make(),
             ])
             ->bulkActions([
-                //
+                
             ]);
     }
 }

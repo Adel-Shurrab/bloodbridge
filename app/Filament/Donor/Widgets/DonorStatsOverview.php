@@ -45,7 +45,7 @@ class DonorStatsOverview extends Widget
                 icon: $profile->is_eligible ? 'heroicon-s-check-circle' : 'heroicon-s-x-circle',
                 theme: $profile->is_eligible ? 'emerald' : 'orange',
             ),
-            // You can add more donor-specific stats here
+            
         ];
     }
 

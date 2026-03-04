@@ -22,7 +22,6 @@ class BloodRequestSeeder extends Seeder
         $european  = Organization::where('slug', 'european')->first();
         $najjar    = Organization::where('slug', 'najjar')->first();
 
-        // ── Request 1: الشفاء — O+ Critical, BROADCASTED (active NOW) ──────────────
         BloodRequest::create([
             'organization_id'       => $shifa->id,
             'blood_type'            => BloodType::O_POSITIVE,
@@ -40,7 +39,6 @@ class BloodRequestSeeder extends Seeder
             'broadcasted_at'        => Carbon::now()->subMinutes(30),
         ]);
 
-        // ── Request 2: ناصر — A- Normal, BROADCASTED (2 hours ago) ─────────────────
         BloodRequest::create([
             'organization_id'       => $nasser->id,
             'blood_type'            => BloodType::A_NEGATIVE,
@@ -58,7 +56,6 @@ class BloodRequestSeeder extends Seeder
             'broadcasted_at'        => Carbon::now()->subHours(2),
         ]);
 
-        // ── Request 3: الإندونيسي — B+ Normal, FULFILLED (4 days ago) ───────────────
         BloodRequest::create([
             'organization_id'       => $indo->id,
             'blood_type'            => BloodType::B_POSITIVE,
@@ -77,7 +74,6 @@ class BloodRequestSeeder extends Seeder
             'fulfilled_at'          => Carbon::now()->subDays(4),
         ]);
 
-        // ── Request 4: القدس — AB+ Urgent, MATCHED (donors accepted, waiting) ────────
         BloodRequest::create([
             'organization_id'       => $quds->id,
             'blood_type'            => BloodType::AB_POSITIVE,
@@ -89,13 +85,12 @@ class BloodRequestSeeder extends Seeder
             'lat'                   => $quds->lat,
             'lng'                   => $quds->lng,
             'location_address'      => 'وحدة غسيل الكلى — مستشفى القدس',
-            'status'                => BloodRequestStatus::MATCHED,
+            'status'                => BloodRequestStatus::EXPIRED,
             'donors_accepted'       => 2,
             'donors_completed'      => 0,
             'broadcasted_at'        => Carbon::now()->subHours(5),
         ]);
 
-        // ── Request 5: الأقصى — O- Critical, BROADCASTED (rare blood, wide radius) ───
         BloodRequest::create([
             'organization_id'       => $aqsa->id,
             'blood_type'            => BloodType::O_NEGATIVE,
@@ -113,7 +108,6 @@ class BloodRequestSeeder extends Seeder
             'broadcasted_at'        => Carbon::now()->subHours(1),
         ]);
 
-        // ── Request 6: الأوروبي — A+ Normal, PENDING (not yet broadcast) ────────────
         BloodRequest::create([
             'organization_id'       => $european->id,
             'blood_type'            => BloodType::A_POSITIVE,
@@ -129,7 +123,6 @@ class BloodRequestSeeder extends Seeder
             'donors_completed'      => 0,
         ]);
 
-        // ── Request 7: النجار — B- Urgent, CANCELLED ────────────────────────────────
         BloodRequest::create([
             'organization_id'       => $najjar->id,
             'blood_type'            => BloodType::B_NEGATIVE,
@@ -146,7 +139,6 @@ class BloodRequestSeeder extends Seeder
             'broadcasted_at'        => Carbon::now()->subDays(2),
         ]);
 
-        // ── Request 8: الشفاء — AB- Critical, EXPIRED (old, nobody responded) ────────
         BloodRequest::create([
             'organization_id'       => $shifa->id,
             'blood_type'            => BloodType::AB_NEGATIVE,

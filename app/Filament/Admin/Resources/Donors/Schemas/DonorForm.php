@@ -37,7 +37,6 @@ class DonorForm
                             ->required()
                             ->columnSpanFull(),
 
-                        // New User Creation Fields
                         TextInput::make('new_user_name')
                             ->label('اسم المستخدم')
                             ->required(fn($get) => $get('user_creation_mode') === 'create')
@@ -68,7 +67,6 @@ class DonorForm
                             ->minLength(8)
                             ->visible(fn($get) => $get('user_creation_mode') === 'create'),
 
-                        // Existing User Selection
                         Select::make('user_id')
                             ->label('الحساب المرتبط')
                             ->relationship('user', 'name', function ($query) {
@@ -170,8 +168,8 @@ class DonorForm
                                 TextInput::make('height')
                                     ->label('الطول (سم)')
                                     ->numeric()
-                                    ->minValue(120) // Safe default, actual validation via params or logic if needed, but here minValue is static usually or needs closure. 
-                                    // Actually Filament allows closures for minValue.
+                                    ->minValue(120) 
+                                    
                                     ->minValue(app(\App\Settings\GeneralSettings::class)->min_donor_height)
                                     ->maxValue(220)
                                     ->suffix('سم'),

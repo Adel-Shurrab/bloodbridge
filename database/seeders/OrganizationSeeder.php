@@ -124,7 +124,6 @@ class OrganizationSeeder extends Seeder
             ],
         ];
 
-        // Working days: 0=Sunday...6=Saturday. Gaza typically Sun-Thu = [0,1,2,3,4]
         $workingDays = [0, 1, 2, 3, 4];
 
         foreach ($hospitals as $data) {

@@ -44,16 +44,13 @@ class PublicPagesController extends Controller
     private function getStats(): array
     {
         return Cache::remember('public_stats', 60 * 60, function () {
-            // 1. Count Completed Donations
+            
             $donationsCount = Appointment::where('status', '=', \App\Enums\AppointmentStatus::COMPLETED, 'and')->count('*');
 
-            // 2. Count Approved Organizations (Partners)
             $orgsCount = Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::APPROVED, 'and')->count('*');
 
-            // 3. Count Registered Donors
             $donorsCount = Donor::count('*');
 
-            // 4. Calculate Lives Saved (Rule of Thumb: 1 donation saves 3 lives)
             $livesSaved = $donationsCount * 3;
 
             return [

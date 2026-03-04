@@ -6,7 +6,7 @@ return new class extends SettingsMigration
 {
     public function up(): void
     {
-        // Site Identity
+        
         $this->migrator->add('general.site_name', 'BloodBridge');
         $this->migrator->add('general.site_slogan', 'أعط الحياة قطرة قطرة');
         $this->migrator->add('general.maintenance_mode', false);
@@ -14,26 +14,22 @@ return new class extends SettingsMigration
         $this->migrator->add('general.site_logo', null);
         $this->migrator->add('general.site_favicon', null);
 
-        // Contact Info
         $this->migrator->add('general.support_email', 'info@bloodbridge.com');
         $this->migrator->add('general.support_phone', '+970-59-123-4567');
         $this->migrator->add('general.address', 'فلسطين، غزة');
         $this->migrator->add('general.working_days', 'الأحد - الخميس');
         $this->migrator->add('general.working_hours', 'من 8:00 صباحاً - 5:00 مساءً');
 
-        // Social links
         $this->migrator->add('general.facebook_url', '#');
         $this->migrator->add('general.twitter_url', '#');
         $this->migrator->add('general.instagram_url', '#');
         $this->migrator->add('general.linkedin_url', '#');
         $this->migrator->add('general.youtube_url', '#');
 
-        // SEO
         $this->migrator->add('general.seo_title', 'BloodBridge - إعدادات الموقع');
         $this->migrator->add('general.seo_description', 'نظام ذكي يربط المتبرعين بالمحتاجين، مما يساعد في إنقاذ الأرواح قطرة قطرة.');
         $this->migrator->add('general.seo_keywords', 'تبرع بالدم, حياة, منظمة طبية, غزة');
 
-        // Home Page Content
         $this->migrator->add('general.home_hero_title', 'مرحباً بك في موقعنا');
         $this->migrator->add('general.home_hero_subtitle', 'هذا هو النص الترحيبي الذي يظهر في مقدمة الصفحة.');
         $this->migrator->add('general.home_hero_image', null);
@@ -61,7 +57,6 @@ return new class extends SettingsMigration
         $this->migrator->add('general.home_cta_title', 'ابدأ رحلتك معنا اليوم');
         $this->migrator->add('general.home_cta_subtitle', 'انضم إلى مجتمعنا وكن جزءاً من التغيير');
 
-        // About Page
         $this->migrator->add('general.about_hero_title', 'من نحن');
         $this->migrator->add('general.about_hero_subtitle', 'نحن منصة تربط بين المتبرعين بالدم والمنظمات الطبية لإنقاذ الأرواح');
 
@@ -96,7 +91,6 @@ return new class extends SettingsMigration
         $this->migrator->add('general.about_join_title', 'كن جزءاً من التغيير');
         $this->migrator->add('general.about_join_subtitle', 'انضم إلينا اليوم وكن جزءاً من مجتمع ينقذ الأرواح');
 
-        // Contact Page
         $this->migrator->add('general.contact_hero_title', 'تواصل معنا');
         $this->migrator->add('general.contact_hero_subtitle', 'نحن هنا للإجابة على استفساراتك ومساعدتك في أي وقت');
         $this->migrator->add('general.contact_faqs', [
@@ -105,7 +99,6 @@ return new class extends SettingsMigration
             ['question' => 'هل التبرع آمن؟', 'answer' => 'نعم، التبرع آمن تماماً باستخدام معدات معقمة.'],
         ]);
 
-        // Auth Pages
         $this->migrator->add('general.login_title', 'مرحباً بعودتك');
         $this->migrator->add('general.login_subtitle', 'قم بتسجيل الدخول للوصول إلى حسابك ومتابعة رحلتك في إنقاذ الأرواح.');
         $this->migrator->add('general.login_image', null);

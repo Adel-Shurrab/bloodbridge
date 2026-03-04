@@ -13,7 +13,7 @@ class Dashboard extends \Filament\Pages\Dashboard
     public function getWidgets(): array
     {
         return [
-            // DonorHeaderWidget::class,
+            
             DonorStatsOverviewWidget::class,
         ];
     }

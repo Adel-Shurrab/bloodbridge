@@ -27,11 +27,19 @@ class BloodRequestActionService
             throw new RuntimeException('هذا الطلب غير متاح الآن');
         }
 
-        if (! $donor->healthProfile?->is_eligible) {
+        $profile = $donor->healthProfile;
+        $isEligible = $profile
+            && $profile->is_eligible
+            && (
+                is_null($profile->next_eligible_date)
+                || $profile->next_eligible_date->startOfDay()->isPast()
+                || $profile->next_eligible_date->startOfDay()->isToday()
+            );
+
+        if (! $isEligible) {
             throw new RuntimeException('غير مؤهل للتبرع حاليًا');
         }
 
-        // Prevent accepting more than one request at a time
         $alreadyAccepted = RequestResponse::query()
             ->where('donor_id', $donor->id)
             ->where('blood_request_id', '!=', $request->id)
@@ -54,14 +62,11 @@ class BloodRequestActionService
                 ]
             );
 
-            // Generate QR code
             $this->qrCodeService->generate($response, true);
 
             return $response;
         });
 
-        // Notify the organization's user that a donor accepted their request.
-        // Done OUTSIDE the transaction so DB is committed before the notification is queued.
         $orgUser = $request->organization?->user;
         if ($orgUser) {
             $response->load(['donor.user', 'donor.healthProfile', 'bloodRequest.organization']);
@@ -92,7 +97,6 @@ class BloodRequestActionService
                 ]
             );
 
-            // Revoke QR code if it exists
             $this->qrCodeService->revoke($response);
         });
     }
@@ -112,10 +116,8 @@ class BloodRequestActionService
                 throw new RuntimeException('لا يمكن التراجع عن هذا الطلب');
             }
 
-            // Revoke QR code before deleting
             $this->qrCodeService->revoke($response);
 
-            // Delete the response entirely — donor is free to accept any request again
             $response->delete();
         });
     }

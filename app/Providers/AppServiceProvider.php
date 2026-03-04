@@ -5,7 +5,6 @@ namespace App\Providers;
 use Illuminate\Support\ServiceProvider;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
-
 class AppServiceProvider extends ServiceProvider
 {
     /**
@@ -13,7 +12,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
-        //
+        
     }
 
     /**
@@ -27,7 +26,7 @@ class AppServiceProvider extends ServiceProvider
             config(['app.name' => $settings->site_name]);
             
         } catch (\Throwable $e) {
-            // Silently fail if settings cannot be loaded (e.g. during migrations)
+            
         }
     }
 }

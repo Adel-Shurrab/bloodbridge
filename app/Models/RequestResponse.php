@@ -7,8 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 class RequestResponse extends Model
 {
 
-
-    // Defaults
     public const DEFAULT_STATUS = \App\Enums\RequestResponseStatus::PENDING;
 
     protected $fillable = [

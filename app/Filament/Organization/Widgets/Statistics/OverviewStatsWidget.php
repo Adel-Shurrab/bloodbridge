@@ -14,20 +14,17 @@ class OverviewStatsWidget extends BaseWidget
 {
     protected function getStats(): array
     {
-        // Cache organization for this request to avoid multiple DB queries
+        
         $organization = once(fn() => Auth::user()->organization);
 
-        // Total Requests (all time)
         $totalRequests = BloodRequest::where('organization_id', $organization->id)->count();
 
-        // Total Completed Donations
         $totalDonations = RequestResponse::whereHas('bloodRequest', function ($query) use ($organization) {
             $query->where('organization_id', $organization->id);
         })
             ->where('status', \App\Enums\RequestResponseStatus::COMPLETED)
             ->count();
 
-        // Active Donors (responded in last 30 days)
         $activeDonors = RequestResponse::whereHas('bloodRequest', function ($query) use ($organization) {
             $query->where('organization_id', $organization->id);
         })
@@ -35,7 +32,6 @@ class OverviewStatsWidget extends BaseWidget
             ->distinct('donor_id')
             ->count('donor_id');
 
-        // Response Rate
         $totalResponses = RequestResponse::whereHas('bloodRequest', function ($query) use ($organization) {
             $query->where('organization_id', $organization->id);
         })->count();
@@ -68,10 +64,9 @@ class OverviewStatsWidget extends BaseWidget
 
     private function getRequestsTrend(): array
     {
-        // Cache organization ID for this request
+        
         $organizationId = once(fn() => Auth::user()->organization->id);
 
-        // Use Trend library instead of loop - single aggregated query (7 queries -> 1)
         $data = Trend::query(
             BloodRequest::query()->where('organization_id', $organizationId)
         )

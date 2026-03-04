@@ -13,6 +13,7 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use App\Enums\BloodRequestStatus;
 
 class CancelExcessResponsesJob implements ShouldQueue
 {
@@ -30,14 +31,18 @@ class CancelExcessResponsesJob implements ShouldQueue
      */
     public function handle(QRCodeService $qrService): void
     {
-        // Add a small safety check to ensure it's actually fulfilled
-        if ($this->bloodRequest->status !== \App\Enums\BloodRequestStatus::FULFILLED) {
+        
+        $allowedStatuses = [
+            BloodRequestStatus::FULFILLED,
+            BloodRequestStatus::EXPIRED,
+        ];
+
+        if (! in_array($this->bloodRequest->status, $allowedStatuses, true)) {
             return;
         }
 
-        // Get all pending responses for this request
         $pendingResponses = RequestResponse::query()
-            ->with('donor.user') // Eager load to avoid N+1 when notifying
+            ->with('donor.user') 
             ->where('blood_request_id', $this->bloodRequest->id)
             ->where('status', RequestResponseStatus::PENDING)
             ->get();
@@ -46,19 +51,18 @@ class CancelExcessResponsesJob implements ShouldQueue
             return;
         }
 
-        Log::info("Canceling {$pendingResponses->count()} excess responses for BloodRequest #{$this->bloodRequest->id}");
+        $reason = $this->bloodRequest->status === BloodRequestStatus::EXPIRED ? 'expired' : 'fulfilled';
+        Log::info("Canceling {$pendingResponses->count()} pending responses for BloodRequest #{$this->bloodRequest->id} (reason: {$reason})");
 
         foreach ($pendingResponses as $response) {
             /** @var RequestResponse $response */
             try {
-                // 1. Update status to NOT_NEEDED
+                
                 $response->status = RequestResponseStatus::NOT_NEEDED;
                 $response->save();
 
-                // 2. Revoke their QR code
                 $qrService->revoke($response);
 
-                // 3. Notify the donor
                 if ($response->donor && $response->donor->user) {
                     $response->donor->user->notify(new ResponseNotNeededNotification($response));
                 }

@@ -10,7 +10,6 @@ use Illuminate\Notifications\Notification;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Actions\Action;
 
-
 class BloodRequestMatchNotification extends Notification implements ShouldQueue
 {
     use Queueable;
@@ -45,19 +44,17 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
         $organization = $this->bloodRequest->organization;
         $orgName = $organization?->org_name ?? 'مستشفى غير محدد';
         $bloodType = $this->bloodRequest->blood_type->getLabel();
-        $urgency = $this->bloodRequest->urgency_level->getLabel();
         $units = $this->bloodRequest->units_needed;
 
         $title = match ($this->bloodRequest->urgency_level->value) {
-            \App\Enums\UrgencyLevel::CRITICAL->value => '🚨 طلب تبرع عاجل جداً',
-            default => '🩸 طلب تبرع بالدم'
+            \App\Enums\UrgencyLevel::CRITICAL->value => 'طلب تبرع عاجل جداً',
+            default => 'طلب تبرع بالدم'
         };
 
         $body = "يحتاج {$orgName} إلى {$units} وحدة من فصيلة {$bloodType}";
 
-        // Add note for unknown blood type donors
         if ($notifiable->donor?->healthProfile?->blood_type === BloodType::UNKNOWN) {
-            $body .= "\n⚠️ ملاحظة: سيتم تحديد فصيلة دمك في المستشفى";
+            $body .= "\n ملاحظة: سيتم تحديد فصيلة دمك في المستشفى";
         }
 
         if ($this->distance) {
@@ -83,22 +80,5 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
                     ->markAsRead(),
             ])
             ->getDatabaseMessage();
-    }
-
-    /**
-     * Get the array representation for raw database storage.
-     *
-     * @return array<string, mixed>
-     */
-    public function toArray(object $notifiable): array
-    {
-        return [
-            'blood_request_id' => $this->bloodRequest->id,
-            'organization_name' => $this->bloodRequest->organization->org_name,
-            'blood_type' => $this->bloodRequest->blood_type->value,
-            'urgency_level' => $this->bloodRequest->urgency_level->value,
-            'units_needed' => $this->bloodRequest->units_needed,
-            'distance' => $this->distance,
-        ];
     }
 }

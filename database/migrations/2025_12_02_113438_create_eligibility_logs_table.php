@@ -13,7 +13,6 @@ return new class extends Migration
         Schema::create('eligibility_logs', function (Blueprint $table) {
             $table->id();
 
-            // Link to the Donor
             $table->foreignIdFor(Donor::class)
                 ->constrained()
                 ->cascadeOnDelete();
@@ -23,20 +22,15 @@ return new class extends Migration
                 ->constrained()
                 ->nullOnDelete();
 
-            // The 3 Contexts (Points 1, 2, 3 from your text)
             $table->unsignedTinyInteger('check_type')->index();
 
-            // The Result
             $table->boolean('is_eligible')->default(true)->index();
 
             $table->boolean('is_permanent')
                 ->default(false);
 
-            // "Why did they fail?" (e.g., "Answered Yes to Recent Surgery")
             $table->text('rejection_reason')->nullable();
 
-            // Store the exact answers they gave at that moment (JSON is perfect for this)
-            // Example: {"surgery": true, "antibiotics": false}
             $table->json('answers_snapshot')->nullable();
 
             $table->timestamps();

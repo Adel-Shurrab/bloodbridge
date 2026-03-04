@@ -123,7 +123,6 @@ class OrganizationInfolist
                             ->url(fn($state) => $state ? 'tel:' . $state : null),
                     ]),
 
-                // ── Working Hours + Capacity ────────────────────────────────────
                 Section::make('أوقات العمل والطاقة الاستيعابية')
                     ->icon('heroicon-o-clock')
                     ->columns(4)
@@ -151,7 +150,6 @@ class OrganizationInfolist
                             }),
                     ]),
 
-                // ── Statistics ──────────────────────────────────────────────────
                 Section::make('الإحصائيات')
                     ->icon('heroicon-o-chart-bar-square')
                     ->columns(3)
@@ -176,7 +174,6 @@ class OrganizationInfolist
                             ->color(fn($state) => $state > 0 ? 'warning' : 'gray'),
                     ]),
 
-                // ── Location ────────────────────────────────────────────────────
                 Section::make('الموقع الجغرافي')
                     ->icon('heroicon-o-map-pin')
                     ->collapsed()
@@ -195,13 +192,13 @@ class OrganizationInfolist
                             ->label('خط الطول')
                             ->placeholder('غير محدد'),
 
-                        TextEntry::make('lat')
+                        TextEntry::make('google_maps_link')
                             ->label('رابط خرائط Google')
-                            ->formatStateUsing(fn($record) => $record->lat
+                            ->getStateUsing(fn($record) => $record->lat
                                 ? "({$record->lat}, {$record->lng})"
-                                : 'لا توجد إحداثيات')
+                                : null)
                             ->url(fn($record) => $record->lat
-                                ? "https://www.google.com/maps/search/?api=1&query={$record->lat},{$record->lng}"
+                                ? "https://www.google.com/maps?q={$record->lat},{$record->lng}"
                                 : null, true)
                             ->placeholder('لا توجد إحداثيات'),
                     ]),

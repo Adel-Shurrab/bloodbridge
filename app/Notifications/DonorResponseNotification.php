@@ -3,7 +3,7 @@
 namespace App\Notifications;
 
 use App\Models\RequestResponse;
-use App\Models\BloodRequest;
+use App\Enums\RequestResponseStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
@@ -42,12 +42,12 @@ class DonorResponseNotification extends Notification implements ShouldQueue
         $status = $this->response->status;
 
         $title = match ($status->value) {
-            \App\Enums\RequestResponseStatus::PENDING->value => '✋ متبرع جديد وافق على التبرع',
-            \App\Enums\RequestResponseStatus::ACCEPTED->value => '✅ متبرع وصل إلى المستشفى',
-            \App\Enums\RequestResponseStatus::COMPLETED->value => '🎉 تبرع مكتمل',
-            \App\Enums\RequestResponseStatus::DECLINED->value => '❌ تبرع مرفوض طبياً',
-            \App\Enums\RequestResponseStatus::NO_SHOW->value => '⚠️ متبرع لم يحضر',
-            default => '📝 استجابة متبرع'
+            RequestResponseStatus::PENDING->value => 'متبرع جديد وافق على التبرع',
+            RequestResponseStatus::ACCEPTED->value => 'متبرع وصل إلى المستشفى',
+            RequestResponseStatus::COMPLETED->value => 'تبرع مكتمل',
+            RequestResponseStatus::DECLINED->value => 'تبرع مرفوض طبياً',
+            RequestResponseStatus::NO_SHOW->value => 'متبرع لم يحضر',
+            default => 'استجابة متبرع'
         };
 
         $body = $donor->user->name . " - فصيلة الدم: ";
@@ -62,23 +62,24 @@ class DonorResponseNotification extends Notification implements ShouldQueue
             ->title($title)
             ->body($body)
             ->icon(match ($status->value) {
-                \App\Enums\RequestResponseStatus::COMPLETED->value => 'heroicon-o-check-circle',
-                \App\Enums\RequestResponseStatus::DECLINED->value,
-                \App\Enums\RequestResponseStatus::NO_SHOW->value => 'heroicon-o-x-circle',
+                RequestResponseStatus::COMPLETED->value => 'heroicon-o-check-circle',
+                RequestResponseStatus::DECLINED->value,
+                RequestResponseStatus::NO_SHOW->value => 'heroicon-o-x-circle',
                 default => 'heroicon-o-user'
             })
             ->iconColor(match ($status->value) {
-                \App\Enums\RequestResponseStatus::COMPLETED->value => 'success',
-                \App\Enums\RequestResponseStatus::DECLINED->value,
-                \App\Enums\RequestResponseStatus::NO_SHOW->value => 'danger',
-                \App\Enums\RequestResponseStatus::ACCEPTED->value => 'info',
+                RequestResponseStatus::COMPLETED->value => 'success',
+                RequestResponseStatus::DECLINED->value,
+                RequestResponseStatus::NO_SHOW->value => 'danger',
+                RequestResponseStatus::ACCEPTED->value => 'info',
                 default => 'warning'
             })
             ->actions([
                 Action::make('view')
                     ->label('عرض الرد')
-                    ->url(route('filament.organization.resources.blood-requests.index', [
-                        'tenant' => $bloodRequest->organization->slug
+                    ->url(route('filament.organization.resources.blood-requests.view', [
+                        'tenant' => $bloodRequest->organization->slug,
+                        'record' => $bloodRequest->id,
                     ]))
                     ->button()
                     ->markAsRead(),

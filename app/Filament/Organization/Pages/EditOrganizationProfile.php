@@ -33,7 +33,7 @@ class EditOrganizationProfile extends EditTenantProfile
         return $schema
             ->columns(1)
             ->components([
-                // المعلومات الأساسية
+                
                 Section::make('المعلومات الأساسية')
                     ->description('البيانات الأساسية للمستشفى أو المركز الطبي')
                     ->icon('heroicon-o-building-office-2')
@@ -63,7 +63,6 @@ class EditOrganizationProfile extends EditTenantProfile
                             ]),
                     ]),
 
-                // معلومات التواصل
                 Section::make('معلومات التواصل')
                     ->description('بيانات الاتصال والموقع الجغرافي للمنظمة')
                     ->icon('heroicon-o-phone')
@@ -94,9 +93,6 @@ class EditOrganizationProfile extends EditTenantProfile
                                     ->helperText('رقم الهاتف الأرضي أو المحمول')
                                     ->columnSpan(1),
 
-
-
-                                // Map Picker Component
                                 Map::make('location')
                                     ->label('موقع المنظمة على الخريطة')
                                     ->columnSpanFull()
@@ -134,13 +130,11 @@ class EditOrganizationProfile extends EditTenantProfile
                                         'zoomSnap' => 2,
                                     ]),
 
-                                // Hidden fields to store coordinates
                                 Hidden::make('lat'),
                                 Hidden::make('lng'),
                             ]),
                     ]),
 
-                // أوقات العمل والطاقة الاستيعابية
                 Section::make('أوقات العمل والطاقة الاستيعابية')
                     ->description('ساعات العمل اليومية وقدرة المركز على استقبال المتبرعين')
                     ->icon('heroicon-o-clock')
@@ -148,7 +142,7 @@ class EditOrganizationProfile extends EditTenantProfile
                     ->collapsible()
                     ->columnSpanFull()
                     ->schema([
-                        // Working Hours
+                        
                         Group::make()
                             ->schema([
                                 Placeholder::make('working_hours_label')
@@ -168,7 +162,7 @@ class EditOrganizationProfile extends EditTenantProfile
                                     })
                                     ->afterStateUpdated(function ($state, callable $set) {
                                         if ($state) {
-                                            // Clear opening and closing times when emergency mode is enabled
+                                            
                                             $set('opening_time', null);
                                             $set('closing_time', null);
                                         }
@@ -218,7 +212,6 @@ class EditOrganizationProfile extends EditTenantProfile
                                     ]),
                             ]),
 
-                        // Working Days
                         Group::make()
                             ->schema([
                                 Placeholder::make('working_days_label')

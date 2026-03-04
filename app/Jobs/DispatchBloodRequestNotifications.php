@@ -47,15 +47,12 @@ class DispatchBloodRequestNotifications implements ShouldQueue
 
         $userIds = array_keys($this->donorData);
 
-        // Eager load donor.healthProfile to prevent N+1 queries (used in notification)
         /** @var \Illuminate\Support\Collection<int, User> $users */
         User::with('donor.healthProfile')
             ->whereIn('id', $userIds)
             ->chunk(10, function (\Illuminate\Support\Collection $users) use ($bloodRequest) {
                 foreach ($users as $user) {
-                    // Re-check eligibility at send time to handle race conditions where
-                    // the donor's status changed between job dispatch and job execution
-                    // (e.g. they just donated to a previous request and triggered a cooldown).
+
                     $healthProfile = $user->donor?->healthProfile;
 
                     if (! $healthProfile) {

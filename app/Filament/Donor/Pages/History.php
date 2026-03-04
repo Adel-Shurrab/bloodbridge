@@ -106,8 +106,7 @@ class History extends Page implements HasTable
             ->with(['bloodRequest.organization'])
             ->where('donor_id', $user->donor?->id)
             ->whereNotNull('responded_at')
-            // Exclude PENDING (Agreed) requests as they are still active/in-process
-            // and displayed on the main Blood Requests page.
+
             ->where('status', '!=', RequestResponseStatus::PENDING);
     }
 }

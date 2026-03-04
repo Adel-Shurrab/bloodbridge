@@ -35,7 +35,7 @@ class OrganizationPanelProvider extends PanelProvider
             ->discoverResources(in: app_path('Filament/Organization/Resources'), for: 'App\Filament\Organization\Resources')
             ->discoverPages(in: app_path('Filament/Organization/Pages'), for: 'App\Filament\Organization\Pages')
             ->pages([
-                //
+                
             ])
             ->discoverWidgets(in: app_path('Filament/Organization/Widgets'), for: 'App\Filament\Organization\Widgets')
             ->widgets([
@@ -60,7 +60,7 @@ class OrganizationPanelProvider extends PanelProvider
             ->tenantMiddleware([
                 \App\Http\Middleware\CheckOrganizationApproved::class,
             ])
-            ->databaseNotifications() // Enable notification bell for organizations
+            ->databaseNotifications() 
             ->databaseNotificationsPolling('30s')
             ->tenant(Organization::class, slugAttribute: 'slug')
             ->tenantProfile(EditOrganizationProfile::class);

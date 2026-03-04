@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('points_rewards')->default(0);
             $table->string('badge_icon')->nullable();
             $table->string('badge_type')->nullable()->index();
-            $table->string('criteria_type'); // e.g. 'donations', 'points'
+            $table->string('criteria_type'); 
             $table->integer('criteria_value')->default(0);
             $table->integer('display_order')->default(0)->index();
             $table->timestamps();

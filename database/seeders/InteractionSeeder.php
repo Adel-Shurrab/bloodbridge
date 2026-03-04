@@ -19,7 +19,6 @@ class InteractionSeeder extends Seeder
             return $r->organization->slug . '_' . $r->blood_type->value . '_' . $r->status->value;
         });
 
-        // Look up each request by org slug + blood type + status
         $req1 = BloodRequest::whereHas('organization', fn($q) => $q->where('slug', 'al-shifa'))
             ->where('blood_type', \App\Enums\BloodType::O_POSITIVE)
             ->where('status', BloodRequestStatus::BROADCASTED)
@@ -45,7 +44,6 @@ class InteractionSeeder extends Seeder
             ->where('blood_type', \App\Enums\BloodType::AB_NEGATIVE)
             ->first();
 
-        // Look up donors by national_id
         $d = fn(string $id) => Donor::whereHas('user')->where('national_id', $id)->first();
 
         /**
@@ -57,7 +55,6 @@ class InteractionSeeder extends Seeder
         if ($req1) {
             $broadcastedAt = Carbon::parse($req1->broadcasted_at);
 
-            // محمد أبو عمر (O+) → وافق (PENDING = on the way)
             $this->respond(
                 $req1,
                 $d('400123456'),
@@ -65,7 +62,6 @@ class InteractionSeeder extends Seeder
                 $broadcastedAt->copy()->addMinutes(8)
             );
 
-            // يوسف زعرب (O-) → حضر ويستنى (ACCEPTED = arrived at hospital)
             $this->respond(
                 $req1,
                 $d('400567890'),
@@ -74,7 +70,6 @@ class InteractionSeeder extends Seeder
                 qrCode: true
             );
 
-            // جمال أبو دقة (O+) → وافق (PENDING = on the way)
             $this->respond(
                 $req1,
                 $d('440123456'),
@@ -82,8 +77,6 @@ class InteractionSeeder extends Seeder
                 $broadcastedAt->copy()->addMinutes(22)
             );
 
-            // طارق الدبعي (O+) — has recent surgery but responded anyway
-            // IGNORED — he then cancelled himself (personal emergency)
             $this->respond(
                 $req1,
                 $d('410345678'),
@@ -92,7 +85,6 @@ class InteractionSeeder extends Seeder
                 declineReason: 'ظرف طارئ، انتهت إمكانية المجيء'
             );
 
-            // حسن أبو حسن (O+, verified) → معتذر (IGNORED)
             $this->respond(
                 $req1,
                 $d('420123456'),
@@ -111,7 +103,6 @@ class InteractionSeeder extends Seeder
         if ($req2) {
             $broadcastedAt = Carbon::parse($req2->broadcasted_at);
 
-            // أحمد الحسن (A+) → وافق (PENDING = on the way)
             $this->respond(
                 $req2,
                 $d('400234567'),
@@ -119,7 +110,6 @@ class InteractionSeeder extends Seeder
                 $broadcastedAt->copy()->addMinutes(20)
             );
 
-            // سامي سلامة (A-) → وافق ثم لم يحضر (NO_SHOW)
             $this->respond(
                 $req2,
                 $d('410123456'),
@@ -127,8 +117,6 @@ class InteractionSeeder extends Seeder
                 $broadcastedAt->copy()->addMinutes(10)
             );
 
-            // إياد الغصين (A-) → حضر ويستنى (ACCEPTED)
-            // Note: he has an infection flag but still accepted — hospital may screen him
             $this->respond(
                 $req2,
                 $d('420234567'),
@@ -137,7 +125,6 @@ class InteractionSeeder extends Seeder
                 qrCode: true
             );
 
-            // إبراهيم قاسم (A-) → حضر لكن تم استبعاده طبياً (DECLINED)
             $this->respond(
                 $req2,
                 $d('430567890'),
@@ -157,7 +144,6 @@ class InteractionSeeder extends Seeder
         if ($req3) {
             $broadcastedAt = Carbon::parse($req3->broadcasted_at);
 
-            // نادر الشوبكي (B+) → تبرع بنجاح (COMPLETED, QR verified)
             $this->respond(
                 $req3,
                 $d('410567890'),
@@ -167,7 +153,6 @@ class InteractionSeeder extends Seeder
                 qrCode: true
             );
 
-            // أنس المصري (B+, no GPS) → تبرع بنجاح (COMPLETED, QR verified)
             $this->respond(
                 $req3,
                 $d('430234567'),
@@ -177,7 +162,6 @@ class InteractionSeeder extends Seeder
                 qrCode: true
             );
 
-            // عدنان الزواوي (B+) → تبرع بنجاح (COMPLETED, QR verified)
             $this->respond(
                 $req3,
                 $d('440234567'),
@@ -187,7 +171,6 @@ class InteractionSeeder extends Seeder
                 qrCode: true
             );
 
-            // ماجد عبدالله (AB+) → حضر لكن استُبعد طبياً (DECLINED — ضغط دم مرتفع)
             $this->respond(
                 $req3,
                 $d('420345678'),
@@ -197,7 +180,6 @@ class InteractionSeeder extends Seeder
                 declineReason: 'استبعاد طبي: ضغط دم مرتفع — 160/100 mmHg'
             );
 
-            // بلال الجمل (O+, temp ineligible) → وافق لكن لم يحضر (NO_SHOW)
             $this->respond(
                 $req3,
                 $d('430345678'),
@@ -215,7 +197,6 @@ class InteractionSeeder extends Seeder
         if ($req4) {
             $broadcastedAt = Carbon::parse($req4->broadcasted_at);
 
-            // خالد النجار (AB+, verified) → وصل المستشفى (ACCEPTED, QR issued)
             $this->respond(
                 $req4,
                 $d('400456789'),
@@ -224,7 +205,6 @@ class InteractionSeeder extends Seeder
                 qrCode: true
             );
 
-            // ماجد عبدالله (AB+) → وصل المستشفى (ACCEPTED, QR issued)
             $this->respond(
                 $req4,
                 $d('420345678'),
@@ -233,7 +213,6 @@ class InteractionSeeder extends Seeder
                 qrCode: true
             );
 
-            // زياد الأسطل (AB-) → في الطريق (PENDING)
             $this->respond(
                 $req4,
                 $d('430456789'),
@@ -251,8 +230,6 @@ class InteractionSeeder extends Seeder
         if ($req5) {
             $broadcastedAt = Carbon::parse($req5->broadcasted_at);
 
-            // يوسف زعرب (O-, universal) →在路上 PENDING (also responded to req1 — handled by unique index)
-            // He is the only O- that is genuinely eligible, coming from Gaza
             $this->respond(
                 $req5,
                 $d('400567890'),
@@ -260,7 +237,6 @@ class InteractionSeeder extends Seeder
                 $broadcastedAt->copy()->addMinutes(5)
             );
 
-            // وائل سعد (O-) → وصل المستشفى (ACCEPTED)
             $this->respond(
                 $req5,
                 $d('420567890'),
@@ -269,7 +245,6 @@ class InteractionSeeder extends Seeder
                 qrCode: true
             );
 
-            // نبيل جودة (O-, infected, Rafah) → غير متاح (UNREACHABLE — couldnt be reached)
             $this->respond(
                 $req5,
                 $d('440456789'),
@@ -287,7 +262,6 @@ class InteractionSeeder extends Seeder
         if ($req8) {
             $broadcastedAt = Carbon::parse($req8->broadcasted_at);
 
-            // زياد الأسطل (AB-) → تجاهل الطلب (IGNORED)
             $this->respond(
                 $req8,
                 $d('430456789'),
@@ -296,7 +270,6 @@ class InteractionSeeder extends Seeder
                 declineReason: 'لم أتمكن من الوصول وقتها'
             );
 
-            // صلاح الدين البح (AB+) → غير متاح (UNREACHABLE)
             $this->respond(
                 $req8,
                 $d('440567890'),
@@ -320,7 +293,6 @@ class InteractionSeeder extends Seeder
     ): void {
         if (! $request || ! $donor) return;
 
-        // Avoid duplicate (unique constraint: donor_id + blood_request_id)
         $exists = RequestResponse::where('blood_request_id', $request->id)
             ->where('donor_id', $donor->id)
             ->exists();

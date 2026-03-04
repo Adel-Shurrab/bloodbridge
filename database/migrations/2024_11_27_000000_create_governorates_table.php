@@ -18,8 +18,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-
-
         $governorates = ['غزة', 'خانيونس', 'شمال غزة', 'دير البلح', 'رفح'];
         foreach ($governorates as $name) {
             DB::table('governorates')->insert([
