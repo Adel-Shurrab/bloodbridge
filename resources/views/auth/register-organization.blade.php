@@ -92,7 +92,8 @@
                             <div class="info-box mini" style="margin: 0 0 1.5rem 0; padding: 0.75rem 1rem;">
                                 <div class="info-icon">💡</div>
                                 <div class="info-content">
-                                    <p style="font-size: 0.85rem;">تزويدنا بساعات العمل يساعد المتبرعين على اختيار الوقت المناسب لزيارتكم.</p>
+                                    <p style="font-size: 0.85rem;">تزويدنا بساعات العمل يساعد المتبرعين على اختيار الوقت
+                                        المناسب لزيارتكم.</p>
                                 </div>
                             </div>
                         </div>
@@ -127,11 +128,13 @@
 
                         <div class="form-row">
                             <div class="form-group full-width">
-                                <label for="daily_capacity">القدرة الاستيعابية اليومية (عدد المتبرعين) <span class="required">*</span></label>
+                                <label for="daily_capacity">القدرة الاستيعابية اليومية (عدد المتبرعين) <span
+                                        class="required">*</span></label>
                                 <input type="number" id="daily_capacity" name="daily_capacity"
                                     value="{{ old('daily_capacity') }}" min="1" placeholder="مثال: 50" />
                                 <span class="error-message"></span>
-                                <span class="helper-text">العدد التقديري للمتبرعين الذين يمكن للمؤسسة استقبالهم يومياً. إدخال هذا الرقم يساعدنا في تنظيم تدفق المتبرعين.</span>
+                                <span class="helper-text">العدد التقديري للمتبرعين الذين يمكن للمؤسسة استقبالهم يومياً.
+                                    إدخال هذا الرقم يساعدنا في تنظيم تدفق المتبرعين.</span>
                             </div>
                         </div>
 
@@ -171,7 +174,8 @@
                                 <select id="governorate_id" name="governorate_id">
                                     <option value="" disabled selected>اختر المحافظة</option>
                                     @foreach ($governorates as $gov)
-                                        <option value="{{ $gov->id }}" {{ old('governorate_id') == $gov->id ? 'selected' : '' }}>
+                                        <option value="{{ $gov->id }}"
+                                            {{ old('governorate_id') == $gov->id ? 'selected' : '' }}>
                                             {{ $gov->name }}
                                         </option>
                                     @endforeach
@@ -187,189 +191,179 @@
                                     <span style="color: #999; font-weight: normal;">(اختياري)</span>
                                 </label>
                                 <div style="position: relative; display: flex; gap: 0.5rem;">
-                                    <input 
-                                        type="text" 
-                                        id="auto_location_address" 
-                                        name="auto_location_address"
+                                    <input type="text" id="auto_location_address" name="auto_location_address"
                                         value="{{ old('auto_location_address') }}"
-                                        placeholder="اضغط على زر الموقع لتحديد موقع المنظمة تلقائياً"
-                                        readonly
-                                        style="flex: 1; background: #f9fafb; cursor: pointer;"
-                                    />
-                                    <button 
-                                        type="button" 
-                                        id="gps-location-btn"
-                                        class="btn btn-outline"
+                                        placeholder="اضغط على زر الموقع لتحديد موقع المنظمة تلقائياً" readonly
+                                        style="flex: 1; background: #f9fafb; cursor: pointer;" />
+                                    <button type="button" id="gps-location-btn" class="btn btn-outline"
                                         style="padding: 0.875rem 1.5rem; white-space: nowrap; min-width: auto;"
-                                        title="تحديد الموقع تلقائياً"
-                                    >
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block;">
-                                            <path d="M12 2v4m0 12v4M2 12h4m12 0h4"/>
-                                            <circle cx="12" cy="12" r="3"/>
+                                        title="تحديد الموقع تلقائياً">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
+                                            stroke="currentColor" stroke-width="2" style="display: inline-block;">
+                                            <path d="M12 2v4m0 12v4M2 12h4m12 0h4" />
+                                            <circle cx="12" cy="12" r="3" />
                                         </svg>
                                         <span style="margin-right: 0.5rem;">تحديد الموقع</span>
                                     </button>
                                 </div>
                                 <span class="helper-text">سيساعد هذا المتبرعين في العثور على موقع المنظمة بسهولة</span>
                                 <span class="error-message"></span>
-        
+
                                 <!-- Hidden inputs for coordinates -->
                                 <input type="hidden" id="auto_lat" name="auto_lat" value="{{ old('auto_lat') }}">
                                 <input type="hidden" id="auto_lng" name="auto_lng" value="{{ old('auto_lng') }}">
                             </div>
                         </div>
-                        </div>
                     </div>
-                    <div class="form-step" id="step3">
-                        <h2 class="step-title">التوثيق والإدارة</h2>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="licenseNumber">رقم الترخيص الرسمي <span class="required">*</span></label>
-                                <input type="text" id="licenseNumber" name="licenseNumber"
-                                    value="{{ old('licenseNumber') }}" placeholder="LIC-123456789" />
-                                <span class="error-message"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="licenseUpload">تحميل الرخصة <span class="required">*</span></label>
-                                <div class="file-upload-wrapper">
-                                    <input type="file" id="licenseUpload" name="licenseUpload"
-                                        accept=".pdf,.jpg,.jpeg,.png" class="file-input" />
-                                    <div class="file-upload-display" id="fileUploadDisplay">
-                                        <div class="file-icon">📄</div>
-                                        <div class="file-text">
-                                            <span class="file-prompt">انقر للتحميل</span>
-                                            <span class="file-hint">PDF, JPG, PNG حتى 5 ميغا بايت</span>
-                                        </div>
-                                    </div>
-                                    <div class="file-selected" id="fileSelected" style="display: none">
-                                        <span class="file-name" id="fileName"></span>
-                                        <button type="button" class="file-remove" id="fileRemove">×</button>
-                                    </div>
-                                </div>
-                                <span class="error-message"></span>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="adminName">اسم جهة الاتصال الإدارية <span class="required">*</span></label>
-                                <input type="text" id="adminName" name="adminName" value="{{ old('adminName') }}"
-                                    placeholder="أحمد محمد" />
-                                <span class="error-message"></span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="responsible_person_position">المسمى الوظيفي <span
-                                        class="required">*</span></label>
-                                <input type="text" id="responsible_person_position" name="responsible_person_position"
-                                    value="{{ old('responsible_person_position') }}"
-                                    placeholder="مدير العلاقات العامة" />
-                                <span class="error-message"></span>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="adminEmail">البريد الإلكتروني للمسؤول <span
-                                        class="required">*</span></label>
-                                <input type="email" id="adminEmail" name="adminEmail" value="{{ old('adminEmail') }}"
-                                    placeholder="admin@organization.com" />
-                                <span class="error-message"></span>
-                            </div>
-                        </div>
-
-                        <div class="form-row">
-                            <div class="form-group">
-                                <label for="adminPassword">كلمة السر <span class="required">*</span></label>
-                                <div class="password-input">
-                                    <input type="password" id="adminPassword" name="adminPassword"
-                                        placeholder="••••••••" />
-                                    <button type="button" class="toggle-password" data-target="adminPassword">
-                                        <span class="eye-icon">👁️</span>
-                                    </button>
-                                </div>
-                                <span class="error-message"></span>
-                                <span class="helper-text">يجب أن تكون 8 أحرف على الأقل</span>
-                            </div>
-
-                            <div class="form-group">
-                                <label for="adminPassword_confirmation">تأكيد كلمة السر <span
-                                        class="required">*</span></label>
-                                <div class="password-input">
-                                    <input type="password" id="adminPassword_confirmation"
-                                        name="adminPassword_confirmation" placeholder="••••••••" />
-                                    <button type="button" class="toggle-password"
-                                        data-target="adminPassword_confirmation">
-                                        <span class="eye-icon">👁️</span>
-                                    </button>
-                                </div>
-                                <span class="error-message"></span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-step" id="step4">
-                        <h2 class="step-title">مراجعة المعلومات</h2>
-
-                        <div class="review-section">
-                            <h3>معلومات المنظمة</h3>
-                            <div class="review-grid" id="organizationInfoReview"></div>
-                        </div>
-
-                        <div class="review-section">
-                            <h3>معلومات الاتصال</h3>
-                            <div class="review-grid" id="contactInfoReview"></div>
-                        </div>
-
-                        <div class="review-section">
-                            <h3>التفاصيل الإدارية</h3>
-                            <div class="review-grid" id="adminInfoReview"></div>
-                        </div>
-
-                        <div class="info-box">
-                            <div class="info-icon">ℹ️</div>
-                            <div class="info-content">
-                                <strong>ملاحظة:</strong>
-                                <p>سيتم مراجعة طلبك من قبل فريقنا. سنرسل لك بريداً إلكترونياً بمجرد تفعيل حسابك بالكامل.
-                                </p>
-                            </div>
-                        </div>
-
-                        <div class="form-group checkbox-group">
-                            <label class="checkbox-label">
-                                <input type="checkbox" id="termsAgree" name="termsAgree" required value="1" />
-                                <span class="checkbox-custom"></span>
-                                <span class="checkbox-text">لقد قرأت ووافقت على <a href="javascript:void(0)" @click.prevent="$dispatch('open-modal', 'privacyModal')" class="terms-link">الشروط
-                                        والأحكام</a> <span class="required">*</span></span>
-                            </label>
-                            <span class="error-message"></span>
-                        </div>
-                    </div>
-
-                    <div class="form-navigation">
-                        <button type="button" class="btn btn-outline btn-prev" id="prevBtn" style="display: none">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M19 12H5M12 19l-7-7 7-7" />
-                            </svg>
-                            <span>السابق</span>
-                        </button>
-                        <button type="button" class="btn btn-primary btn-next" id="nextBtn">
-                            <span>التالي</span>
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="2">
-                                <path d="M5 12h14M12 5l7 7-7 7" />
-                            </svg>
-                        </button>
-                        <button type="submit" class="btn btn-primary btn-submit" id="submitBtn" style="display: none">
-                            <span>تقديم الطلب</span>
-                            <span class="btn-loader"></span>
-                        </button>
-                    </div>
-                </form>
             </div>
+            <div class="form-step" id="step3">
+                <h2 class="step-title">التوثيق والإدارة</h2>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="licenseNumber">رقم الترخيص الرسمي <span class="required">*</span></label>
+                        <input type="text" id="licenseNumber" name="licenseNumber"
+                            value="{{ old('licenseNumber') }}" placeholder="LIC-123456789" />
+                        <span class="error-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="licenseUpload">تحميل الرخصة <span class="required">*</span></label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="licenseUpload" name="licenseUpload"
+                                accept=".pdf,.jpg,.jpeg,.png" class="file-input" />
+                            <div class="file-upload-display" id="fileUploadDisplay">
+                                <div class="file-icon">📄</div>
+                                <div class="file-text">
+                                    <span class="file-prompt">انقر للتحميل</span>
+                                    <span class="file-hint">PDF, JPG, PNG حتى 5 ميغا بايت</span>
+                                </div>
+                            </div>
+                            <div class="file-selected" id="fileSelected" style="display: none">
+                                <span class="file-name" id="fileName"></span>
+                                <button type="button" class="file-remove" id="fileRemove">×</button>
+                            </div>
+                        </div>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="adminName">اسم جهة الاتصال الإدارية <span class="required">*</span></label>
+                        <input type="text" id="adminName" name="adminName" value="{{ old('adminName') }}"
+                            placeholder="أحمد محمد" />
+                        <span class="error-message"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="responsible_person_position">المسمى الوظيفي <span
+                                class="required">*</span></label>
+                        <input type="text" id="responsible_person_position" name="responsible_person_position"
+                            value="{{ old('responsible_person_position') }}" placeholder="مدير العلاقات العامة" />
+                        <span class="error-message"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="adminEmail">البريد الإلكتروني للمسؤول <span class="required">*</span></label>
+                        <input type="email" id="adminEmail" name="adminEmail" value="{{ old('adminEmail') }}"
+                            placeholder="admin@organization.com" />
+                        <span class="error-message"></span>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="adminPassword">كلمة السر <span class="required">*</span></label>
+                        <div class="password-input">
+                            <input type="password" id="adminPassword" name="adminPassword" placeholder="••••••••" />
+                            <button type="button" class="toggle-password" data-target="adminPassword">
+                                <span class="eye-icon">👁️</span>
+                            </button>
+                        </div>
+                        <span class="error-message"></span>
+                        <span class="helper-text">يجب أن تكون 8 أحرف على الأقل</span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="adminPassword_confirmation">تأكيد كلمة السر <span
+                                class="required">*</span></label>
+                        <div class="password-input">
+                            <input type="password" id="adminPassword_confirmation" name="adminPassword_confirmation"
+                                placeholder="••••••••" />
+                            <button type="button" class="toggle-password" data-target="adminPassword_confirmation">
+                                <span class="eye-icon">👁️</span>
+                            </button>
+                        </div>
+                        <span class="error-message"></span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-step" id="step4">
+                <h2 class="step-title">مراجعة المعلومات</h2>
+
+                <div class="review-section">
+                    <h3>معلومات المنظمة</h3>
+                    <div class="review-grid" id="organizationInfoReview"></div>
+                </div>
+
+                <div class="review-section">
+                    <h3>معلومات الاتصال</h3>
+                    <div class="review-grid" id="contactInfoReview"></div>
+                </div>
+
+                <div class="review-section">
+                    <h3>التفاصيل الإدارية</h3>
+                    <div class="review-grid" id="adminInfoReview"></div>
+                </div>
+
+                <div class="info-box">
+                    <div class="info-icon">ℹ️</div>
+                    <div class="info-content">
+                        <strong>ملاحظة:</strong>
+                        <p>سيتم مراجعة طلبك من قبل فريقنا. سنرسل لك بريداً إلكترونياً بمجرد تفعيل حسابك بالكامل.
+                        </p>
+                    </div>
+                </div>
+
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="termsAgree" name="termsAgree" required value="1" />
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-text">لقد قرأت ووافقت على <a href="{{ route('terms') }}"
+                                target="_blank" class="terms-link">شروط الخدمة</a> و <a href="javascript:void(0)"
+                                @click.prevent="$dispatch('open-modal', 'privacyModal')" class="terms-link">سياسة
+                                الخصوصية</a> <span class="required">*</span></span>
+                    </label>
+                    <span class="error-message"></span>
+                </div>
+            </div>
+
+            <div class="form-navigation">
+                <button type="button" class="btn btn-outline btn-prev" id="prevBtn" style="display: none">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M19 12H5M12 19l-7-7 7-7" />
+                    </svg>
+                    <span>السابق</span>
+                </button>
+                <button type="button" class="btn btn-primary btn-next" id="nextBtn">
+                    <span>التالي</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
+                        <path d="M5 12h14M12 5l7 7-7 7" />
+                    </svg>
+                </button>
+                <button type="submit" class="btn btn-primary btn-submit" id="submitBtn" style="display: none">
+                    <span>تقديم الطلب</span>
+                    <span class="btn-loader"></span>
+                </button>
+            </div>
+            </form>
+        </div>
         </div>
     </section>
 

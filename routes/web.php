@@ -15,6 +15,12 @@ Route::get('/api/test-matching', [TestMatchingController::class, 'testMatchingAp
 Route::get('/', [PublicPagesController::class, 'home'])->name('home');
 Route::get('/about', [PublicPagesController::class, 'about'])->name('about');
 Route::get('/contact', [PublicPagesController::class, 'contact'])->name('contact');
+Route::post('/contact', [\App\Http\Controllers\ContactController::class, 'submit'])
+    ->name('contact.submit')
+    ->middleware('throttle:3,1');
+Route::get('/eligibility', [PublicPagesController::class, 'eligibility'])->name('eligibility');
+Route::get('/terms', [PublicPagesController::class, 'terms'])->name('terms');
+
 
 // Registration Pages
 Route::middleware('guest')->group(function () {

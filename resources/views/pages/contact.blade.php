@@ -14,47 +14,57 @@
         <section class="contact-content">
             <div class="contact-grid">
                 <div class="form-card">
-                    <!-- ... Form content remains same ... -->
-                    <h3>أرسل لنا رسالة</h3>
-                    <form id="contactForm" method="POST" action="#" class="contact-form">
-                        @csrf
-                        <div class="form-group">
-                            <label for="name">اسمك <span class="required">*</span></label>
-                            <input type="text" id="name" name="name" placeholder="ادخل اسمك" required
-                                aria-required="true" aria-describedby="nameError" />
-                            <span class="error-message" id="nameError"></span>
+                    @if ($settings->enable_contact_messages)
+                        <h3>أرسل لنا رسالة</h3>
+                        <form id="contactForm" method="POST" action="{{ route('contact.submit') }}"
+                            class="contact-form">
+                            @csrf
+                            <div class="form-group">
+                                <label for="name">اسمك <span class="required">*</span></label>
+                                <input type="text" id="name" name="name" placeholder="ادخل اسمك" required
+                                    aria-required="true" aria-describedby="nameError" />
+                                <span class="error-message" id="nameError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="email">بريدك الإلكتروني <span class="required">*</span></label>
+                                <input type="email" id="email" name="email" placeholder="name@example.com"
+                                    required aria-required="true" aria-describedby="emailError" />
+                                <span class="error-message" id="emailError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="subject">الموضوع <span class="required">*</span></label>
+                                <input type="text" id="subject" name="subject" placeholder="كيف يمكننا مساعدتك؟"
+                                    required aria-required="true" aria-describedby="subjectError" />
+                                <span class="error-message" id="subjectError"></span>
+                            </div>
+                            <div class="form-group">
+                                <label for="message">الرسالة <span class="required">*</span></label>
+                                <textarea id="message" name="message" rows="5" placeholder="اكتب رسالتك هنا..." required aria-required="true"
+                                    aria-describedby="messageError"></textarea>
+                                <span class="error-message" id="messageError"></span>
+                            </div>
+                            <div class="form-group checkbox">
+                                <input type="checkbox" id="privacy" name="privacy" required aria-required="true" />
+                                <label for="privacy">أوافق على <a href="javascript:void(0)"
+                                        @click.prevent="$dispatch('open-modal', 'privacyModal')">سياسة الخصوصية</a>
+                                    <span class="required">*</span></label>
+                            </div>
+                            <button type="submit" class="btn btn-primary full-width" id="submitBtn">
+                                <span class="btn-text">إرسال الرسالة</span>
+                                <span class="btn-loader" style="display: none;">جاري الإرسال...</span>
+                            </button>
+                            <div class="form-message success-message" id="successMessage" style="display: none;"></div>
+                            <div class="form-message error-message" id="errorMessage" style="display: none;"></div>
+                        </form>
+                    @else
+                        <div class="text-center" style="padding: 40px 20px;">
+                            <i class="fa-solid fa-envelope-circle-xmark"
+                                style="font-size: 4rem; color: #9ca3af; margin-bottom: 20px;"></i>
+                            <h3>عذراً، استقبال الرسائل معطل حالياً</h3>
+                            <p style="color: #6b7280; margin-top: 10px;">يمكنك التواصل معنا عبر قنوات التواصل الأخرى
+                                الموضحة أدناه.</p>
                         </div>
-                        <div class="form-group">
-                            <label for="email">بريدك الإلكتروني <span class="required">*</span></label>
-                            <input type="email" id="email" name="email" placeholder="name@example.com" required
-                                aria-required="true" aria-describedby="emailError" />
-                            <span class="error-message" id="emailError"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="subject">الموضوع <span class="required">*</span></label>
-                            <input type="text" id="subject" name="subject" placeholder="كيف يمكننا مساعدتك؟" required
-                                aria-required="true" aria-describedby="subjectError" />
-                            <span class="error-message" id="subjectError"></span>
-                        </div>
-                        <div class="form-group">
-                            <label for="message">الرسالة <span class="required">*</span></label>
-                            <textarea id="message" name="message" rows="5" placeholder="اكتب رسالتك هنا..." required
-                                aria-required="true" aria-describedby="messageError"></textarea>
-                            <span class="error-message" id="messageError"></span>
-                        </div>
-                        <div class="form-group checkbox">
-                            <input type="checkbox" id="privacy" name="privacy" required aria-required="true" />
-                            <label for="privacy">أوافق على <a href="javascript:void(0)"
-                                    @click.prevent="$dispatch('open-modal', 'privacyModal')">سياسة الخصوصية</a> <span
-                                    class="required">*</span></label>
-                        </div>
-                        <button type="submit" class="btn btn-primary full-width" id="submitBtn">
-                            <span class="btn-text">إرسال الرسالة</span>
-                            <span class="btn-loader" style="display: none;">جاري الإرسال...</span>
-                        </button>
-                        <div class="form-message success-message" id="successMessage" style="display: none;"></div>
-                        <div class="form-message error-message" id="errorMessage" style="display: none;"></div>
-                    </form>
+                    @endif
                 </div>
 
                 <div class="info-card">
@@ -85,9 +95,9 @@
                         </div>
                     </div>
 
-                    <div class="faq-section">
+                    <div class="faq-section" id="faq" style="scroll-margin-top: 100px;">
                         <h3>الأسئلة الشائعة</h3>
-                        @foreach($settings->contact_faqs ?? [] as $faq)
+                        @foreach ($settings->contact_faqs ?? [] as $faq)
                             <div class="faq-item">
                                 <button class="faq-question">
                                     <span>{{ $faq['question'] ?? '' }}</span>

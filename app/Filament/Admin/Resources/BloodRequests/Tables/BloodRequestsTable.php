@@ -48,6 +48,7 @@ class BloodRequestsTable
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
+            ->defaultSort('created_at', 'desc')
             ->filters([
                 Tables\Filters\TrashedFilter::make()->label('المحذوفات'),
                 Tables\Filters\SelectFilter::make('status')

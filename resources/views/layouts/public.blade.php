@@ -20,9 +20,9 @@
     <title>{{ $title ?? ($settings->seo_title ?? $settings->site_name . ' - إنقاذ الأرواح قطرة قطرة') }}</title>
 
     <link rel="icon"
-        href="{{ $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.jpg') }}" />
+        href="{{ $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.png') }}" />
     <link rel="shortcut icon"
-        href="{{ $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.jpg') }}" />
+        href="{{ $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.png') }}" />
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
@@ -32,7 +32,6 @@
     <link rel="stylesheet" href="{{ asset('assets/styles/layout/footer.css') }}" />
 
     @vite(['resources/css/app.css', 'resources/js/app.js'])
-    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
 
     @stack('styles')
 </head>
@@ -48,6 +47,7 @@
 
     <x-footer />
     <x-privacy-modal />
+    <x-eligibility-modal />
 
     <script src="{{ asset('assets/scripts/pages/index.js') }}"></script>
 

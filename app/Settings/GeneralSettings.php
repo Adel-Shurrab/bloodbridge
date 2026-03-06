@@ -34,9 +34,9 @@ class GeneralSettings extends Settings
     public ?string $home_hero_image = null;
     public ?string $home_features_title = null;
     public ?string $home_features_subtitle = null;
-    public ?array $home_features = []; 
-    public ?array $home_how_it_works_donor = []; 
-    public ?array $home_how_it_works_org = []; 
+    public ?array $home_features = [];
+    public ?array $home_how_it_works_donor = [];
+    public ?array $home_how_it_works_org = [];
     public ?string $home_cta_title = null;
     public ?string $home_cta_subtitle = null;
 
@@ -50,10 +50,10 @@ class GeneralSettings extends Settings
     public ?string $about_mission_image2 = null;
     public ?string $about_values_title = null;
     public ?string $about_values_subtitle = null;
-    public ?array $about_values = []; 
+    public ?array $about_values = [];
     public ?string $about_team_title = null;
     public ?string $about_team_subtitle = null;
-    public ?array $about_team_members = []; 
+    public ?array $about_team_members = [];
     public ?string $about_impact_title = null;
     public ?string $about_impact_text = null;
     public ?string $about_join_title = null;
@@ -61,7 +61,8 @@ class GeneralSettings extends Settings
 
     public ?string $contact_hero_title = null;
     public ?string $contact_hero_subtitle = null;
-    public ?array $contact_faqs = []; 
+    public ?array $contact_faqs = [];
+    public bool $enable_contact_messages = true;
 
     public ?string $login_title = null;
     public ?string $login_subtitle = null;

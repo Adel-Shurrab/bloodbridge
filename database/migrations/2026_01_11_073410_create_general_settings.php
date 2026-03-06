@@ -131,5 +131,7 @@ return new class extends SettingsMigration
         $this->migrator->add('general.min_donor_height', 140);
         $this->migrator->add('general.min_days_after_surgery', 28);
         $this->migrator->add('general.org_max_requests_per_day', 5);
+
+        $this->migrator->add('general.enable_contact_messages', true);
     }
 };

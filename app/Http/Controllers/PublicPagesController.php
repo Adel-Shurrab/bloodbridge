@@ -38,13 +38,29 @@ class PublicPagesController extends Controller
     }
 
     /**
+     * Show the eligibility requirements page.
+     */
+    public function eligibility(): View
+    {
+        return view('pages.eligibility');
+    }
+
+    /**
+     * Show the terms of service page.
+     */
+    public function terms(): View
+    {
+        return view('pages.terms');
+    }
+
+    /**
      * Calculate and cache public statistics.
      * Caches results for 1 hour to prevent database load.
      */
     private function getStats(): array
     {
         return Cache::remember('public_stats', 60 * 60, function () {
-            
+
             $donationsCount = Appointment::where('status', '=', \App\Enums\AppointmentStatus::COMPLETED, 'and')->count('*');
 
             $orgsCount = Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::APPROVED, 'and')->count('*');

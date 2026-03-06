@@ -51,7 +51,7 @@ class BloodRequestStatsWidget extends BaseWidget
                 ->color($activeRequests > 0 ? 'warning' : 'gray')
                 ->url(route('filament.organization.resources.blood-requests.index', ['tenant' => $organization->slug])),
 
-            Stat::make('🚨 طلبات عاجلة', $criticalRequests)
+            Stat::make('طلبات عاجلة', $criticalRequests)
                 ->description('تحتاج اهتمام فوري')
                 ->descriptionIcon('heroicon-o-exclamation-triangle')
                 ->color($criticalRequests > 0 ? 'danger' : 'success'),
