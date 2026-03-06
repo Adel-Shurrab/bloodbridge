@@ -93,20 +93,16 @@ class DonorInfolist
                             ->icon('heroicon-o-arrow-path'),
                     ]),
 
-
-                // ── Health Profile ──────────────────────────────────────────────
                 Section::make('الملف الصحي')
                     ->icon('heroicon-o-heart')
                     ->columns(4)
                     ->components([
 
-                        // Blood type — self-declared
                         TextEntry::make('healthProfile.blood_type')
                             ->label('فصيلة الدم (المعلنة)')
                             ->badge()
                             ->size('xl'),
 
-                        // Blood type — hospital-verified
                         TextEntry::make('healthProfile.verified_blood_type')
                             ->label('فصيلة الدم (موثّقة)')
                             ->badge()
@@ -124,7 +120,6 @@ class DonorInfolist
                             ->formatStateUsing(fn($state) => $state ? $state . ' سم' : '—')
                             ->color(fn($state) => $state && $state < 140 ? 'danger' : null),
 
-                        // Eligibility status — the most important field
                         TextEntry::make('healthProfile.is_eligible')
                             ->label('أهلية التبرع')
                             ->formatStateUsing(fn($state) => $state ? '✓ مؤهل للتبرع' : '✗ غير مؤهل حالياً')
@@ -152,7 +147,6 @@ class DonorInfolist
                             ->placeholder('لا يوجد')
                             ->icon('heroicon-o-clock'),
 
-                        // Health flags grid
                         TextEntry::make('healthProfile.chronic_disease')
                             ->label('مرض مزمن')
                             ->formatStateUsing(fn($state) => $state ? 'نعم' : 'لا')
@@ -178,7 +172,6 @@ class DonorInfolist
                             ->color(fn($state) => $state ? 'warning' : 'success'),
                     ]),
 
-                // ── Location ────────────────────────────────────────────────────
                 Section::make('الموقع الجغرافي')
                     ->icon('heroicon-o-map-pin')
                     ->collapsed()
@@ -195,14 +188,14 @@ class DonorInfolist
                             ->label('خط الطول')
                             ->placeholder('غير محدد'),
 
-                        TextEntry::make('lat')
+                        TextEntry::make('google_maps_link')
                             ->label('رابط خرائط Google')
                             ->columnSpanFull()
-                            ->formatStateUsing(fn($record) => $record->lat
+                            ->getStateUsing(fn($record) => $record->lat
                                 ? "({$record->lat}, {$record->lng})"
-                                : 'لا توجد إحداثيات مسجّلة')
+                                : null)
                             ->url(fn($record) => $record->lat
-                                ? "https://www.google.com/maps/search/?api=1&query={$record->lat},{$record->lng}"
+                                ? "https://www.google.com/maps?q={$record->lat},{$record->lng}"
                                 : null, true)
                             ->placeholder('لا توجد إحداثيات'),
                     ]),

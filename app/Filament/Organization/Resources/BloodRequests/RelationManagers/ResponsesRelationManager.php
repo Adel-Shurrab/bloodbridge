@@ -91,7 +91,7 @@ class ResponsesRelationManager extends RelationManager
     {
         return [
             Stack::make([
-                // Header: Name & Status Badge
+
                 Split::make([
                     Stack::make([
                         TextColumn::make('donor.user.name')
@@ -122,7 +122,6 @@ class ResponsesRelationManager extends RelationManager
                         ->grow(false),
                 ]),
 
-                // Panel: Blood Type & Timing Info
                 Panel::make([
                     TableGrid::make(2)
                         ->schema([
@@ -287,7 +286,6 @@ class ResponsesRelationManager extends RelationManager
                         $record->status = RequestResponseStatus::ACCEPTED;
                         $record->save();
 
-                        // Notify organization
                         $record->bloodRequest->organization->user->notify(
                             new \App\Notifications\DonorResponseNotification($record)
                         );
@@ -312,7 +310,6 @@ class ResponsesRelationManager extends RelationManager
                         $record->status = RequestResponseStatus::NO_SHOW;
                         $record->save();
 
-                        // Notify organization
                         $record->bloodRequest->organization->user->notify(
                             new \App\Notifications\DonorResponseNotification($record)
                         );
@@ -344,12 +341,13 @@ class ResponsesRelationManager extends RelationManager
                                     ->required()
                                     ->native(false)
                                     ->columnSpan(1)
-                                    // Lock field if already verified by another organization
+
                                     ->disabled(
                                         fn(RequestResponse $record) =>
                                         $record->donor->healthProfile?->verified_blood_type !== null &&
                                             $record->donor->healthProfile?->verified_by_organization_id !== null
                                     )
+                                    ->dehydrated()
                                     ->helperText(
                                         fn(RequestResponse $record) =>
                                         $record->donor->healthProfile?->verified_blood_type
@@ -456,11 +454,10 @@ class ResponsesRelationManager extends RelationManager
                         $orgId = filament()->getTenant()?->id ?? $user->organization?->id;
 
                         DB::transaction(function () use ($record, $healthProfile, $data, $orgId) {
-                            // 0. Update Response Status (Confirm Arrival & Outcome)
+
                             $record->verified_at = now();
                             $wasCompleted = $record->status === RequestResponseStatus::COMPLETED;
 
-                            // For ACCEPTED: change status based on eligibility
                             if ($record->status === RequestResponseStatus::ACCEPTED) {
                                 if ($data['eligibility_status'] === 'eligible') {
                                     $record->status = RequestResponseStatus::COMPLETED;
@@ -471,25 +468,21 @@ class ResponsesRelationManager extends RelationManager
 
                             $record->save();
 
-                            // 0.5 Update Blood Request Counters if just completed
                             if (!$wasCompleted && $record->status === RequestResponseStatus::COMPLETED) {
                                 $request = $record->bloodRequest;
                                 $request->increment('donors_completed', 1);
 
-                                // Update Request status to FULFILLED if units reached
                                 if ($request->donors_completed >= $request->units_needed) {
                                     $request->status = BloodRequestStatus::FULFILLED;
                                     $request->fulfilled_at = now();
                                     $request->save();
 
-                                    // Dispatch job to cancel and notify remaining pending responses synchronously
                                     \App\Jobs\CancelExcessResponsesJob::dispatchSync($request);
                                 }
                             }
 
-                            // 1. Update Health Profile
                             if ($healthProfile) {
-                                // Only update verified_blood_type if not already verified by ANOTHER organization
+
                                 if (empty($healthProfile->verified_by_organization_id) || $healthProfile->verified_by_organization_id === $orgId) {
                                     $healthProfile->verified_blood_type = $data['verified_blood_type'];
                                     $healthProfile->verified_by_organization_id = $orgId;
@@ -516,12 +509,11 @@ class ResponsesRelationManager extends RelationManager
 
                                     $healthProfile->next_eligible_date = $nextDate;
                                 } else {
-                                    // Donation successful - update eligibility and donation date
+
                                     $healthProfile->is_eligible = true;
                                     $healthProfile->next_eligible_date = null;
 
-                                    // CRITICAL: Update last_donation_date to activate 90-day cooldown
-                                    $healthProfile->recent_donation = true; // Must set this or booted() will erase last_donation_date!
+                                    $healthProfile->recent_donation = true;
                                     $healthProfile->last_donation_date = now();
                                     $healthProfile->total_donations = ($healthProfile->total_donations ?? 0) + 1;
                                 }
@@ -529,7 +521,6 @@ class ResponsesRelationManager extends RelationManager
                                 $healthProfile->save();
                             }
 
-                            // 2. Create Eligibility Log
                             EligibilityLog::create([
                                 'donor_id' => $record->donor_id,
                                 'organization_id' => $orgId,
@@ -544,6 +535,23 @@ class ResponsesRelationManager extends RelationManager
                             ]);
                         });
 
+                        $orgUser = $record->bloodRequest->organization?->user;
+                        if ($orgUser) {
+                            $record->load(['donor.user', 'donor.healthProfile', 'bloodRequest.organization']);
+                            $orgUser->notify(new \App\Notifications\DonorResponseNotification($record));
+                        }
+
+                        if (in_array($data['eligibility_status'], ['temporary', 'permanent'])) {
+                            $record->donor->user->notify(
+                                new \App\Notifications\DonorIneligibilityNotification(
+                                    eligibilityStatus: $data['eligibility_status'],
+                                    rejectionReason: $data['rejection_reason'] ?? null,
+                                    nextEligibleDate: $healthProfile?->next_eligible_date,
+                                    organizationName: $record->bloodRequest->organization?->org_name,
+                                )
+                            );
+                        }
+
                         Notification::make()
                             ->title('تم حفظ النتائج بنجاح')
                             ->success()
@@ -554,28 +562,91 @@ class ResponsesRelationManager extends RelationManager
                     ->label('عرض التفاصيل')
                     ->icon('heroicon-o-eye')
                     ->color('gray')
+                    ->modalHeading('تفاصيل استجابة المتبرع')
+                    ->modalIcon('heroicon-o-user-circle')
                     ->form([
-                        Section::make('التفاصيل الطبية الموثقة')
-                            ->description('معلومات التحقق المخبري والنتائج الطبية')
+
+                        Section::make('المتبرع')
+                            ->icon('heroicon-o-user')
+                            ->columns(2)
                             ->schema([
-                                Grid::make(2)
-                                    ->schema([
-                                        Placeholder::make('verified_blood_type_view')
-                                            ->label('فصيلة الدم الموثقة')
-                                            ->content(fn($record) => $record->donor->healthProfile->verified_blood_type?->getLabel() ?? 'غير موثقة'),
+                                Placeholder::make('donor_name')
+                                    ->label('الاسم')
+                                    ->content(fn($record) => $record->donor->user->name ?? '—'),
 
-                                        Placeholder::make('verifying_org_view')
-                                            ->label('جهة التحقق')
-                                            ->content(fn($record) => $record->donor->healthProfile->verifyingOrganization?->org_name ?? 'غير متوفر'),
+                                Placeholder::make('donor_phone')
+                                    ->label('رقم الهاتف')
+                                    ->content(fn($record) => $record->donor->user->phone ?? '—'),
 
-                                        Placeholder::make('verified_at_view')
-                                            ->label('تاريخ التحقق')
-                                            ->content(fn($record) => $record->donor->healthProfile->verified_at?->format('Y-m-d H:i') ?? 'غير متوفر'),
+                                Placeholder::make('donor_status')
+                                    ->label('حالة الاستجابة')
+                                    ->content(fn($record) => $record->status->getLabel()),
 
-                                        Placeholder::make('eligibility_view')
-                                            ->label('حالة الأهلية')
-                                            ->content(fn($record) => $record->donor->healthProfile->is_eligible ? 'مؤهل للتبرع' : 'غير مؤهل حالياً'),
-                                    ]),
+                                Placeholder::make('responded_at')
+                                    ->label('تاريخ الموافقة')
+                                    ->content(fn($record) => $record->responded_at?->format('Y-m-d H:i') ?? '—'),
+                            ]),
+
+                        Section::make('فصيلة الدم')
+                            ->icon('heroicon-o-beaker')
+                            ->columns(2)
+                            ->schema([
+                                Placeholder::make('self_reported_blood_type')
+                                    ->label('الفصيلة المُعلنة ذاتياً')
+                                    ->content(fn($record) => $record->donor->healthProfile?->blood_type?->getLabel() ?? '—'),
+
+                                Placeholder::make('verified_blood_type_view')
+                                    ->label('الفصيلة المؤكدة مخبرياً')
+                                    ->content(fn($record) => $record->donor->healthProfile?->verified_blood_type?->getLabel() ?? 'غير موثقة بعد'),
+
+                                Placeholder::make('verifying_org_view')
+                                    ->label('جهة التحقق')
+                                    ->content(fn($record) => $record->donor->healthProfile?->verifyingOrganization?->org_name ?? '—'),
+
+                                Placeholder::make('verified_at_view')
+                                    ->label('تاريخ التحقق المخبري')
+                                    ->content(fn($record) => $record->donor->healthProfile?->verified_at?->format('Y-m-d H:i') ?? '—'),
+                            ]),
+
+                        Section::make('الأهلية الصحية')
+                            ->icon('heroicon-o-heart')
+                            ->columns(2)
+                            ->schema([
+                                Placeholder::make('eligibility_view')
+                                    ->label('حالة الأهلية')
+                                    ->content(fn($record) => $record->donor->healthProfile?->is_eligible
+                                        ? 'مؤهل للتبرع'
+                                        : 'غير مؤهل حالياً'),
+
+                                Placeholder::make('next_eligible_date')
+                                    ->label('تاريخ الأهلية القادم')
+                                    ->content(fn($record) => $record->donor->healthProfile?->next_eligible_date?->format('Y-m-d') ?? '—'),
+
+                                Placeholder::make('total_donations')
+                                    ->label('إجمالي التبرعات')
+                                    ->content(fn($record) => ($record->donor->healthProfile?->total_donations ?? 0) . ' تبرع'),
+
+                                Placeholder::make('last_donation')
+                                    ->label('آخر تاريخ تبرع')
+                                    ->content(fn($record) => $record->donor->healthProfile?->last_donation_date?->format('Y-m-d') ?? '—'),
+                            ]),
+
+                        Section::make('رمز QR')
+                            ->icon('heroicon-o-qr-code')
+                            ->collapsed()
+                            ->columns(2)
+                            ->schema([
+                                Placeholder::make('qr_state')
+                                    ->label('حالة الرمز')
+                                    ->content(fn($record) => $record->qr_state_label),
+
+                                Placeholder::make('qr_expires_at')
+                                    ->label('ينتهي في')
+                                    ->content(fn($record) => $record->qr_code_expires_at?->format('Y-m-d H:i') ?? '—'),
+
+                                Placeholder::make('verified_via_qr_at')
+                                    ->label('تاريخ المسح')
+                                    ->content(fn($record) => $record->verified_at?->format('Y-m-d H:i') ?? 'لم يُمسح بعد'),
                             ]),
                     ]),
             ])

@@ -33,7 +33,6 @@ class GeoHelper
             + cos(deg2rad($lat1)) * cos(deg2rad($lat2))
             * cos(deg2rad($theta));
 
-        // Fix for floating point precision: maintain domain between -1 and 1
         $dist = min(max($dist, -1.0), 1.0);
 
         $dist = acos($dist);
@@ -42,11 +41,11 @@ class GeoHelper
         $unit = strtoupper($unit);
 
         if ($unit == "K") {
-            return ($miles * 1.609344); // Kilometers
+            return ($miles * 1.609344); 
         } elseif ($unit == "N") {
-            return ($miles * 0.8684); // Nautical miles
+            return ($miles * 0.8684); 
         } else {
-            return $miles; // Miles
+            return $miles; 
         }
     }
 

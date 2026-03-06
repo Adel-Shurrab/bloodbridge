@@ -24,14 +24,14 @@ class Statistics extends Page
     protected function getHeaderWidgets(): array
     {
         return [
-            //
+            
         ];
     }
 
     protected function getFooterWidgets(): array
     {
         return [
-            //
+            
         ];
     }
 }

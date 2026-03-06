@@ -26,6 +26,15 @@ return [
     'confirmed' => 'تأكيد :attribute غير متطابق.',
     'unique' => ':attribute مسجل لدينا بالفعل.',
     'exists' => ':attribute المحدد غير صالح.',
+    'current_password' => 'كلمة المرور الحالية غير صحيحة.',
+
+    'password' => [
+        'letters' => 'يجب أن يحتوي حقل :attribute على حرف واحد على الأقل.',
+        'mixed' => 'يجب أن يحتوي حقل :attribute على حرف كبير وحرف صغير واحد على الأقل.',
+        'numbers' => 'يجب أن يحتوي حقل :attribute على رقم واحد على الأقل.',
+        'symbols' => 'يجب أن يحتوي حقل :attribute على رمز واحد على الأقل.',
+        'uncompromised' => 'لقد ظهر حقل :attribute في تسريب بيانات. الرجاء اختيار :attribute مختلف.',
+    ],
 
     /*
     |--------------------------------------------------------------------------
@@ -69,5 +78,8 @@ return [
         'responsible_person_position' => 'المسمى الوظيفي للمسؤول',
         'adminEmail' => 'البريد الإلكتروني المسؤول',
         'adminPassword' => 'كلمة السر',
+        'current_password' => 'كلمة المرور الحالية',
+        'new_password' => 'كلمة المرور الجديدة',
+        'new_password_confirmation' => 'تأكيد كلمة المرور الجديدة',
     ],
 ];

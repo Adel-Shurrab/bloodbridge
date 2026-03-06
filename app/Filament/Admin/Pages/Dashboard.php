@@ -11,7 +11,6 @@ class Dashboard extends \Filament\Pages\Dashboard
         return '';
     }
 
-
     /**
      * Get the widgets that should be displayed on the dashboard.
      * Only showing stats cards and pending organizations.

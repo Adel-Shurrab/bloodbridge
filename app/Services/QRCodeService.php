@@ -32,7 +32,6 @@ class QRCodeService
 
         if (! in_array($requestStatus, [
             BloodRequestStatus::BROADCASTED,
-            BloodRequestStatus::MATCHED,
         ], true)) {
             throw new \RuntimeException('Cannot generate QR for inactive blood request.');
         }
@@ -68,16 +67,15 @@ class QRCodeService
     {
         return RequestResponse::query()
             ->where('verification_qr_code', $code)
-            // Removed strict status checks to allow "Already Used" detection
+            
             ->where(function ($q) {
                 $q->whereNull('qr_code_expires_at')
                     ->orWhere('qr_code_expires_at', '>', now());
             })
             ->whereHas('bloodRequest', function ($q) use ($organization) {
                 $q->where('organization_id', $organization->id)
-                    ->whereIn('status', [
+                    ->whereIn('blood_requests.status', [
                         BloodRequestStatus::BROADCASTED->value,
-                        BloodRequestStatus::MATCHED->value,
                     ])
                     ->whereNull('fulfilled_at');
             })
@@ -117,7 +115,7 @@ class QRCodeService
         }
 
         if ($status === null) {
-            // Default safety (shouldn't happen here)
+            
             return RequestResponseStatus::PENDING;
         }
 
@@ -134,7 +132,7 @@ class QRCodeService
         }
 
         if ($status === null) {
-            // Default safety
+            
             return BloodRequestStatus::PENDING;
         }
 

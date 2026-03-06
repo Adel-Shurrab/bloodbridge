@@ -36,33 +36,28 @@ class ScanDonorQR extends Page
             return false;
         }
 
-        // Rate limiting: 30 attempts per minute per organization
         if (!$this->checkRateLimit()) {
             return false;
         }
 
-        // Use QRCodeService for validation (includes expiration check and org filter)
         $qrService = app(QRCodeService::class);
         $organization = filament()->getTenant() ?? Auth::user()->organization;
 
         $response = $qrService->validate($code, $organization);
 
-        // Validation: QR code not found or invalid
         if (!$response) {
             $this->notify('QR Code غير صالح', 'هذا الكود غير موجود، منتهي الصلاحية، أو لا يتبع لهذه المنظمة.', 'danger');
             $this->foundResponse = null;
             return false;
         }
 
-        // Status Validation: Check donor status
         if (!$this->validateDonorStatus($response)) {
             $this->foundResponse = null;
             return false;
         }
 
-        // Found! Show details for confirmation
         $this->foundResponse = $response;
-        $this->scannedCode = null; // Clear input
+        $this->scannedCode = null; 
 
         return true;
     }
@@ -73,7 +68,6 @@ class ScanDonorQR extends Page
             return;
         }
 
-        // Success: Update Status
         $this->foundResponse->update([
             'status' => RequestResponseStatus::ACCEPTED,
             'verified_at' => now(),
@@ -131,7 +125,7 @@ class ScanDonorQR extends Page
             RequestResponseStatus::ACCEPTED => $this->notifyAndFail('تم المسح مسبقاً', "المتبرع {$response->donor->user->name} قام بتسجيل حضوره بالفعل.", 'warning'),
             RequestResponseStatus::COMPLETED => $this->notifyAndFail('تبرع مكتمل', "هذا المتبرع أتم عملية التبرع بالفعل.", 'info'),
             RequestResponseStatus::DECLINED => $this->notifyAndFail('مستبعد سابقاً', "عذراً، هذا المتبرع تم استبعاده طبياً.", 'danger'),
-            RequestResponseStatus::PENDING => true, // Only valid status
+            RequestResponseStatus::PENDING => true, 
             default => $this->notifyAndFail('حالة غير صالحة', "حالة المتبرع الحالية لا تسمح بالتأكيد.", 'warning'),
         };
     }

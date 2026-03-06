@@ -64,10 +64,6 @@ class BloodRequests extends Page implements HasTable
         ];
     }
 
-    // -------------------------------------------------------------------------
-    //  Donor context (cached per request)
-    // -------------------------------------------------------------------------
-
     /**
      * Get the authenticated donor with health profile eager-loaded.
      *
@@ -112,27 +108,18 @@ class BloodRequests extends Page implements HasTable
             return false;
         }
 
-        // If the stored flag says eligible, trust it.
         if ($profile->is_eligible) {
             return true;
         }
 
-        // The stored `is_eligible` flag can go STALE — it only updates when the
-        // profile is saved. If the cooldown date has already passed, the donor is
-        // effectively eligible again even if the flag hasn't been flipped yet.
-        // This mirrors the same logic used in Donor::scopeEligible().
         if ($profile->next_eligible_date === null) {
-            // No date means permanent disqualifier (e.g. chronic disease) — truly ineligible.
+            
             return false;
         }
 
         return $profile->next_eligible_date->startOfDay()->isPast()
             || $profile->next_eligible_date->startOfDay()->isToday();
     }
-
-    // -------------------------------------------------------------------------
-    //  Query & table
-    // -------------------------------------------------------------------------
 
     /**
      * Build the query for blood requests visible to this donor.
@@ -146,8 +133,6 @@ class BloodRequests extends Page implements HasTable
     {
         $donor = $this->getDonor();
 
-        // Ineligible donors must not see any blood requests at all.
-        // Return an empty result set without hitting any other tables.
         if (! $this->isEligibleNow()) {
             return BloodRequest::query()->whereRaw('0 = 1');
         }
@@ -157,8 +142,28 @@ class BloodRequests extends Page implements HasTable
             ->active()
             ->compatibleWithDonor($this->getDonorBloodType())
             ->withDistance($donor?->lat, $donor?->lng)
-            // Only show requests where the donor hasn't responded OR has responded with PENDING (Accepted)
-            // Exclude if donor has a response that is NOT Pending (e.g. Ignored, Completed, etc.)
+            ->where(function ($query) use ($donor) {
+                if ($donor && $donor->lat && $donor->lng) {
+                    $haversine = "(
+                        6371 * acos(
+                            cos(radians(?)) * cos(radians(blood_requests.lat)) * cos(radians(blood_requests.lng) - radians(?)) +
+                            sin(radians(?)) * sin(radians(blood_requests.lat))
+                        )
+                    )";
+
+                    $query->where(function ($q) use ($haversine, $donor) {
+                        $q->whereNotNull('blood_requests.lat')
+                            ->whereNotNull('blood_requests.lng')
+                            ->whereRaw("{$haversine} <= COALESCE(blood_requests.actual_search_radius_km, blood_requests.search_radius_km)", [$donor->lat, $donor->lng, $donor->lat]);
+                    })->orWhere(function ($q) use ($donor) {
+                        $q->whereNull('blood_requests.lat')
+                            ->whereHas('organization', fn($org) => $org->where('governorate_id', $donor->governorate_id));
+                    });
+                } elseif ($donor) {
+                    $query->whereHas('organization', fn($org) => $org->where('governorate_id', $donor->governorate_id));
+                }
+            })
+
             ->whereDoesntHave('responses', function ($query) use ($donor) {
                 $query->where('donor_id', $donor->id)
                     ->where('status', '!=', RequestResponseStatus::PENDING);
@@ -270,10 +275,6 @@ class BloodRequests extends Page implements HasTable
         ];
     }
 
-    // -------------------------------------------------------------------------
-    //  Donor response helpers
-    // -------------------------------------------------------------------------
-
     /**
      * Get all responses for this donor, cached and indexed by blood_request_id.
      *
@@ -313,10 +314,6 @@ class BloodRequests extends Page implements HasTable
         return $request->isActive();
     }
 
-    // -------------------------------------------------------------------------
-    //  Action visibility guards
-    // -------------------------------------------------------------------------
-
     /**
      * Donor can accept if the request is active, they haven't already accepted this one,
      * and they don't have a PENDING acceptance on any other request.
@@ -329,15 +326,13 @@ class BloodRequests extends Page implements HasTable
 
         $response = $this->getDonorResponseForRequest($request);
 
-        // Cannot accept if already pending/accepted on THIS specific request
         if ($response && $response->status !== RequestResponseStatus::IGNORED) {
             return false;
         }
 
-        // Cannot accept if the donor already has a PENDING acceptance on a DIFFERENT request
         $hasActivePending = $this->getDonorResponses()
-            ->reject(fn($r) => $r->blood_request_id === $request->id)
-            ->contains(fn($r) => $r->status === RequestResponseStatus::PENDING);
+            ->reject(fn(RequestResponse $r) => $r->blood_request_id === $request->id)
+            ->contains(fn(RequestResponse $r) => $r->status === RequestResponseStatus::PENDING);
 
         return ! $hasActivePending;
     }
@@ -361,7 +356,6 @@ class BloodRequests extends Page implements HasTable
             return false;
         }
 
-        // Cannot ignore after accepting, completing, or pending verification
         return ! in_array($response->status, [
             RequestResponseStatus::PENDING,
             RequestResponseStatus::ACCEPTED,
@@ -401,10 +395,6 @@ class BloodRequests extends Page implements HasTable
         return $response && $response->status === RequestResponseStatus::PENDING;
     }
 
-    // -------------------------------------------------------------------------
-    //  Actions
-    // -------------------------------------------------------------------------
-
     /**
      * Accept a blood request — creates/updates the donor's response to PENDING.
      */
@@ -420,7 +410,6 @@ class BloodRequests extends Page implements HasTable
         try {
             $service->accept($donor, $request);
 
-            // Invalidate cache to update UI immediately
             $this->donorResponses = null;
 
             Notification::make()
@@ -451,7 +440,6 @@ class BloodRequests extends Page implements HasTable
         try {
             $service->ignore($donor, $request);
 
-            // Invalidate cache to update UI immediately
             $this->donorResponses = null;
 
             Notification::make()
@@ -477,7 +465,6 @@ class BloodRequests extends Page implements HasTable
         try {
             $service->cancel($donor, $request);
 
-            // Invalidate cache to update UI immediately
             $this->donorResponses = null;
 
             Notification::make()

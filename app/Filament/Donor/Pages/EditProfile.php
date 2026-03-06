@@ -77,12 +77,11 @@ class EditProfile extends Page implements HasForms
             ?? null;
 
         return [
-            // users
+            
             'name' => $user?->name,
             'email' => $user?->email,
             'phone' => $user?->phone,
 
-            // donors
             'birth_date' => $donor?->birth_date,
             'gender' => $donor?->gender?->value ?? $donor?->gender,
             'address' => $donor?->auto_location_address ?? $donor?->address,
@@ -102,7 +101,6 @@ class EditProfile extends Page implements HasForms
             'has_recent_surgery' => (bool) ($healthProfile?->has_recent_surgery ?? false),
             'surgery_date' => $healthProfile?->surgery_date,
 
-            // blood types
             'blood_type' => $healthProfile?->blood_type?->value ?? $healthProfile?->blood_type,
             'verified_blood_type' => $healthProfile?->verified_blood_type?->value ?? $healthProfile?->verified_blood_type,
 
@@ -199,7 +197,6 @@ class EditProfile extends Page implements HasForms
                                     if ($response->successful()) {
                                         $nomData = $response->json();
 
-                                        // Fallback to JS-style parsing exactly
                                         $address = $nomData['address'] ?? [];
                                         $addressParts = array_filter([
                                             $address['road'] ?? $address['neighbourhood'] ?? null,
@@ -215,7 +212,7 @@ class EditProfile extends Page implements HasForms
                                         $set('address', $fullAddress);
                                     }
                                 } catch (\Exception $e) {
-                                    // Silently fail if API is down
+                                    
                                 }
                             })
                             ->extraStyles([
@@ -338,14 +335,12 @@ class EditProfile extends Page implements HasForms
 
         DB::transaction(function () use ($data, $user) {
 
-            // 1) Update users
             $user->update([
                 'name' => $data['name'],
                 'email' => $data['email'],
                 'phone' => $data['phone'],
             ]);
 
-            // 2) Update/Create donor (with location)
             $donor = $user->donor()->updateOrCreate(
                 ['user_id' => $user->id],
                 [
@@ -357,7 +352,6 @@ class EditProfile extends Page implements HasForms
                 ]
             );
 
-            // 3) Update/Create health profile
             $healthUpdate = [
                 'weight' => (int) $data['weight'],
                 'height' => (int) $data['height'],

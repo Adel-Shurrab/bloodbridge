@@ -35,10 +35,8 @@ class DonorSeeder extends Seeder
          */
         $donors = [
 
-            // ── غزة ─────────────────────────────────────────────────────────────────
-
             [
-                // SCENARIO: Fully eligible, GPS set, 5 donations, high points
+                
                 'name'              => 'محمد خالد أبو عمر',
                 'national_id'       => '400123456',
                 'email'             => 'mohammad.abuomar@gmail.com',
@@ -57,13 +55,13 @@ class DonorSeeder extends Seeder
                 'has_recent_surgery' => false,
                 'surgery_date'      => null,
                 'recent_donation'   => false,
-                'last_donation_date' => null,   // last donation was 7 months ago — not "recent_donation" anymore
+                'last_donation_date' => null,   
                 'total_donations'   => 5,
-                'verified_blood_type' => BloodType::O_POSITIVE, // 5 donations → hospital verified
+                'verified_blood_type' => BloodType::O_POSITIVE, 
                 'points'            => 250,
             ],
             [
-                // SCENARIO: Eligible, no GPS (gov-only matching)
+                
                 'name'              => 'أحمد يوسف الحسن',
                 'national_id'       => '400234567',
                 'email'             => 'ahmad.alhassan@hotmail.com',
@@ -84,11 +82,11 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 2,
-                'verified_blood_type' => BloodType::A_POSITIVE, // 2 donations → verified
+                'verified_blood_type' => BloodType::A_POSITIVE, 
                 'points'            => 100,
             ],
             [
-                // SCENARIO: Donated 2 months ago → next_eligible_date in ~1 month (90-day rule)
+                
                 'name'              => 'عمر سعيد الشريف',
                 'national_id'       => '400345678',
                 'email'             => 'omar.alsharif@gmail.com',
@@ -107,13 +105,13 @@ class DonorSeeder extends Seeder
                 'has_recent_surgery' => false,
                 'surgery_date'      => null,
                 'recent_donation'   => true,
-                'last_donation_date' => Carbon::now()->subDays(60)->format('Y-m-d'), // 60 days ago → needs 30 more
+                'last_donation_date' => Carbon::now()->subDays(60)->format('Y-m-d'), 
                 'total_donations'   => 3,
-                'verified_blood_type' => BloodType::B_POSITIVE, // 3 donations → verified
+                'verified_blood_type' => BloodType::B_POSITIVE, 
                 'points'            => 150,
             ],
             [
-                // SCENARIO: Eligible, blood type verified by hospital in seeder (set by InteractionSeeder)
+                
                 'name'              => 'خالد إبراهيم النجار',
                 'national_id'       => '400456789',
                 'email'             => 'khalid.najjar@yahoo.com',
@@ -134,11 +132,11 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 4,
-                'verified_blood_type' => BloodType::AB_POSITIVE, // verified
+                'verified_blood_type' => BloodType::AB_POSITIVE, 
                 'points'            => 200,
             ],
             [
-                // SCENARIO: O- universal donor, fully eligible, high points
+                
                 'name'              => 'يوسف عادل زعرب',
                 'national_id'       => '400567890',
                 'email'             => 'yousef.zarb@gmail.com',
@@ -159,14 +157,12 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 7,
-                'verified_blood_type' => BloodType::O_NEGATIVE, // 7 donations → verified
+                'verified_blood_type' => BloodType::O_NEGATIVE, 
                 'points'            => 350,
             ],
 
-            // ── شمال غزة ────────────────────────────────────────────────────────────
-
             [
-                // SCENARIO: New donor, 0 donations, fully eligible, GPS set
+                
                 'name'              => 'سامي رامي سلامة',
                 'national_id'       => '410123456',
                 'email'             => 'sami.salama@gmail.com',
@@ -191,7 +187,7 @@ class DonorSeeder extends Seeder
                 'points'            => 0,
             ],
             [
-                // SCENARIO: Chronic disease → PERMANENTLY INELIGIBLE
+                
                 'name'              => 'فراس ناصر العمري',
                 'national_id'       => '410234567',
                 'email'             => 'feras.omari@gmail.com',
@@ -205,7 +201,7 @@ class DonorSeeder extends Seeder
                 'weight'            => 70,
                 'height'            => 168,
                 'is_smoker'         => false,
-                'chronic_disease'   => true, // ← DISQUALIFIER
+                'chronic_disease'   => true, 
                 'infection'         => false,
                 'has_recent_surgery' => false,
                 'surgery_date'      => null,
@@ -216,7 +212,7 @@ class DonorSeeder extends Seeder
                 'points'            => 0,
             ],
             [
-                // SCENARIO: Had surgery 10 days ago → temp ineligible (28-day rule, 18 more days to wait)
+                
                 'name'              => 'طارق جمال الدبعي',
                 'national_id'       => '410345678',
                 'email'             => 'tariq.dabai@gmail.com',
@@ -233,7 +229,7 @@ class DonorSeeder extends Seeder
                 'chronic_disease'   => false,
                 'infection'         => false,
                 'has_recent_surgery' => true,
-                'surgery_date'      => Carbon::now()->subDays(10)->format('Y-m-d'), // 10 days ago → 18 more days wait
+                'surgery_date'      => Carbon::now()->subDays(10)->format('Y-m-d'), 
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 1,
@@ -241,7 +237,7 @@ class DonorSeeder extends Seeder
                 'points'            => 50,
             ],
             [
-                // SCENARIO: Eligible but smoker (informational flag, not a disqualifier)
+                
                 'name'              => 'باسل حازم حمدان',
                 'national_id'       => '410456789',
                 'email'             => 'basel.hamdan@gmail.com',
@@ -254,7 +250,7 @@ class DonorSeeder extends Seeder
                 'blood_type'        => BloodType::A_POSITIVE,
                 'weight'            => 80,
                 'height'            => 177,
-                'is_smoker'         => true, // smoker but still eligible per system rules
+                'is_smoker'         => true, 
                 'chronic_disease'   => false,
                 'infection'         => false,
                 'has_recent_surgery' => false,
@@ -262,11 +258,11 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 2,
-                'verified_blood_type' => BloodType::A_POSITIVE, // 2 donations → verified
+                'verified_blood_type' => BloodType::A_POSITIVE, 
                 'points'            => 100,
             ],
             [
-                // SCENARIO: Eligible, 2 donations, GPS set
+                
                 'name'              => 'نادر وليد الشوبكي',
                 'national_id'       => '410567890',
                 'email'             => 'nader.shobaki@hotmail.com',
@@ -287,14 +283,12 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 2,
-                'verified_blood_type' => BloodType::B_POSITIVE, // 2 donations → verified
+                'verified_blood_type' => BloodType::B_POSITIVE, 
                 'points'            => 100,
             ],
 
-            // ── دير البلح ────────────────────────────────────────────────────────────
-
             [
-                // SCENARIO: Eligible, O+ with verified blood type from hospital
+                
                 'name'              => 'حسن منير أبو حسن',
                 'national_id'       => '420123456',
                 'email'             => 'hassan.abuhasan@gmail.com',
@@ -319,7 +313,7 @@ class DonorSeeder extends Seeder
                 'points'            => 300,
             ],
             [
-                // SCENARIO: Current infection → temp ineligible 14 days
+                
                 'name'              => 'إياد رفيق الغصين',
                 'national_id'       => '420234567',
                 'email'             => 'iyad.ghusain@gmail.com',
@@ -334,7 +328,7 @@ class DonorSeeder extends Seeder
                 'height'            => 171,
                 'is_smoker'         => false,
                 'chronic_disease'   => false,
-                'infection'         => true, // ← temp ineligible
+                'infection'         => true, 
                 'has_recent_surgery' => false,
                 'surgery_date'      => null,
                 'recent_donation'   => false,
@@ -344,7 +338,7 @@ class DonorSeeder extends Seeder
                 'points'            => 50,
             ],
             [
-                // SCENARIO: 8 donations, high level, eligible
+                
                 'name'              => 'ماجد صلاح عبدالله',
                 'national_id'       => '420345678',
                 'email'             => 'majed.abdullah@gmail.com',
@@ -365,11 +359,11 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 8,
-                'verified_blood_type' => BloodType::AB_POSITIVE, // 8 donations → verified
+                'verified_blood_type' => BloodType::AB_POSITIVE, 
                 'points'            => 400,
             ],
             [
-                // SCENARIO: Underweight (47 kg) → ineligible (< 50 kg rule)
+                
                 'name'              => 'رامي عزيز الكردي',
                 'national_id'       => '420456789',
                 'email'             => 'rami.kurdi@gmail.com',
@@ -380,7 +374,7 @@ class DonorSeeder extends Seeder
                 'lat'               => 31.413000,
                 'lng'               => 34.344000,
                 'blood_type'        => BloodType::B_NEGATIVE,
-                'weight'            => 47, // ← below 50kg threshold
+                'weight'            => 47, 
                 'height'            => 162,
                 'is_smoker'         => false,
                 'chronic_disease'   => false,
@@ -394,7 +388,7 @@ class DonorSeeder extends Seeder
                 'points'            => 0,
             ],
             [
-                // SCENARIO: O-, donated 4 months ago → eligible now
+                
                 'name'              => 'وائل حمدي سعد',
                 'national_id'       => '420567890',
                 'email'             => 'wael.saad@gmail.com',
@@ -413,16 +407,14 @@ class DonorSeeder extends Seeder
                 'has_recent_surgery' => false,
                 'surgery_date'      => null,
                 'recent_donation'   => false,
-                'last_donation_date' => null,     // donation was > 90 days ago → eligible
+                'last_donation_date' => null,     
                 'total_donations'   => 1,
                 'verified_blood_type' => null,
                 'points'            => 50,
             ],
 
-            // ── خانيونس ──────────────────────────────────────────────────────────────
-
             [
-                // SCENARIO: Top donor — 10 donations, fully eligible
+                
                 'name'              => 'سلمان أمين الرنتيسي',
                 'national_id'       => '430123456',
                 'email'             => 'salman.rantisi@gmail.com',
@@ -443,11 +435,11 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 10,
-                'verified_blood_type' => BloodType::A_POSITIVE, // 10 donations → verified
+                'verified_blood_type' => BloodType::A_POSITIVE, 
                 'points'            => 500,
             ],
             [
-                // SCENARIO: Eligible, no GPS
+                
                 'name'              => 'أنس حسين المصري',
                 'national_id'       => '430234567',
                 'email'             => 'anas.masri@gmail.com',
@@ -468,11 +460,11 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 3,
-                'verified_blood_type' => BloodType::B_POSITIVE, // 3 donations → verified
+                'verified_blood_type' => BloodType::B_POSITIVE, 
                 'points'            => 150,
             ],
             [
-                // SCENARIO: Donated 1 month ago → temp ineligible (60 days remain)
+                
                 'name'              => 'بلال واصف الجمل',
                 'national_id'       => '430345678',
                 'email'             => 'bilal.jamal@gmail.com',
@@ -491,13 +483,13 @@ class DonorSeeder extends Seeder
                 'has_recent_surgery' => false,
                 'surgery_date'      => null,
                 'recent_donation'   => true,
-                'last_donation_date' => Carbon::now()->subDays(30)->format('Y-m-d'), // 30 days ago → 60 more days
+                'last_donation_date' => Carbon::now()->subDays(30)->format('Y-m-d'), 
                 'total_donations'   => 4,
-                'verified_blood_type' => BloodType::O_POSITIVE, // 4 donations → verified
+                'verified_blood_type' => BloodType::O_POSITIVE, 
                 'points'            => 200,
             ],
             [
-                // SCENARIO: Eligible, AB- rare, verified blood type
+                
                 'name'              => 'زياد مروان الأسطل',
                 'national_id'       => '430456789',
                 'email'             => 'ziad.astal@gmail.com',
@@ -522,7 +514,7 @@ class DonorSeeder extends Seeder
                 'points'            => 100,
             ],
             [
-                // SCENARIO: Eligible, 3 donations
+                
                 'name'              => 'إبراهيم توفيق قاسم',
                 'national_id'       => '430567890',
                 'email'             => 'ibrahim.qasim@hotmail.com',
@@ -543,14 +535,12 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 3,
-                'verified_blood_type' => BloodType::A_NEGATIVE, // 3 donations → verified
+                'verified_blood_type' => BloodType::A_NEGATIVE, 
                 'points'            => 150,
             ],
 
-            // ── رفح ────────────────────────────────────────────────────────────────
-
             [
-                // SCENARIO: Eligible, GPS set
+                
                 'name'              => 'جمال رشيد أبو دقة',
                 'national_id'       => '440123456',
                 'email'             => 'jamal.abudaqa@gmail.com',
@@ -571,11 +561,11 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 4,
-                'verified_blood_type' => BloodType::O_POSITIVE, // 4 donations → verified
+                'verified_blood_type' => BloodType::O_POSITIVE, 
                 'points'            => 200,
             ],
             [
-                // SCENARIO: New donor, 0 donations
+                
                 'name'              => 'عدنان نبيل الزواوي',
                 'national_id'       => '440234567',
                 'email'             => 'adnan.zawawi@gmail.com',
@@ -600,7 +590,7 @@ class DonorSeeder extends Seeder
                 'points'            => 0,
             ],
             [
-                // SCENARIO: Eligible, 1 donation
+                
                 'name'              => 'حاتم فارس الدالي',
                 'national_id'       => '440345678',
                 'email'             => 'hatem.dali@gmail.com',
@@ -625,7 +615,7 @@ class DonorSeeder extends Seeder
                 'points'            => 50,
             ],
             [
-                // SCENARIO: Has current infection → temp ineligible for 14 days
+                
                 'name'              => 'نبيل كريم جودة',
                 'national_id'       => '440456789',
                 'email'             => 'nabil.joda@gmail.com',
@@ -640,17 +630,17 @@ class DonorSeeder extends Seeder
                 'height'            => 168,
                 'is_smoker'         => false,
                 'chronic_disease'   => false,
-                'infection'         => true, // ← temp ineligible
+                'infection'         => true, 
                 'has_recent_surgery' => false,
                 'surgery_date'      => null,
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 2,
-                'verified_blood_type' => BloodType::O_NEGATIVE, // 2 donations → verified
+                'verified_blood_type' => BloodType::O_NEGATIVE, 
                 'points'            => 100,
             ],
             [
-                // SCENARIO: Eligible, 6 donations, GPS set
+                
                 'name'              => 'صلاح الدين عمر البح',
                 'national_id'       => '440567890',
                 'email'             => 'salahuddin.bah@gmail.com',
@@ -671,7 +661,7 @@ class DonorSeeder extends Seeder
                 'recent_donation'   => false,
                 'last_donation_date' => null,
                 'total_donations'   => 6,
-                'verified_blood_type' => BloodType::AB_POSITIVE, // 6 donations → verified
+                'verified_blood_type' => BloodType::AB_POSITIVE, 
                 'points'            => 300,
             ],
         ];
@@ -700,7 +690,6 @@ class DonorSeeder extends Seeder
                 'points'                => $data['points'],
             ]);
 
-            // Build health profile — is_eligible & next_eligible_date are auto-computed by the model's booted()
             $profileData = [
                 'donor_id'                      => $donor->id,
                 'blood_type'                    => $data['blood_type'],

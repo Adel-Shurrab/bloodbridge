@@ -12,7 +12,6 @@ class DonorHealthProfile extends Model
 {
     use SoftDeletes, HasFactory;
 
-    // Defaults
     public const DEFAULT_CHRONIC_DISEASE = false;
     public const DEFAULT_RECENT_DONATION = false;
     public const DEFAULT_INFECTION = false;
@@ -80,14 +79,12 @@ class DonorHealthProfile extends Model
     {
         $today = Carbon::now()->startOfDay();
 
-        // Respect current future date (e.g., from manual lab verification)
         $nextEligibleDate = ($this->next_eligible_date && Carbon::parse($this->next_eligible_date)->isFuture())
             ? Carbon::parse($this->next_eligible_date)->startOfDay()
             : null;
 
         $isEligible = $nextEligibleDate === null;
 
-        // 1. Permanent Disqualifiers
         if ($this->chronic_disease) {
             return [
                 'is_eligible' => false,
@@ -95,18 +92,15 @@ class DonorHealthProfile extends Model
             ];
         }
 
-        // 2. Physical Stats
         if (($this->weight && $this->weight < 50) || ($this->height && $this->height < 140)) {
             $isEligible = false;
         }
 
-        // 3. Infection (Temporary 14 days)
         if ($this->infection) {
             $isEligible = false;
             $nextEligibleDate = $today->copy()->addDays(14);
         }
 
-        // 4. Donation Logic (90 Days)
         if ($this->last_donation_date) {
             $lastDonation = Carbon::parse($this->last_donation_date)->startOfDay();
             $daysSince = $lastDonation->diffInDays($today);
@@ -121,7 +115,6 @@ class DonorHealthProfile extends Model
             }
         }
 
-        // 5. Surgery Logic (28 Days)
         if ($this->surgery_date) {
             $surgery = Carbon::parse($this->surgery_date)->startOfDay();
             $daysSince = $surgery->diffInDays($today);

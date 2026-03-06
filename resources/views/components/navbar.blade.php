@@ -1,7 +1,7 @@
 <nav class="navbar" id="navbar" role="navigation" aria-label="الملاحة الرئيسية">
     <div class="nav-container">
         <a href="{{ route('home') }}" class="logo" aria-label="{{ $settings->site_name }} - الصفحة الرئيسية">
-            <img src="{{ $settings->site_logo ? Storage::url($settings->site_logo) : asset('assets/images/logo.jpg') }}"
+            <img src="{{ $settings->site_logo ? Storage::url($settings->site_logo) : asset('assets/images/logo.png') }}"
                 alt="{{ $settings->site_name }} Logo" class="logo-icon" />
             <span>{{ $settings->site_name }}</span>
         </a>

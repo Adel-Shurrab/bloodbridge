@@ -40,10 +40,10 @@ class OrganizationResource extends Resource
                 Grid::make(['lg' => 3])
                     ->schema([
                         Group::make([
-                            ($components[0] ?? null)?->visible(fn($operation) => $operation === 'create'), // حساب المستخدم
-                            $components[1] ?? null, // معلومات المنظمة (Includes Responsible Person)
-                            $components[2] ?? null, // معلومات التواصل العام
-                            $components[3] ?? null, // الموقع وساعات العمل
+                            ($components[0] ?? null)?->visible(fn($operation) => $operation === 'create'), 
+                            $components[1] ?? null, 
+                            $components[2] ?? null, 
+                            $components[3] ?? null, 
                         ])->columnSpan(['lg' => 2]),
 
                         Group::make([

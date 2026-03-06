@@ -12,8 +12,6 @@ class Organization extends Model implements HasName
 {
     use SoftDeletes, HasFactory;
 
-
-    // Defaults
     public const DEFAULT_APPROVAL_STATUS = \App\Enums\OrganizationStatus::PENDING;
     public const DEFAULT_DAILY_CAPACITY = 0;
     public const DEFAULT_TOTAL_REQUEST_CREATED = 0;
@@ -54,7 +52,6 @@ class Organization extends Model implements HasName
     {
         return $this->org_name;
     }
-
 
     public function governorate()
     {

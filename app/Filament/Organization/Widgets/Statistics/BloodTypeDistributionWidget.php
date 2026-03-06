@@ -15,10 +15,9 @@ class BloodTypeDistributionWidget extends ChartWidget
 
     protected function getData(): array
     {
-        // Cache organization ID for this request using once() to avoid repeated DB queries
+        
         $organizationId = once(fn() => Auth::user()->organization->id);
 
-        // Single aggregated query with GROUP BY instead of N+1 queries
         $stats = BloodRequest::query()
             ->where('organization_id', $organizationId)
             ->selectRaw('blood_type, count(*) as total')
@@ -42,7 +41,6 @@ class BloodTypeDistributionWidget extends ChartWidget
             'UNKNOWN' => '#6b7280',
         ];
 
-        // Process in memory instead of database lookups
         foreach (BloodType::cases() as $type) {
             $count = $stats[$type->value] ?? 0;
 

@@ -18,10 +18,9 @@ class BloodRequestTrendWidget extends ChartWidget
 
     protected function getData(): array
     {
-        // Cache organization ID for this request using once() to avoid repeated DB queries
+        
         $organizationId = once(fn() => Auth::user()->organization->id);
 
-        // Use Trend library to replace loop - single aggregated query
         $data = Trend::query(
             BloodRequest::query()->where('organization_id', $organizationId)
         )
@@ -32,7 +31,6 @@ class BloodRequestTrendWidget extends ChartWidget
             ->perDay()
             ->count();
 
-        // Format data for chart
         return [
             'datasets' => [
                 [

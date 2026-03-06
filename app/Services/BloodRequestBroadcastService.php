@@ -16,14 +16,13 @@ use Illuminate\Support\Facades\Log;
 
 class BloodRequestBroadcastService
 {
-    // Constants for expansion configuration
+    
     private const DONOR_SAFETY_MULTIPLIER_NORMAL = 2.0;
     private const DONOR_SAFETY_MULTIPLIER_CRITICAL = 2.5;
     private const CRITICAL_RADIUS_MULTIPLIER = 3;
     private const RADIUS_EXPANSION_STEP_KM = 5;
     private const MAX_SEARCH_RADIUS_KM = 25;
 
-    // Constants for notification cooldown (in hours)
     private const NOTIFICATION_COOLDOWN_CRITICAL_HOURS = 0.5;
     private const NOTIFICATION_COOLDOWN_NORMAL_HOURS = 2.0;
 
@@ -44,7 +43,7 @@ class BloodRequestBroadcastService
         }
 
         try {
-            // Phase 1: Database operations within transaction (no side effects)
+            
             $eligibleDonors = DB::transaction(function () use ($bloodRequest) {
                 $donors = $this->findEligibleDonorsWithExpansion($bloodRequest);
                 $this->updateBroadcastStatus($bloodRequest);
@@ -52,13 +51,6 @@ class BloodRequestBroadcastService
                 return $donors;
             });
 
-
-            // Phase 2: Dispatch notifications AFTER successful commit (outside transaction)
-            // This ensures:
-            // 1. No database locks held during notification processing
-            // 2. Notifications only queued if database changes committed successfully
-            // 3. If notification dispatch fails, database is already in correct state
-            // 4. User doesn't wait for notification loop (async job processing)
             $notificationsQueued = $this->notifyEligibleDonors($bloodRequest, $eligibleDonors);
 
             Log::info('Blood request broadcasted successfully', [
@@ -86,12 +78,11 @@ class BloodRequestBroadcastService
      */
     private function hasValidLocation(BloodRequest $bloodRequest): bool
     {
-        // Has precise GPS coordinates
+        
         $hasCoordinates = $bloodRequest->lat !== null
             && $bloodRequest->lng !== null
             && $bloodRequest->search_radius_km > 0;
 
-        // Has organization with governorate (fallback)
         $hasGovernorate = $bloodRequest->organization
             && $bloodRequest->organization->governorate_id !== null;
 
@@ -112,23 +103,20 @@ class BloodRequestBroadcastService
         $currentRadius = $this->getInitialSearchRadius($bloodRequest, $isCritical);
 
         $matchedDonors = collect();
-        $excludedDonorIds = []; // Track IDs to exclude in subsequent searches
+        $excludedDonorIds = []; 
         $expansionAttempts = 0;
 
-        // Progressive expansion loop for matched blood types
         while ($this->shouldContinueExpansion($matchedDonors, $targetDonorCount, $currentRadius)) {
             $newDonors = $this->searchDonorsInRadius(
                 $bloodRequest,
                 $compatibleBloodTypes,
                 $currentRadius,
                 $isCritical,
-                $excludedDonorIds // Exclude previously found donors
+                $excludedDonorIds 
             );
 
-            // Merge new donors with existing collection
             $matchedDonors = $matchedDonors->merge($newDonors);
 
-            // Update exclusion list with newly found IDs
             $excludedDonorIds = $matchedDonors->pluck('id')->toArray();
 
             $this->logExpansionAttempt($bloodRequest, $currentRadius, $matchedDonors, $targetDonorCount, $expansionAttempts, $newDonors->count());
@@ -137,16 +125,14 @@ class BloodRequestBroadcastService
                 break;
             }
 
-            // Check if we're about to exceed max radius
             if ($currentRadius >= self::MAX_SEARCH_RADIUS_KM) {
-                break; // Stop expansion at max radius
+                break; 
             }
 
             $currentRadius += self::RADIUS_EXPANSION_STEP_KM;
             $expansionAttempts++;
         }
 
-        // Phase 2: Search UNKNOWN donors as backup (NORMAL requests only)
         $finalDonors = $matchedDonors;
         if (!$this->targetDonorCountMet($matchedDonors, $targetDonorCount) && !$isCritical) {
             $unknownDonors = $this->searchUnknownDonors($bloodRequest, $currentRadius, $isCritical, $excludedDonorIds);
@@ -251,14 +237,13 @@ class BloodRequestBroadcastService
     ): Collection {
         $cooldownHours = $this->getNotificationCooldownHours($isCritical);
 
-        // Use coordinates if available, otherwise fall back to governorate-only search
         $lat = $bloodRequest->lat;
         $lng = $bloodRequest->lng;
         $governorateId = $bloodRequest->organization->governorate_id;
 
         $query = Donor::withinRadius(
-            $lat, // null is okay - will trigger governorate-only search
-            $lng, // null is okay - will trigger governorate-only search
+            $lat, 
+            $lng, 
             $radiusKm,
             $governorateId
         )
@@ -267,7 +252,6 @@ class BloodRequestBroadcastService
             ->whereDoesntHave('eligibilityLogs', fn($q) => $this->applyPermanentExclusionFilter($q))
             ->whereDoesntHave('responses', fn($q) => $this->applyRecentNotificationFilter($q, $cooldownHours));
 
-        // Exclude previously found donors to avoid re-fetching
         if (!empty($excludedDonorIds)) {
             $query->whereNotIn('donors.id', $excludedDonorIds);
         }
@@ -290,7 +274,7 @@ class BloodRequestBroadcastService
         bool $isCritical,
         array $excludedDonorIds = []
     ): Collection {
-        // UNKNOWN donors only for NORMAL urgency (critical is too risky)
+        
         if ($isCritical) {
             return collect([]);
         }
@@ -303,21 +287,19 @@ class BloodRequestBroadcastService
         $query = Donor::withinRadius($lat, $lng, $radiusKm, $governorateId)
             ->eligible()
             ->whereHas('healthProfile', function ($query) {
-                // Only unverified UNKNOWN donors
+                
                 $query->where('blood_type', BloodType::UNKNOWN)
                     ->whereNull('verified_blood_type');
             })
             ->whereDoesntHave('eligibilityLogs', fn($q) => $this->applyPermanentExclusionFilter($q))
             ->whereDoesntHave('responses', fn($q) => $this->applyRecentNotificationFilter($q, $cooldownHours));
 
-        // Exclude previously found donors
         if (!empty($excludedDonorIds)) {
             $query->whereNotIn('donors.id', $excludedDonorIds);
         }
 
         return $query->get();
     }
-
 
     /**
      * Get notification cooldown period based on urgency
@@ -331,8 +313,6 @@ class BloodRequestBroadcastService
             ? self::NOTIFICATION_COOLDOWN_CRITICAL_HOURS
             : self::NOTIFICATION_COOLDOWN_NORMAL_HOURS;
     }
-
-
 
     /**
      * Apply permanent exclusion filter to query
@@ -366,7 +346,7 @@ class BloodRequestBroadcastService
      */
     private function notifyEligibleDonors(BloodRequest $bloodRequest, Collection $donors): int
     {
-        // Prepare donor data as ['user_id' => distance]
+        
         $donorData = [];
         foreach ($donors as $donor) {
             if ($donor->user) {
@@ -374,7 +354,6 @@ class BloodRequestBroadcastService
             }
         }
 
-        // Dispatch in batches using the job (handles queue payload limits automatically)
         if (!empty($donorData)) {
             DispatchBloodRequestNotifications::dispatchBatches($bloodRequest->id, $donorData);
         }

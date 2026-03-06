@@ -12,8 +12,6 @@ class Donor extends Model
 {
     use SoftDeletes, HasFactory;
 
-
-
     protected $casts = [
         'blood_type' => BloodType::class,
         'gender' => \App\Enums\Gender::class,
@@ -21,7 +19,6 @@ class Donor extends Model
 
     ];
 
-    // Defaults
     public const DEFAULT_POINTS = 0;
     public const DEFAULT_LEVEL = 1;
     public const NATIONAL_ID_LENGTH = 9;
@@ -116,7 +113,7 @@ class Donor extends Model
                 $group->where(function ($q) use ($bbox, $radiusKm, $lat, $lng, $haversine) {
                     $q->whereNotNull('lat')
                         ->whereNotNull('lng')
-                        // الفلترة السريعة (Bounding Box)
+                        
                         ->whereBetween('lat', [$bbox['minLat'], $bbox['maxLat']])
                         ->whereBetween('lng', [$bbox['minLng'], $bbox['maxLng']])
                         ->whereRaw("{$haversine} <= ?", [$lat, $lng, $lat, $radiusKm]);

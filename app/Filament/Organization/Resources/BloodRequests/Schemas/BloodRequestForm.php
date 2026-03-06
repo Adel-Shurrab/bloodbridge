@@ -2,6 +2,7 @@
 
 namespace App\Filament\Organization\Resources\BloodRequests\Schemas;
 
+use App\Enums\BloodRequestStatus;
 use App\Models\BloodRequest;
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Forms\Components\Hidden;
@@ -35,7 +36,11 @@ class BloodRequestForm
                                     ->native(false)
                                     ->placeholder('اختر فصيلة الدم')
                                     ->columnSpan(1)
-                                    ->searchable(),
+                                    ->searchable()
+                                    ->disabled(fn($record) => $record && in_array($record->status, [
+                                        BloodRequestStatus::FULFILLED,
+                                        BloodRequestStatus::CANCELLED,
+                                    ])),
 
                                 TextInput::make('units_needed')
                                     ->label('عدد الوحدات')
@@ -54,7 +59,11 @@ class BloodRequestForm
                                     ->default(\App\Enums\UrgencyLevel::NORMAL)
                                     ->native(false)
                                     ->columnSpan(1)
-                                    ->placeholder('حدد مستوى الأولوية'),
+                                    ->placeholder('حدد مستوى الأولوية')
+                                    ->disabled(fn($record) => $record && in_array($record->status, [
+                                        BloodRequestStatus::FULFILLED,
+                                        BloodRequestStatus::CANCELLED,
+                                    ])),
                             ]),
 
                         Textarea::make('additional_notes')
@@ -81,9 +90,12 @@ class BloodRequestForm
                                     ->minValue(1)
                                     ->maxValue(100)
                                     ->suffix('كم')
-                                    ->columnSpan(2),
+                                    ->columnSpan(2)
+                                    ->disabled(fn($record) => $record && in_array($record->status, [
+                                        BloodRequestStatus::FULFILLED,
+                                        BloodRequestStatus::CANCELLED,
+                                    ])),
 
-                                // Map Component
                                 Map::make('location')
                                     ->label('موقع الحالة على الخريطة (اختياري)')
                                     ->columnSpanFull()
@@ -117,11 +129,9 @@ class BloodRequestForm
                                     ->showMyLocationButton(true)
                                     ->clickable(true),
 
-                                // Hidden fields to store coordinates
                                 Hidden::make('lat'),
                                 Hidden::make('lng'),
 
-                                // Optional: Address field to display selected location
                                 TextInput::make('location_address')
                                     ->label('العنوان المحدد')
                                     ->placeholder('أدخل تفاصيل العنوان يدوياً (مثلاً: المبنى الخارجي، الطابق الثاني...)')

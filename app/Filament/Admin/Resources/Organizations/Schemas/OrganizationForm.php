@@ -38,7 +38,6 @@ class OrganizationForm
                             ->required()
                             ->columnSpanFull(),
 
-                        // New User Creation Fields
                         TextInput::make('new_user_name')
                             ->label('اسم المستخدم')
                             ->required(fn($get) => $get('user_creation_mode') === 'create')
@@ -75,7 +74,6 @@ class OrganizationForm
                             ->minLength(8)
                             ->visible(fn($get) => $get('user_creation_mode') === 'create'),
 
-                        // Existing User Selection
                         Select::make('user_id')
                             ->label('الحساب المرتبط')
                             ->relationship('user', 'name', function ($query) {
@@ -165,7 +163,6 @@ class OrganizationForm
                             ->hidden(fn($operation) => $operation === 'create'),
                     ])->columns(2),
 
-
                 Section::make('معلومات التواصل العام')
                     ->description('كيف يمكن للجمهور التواصل مع المنظمة')
                     ->icon('heroicon-o-phone')
@@ -197,8 +194,6 @@ class OrganizationForm
                                     ->required()
                                     ->searchable()
                                     ->preload(),
-
-
 
                                 TimePicker::make('opening_time')
                                     ->label('وقت الفتح'),

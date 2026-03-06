@@ -25,9 +25,6 @@ class EligibilityCountdownWidget extends Widget
             ];
         }
 
-        // Dynamically check if eligible:
-        // The stored `is_eligible` flag can be STALE — it only updates on profile save.
-        // If next_eligible_date has already passed, treat the donor as eligible now.
         $dateHasPassed = $profile->next_eligible_date !== null
             && (
                 $profile->next_eligible_date->startOfDay()->isPast()
@@ -42,7 +39,6 @@ class EligibilityCountdownWidget extends Widget
             ];
         }
 
-        // Permanently ineligible (chronic disease, etc.) — no date set
         if (! $profile->next_eligible_date) {
             return [
                 'eligible_now' => false,
@@ -51,7 +47,6 @@ class EligibilityCountdownWidget extends Widget
             ];
         }
 
-        // Still on cooldown — show the countdown
         $target = $profile->next_eligible_date->startOfDay();
 
         return [

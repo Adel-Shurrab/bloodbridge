@@ -11,7 +11,7 @@ class OrganizationHeaderWidget extends Widget
 
     protected int | string | array $columnSpan = 'full';
 
-    protected static ?int $sort = -1; // Display at the top
+    protected static ?int $sort = -1; 
 
     public function getUser()
     {

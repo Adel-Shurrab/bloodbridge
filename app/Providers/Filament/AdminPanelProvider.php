@@ -10,6 +10,7 @@ use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use Filament\Navigation\MenuItem;
 use Illuminate\Cookie\Middleware\AddQueuedCookiesToResponse;
 use Illuminate\Cookie\Middleware\EncryptCookies;
 use Illuminate\Foundation\Http\Middleware\VerifyCsrfToken;
@@ -33,10 +34,19 @@ class AdminPanelProvider extends PanelProvider
             ->id('admin')
             ->path('admin')
             ->brandName(fn() => $settings->site_name)
-            ->favicon(fn() => $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.jpg'))
+            ->brandLogo(fn() => view('filament.logo', ['height' => '3.5rem']))
+            ->brandLogoHeight('3.5rem')
+            ->homeUrl(fn() => route('home'))
+            ->favicon(fn() => $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.png'))
             ->font('Cairo')
             ->colors([
                 'primary' => Color::Red,
+            ])
+            ->userMenuItems([
+                MenuItem::make()
+                    ->label('العودة للموقع')
+                    ->url(fn() => route('home'))
+                    ->icon('heroicon-o-home'),
             ])
             ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\Filament\Admin\Resources')
             ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\Filament\Admin\Pages')
@@ -63,7 +73,11 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-            ]);
+            ])
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::FOOTER,
+                fn() => view('filament.footer'),
+            );
     }
 
     public function boot(): void
@@ -74,5 +88,10 @@ class AdminPanelProvider extends PanelProvider
         \Livewire\Livewire::component('app.filament.admin.widgets.blood-type-demand-widget', Widgets\BloodTypeDemandWidget::class);
         \Livewire\Livewire::component('app.filament.admin.widgets.engagement-chart-widget', Widgets\EngagementChartWidget::class);
         \Livewire\Livewire::component('app.filament.admin.widgets.recent-activity-widget', Widgets\RecentActivityWidget::class);
+
+        \Filament\Facades\Filament::renderHook(
+            \Filament\View\PanelsRenderHook::HEAD_END,
+            fn() => new \Illuminate\Support\HtmlString('<style>.fi-logo { background: transparent !important; } img.fi-logo { mix-blend-mode: multiply; } .dark img.fi-logo { mix-blend-mode: normal; filter: brightness(0) invert(1); }</style>')
+        );
     }
 }

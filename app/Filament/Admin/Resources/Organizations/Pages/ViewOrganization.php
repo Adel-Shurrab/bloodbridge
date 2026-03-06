@@ -17,7 +17,7 @@ class ViewOrganization extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            // Approve action — only shown when status is PENDING
+            
             Action::make('approve')
                 ->label('اعتماد المنظمة')
                 ->icon('heroicon-o-check-badge')
@@ -42,7 +42,6 @@ class ViewOrganization extends ViewRecord
                     $this->refreshFormData(['approval_status', 'approved_at', 'approved_by']);
                 }),
 
-            // Reject action — only shown when status is PENDING
             Action::make('reject')
                 ->label('رفض المنظمة')
                 ->icon('heroicon-o-x-circle')

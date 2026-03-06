@@ -90,11 +90,33 @@ if (contactForm) {
         btnLoader.style.display = 'inline';
 
         try {
-            // Simulate API call (replace with actual API endpoint)
-            await new Promise(resolve => setTimeout(resolve, 1500));
+            const formDataObj = new FormData(contactForm);
+            const response = await fetch(contactForm.action, {
+                method: 'POST',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json'
+                },
+                body: formDataObj
+            });
+
+            const result = await response.json();
+
+            if (!response.ok) {
+                if (response.status === 422 && result.errors) {
+                    // Display validation errors from server
+                    const serverErrors = {};
+                    Object.entries(result.errors).forEach(([field, messages]) => {
+                        serverErrors[field] = messages[0];
+                    });
+                    displayErrors(serverErrors);
+                    throw new Error('Validation failed');
+                }
+                throw new Error(result.message || 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة لاحقاً.');
+            }
 
             // Show success message
-            document.getElementById('successMessage').textContent = 'تم إرسال رسالتك بنجاح! سنرد عليك قريباً.';
+            document.getElementById('successMessage').textContent = result.message || 'تم إرسال رسالتك بنجاح! سنرد عليك قريباً.';
             document.getElementById('successMessage').style.display = 'block';
 
             // Reset form
@@ -108,8 +130,10 @@ if (contactForm) {
                 document.getElementById('successMessage').style.display = 'none';
             }, 3000);
         } catch (error) {
-            document.getElementById('errorMessage').textContent = 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة لاحقاً.';
-            document.getElementById('errorMessage').style.display = 'block';
+            if (error.message !== 'Validation failed') {
+                document.getElementById('errorMessage').textContent = error.message;
+                document.getElementById('errorMessage').style.display = 'block';
+            }
 
             submitBtn.disabled = false;
             btnText.style.display = 'inline';

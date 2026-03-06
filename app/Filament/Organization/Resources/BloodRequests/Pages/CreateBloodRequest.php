@@ -17,10 +17,9 @@ class CreateBloodRequest extends CreateRecord
     protected function afterCreate(): void
     {
         try {
-            // Broadcast to eligible donors
+            
             $notifiedCount = $this->record->broadcastToEligibleDonors();
 
-            // Show success notification
             if ($notifiedCount > 0) {
                 $expansionInfo = $this->record->wasExpanded()
                     ? "\nنطاق البحث: {$this->record->search_radius_km}كم → {$this->record->actual_search_radius_km}كم"

@@ -33,7 +33,6 @@ return new class extends Migration
             $table->softDeletes();
             $table->timestamps();
 
-            // Composite unique index to prevent duplicate responses
             $table->unique(['donor_id', 'blood_request_id']);
         });
     }

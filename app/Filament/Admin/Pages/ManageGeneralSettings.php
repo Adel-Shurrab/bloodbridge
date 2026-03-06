@@ -240,6 +240,13 @@ class ManageGeneralSettings extends SettingsPage
                             ->label('تواصل معنا')
                             ->icon('heroicon-o-phone')
                             ->schema([
+                                Section::make('استقبال الرسائل')
+                                    ->schema([
+                                        Toggle::make('enable_contact_messages')
+                                            ->label('استقبال رسائل التواصل')
+                                            ->helperText('تفعيل هذا الخيار سيسمح للزوار بإرسال رسائل عبر نموذج اتصل بنا.')
+                                            ->default(true),
+                                    ]),
                                 Section::make('افتتاحية الصفحة')
                                     ->schema([
                                         TextInput::make('contact_hero_title')->label('العنوان'),

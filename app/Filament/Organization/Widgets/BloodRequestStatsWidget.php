@@ -16,7 +16,6 @@ class BloodRequestStatsWidget extends BaseWidget
     {
         $organization = Auth::user()->organization;
 
-        // Active Requests (PENDING, BROADCASTED)
         $activeRequests = BloodRequest::where('organization_id', $organization->id)
             ->whereIn('status', [
                 BloodRequestStatus::PENDING,
@@ -24,7 +23,6 @@ class BloodRequestStatsWidget extends BaseWidget
             ])
             ->count();
 
-        // Critical Requests
         $criticalRequests = BloodRequest::where('organization_id', $organization->id)
             ->whereIn('status', [
                 BloodRequestStatus::PENDING,
@@ -33,14 +31,12 @@ class BloodRequestStatsWidget extends BaseWidget
             ->where('urgency_level', \App\Enums\UrgencyLevel::CRITICAL)
             ->count();
 
-        // Pending Responses (waiting for org action)
         $pendingResponses = \App\Models\RequestResponse::whereHas('bloodRequest', function ($query) use ($organization) {
             $query->where('organization_id', $organization->id);
         })
             ->where('status', \App\Enums\RequestResponseStatus::PENDING)
             ->count();
 
-        // Today's Completed Donations
         $todayDonations = \App\Models\RequestResponse::whereHas('bloodRequest', function ($query) use ($organization) {
             $query->where('organization_id', $organization->id);
         })
@@ -55,7 +51,7 @@ class BloodRequestStatsWidget extends BaseWidget
                 ->color($activeRequests > 0 ? 'warning' : 'gray')
                 ->url(route('filament.organization.resources.blood-requests.index', ['tenant' => $organization->slug])),
 
-            Stat::make('🚨 طلبات عاجلة', $criticalRequests)
+            Stat::make('طلبات عاجلة', $criticalRequests)
                 ->description('تحتاج اهتمام فوري')
                 ->descriptionIcon('heroicon-o-exclamation-triangle')
                 ->color($criticalRequests > 0 ? 'danger' : 'success'),

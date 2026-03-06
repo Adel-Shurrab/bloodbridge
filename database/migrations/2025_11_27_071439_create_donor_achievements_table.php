@@ -31,7 +31,6 @@ return new class extends Migration
             $table->timestamps();
             $table->softDeletes();
 
-            // Prevent assigning the same achievement to the same donor twice
             $table->unique(['donor_id', 'achievement_id']);
         });
     }

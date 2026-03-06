@@ -18,17 +18,14 @@ class CheckForMaintenanceMode
     {
         $settings = app(GeneralSettings::class);
 
-        // If maintenance mode is enabled
         if ($settings->maintenance_mode) {
 
             $user = $request->user();
 
-            // 1. Always allow authenticated admins to bypass everything (including public site)
             if ($user && $user->role === \App\Enums\UserRole::ADMIN) {
                 return $next($request);
             }
 
-            // 2. Allow essential auth and system routes for everyone (to allow admin login)
             if (
                 $request->is('login*') ||
                 $request->is('*/login') ||
@@ -41,7 +38,6 @@ class CheckForMaintenanceMode
                 return $next($request);
             }
 
-            // 4. For all other routes (donors, organizations, and public visitors), show maintenance page
             return response()->view('errors.maintenance', [
                 'settings' => $settings,
             ], 503);

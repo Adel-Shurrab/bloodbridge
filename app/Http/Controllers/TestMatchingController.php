@@ -17,14 +17,13 @@ class TestMatchingController extends Controller
      */
     public function testMatching(Request $request)
     {
-        // Get parameters from request or use defaults
-        $lat = $request->filled('lat') ? (float)$request->input('lat') : 31.5313; // Gaza City default
+        
+        $lat = $request->filled('lat') ? (float)$request->input('lat') : 31.5313; 
         $lng = $request->filled('lng') ? (float)$request->input('lng') : 34.4661;
         $radiusKm = $request->input('radius', 10);
         $governorateId = $request->input('governorate_id');
         $bloodTypeInput = $request->input('blood_type');
 
-        // Resolve blood type from input (supports both ID and Enum name)
         $bloodTypeEnum = null;
         if (is_numeric($bloodTypeInput)) {
             $bloodTypeEnum = BloodType::tryFrom((int)$bloodTypeInput);
@@ -37,23 +36,18 @@ class TestMatchingController extends Controller
             }
         }
 
-        // Default to O_POSITIVE if not found
         if (!$bloodTypeEnum) {
             $bloodTypeEnum = BloodType::O_POSITIVE;
         }
 
-        // Pass the integer value to the view so the select element works correctly
         $bloodType = $bloodTypeEnum->value;
 
-        // Get compatible blood types
         $compatibleTypes = $bloodTypeEnum->getCompatibleDonorTypes();
 
-        // Step 1: Find donors within radius with governorate fallback
         $donorsInRadius = Donor::withinRadius($lat, $lng, $radiusKm, $governorateId)
             ->with(['healthProfile', 'governorate', 'user'])
             ->get();
 
-        // Step 2: Filter by blood type compatibility
         $compatibleDonors = $donorsInRadius->filter(function ($donor) use ($compatibleTypes) {
             if (!$donor->healthProfile) {
                 return false;
@@ -62,32 +56,27 @@ class TestMatchingController extends Controller
             $verifiedType = $donor->healthProfile->verified_blood_type;
             $declaredType = $donor->healthProfile->blood_type;
 
-            // Check verified type first, fallback to declared type
             $donorBloodType = $verifiedType ?? $declaredType;
 
             return in_array($donorBloodType, $compatibleTypes);
         });
 
-        // Step 3: Filter by eligibility
         $eligibleDonors = $compatibleDonors->filter(function ($donor) {
             if (!$donor->healthProfile) {
                 return false;
             }
 
-            // Must be eligible in health profile
             if (!$donor->healthProfile->is_eligible) {
                 return false;
             }
 
-            // Defense in depth: also check next_eligible_date explicitly
             if ($donor->healthProfile->next_eligible_date) {
                 $nextEligibleDate = \Carbon\Carbon::parse($donor->healthProfile->next_eligible_date)->startOfDay();
                 if ($nextEligibleDate->isFuture()) {
-                    return false; // Still in cooldown period
+                    return false; 
                 }
             }
 
-            // Check for permanent exclusions
             $hasPermanentExclusion = $donor->eligibilityLogs()
                 ->where('is_eligible', false)
                 ->where('is_permanent', true)
@@ -97,7 +86,6 @@ class TestMatchingController extends Controller
                 return false;
             }
 
-            // Time-based notification de-duplication: check if notified within last 2 hours
             $recentlyNotified = $donor->responses()
                 ->where('created_at', '>=', \Carbon\Carbon::now()->subHours(2))
                 ->whereIn('status', [
@@ -109,7 +97,6 @@ class TestMatchingController extends Controller
             return !$recentlyNotified;
         });
 
-        // Calculate distances for all donors
         $donorsWithDistance = $donorsInRadius->map(function ($donor) use ($lat, $lng, $compatibleDonors, $eligibleDonors) {
             $distance = isset($donor->lat, $donor->lng)
                 ? GeoHelper::calculateDistance($lat, $lng, $donor->lat, $donor->lng)
@@ -137,7 +124,6 @@ class TestMatchingController extends Controller
             ];
         })->sortBy('distance_km')->values();
 
-        // Prepare response
         return view('test-matching', [
             'searchLat' => $lat,
             'searchLng' => $lng,
@@ -166,7 +152,6 @@ class TestMatchingController extends Controller
         $governorateId = $request->input('governorate_id');
         $bloodTypeInput = $request->input('blood_type');
 
-        // Resolve blood type from input (supports both ID and Enum name)
         $bloodTypeEnum = null;
         if (is_numeric($bloodTypeInput)) {
             $bloodTypeEnum = BloodType::tryFrom((int)$bloodTypeInput);

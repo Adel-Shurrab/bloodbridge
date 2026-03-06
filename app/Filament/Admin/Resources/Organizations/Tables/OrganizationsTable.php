@@ -67,7 +67,6 @@ class OrganizationsTable
                     DeleteAction::make()->label('حذف'),
                     RestoreAction::make()->label('استعادة'),
 
-                    // زر الموافقة
                     Action::make('approve')
                         ->label('موافقة')
                         ->icon('heroicon-o-check')
@@ -80,7 +79,6 @@ class OrganizationsTable
                             Notification::make()->title('تمت الموافقة')->success()->send();
                         }),
 
-                    // زر الرفض
                     Action::make('reject')
                         ->label('رفض')
                         ->icon('heroicon-o-x-mark')

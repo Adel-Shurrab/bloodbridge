@@ -10,8 +10,6 @@ class BloodRequest extends Model
 {
     use SoftDeletes, HasFactory;
 
-
-    // Defaults
     public const DEFAULT_STATUS = \App\Enums\BloodRequestStatus::PENDING;
     public const DEFAULT_URGENCY_LEVEL = \App\Enums\UrgencyLevel::NORMAL;
     public const DEFAULT_SEARCH_RADIUS_KM = 10;
@@ -117,7 +115,6 @@ class BloodRequest extends Model
     {
         $query->whereIn('status', [
             \App\Enums\BloodRequestStatus::BROADCASTED,
-            \App\Enums\BloodRequestStatus::MATCHED,
         ])
             ->whereNull('fulfilled_at');
     }
@@ -151,7 +148,6 @@ class BloodRequest extends Model
     {
         return in_array($this->status, [
             \App\Enums\BloodRequestStatus::BROADCASTED,
-            \App\Enums\BloodRequestStatus::MATCHED,
         ], true)
             && is_null($this->fulfilled_at)
             && is_null($this->deleted_at);

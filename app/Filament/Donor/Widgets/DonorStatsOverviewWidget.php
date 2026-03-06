@@ -8,7 +8,6 @@ use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
 use Illuminate\Support\Facades\Auth;
 
-
 class DonorStatsOverviewWidget extends StatsOverviewWidget
 {
     protected function getStats(): array
@@ -16,7 +15,6 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
         $user = Auth::user();
         $donor = $user?->donor;
 
-        // احتياط: لو المستخدم ليس لديه donor
         if (! $donor) {
             return [
                 Stat::make('Total Donations', '—'),
@@ -30,27 +28,21 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
 
         $profile = $donor->healthProfile;
 
-        // 1) Total Donations
         $totalDonations = (int) ($profile?->total_donations ?? 0);
 
-        // 2) Last Donation Date
         $lastDonation = $profile?->last_donation_date;
         $lastDonationLabel = $lastDonation ? $lastDonation->toDateString() : '—';
 
-        // 3) Requests Received = طلبات أُرسلت للمتبرع فعلياً (صفوف request_responses)
         $requestsReceived = RequestResponse::query()
             ->where('donor_id', $donor->id)
             ->count();
 
-        // 4) Requests Accepted / Declined / Completed (من جدول request_responses للمتبرع)
         $responsesQuery = RequestResponse::query()->where('donor_id', $donor->id);
 
-        // وافق = PENDING (الحالة الأولى بعد الإرسال تعني الموافقة من المتبرع)
         $accepted = (int) $responsesQuery->clone()
             ->where('status', RequestResponseStatus::PENDING)
             ->count();
 
-        // رفض / اعتذر / لم يحضر / غير متاح
         $declined = (int) $responsesQuery->clone()
             ->whereIn('status', [
                 RequestResponseStatus::DECLINED,
@@ -64,32 +56,30 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
             ->where('status', RequestResponseStatus::COMPLETED)
             ->count();
 
-        // 5) Acceptance Rate = وافق / (وافق + رفض + اعتذار + لم يحضر + غير متاح)
         $responded = $accepted + $declined + $completed;
         $acceptanceRate = $responded > 0 ? round((($accepted + $completed) / $responded) * 100) : 0;
 
-        // 6) Completion Rate = تم التبرع بنجاح / إجمالي الطلبات المستلمة
         $completionRate = $requestsReceived > 0 ? round(($completed / $requestsReceived) * 100) : 0;
 
         return [
             Stat::make('إجمالي التبرعات', $totalDonations)
                 ->icon('heroicon-m-heart')
-                ->color('danger') // 🔴 لون الدم / التبرع
+                ->color('danger') 
                 ->description('عدد تبرعاتك منذ التسجيل'),
 
             Stat::make('آخر تاريخ تبرع', $lastDonationLabel)
                 ->icon('heroicon-m-calendar-days')
-                ->color('info') // 🔵 معلومة زمنية
+                ->color('info') 
                 ->description('أحدث تبرع قمت به'),
 
             Stat::make('الطلبات المستلمة', $requestsReceived)
                 ->icon('heroicon-m-inbox')
-                ->color('primary') // 🟣/🔵 عنصر أساسي (طلبات)
+                ->color('primary') 
                 ->description('طلبات مطابقة لفصيلة دمك'),
 
             Stat::make('الطلبات المقبولة', $accepted + $completed)
                 ->icon('heroicon-m-check-badge')
-                ->color('success') // 🟢 قبول
+                ->color('success') 
                 ->description('عدد الطلبات التي وافقت عليها'),
 
             Stat::make('نسبة القبول', $acceptanceRate . '%')

@@ -8,5 +8,6 @@ Artisan::command('inspire', function () {
     $this->comment(Inspiring::quote());
 })->purpose('Display an inspiring quote');
 
-// Auto-cleanup stale PENDING responses every hour
 Schedule::command('blood:cleanup-stale-responses')->hourly();
+
+Schedule::command('blood-requests:expire')->twiceDaily();
