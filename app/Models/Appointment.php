@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Translatable\HasTranslations;
 
 class Appointment extends Model
 {
+    use HasTranslations;
 
     public const DEFAULT_STATUS = \App\Enums\AppointmentStatus::SCHEDULED;
+
+    public array $translatable = ['cancellation_reason'];
 
     protected $casts = [
         'status' => \App\Enums\AppointmentStatus::class,

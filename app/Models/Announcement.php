@@ -5,9 +5,12 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Notifications\SystemAnnouncement;
+use Spatie\Translatable\HasTranslations;
 
 class Announcement extends Model
 {
+    use HasTranslations;
+
     protected $fillable = [
         'title',
         'body',
@@ -18,6 +21,8 @@ class Announcement extends Model
         'status',
         'published_at',
     ];
+
+    public array $translatable = ['title', 'body'];
 
     protected $casts = [
         'targeted_users_ids' => 'array',

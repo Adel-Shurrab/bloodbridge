@@ -23,16 +23,27 @@ use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use App\Enums\UrgencyLevel;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\HasActiveLocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 
 class BloodRequests extends Page implements HasTable
 {
-    use InteractsWithTable;
+    use InteractsWithTable, HasActiveLocaleSwitcher {
+        HasActiveLocaleSwitcher::getActiveFormsLocale insteadof InteractsWithTable;
+        HasActiveLocaleSwitcher::getActiveActionsLocale insteadof InteractsWithTable;
+        HasActiveLocaleSwitcher::getFilamentTranslatableContentDriver insteadof InteractsWithTable;
+    }
+
+    public ?string $activeLocale = null;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-m-megaphone';
     protected ?Collection $donorResponses = null;
     protected ?Donor $cachedDonor = null;
     protected bool $donorLoaded = false;
-    protected static ?string $navigationLabel = 'طلبات الدم';
+    public static function getNavigationLabel(): string
+    {
+        return __('Blood Requests');
+    }
     protected static ?int $navigationSort = 4;
 
     protected string $view = 'filament.donor.pages.blood-requests';
@@ -55,6 +66,11 @@ class BloodRequests extends Page implements HasTable
     public static function getNavigationBadgeColor(): ?string
     {
         return 'danger';
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [];
     }
 
     protected function getHeaderWidgets(): array
@@ -180,15 +196,15 @@ class BloodRequests extends Page implements HasTable
             ->actions($this->getTableActions())
             ->filters([
                 SelectFilter::make('urgency_level')
-                    ->label('مستوى الاستعجال')
+                    ->label(__('Urgency Level'))
                     ->options(UrgencyLevel::class),
 
                 SelectFilter::make('blood_type')
-                    ->label('فصيلة الدم')
+                    ->label(__('Blood Type'))
                     ->options(BloodType::class),
 
                 SelectFilter::make('organization')
-                    ->label('المؤسسة')
+                    ->label(__('Organization'))
                     ->relationship('organization', 'org_name')
                     ->searchable()
                     ->preload(),
@@ -202,36 +218,36 @@ class BloodRequests extends Page implements HasTable
     {
         return [
             Tables\Columns\TextColumn::make('organization.org_name')
-                ->label('المؤسسة')
+                ->label(__('Organization'))
                 ->searchable()
                 ->sortable(),
 
             Tables\Columns\TextColumn::make('distance_km')
-                ->label('المسافة')
+                ->label(__('Distance'))
                 ->state(
                     fn($record) => isset($record->distance_km)
-                        ? number_format((float) $record->distance_km, 1) . ' كم'
+                        ? number_format((float) $record->distance_km, 1) . ' ' . __('km')
                         : '—'
                 ),
 
             Tables\Columns\TextColumn::make('blood_type')
-                ->label('فصيلة الدم المطلوبة')
+                ->label(__('Required Blood Type'))
                 ->badge(),
 
             Tables\Columns\TextColumn::make('units_needed')
-                ->label('الكمية المطلوبة (وحدات)')
+                ->label(__('Required Units'))
                 ->numeric()
                 ->sortable(),
 
             Tables\Columns\TextColumn::make('status')
-                ->label('حالة الطلب')
+                ->label(__('Request Status'))
                 ->badge(),
 
             Tables\Columns\TextColumn::make('my_status')
-                ->label('حالتك')
+                ->label(__('Your Status'))
                 ->badge()
                 ->getStateUsing(fn(BloodRequest $record) => $this->getDonorResponseForRequest($record)?->status)
-                ->formatStateUsing(fn($state) => $state ? $state->getLabel() : 'لم ترد')
+                ->formatStateUsing(fn($state) => $state ? $state->getLabel() : __('No Response'))
                 ->color(fn($state) => $state ? $state->getColor() : 'gray'),
         ];
     }
@@ -243,32 +259,32 @@ class BloodRequests extends Page implements HasTable
     {
         return [
             Action::make('accept')
-                ->label('قبول')
+                ->label(__('Accept'))
                 ->icon('heroicon-m-check-circle')
                 ->visible(fn(BloodRequest $record) => $this->canAccept($record))
                 ->disabled(fn() => ! $this->isEligibleNow())
                 ->action(fn(BloodRequest $record, BloodRequestActionService $service) => $this->accept($record, $service)),
 
             Action::make('ignore')
-                ->label('اعتذار')
+                ->label(__('Decline'))
                 ->icon('heroicon-m-x-circle')
                 ->color('danger')
                 ->visible(fn(BloodRequest $record) => $this->canIgnore($record))
                 ->action(fn(BloodRequest $record, BloodRequestActionService $service) => $this->ignore($record, $service)),
 
             Action::make('cancel')
-                ->label('تراجع')
+                ->label(__('Cancel Acceptance'))
                 ->color('gray')
                 ->icon('heroicon-m-arrow-uturn-left')
                 ->requiresConfirmation()
-                ->modalHeading('تأكيد التراجع')
-                ->modalDescription('هل أنت متأكد من رغبتك في التراجع عن قبول هذا الطلب؟ سيتم إلغاء رمز QR الحالي.')
-                ->modalSubmitActionLabel('نعم، تراجع')
+                ->modalHeading(__('Confirm Cancellation'))
+                ->modalDescription(__('Are you sure you want to cancel your acceptance for this request? The current QR code will be invalidated.'))
+                ->modalSubmitActionLabel(__('Yes, cancel'))
                 ->visible(fn(BloodRequest $record) => $this->canCancel($record))
                 ->action(fn(BloodRequest $record, BloodRequestActionService $service) => $this->cancel($record, $service)),
 
             Action::make('download_qr')
-                ->label('تنزيل QR')
+                ->label(__('Download QR'))
                 ->icon('heroicon-m-qr-code')
                 ->visible(fn(BloodRequest $record) => $this->canDownloadQr($record))
                 ->action(fn(BloodRequest $record, QRCodeService $qrService) => $this->downloadQr($record, $qrService)),
@@ -403,7 +419,7 @@ class BloodRequests extends Page implements HasTable
         $donor = $this->getDonor();
 
         if (! $donor) {
-            Notification::make()->danger()->title('تعذر تحديد بيانات المتبرع')->send();
+            Notification::make()->danger()->title(__('Unable to determine donor data'))->send();
             return;
         }
 
@@ -414,13 +430,13 @@ class BloodRequests extends Page implements HasTable
 
             Notification::make()
                 ->success()
-                ->title('تم قبول الطلب')
-                ->body('يمكنك الآن تنزيل رمز QR وإبرازه للمؤسسة عند الحضور.')
+                ->title(__('Request Accepted'))
+                ->body(__('You can now download the QR code and present it to the organization upon attendance.'))
                 ->send();
         } catch (\Exception $e) {
             Notification::make()
                 ->danger()
-                ->title('حدث خطأ')
+                ->title(__('An error occurred'))
                 ->body($e->getMessage())
                 ->send();
         }
@@ -444,7 +460,7 @@ class BloodRequests extends Page implements HasTable
 
             Notification::make()
                 ->success()
-                ->title('تم تجاهل الطلب')
+                ->title(__('Request Declined'))
                 ->send();
         } catch (\Exception $e) {
             Notification::make()->danger()->title($e->getMessage())->send();
@@ -469,7 +485,7 @@ class BloodRequests extends Page implements HasTable
 
             Notification::make()
                 ->success()
-                ->title('تم التراجع بنجاح')
+                ->title(__('Successfully Cancelled'))
                 ->send();
         } catch (\Exception $e) {
             Notification::make()->danger()->title($e->getMessage())->send();
@@ -484,7 +500,7 @@ class BloodRequests extends Page implements HasTable
         $response = $this->getDonorResponseForRequest($request);
 
         if (! $response || ! $this->canDownloadQr($request)) {
-            Notification::make()->danger()->title('لا يمكن تنزيل QR الآن')->send();
+            Notification::make()->danger()->title(__('Unable to download QR at this time'))->send();
             return null;
         }
 
@@ -497,3 +513,4 @@ class BloodRequests extends Page implements HasTable
         ]);
     }
 }
+

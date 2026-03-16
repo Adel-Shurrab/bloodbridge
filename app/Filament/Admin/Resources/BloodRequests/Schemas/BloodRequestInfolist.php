@@ -13,139 +13,139 @@ class BloodRequestInfolist
         return $schema
             ->components([
 
-                Section::make('تفاصيل الطلب')
+                Section::make(__('Order Details'))
                     ->icon('heroicon-o-document-text')
                     ->columns(4)
                     ->components([
 
                         TextEntry::make('organization.org_name')
-                            ->label('المنظمة')
+                            ->label(__('Organization'))
                             ->weight('bold')
                             ->url(fn($record) => route('filament.admin.resources.organizations.view', $record->organization))
                             ->openUrlInNewTab(),
 
                         TextEntry::make('blood_type')
-                            ->label('فصيلة الدم')
+                            ->label(__('Blood Type'))
                             ->badge()
                             ->size('lg'),
 
                         TextEntry::make('urgency_level')
-                            ->label('مستوى الاستعجال')
+                            ->label(__('Urgency Level'))
                             ->badge(),
 
                         TextEntry::make('status')
-                            ->label('الحالة')
+                            ->label(__('Status'))
                             ->badge()
                             ->size('lg'),
 
                         TextEntry::make('units_needed')
-                            ->label('الوحدات المطلوبة')
-                            ->formatStateUsing(fn($state) => $state . ' وحدة'),
+                            ->label(__('Units Needed'))
+                            ->formatStateUsing(fn($state) => $state . ' ' . __('unit')),
 
                         TextEntry::make('donors_accepted')
-                            ->label('متبرعون قبلوا')
-                            ->formatStateUsing(fn($state) => $state . ' متبرع')
+                            ->label(__('Donors Accepted'))
+                            ->formatStateUsing(fn($state) => $state . ' ' . __('donor'))
                             ->badge()
                             ->color('info'),
 
                         TextEntry::make('donors_completed')
-                            ->label('تبرعات مكتملة')
-                            ->formatStateUsing(fn($state) => $state . ' تبرع')
+                            ->label(__('Completed Donations'))
+                            ->formatStateUsing(fn($state) => $state . ' ' . __('donation'))
                             ->badge()
                             ->color('success'),
 
                         TextEntry::make('donors_found')
-                            ->label('إجمالي المستجيبين')
-                            ->getStateUsing(fn($record) => $record->responses()->count())
-                            ->formatStateUsing(fn($state) => $state . ' شخص')
+                            ->label(__('Total Responders'))
+                            ->getStateUsing(fn($record) => $record->responses_count ?? $record->responses()->count())
+                            ->formatStateUsing(fn($state) => $state . ' ' . __('person'))
                             ->badge()
                             ->color('gray'),
 
                         TextEntry::make('additional_notes')
-                            ->label('ملاحظات إضافية')
+                            ->label(__('Additional Notes'))
                             ->columnSpanFull()
-                            ->placeholder('لا توجد ملاحظات'),
+                            ->placeholder(__('No notes')),
                     ]),
 
-                Section::make('مواعيد الطلب')
+                Section::make(__('Request Timeline'))
                     ->icon('heroicon-o-clock')
                     ->columns(4)
                     ->components([
 
                         TextEntry::make('created_at')
-                            ->label('تاريخ الإنشاء')
+                            ->label(__('Creation Date'))
                             ->dateTime('Y/m/d H:i')
                             ->since()
                             ->icon('heroicon-o-plus-circle'),
 
                         TextEntry::make('broadcasted_at')
-                            ->label('تاريخ البث')
+                            ->label(__('Broadcast Date'))
                             ->dateTime('Y/m/d H:i')
-                            ->placeholder('لم يُبَث بعد')
+                            ->placeholder(__('Not broadcasted yet'))
                             ->icon('heroicon-o-megaphone'),
 
                         TextEntry::make('fulfilled_at')
-                            ->label('تاريخ الإتمام')
+                            ->label(__('Completion Date'))
                             ->dateTime('Y/m/d H:i')
                             ->placeholder('—')
                             ->icon('heroicon-o-check-circle'),
 
                         TextEntry::make('updated_at')
-                            ->label('آخر تحديث')
+                            ->label(__('Last Update'))
                             ->dateTime('Y/m/d H:i')
                             ->since()
                             ->icon('heroicon-o-arrow-path'),
                     ]),
 
-                Section::make('نطاق البحث')
+                Section::make(__('Search Scope'))
                     ->icon('heroicon-o-signal')
                     ->columns(3)
                     ->components([
 
                         TextEntry::make('search_radius_km')
-                            ->label('نطاق البحث الأصلي')
-                            ->formatStateUsing(fn($state) => $state . ' كم'),
+                            ->label(__('Original Search Scope'))
+                            ->formatStateUsing(fn($state) => $state . ' ' . __('km')),
 
                         TextEntry::make('actual_search_radius_km')
-                            ->label('نطاق البحث الفعلي')
-                            ->formatStateUsing(fn($state) => $state ? $state . ' كم' : '—')
+                            ->label(__('Actual Search Scope'))
+                            ->formatStateUsing(fn($state) => $state ? $state . ' ' . __('km') : '—')
                             ->color(fn($record) => $record->wasExpanded() ? 'warning' : null),
 
                         TextEntry::make('expansion_steps')
-                            ->label('مرات التوسيع')
+                            ->label(__('Expansion Times'))
                             ->getStateUsing(fn($record) => $record->expansion_steps)
-                            ->formatStateUsing(fn($state) => $state > 0 ? $state . ' مرة' : 'لم يتوسع')
+                            ->formatStateUsing(fn($state) => $state > 0 ? $state . ' ' . __('time') : __('Not expanded'))
                             ->badge()
                             ->color(fn($record) => $record->wasExpanded() ? 'warning' : 'gray'),
                     ]),
 
-                Section::make('موقع الطلب')
+                Section::make(__('Request Location'))
                     ->icon('heroicon-o-map-pin')
                     ->columns(3)
                     ->components([
 
                         TextEntry::make('location_address')
-                            ->label('العنوان التفصيلي')
+                            ->label(__('Detailed Address'))
                             ->columnSpanFull()
-                            ->placeholder('لا يوجد عنوان'),
+                            ->placeholder(__('No address')),
 
                         TextEntry::make('lat')
-                            ->label('خط العرض')
+                            ->label(__('Latitude'))
                             ->placeholder('غير محدد'),
 
                         TextEntry::make('lng')
-                            ->label('خط الطول')
+                            ->label(__('Longitude'))
                             ->placeholder('غير محدد'),
 
                         TextEntry::make('google_maps_link')
-                            ->label('رابط خرائط Google')
+                            ->label(__('Google Maps Link'))
                             ->getStateUsing(fn($record) => $record->lat
                                 ? "({$record->lat}, {$record->lng})"
                                 : null)
                             ->url(fn($record) => $record->lat
                                 ? "https://www.google.com/maps?q={$record->lat},{$record->lng}"
                                 : null, true)
-                            ->placeholder('لا توجد إحداثيات'),
+                            ->placeholder(__('No coordinates')),
                     ]),
             ]);
     }

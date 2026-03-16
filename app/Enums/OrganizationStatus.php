@@ -14,9 +14,9 @@ enum OrganizationStatus: int implements HasLabel, HasColor
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::PENDING => 'قيد الانتظار',
-            self::APPROVED => 'معتمدة',
-            self::REJECTED => 'مرفوض',
+            self::PENDING => __('Pending'),
+            self::APPROVED => __('Approved'),
+            self::REJECTED => __('Rejected'),
         };
     }
 

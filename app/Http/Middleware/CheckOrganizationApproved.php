@@ -3,6 +3,7 @@
 namespace App\Http\Middleware;
 
 use App\Enums\OrganizationStatus;
+use App\Enums\UserRole;
 use Closure;
 use Filament\Facades\Filament;
 use Illuminate\Http\Request;
@@ -17,6 +18,11 @@ class CheckOrganizationApproved
      */
     public function handle(Request $request, Closure $next): Response
     {
+        $user = $request->user();
+        if ($user && $user->role === UserRole::ADMIN) {
+            return $next($request);
+        }
+
         $tenant = Filament::getTenant();
 
         if (!$tenant) {

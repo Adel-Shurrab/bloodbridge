@@ -1,4 +1,4 @@
-<x-layout title="تسجيل الدخول - {{ $settings->site_name }}">
+<x-layout title="{{ __('Log In') }} - {{ $settings->getTranslation('site_name') }}">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/styles/pages/login.css') }}" />
     @endpush
@@ -14,15 +14,15 @@
             <div class="login-card">
                 <div class="login-header">
                     <div class="welcome-icon">👋</div>
-                    <h1>{{ $settings->login_title }}</h1>
-                    <p>{{ $settings->login_subtitle }}</p>
+                    <h1>{{ $settings->getTranslation('login_title') }}</h1>
+                    <p>{{ $settings->getTranslation('login_subtitle') }}</p>
                 </div>
 
                 <form class="login-form" id="loginForm" method="POST" action="{{ route('login') }}">
                     @csrf
 
                     <div class="form-group">
-                        <label for="email">البريد الإلكتروني</label>
+                        <label for="email">{{ __('Email') }}</label>
                         <div class="input-wrapper">
                             <span class="input-icon">📧</span>
                             <input type="email" id="email" name="email" value="{{ old('email') }}"
@@ -37,15 +37,16 @@
 
                     <div class="form-group">
                         <div class="label-row">
-                            <label for="password">كلمة السر</label>
-                            <a href="{{ route('password.request') }}" class="forgot-link">هل نسيت كلمة السر؟</a>
+                            <label for="password">{{ __('Password') }}</label>
+                            <a href="{{ route('password.request') }}"
+                                class="forgot-link">{{ __('Forgot your password?') }}</a>
                         </div>
                         <div class="input-wrapper">
                             <span class="input-icon">🔒</span>
                             <input type="password" id="password" name="password" placeholder="••••••••" required
                                 autocomplete="current-password" />
                             <button type="button" class="toggle-password" id="togglePassword"
-                                aria-label="تبديل رؤية كلمة السر" aria-pressed="false">
+                                aria-label="{{ __('Toggle password visibility') }}" aria-pressed="false">
                                 <span class="eye-icon" aria-hidden="true">👁️</span>
                             </button>
                         </div>
@@ -58,21 +59,21 @@
                         <label class="checkbox-label">
                             <input type="checkbox" id="rememberMe" name="remember" />
                             <span class="checkbox-custom"></span>
-                            <span class="checkbox-text">تذكرني</span>
+                            <span class="checkbox-text">{{ __('Remember me') }}</span>
                         </label>
                     </div>
 
                     <button type="submit" class="btn btn-primary btn-login" id="loginBtn">
-                        <span class="btn-text">تسجيل الدخول</span>
+                        <span class="btn-text">{{ __('Log In') }}</span>
                         <span class="btn-loader" aria-hidden="true"></span>
                     </button>
                 </form>
 
                 <div class="divider">
-                    <span>أو</span>
+                    <span>{{ __('OR') }}</span>
                 </div>
 
-                <button class="btn btn-social" aria-label="تسجيل الدخول باستخدام جوجل">
+                <button class="btn btn-social" aria-label="{{ __('Log in with Google') }}">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" role="img"
                         aria-hidden="true">
                         <path
@@ -88,35 +89,35 @@
                             d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                             fill="#EA4335" />
                     </svg>
-                    <span>تابع باستخدام جوجل</span>
+                    <span>{{ __('Continue with Google') }}</span>
                 </button>
 
                 <div class="signup-prompt">
                     <p>
-                        ليس لديك حساب؟
-                        <a href="{{ route('register.selection') }}">إنشاء حساب جديد</a>
+                        {{ __("Don't have an account?") }}
+                        <a href="{{ route('register.selection') }}">{{ __('Create New Account') }}</a>
                     </p>
                 </div>
             </div>
 
-            <div class="login-illustration"
-                style="{{ $settings->login_image ? 'background-image: url(' . Storage::url($settings->login_image) . ');' : '' }}">
-                <div class="illustration-content">
-                    <div class="illustration-icon">❤️</div>
-                    <h2>{{ $settings->login_title }}</h2>
-                    <p>{{ $settings->login_subtitle }}</p>
+                <div class="login-illustration"
+                    style="{{ $settings->login_image ? 'background-image: url(' . Storage::url($settings->login_image) . ');' : '' }}">
+                    <div class="illustration-content">
+                        <div class="illustration-icon">❤️</div>
+                        <h2>{{ $settings->getTranslation('login_title') }}</h2>
+                        <p>{{ $settings->getTranslation('login_subtitle') }}</p>
                     <div class="stats-mini">
                         <div class="stat-mini">
                             <span class="stat-mini-number">5000+</span>
-                            <span class="stat-mini-label">متبرع</span>
+                            <span class="stat-mini-label">{{ __('Donors') }}</span>
                         </div>
                         <div class="stat-mini">
                             <span class="stat-mini-number">120</span>
-                            <span class="stat-mini-label">مستشفى</span>
+                            <span class="stat-mini-label">{{ __('Hospitals') }}</span>
                         </div>
                         <div class="stat-mini">
                             <span class="stat-mini-number">4500</span>
-                            <span class="stat-mini-label">حياة منقذة</span>
+                            <span class="stat-mini-label">{{ __('Lives Saved') }}</span>
                         </div>
                     </div>
                 </div>

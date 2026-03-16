@@ -9,6 +9,7 @@ use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
+use LaraZeus\SpatieTranslatable\SpatieTranslatablePlugin;
 use Filament\Widgets\AccountWidget;
 use Filament\Widgets\FilamentInfoWidget;
 use Filament\Navigation\MenuItem;
@@ -34,20 +35,21 @@ class OrganizationPanelProvider extends PanelProvider
             ->id('organization')
             ->path('org')
             ->viteTheme('resources/css/filament/organization/theme.css')
-            ->brandName(fn() => $settings->site_name)
+            ->brandName(fn() => $settings->getTranslation('site_name'))
             ->brandLogo(fn() => view('filament.logo', ['height' => '2.5rem']))
             ->brandLogoHeight('2.5rem')
             ->homeUrl(fn() => route('home'))
-            ->favicon(fn() => $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.png'))
+            ->favicon(fn() => $settings->site_favicon ? Storage::url($settings->site_favicon) : asset('assets/images/logo.png'))
             ->colors([
                 'primary' => Color::Blue,
             ])
             ->userMenuItems([
                 MenuItem::make()
-                    ->label('العودة للموقع')
+                    ->label(__('Back to Home'))
                     ->url(fn() => route('home'))
                     ->icon('heroicon-o-home'),
             ])
+            ->plugin(SpatieTranslatablePlugin::make()->defaultLocales(['ar', 'en']))
             ->discoverResources(in: app_path('Filament/Organization/Resources'), for: 'App\Filament\Organization\Resources')
             ->discoverPages(in: app_path('Filament/Organization/Pages'), for: 'App\Filament\Organization\Pages')
             ->pages([])
@@ -70,26 +72,35 @@ class OrganizationPanelProvider extends PanelProvider
             ])
             ->authMiddleware([
                 Authenticate::class,
-                \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
+                \App\Http\Middleware\EnsureEmailIsVerifiedUnlessAdmin::class,
             ])
             ->tenantMiddleware([
                 \App\Http\Middleware\CheckOrganizationApproved::class,
             ])
             ->databaseNotifications()
-            ->databaseNotificationsPolling('30s')
             ->tenant(Organization::class, slugAttribute: 'slug')
             ->tenantProfile(EditOrganizationProfile::class)
             ->renderHook(
+                \Filament\View\PanelsRenderHook::HEAD_END,
+                fn() => new \Illuminate\Support\HtmlString(
+                    '<meta name="user-id" content="' . auth()->id() . '">' .
+                    '<style>.fi-logo { background: transparent !important; } img.fi-logo { mix-blend-mode: multiply; } .dark img.fi-logo { mix-blend-mode: normal; filter: brightness(0) invert(1); }</style>'
+                )
+            )
+            ->renderHook(
                 \Filament\View\PanelsRenderHook::FOOTER,
                 fn() => view('filament.footer'),
+            )
+            ->renderHook(
+                \Filament\View\PanelsRenderHook::SCRIPTS_AFTER,
+                fn() => new \Illuminate\Support\HtmlString(
+                    '<script data-navigate-once>document.addEventListener("livewire:initialized",function(){Livewire.hook("request",function(e){e.options.headers["X-Livewire"]=!0})})</script>'
+                ),
             );
     }
 
     public function boot(): void
     {
-        \Filament\Facades\Filament::renderHook(
-            \Filament\View\PanelsRenderHook::HEAD_END,
-            fn() => new \Illuminate\Support\HtmlString('<style>.fi-logo { background: transparent !important; } img.fi-logo { mix-blend-mode: multiply; } .dark img.fi-logo { mix-blend-mode: normal; filter: brightness(0) invert(1); }</style>')
-        );
+        //
     }
 }

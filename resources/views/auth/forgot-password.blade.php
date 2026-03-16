@@ -1,4 +1,4 @@
-<x-layout title="نسيت كلمة المرور - {{ $settings->site_name }}">
+<x-layout title="{{ __('Forgot Password') }} - {{ $settings->getTranslation('site_name') }}">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/styles/pages/forgot-password.css') }}" />
     @endpush
@@ -22,8 +22,8 @@
                     <div class="fp-icon-wrap">
                         <i class="fa-solid fa-lock-open"></i>
                     </div>
-                    <h1>نسيت كلمة المرور؟</h1>
-                    <p>لا تقلق! أدخل بريدك الإلكتروني وسنرسل لك رابطاً لإعادة تعيين كلمة المرور.</p>
+                    <h1>{{ __('Forgot Your Password?') }}</h1>
+                    <p>{{ __('No worries! Enter your email and we\'ll send you a reset link.') }}</p>
                 </div>
 
                 {{-- Success status alert --}}
@@ -39,7 +39,7 @@
                     @csrf
 
                     <div class="fp-form-group">
-                        <label for="email">البريد الإلكتروني</label>
+                        <label for="email">{{ __('Email Address') }}</label>
                         <div class="fp-input-wrapper">
                             <input type="email" id="email" name="email" value="{{ old('email') }}"
                                 placeholder="you@example.com" required autofocus autocomplete="email"
@@ -56,7 +56,7 @@
 
                     <button type="submit" class="fp-submit-btn" id="submitBtn">
                         <i class="fa-solid fa-paper-plane btn-text"></i>
-                        <span class="btn-text">إرسال رابط إعادة التعيين</span>
+                        <span class="btn-text">{{ __('Send Reset Link') }}</span>
                         <span class="btn-loader"></span>
                     </button>
                 </form>
@@ -64,10 +64,10 @@
                 {{-- Back to login --}}
                 <div class="fp-back-link">
                     <p>
-                        تذكرت كلمة المرور؟
+                        {{ __('Remembered your password?') }}
                         <a href="{{ route('login') }}">
                             <i class="fa-solid fa-arrow-right"></i>
-                            العودة لتسجيل الدخول
+                            {{ __('Back to Login') }}
                         </a>
                     </p>
                 </div>
@@ -79,21 +79,22 @@
 
                     <span class="fp-illustration-icon">🔐</span>
 
-                    <h2>استعادة الوصول لحسابك</h2>
-                    <p>أمان حسابك أولويتنا. اتبع الخطوات البسيطة لإعادة تعيين كلمة مرورك بأمان.</p>
+                    <h2>{{ __('Restore Access to Your Account') }}</h2>
+                    <p>{{ __('Account security is our priority. Follow the simple steps to securely reset your password.') }}
+                    </p>
 
                     <div class="fp-steps">
                         <div class="fp-step">
-                            <span class="fp-step-num">١</span>
-                            <span class="fp-step-text">أدخل بريدك الإلكتروني المسجّل</span>
+                            <span class="fp-step-num">1</span>
+                            <span class="fp-step-text">{{ __('Enter your registered email address') }}</span>
                         </div>
                         <div class="fp-step">
-                            <span class="fp-step-num">٢</span>
-                            <span class="fp-step-text">تحقق من بريدك لرسالة التعيين</span>
+                            <span class="fp-step-num">2</span>
+                            <span class="fp-step-text">{{ __('Check your email for the reset link') }}</span>
                         </div>
                         <div class="fp-step">
-                            <span class="fp-step-num">٣</span>
-                            <span class="fp-step-text">انقر على الرابط وأنشئ كلمة مرور جديدة</span>
+                            <span class="fp-step-num">3</span>
+                            <span class="fp-step-text">{{ __('Click the link and create a new password') }}</span>
                         </div>
                     </div>
 

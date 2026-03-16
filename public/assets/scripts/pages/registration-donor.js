@@ -33,46 +33,44 @@ function checkEligibility() {
     let nextEligibleDate = null;
     let ineligibilityReasons = [];
 
-    // 1. Basic Checks - Weight
     if (weightRaw !== "" && !isNaN(weightRaw)) {
         const weight = parseFloat(weightRaw);
         if (weight > 0 && weight < window.donationRules.minWeight) {
             isEligible = false;
-            ineligibilityReasons.push(`الوزن أقل من الحد الأدنى (${window.donationRules.minWeight} كغ)`);
+            ineligibilityReasons.push(__('Weight must be at least :weight kg', { weight: window.donationRules.minWeight }));
         }
     }
 
-    // 2. Basic Checks - Height
     if (heightRaw !== "" && !isNaN(heightRaw)) {
         const height = parseFloat(heightRaw);
         if (height > 0 && height < window.donationRules.minHeight) {
             isEligible = false;
-            ineligibilityReasons.push(`الطول أقل من الحد الأدنى (${window.donationRules.minHeight} سم)`);
+            ineligibilityReasons.push(__('Height must be at least :height cm', { height: window.donationRules.minHeight }));
         }
     }
 
     // 3. Dates validity
     if (lastDonationInput && lastDonationInput.validity && lastDonationInput.validity.badInput) {
         isEligible = false;
-        ineligibilityReasons.push('تاريخ التبرع السابق غير مكتمل');
+        ineligibilityReasons.push(__('Please enter the full date'));
     }
 
     if (surgeryInput && surgeryInput.validity && surgeryInput.validity.badInput) {
         isEligible = false;
-        ineligibilityReasons.push('تاريخ العملية الجراحية غير مكتمل');
+        ineligibilityReasons.push(__('Please enter the full date'));
     }
 
     // 4. Chronic Disease (Permanent)
     if (chronicDiseaseField && chronicDiseaseField.checked) {
         isEligible = false;
         isPermanent = true;
-        ineligibilityReasons.push('وجود مرض مزمن');
+        ineligibilityReasons.push(__('Chronic Disease'));
     }
 
     // 5. Infection (Temporary)
     if (infectionField && infectionField.checked) {
         isEligible = false;
-        ineligibilityReasons.push('وجود عدوى حالية');
+        ineligibilityReasons.push(__('Current Infection'));
     }
 
     // 6. Donation Logic (90 Days)
@@ -84,7 +82,7 @@ function checkEligibility() {
 
             if (daysSinceDonation < window.donationRules.minDaysBetweenDonations) {
                 isEligible = false;
-                ineligibilityReasons.push(`تبرعت قبل ${daysSinceDonation} يوم (يجب الانتظار ${window.donationRules.minDaysBetweenDonations} يوم)`);
+                ineligibilityReasons.push(__('Last donation date is required'));
 
                 const futureDate = new Date(lastDonation);
                 futureDate.setDate(futureDate.getDate() + window.donationRules.minDaysBetweenDonations);
@@ -105,7 +103,7 @@ function checkEligibility() {
 
             if (daysSinceSurgery < window.donationRules.minDaysAfterSurgery) {
                 isEligible = false;
-                ineligibilityReasons.push(`أجريت عملية قبل ${daysSinceSurgery} يوم (يجب الانتظار ${window.donationRules.minDaysAfterSurgery} يوم)`);
+                ineligibilityReasons.push(__('Surgery date is required'));
 
                 const futureDate = new Date(surgery);
                 futureDate.setDate(futureDate.getDate() + window.donationRules.minDaysAfterSurgery);
@@ -137,20 +135,20 @@ function displayEligibilityStatus() {
         eligibilityBox.style.background = '#fef3c7';
         eligibilityBox.style.borderColor = '#f59e0b';
 
-        title.textContent = result.isPermanent ? '⚠️ غير مؤهل دائمًا' : '⚠️ غير مؤهل مؤقتًا';
+        title.textContent = result.isPermanent ? __('Permanently Ineligible') : __('Temporarily Ineligible');
 
-        let messageText = '<strong>الأسباب:</strong><ul style="margin: 0.5rem 0 0 0; padding-right: 1.5rem;">';
+        let messageText = `<strong>${__('Reasons:')}</strong><ul style="margin: 0.5rem 0 0 0; padding-right: 1.5rem;">`;
         result.ineligibilityReasons.forEach(reason => {
             messageText += `<li>${reason}</li>`;
         });
 
         if (result.nextEligibleDate) {
-            const dateStr = result.nextEligibleDate.toLocaleDateString('ar-EG', {
+            const dateStr = result.nextEligibleDate.toLocaleDateString(undefined, {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
-            messageText += `</ul><p style="margin: 0.5rem 0 0 0;"><strong>سيكون لديك الأهلية اعتباراً من: ${dateStr}</strong></p>`;
+            messageText += `</ul><p style="margin: 0.5rem 0 0 0;"><strong>${__('Eligible from: :date', { date: dateStr })}</strong></p>`;
         } else {
             messageText += '</ul>';
         }
@@ -267,71 +265,71 @@ function validateStep(step) {
         ['name', 'email', 'national_id', 'phone', 'birth_date', 'gender', 'governorate_id', 'password', 'password_confirmation'].forEach(clearError);
 
         if (!name) {
-            showError('name', 'الاسم مطلوب');
+            showError('name', __('Name is required'));
             isValid = false;
         }
 
         if (!email) {
-            showError('email', 'البريد الإلكتروني مطلوب');
+            showError('email', __('Email is required'));
             isValid = false;
         } else if (!validateEmail(email)) {
-            showError('email', 'البريد الإلكتروني غير صحيح');
+            showError('email', __('Invalid email address'));
             isValid = false;
         }
 
         if (!nationalId) {
-            showError('national_id', 'رقم الهوية مطلوب');
+            showError('national_id', __('National ID is required'));
             isValid = false;
         } else if (!validateNationalId(nationalId)) {
-            showError('national_id', 'رقم الهوية يجب أن يكون 9 أرقام');
+            showError('national_id', __('National ID must be 9 digits'));
             isValid = false;
         }
 
         if (!phone) {
-            showError('phone', 'رقم الجوال مطلوب');
+            showError('phone', __('Mobile number is required'));
             isValid = false;
         } else if (!validatePhone(phone)) {
-            showError('phone', 'رقم الجوال غير صحيح');
+            showError('phone', __('Invalid mobile number'));
             isValid = false;
         }
 
         if (!birthDate) {
-            showError('birth_date', 'تاريخ الميلاد مطلوب');
+            showError('birth_date', __('Birth date is required'));
             isValid = false;
         } else {
             const age = validateAge(birthDate);
             if (age < window.donationRules.minAge) {
-                showError('birth_date', `يجب أن يكون عمرك ${window.donationRules.minAge} سنة على الأقل`);
+                showError('birth_date', __('Must be at least :age years old', { age: window.donationRules.minAge }));
                 isValid = false;
             } else if (age > window.donationRules.maxAge) {
-                showError('birth_date', `يجب أن لا يتجاوز عمرك ${window.donationRules.maxAge} سنة`);
+                showError('birth_date', __('Must not exceed :age years old', { age: window.donationRules.maxAge }));
                 isValid = false;
             }
         }
 
         if (!gender) {
-            showError('gender', 'الجنس مطلوب');
+            showError('gender', __('Gender is required'));
             isValid = false;
         }
 
         if (!governorateId) {
-            showError('governorate_id', 'المحافظة مطلوبة');
+            showError('governorate_id', __('Governorate is required'));
             isValid = false;
         }
 
         if (!password) {
-            showError('password', 'كلمة السر مطلوبة');
+            showError('password', __('Password is required'));
             isValid = false;
         } else if (!validatePassword(password)) {
-            showError('password', 'كلمة السر يجب أن تكون 8 أحرف على الأقل');
+            showError('password', __('Password must be at least 8 characters'));
             isValid = false;
         }
 
         if (!passwordConfirmation) {
-            showError('password_confirmation', 'تأكيد كلمة السر مطلوب');
+            showError('password_confirmation', __('Confirm password is required'));
             isValid = false;
         } else if (password !== passwordConfirmation) {
-            showError('password_confirmation', 'كلمة السر غير متطابقة');
+            showError('password_confirmation', __('Passwords do not match'));
             isValid = false;
         }
 
@@ -367,42 +365,42 @@ function validateStep(step) {
 
         // ... Weight and Height validation ...
         if (!weight) {
-            showError('weight', 'الوزن مطلوب');
+            showError('weight', __('Weight is required'));
             isValid = false;
         } else if (parseFloat(weight) < window.donationRules.minWeight) {
-            showError('weight', `الوزن يجب أن يكون ${window.donationRules.minWeight} كغ على الأقل`);
+            showError('weight', __('Weight must be at least :weight kg', { weight: window.donationRules.minWeight }));
             isValid = false;
         }
 
         if (!height) {
-            showError('height', 'الطول مطلوب');
+            showError('height', __('Height is required'));
             isValid = false;
         } else if (parseFloat(height) < window.donationRules.minHeight) {
-            showError('height', `الطول يجب أن يكون ${window.donationRules.minHeight} سم على الأقل`);
+            showError('height', __('Height must be at least :height cm', { height: window.donationRules.minHeight }));
             isValid = false;
         }
 
         // Check Recent Donation
         if (!recentDonation) {
-            showError('recent_donation', 'يرجى الإجابة على هذا السؤال');
+            showError('recent_donation', __('Please answer this question'));
             isValid = false;
         } else if (recentDonation === '1' && !lastDonationInput.value) {
-            showError('last_donation_date', 'تاريخ آخر تبرع مطلوب');
+            showError('last_donation_date', __('Last donation date is required'));
             isValid = false;
         } else if (recentDonation === '1' && lastDonationInput.validity.badInput) {
-            showError('last_donation_date', 'يرجى إدخال التاريخ كاملاً');
+            showError('last_donation_date', __('Please enter the full date'));
             isValid = false;
         }
 
         // Check Recent Surgery
         if (!hasRecentSurgery) {
-            showError('has_recent_surgery', 'يرجى الإجابة على هذا السؤال');
+            showError('has_recent_surgery', __('Please answer this question'));
             isValid = false;
         } else if (hasRecentSurgery === '1' && !surgeryInput.value) {
-            showError('surgery_date', 'تاريخ العملية الجراحية مطلوب');
+            showError('surgery_date', __('Surgery date is required'));
             isValid = false;
         } else if (hasRecentSurgery === '1' && surgeryInput.validity.badInput) {
-            showError('surgery_date', 'يرجى إدخال التاريخ كاملاً');
+            showError('surgery_date', __('Please enter the full date'));
             isValid = false;
         }
 
@@ -457,7 +455,7 @@ function validateStep(step) {
 
         if (!termsAgree.checked) {
             if (errorElement) {
-                errorElement.textContent = 'يجب الموافقة على الشروط والأحكام';
+                errorElement.textContent = __('Must agree to terms');
             }
             isValid = false;
         } else {
@@ -482,72 +480,72 @@ function populateReview() {
     // Personal Information
     personalInfoReview.innerHTML = `
         <div class="review-item">
-            <span class="review-label">الاسم</span>
+            <span class="review-label">${__('Name')}</span>
             <span class="review-value">${formData.name}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">البريد الإلكتروني</span>
+            <span class="review-label">${__('Email')}</span>
             <span class="review-value">${formData.email}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">رقم الهوية</span>
+            <span class="review-label">${__('National ID')}</span>
             <span class="review-value">${formData.nationalId}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">رقم الجوال</span>
+            <span class="review-label">${__('Phone')}</span>
             <span class="review-value">${formData.phone}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">تاريخ الميلاد</span>
-            <span class="review-value">${formData.birthDate}</span>
+            <span class="review-label">${__('Birth Date')}</span>
+            <span class="review-value">${formData.birthDate || __('Not specified')}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">الجنس</span>
-            <span class="review-value">${formData.gender === 'male' ? 'ذكر' : 'أنثى'}</span>
+            <span class="review-label">${__('Gender')}</span>
+            <span class="review-value">${formData.gender === 'male' ? __('Male') : __('Female')}</span>
         </div>
         <div class="review-item" style="grid-column: 1 / -1;">
-            <span class="review-label">المحافظة</span>
-            <span class="review-value">${formData.governorateName}</span>
+            <span class="review-label">${__('Governorate')}</span>
+            <span class="review-value">${formData.governorateName || __('Not specified')}</span>
         </div>
     `;
 
     // Health Information
     healthInfoReview.innerHTML = `
         <div class="review-item">
-            <span class="review-label">الوزن</span>
-            <span class="review-value">${formData.weight} كغ</span>
+            <span class="review-label">${__('Weight')}</span>
+            <span class="review-value">${formData.weight} ${__('kg')}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">الطول</span>
-            <span class="review-value">${formData.height} سم</span>
+            <span class="review-label">${__('Height')}</span>
+            <span class="review-value">${formData.height} ${__('cm')}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">فصيلة الدم</span>
-            <span class="review-value">${formData.bloodTypeLabel}</span>
+            <span class="review-label">${__('Blood Type')}</span>
+            <span class="review-value">${formData.bloodTypeLabel || __('Not specified')}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">مرض مزمن</span>
-            <span class="review-value">${formData.chronicDisease ? 'نعم' : 'لا'}</span>
+            <span class="review-label">${__('Chronic Disease')}</span>
+            <span class="review-value">${formData.chronicDisease ? __('Yes') : __('No')}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">عدوى حالية</span>
-            <span class="review-value">${formData.infection ? 'نعم' : 'لا'}</span>
+            <span class="review-label">${__('Current Infection')}</span>
+            <span class="review-value">${formData.infection ? __('Yes') : __('No')}</span>
         </div>
         <div class="review-item">
-            <span class="review-label">تبرع سابقاً</span>
-            <span class="review-value">${formData.recentDonationValue === '1' ? 'نعم' : 'لا'}</span>
+            <span class="review-label">${__('Previously Donated')}</span>
+            <span class="review-value">${formData.recentDonationValue === '1' ? __('Yes') : __('No')}</span>
         </div>
         ${formData.recentDonationValue === '1' ? `<div class="review-item">
-            <span class="review-label">تاريخ آخر تبرع</span>
-            <span class="review-value">${formData.lastDonationDate}</span>
+            <span class="review-label">${__('Last donation date')}</span>
+            <span class="review-value">${formData.lastDonationDate || __('Not specified')}</span>
         </div>` : ''}
         <div class="review-item">
-            <span class="review-label">عملية جراحية سابقاً</span>
-            <span class="review-value">${formData.hasRecentSurgeryValue === '1' ? 'نعم' : 'لا'}</span>
+            <span class="review-label">${__('Previous Surgery')}</span>
+            <span class="review-value">${formData.hasRecentSurgeryValue === '1' ? __('Yes') : __('No')}</span>
         </div>
         ${formData.hasRecentSurgeryValue === '1' ? `<div class="review-item">
-            <span class="review-label">تاريخ العملية الجراحية</span>
-            <span class="review-value">${formData.surgeryDate}</span>
+            <span class="review-label">${__('Surgery date')}</span>
+            <span class="review-value">${formData.surgeryDate || __('Not specified')}</span>
         </div>` : ''}
     `;
 
@@ -556,20 +554,20 @@ function populateReview() {
         eligibilityReviewBox.style.display = 'block';
         eligibilityReviewBox.style.background = '#fef3c7';
         eligibilityReviewBox.style.borderColor = '#f59e0b';
-        eligibilityReviewTitle.textContent = formData.isPermanent ? 'غير مؤهل دائمًا' : 'غير مؤهل مؤقتًا';
+        eligibilityReviewTitle.textContent = formData.isPermanent ? __('Permanently Ineligible') : __('Temporarily Ineligible');
 
-        let messageText = '<strong>الأسباب:</strong><ul style="margin: 0.5rem 0 0 0; padding-right: 1.5rem;">';
+        let messageText = `<strong>${__('Reasons:')}</strong><ul style="margin: 0.5rem 0 0 0; padding-right: 1.5rem;">`;
         formData.ineligibilityReasons.forEach(reason => {
             messageText += `<li>${reason}</li>`;
         });
 
         if (formData.nextEligibleDate) {
-            const dateStr = formData.nextEligibleDate.toLocaleDateString('ar-EG', {
+            const dateStr = formData.nextEligibleDate.toLocaleDateString(undefined, {
                 year: 'numeric',
                 month: 'long',
                 day: 'numeric'
             });
-            messageText += `</ul><p style="margin: 0.5rem 0 0 0;"><strong>سيكون لديك الأهلية اعتباراً من: ${dateStr}</strong></p>`;
+            messageText += `</ul><p style="margin: 0.5rem 0 0 0;"><strong>${__('Eligible from: :date', { date: dateStr })}</strong></p>`;
         } else {
             messageText += '</ul>';
         }
@@ -580,8 +578,8 @@ function populateReview() {
         eligibilityReviewBox.style.background = '#d1fae5';
         eligibilityReviewBox.style.borderColor = '#10b981';
         eligibilityReviewIcon.textContent = '✓';
-        eligibilityReviewTitle.textContent = 'مؤهل للتبرع';
-        eligibilityReviewMessage.innerHTML = '<p>تهانينا! أنت مؤهل للتبرع والمساهمة في إنقاذ الأرواح.</p>';
+        eligibilityReviewTitle.textContent = __('Eligible to donate');
+        eligibilityReviewMessage.innerHTML = `<p>${__('Eligibility Success Msg')}</p>`;
     }
 }
 

@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Translatable\HasTranslations;
 
 class RequestResponse extends Model
 {
+    use HasTranslations;
 
     public const DEFAULT_STATUS = \App\Enums\RequestResponseStatus::PENDING;
+
+    public array $translatable = ['decline_reason'];
 
     protected $fillable = [
         'blood_request_id',

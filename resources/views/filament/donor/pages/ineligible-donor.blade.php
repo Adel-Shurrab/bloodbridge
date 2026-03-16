@@ -2,11 +2,11 @@
     @php
         $data = $this->getIneligibilityData();
         $reasonLabel = match ($data['reason']) {
-            'blood_virus' => 'وجود فيروسات في الدم (HCV/HBV/HIV)',
-            'chronic_disease' => 'مرض مزمن يمنع التبرع',
-            'heart_disease' => 'أمراض القلب',
-            'cancer' => 'تاريخ مرضي للسرطان',
-            'other_perm' => 'أسباب طبية دائمة أخرى',
+            'blood_virus' => __('Presence of blood viruses (HCV/HBV/HIV)'),
+            'chronic_disease' => __('Chronic disease preventing donation'),
+            'heart_disease' => __('Heart Diseases'),
+            'cancer' => __('Medical history of cancer'),
+            'other_perm' => __('Other permanent medical reasons'),
             default => $data['reason'],
         };
 
@@ -58,26 +58,26 @@
 
                     {{-- ── Title block ── --}}
                     <div class="mi-title-block">
-                        <p class="mi-eyebrow">قرار طبي نهائي</p>
-                        <h1 class="mi-title">حساب مقيّد طبياً</h1>
-                        <div class="mi-status-pill" role="status" aria-label="استبعاد طبي دائم">
+                        <p class="mi-eyebrow">{{ __('Final Medical Decision') }}</p>
+                        <h1 class="mi-title">{{ __('Medically Restricted Account') }}</h1>
+                        <div class="mi-status-pill" role="status" aria-label="{{ __('Permanent Medical Exclusion') }}">
                             <span class="mi-status-pill__dot" aria-hidden="true"></span>
-                            استبعاد طبي دائم
+                            {{ __('Permanent Medical Exclusion') }}
                         </div>
                     </div>
 
                     {{-- ── Description ── --}}
                     <p class="mi-desc">
-                        بناءً على التقييم الطبي الأخير، تم تسجيلك كمتبرع غير لائق طبياً بشكل دائم.
-                        هذا الإجراء ضروري لضمان سلامتك وسلامة مستقبلي الدم.
+                        {{ __('Based on the recent medical assessment, you have been permanently marked as medically unfit to donate.') }}
+                        {{ __('This measure is necessary to ensure your safety and the safety of blood recipients.') }}
                     </p>
 
                     {{-- ── Detail Panel ── --}}
-                    <div class="mi-detail-panel" role="region" aria-label="تفاصيل الاستبعاد">
+                    <div class="mi-detail-panel" role="region" aria-label="{{ __('Exclusion Details') }}">
                         <div class="mi-detail-panel__header">
                             <x-filament::icon icon="heroicon-m-clipboard-document-list"
                                 class="mi-detail-panel__header-icon" />
-                            <span>تفاصيل الاستبعاد الطبي</span>
+                            <span>{{ __('Medical Exclusion Details') }}</span>
                         </div>
 
                         <div class="mi-detail-panel__rows">
@@ -87,7 +87,7 @@
                                     <x-filament::icon icon="heroicon-m-building-office-2" class="mi-detail-row__icon" />
                                 </div>
                                 <div class="mi-detail-row__content">
-                                    <span class="mi-detail-row__label">جهة التقييم</span>
+                                    <span class="mi-detail-row__label">{{ __('Assessing Organization') }}</span>
                                     <span class="mi-detail-row__value">{{ $data['organization_name'] }}</span>
                                 </div>
                             </div>
@@ -98,7 +98,7 @@
                                     <x-filament::icon icon="heroicon-m-calendar-days" class="mi-detail-row__icon" />
                                 </div>
                                 <div class="mi-detail-row__content">
-                                    <span class="mi-detail-row__label">تاريخ القرار</span>
+                                    <span class="mi-detail-row__label">{{ __('Decision Date') }}</span>
                                     <span class="mi-detail-row__value">{{ $data['date'] }}</span>
                                 </div>
                             </div>
@@ -111,7 +111,7 @@
                                         class="mi-detail-row__icon mi-detail-row__icon--danger" />
                                 </div>
                                 <div class="mi-detail-row__content">
-                                    <span class="mi-detail-row__label">السبب الطبي الموثّق</span>
+                                    <span class="mi-detail-row__label">{{ __('Documented Medical Reason') }}</span>
                                     <span
                                         class="mi-detail-row__value mi-detail-row__value--danger">{{ $reasonLabel }}</span>
                                 </div>
@@ -123,8 +123,7 @@
                     <div class="mi-notice" role="note">
                         <x-filament::icon icon="heroicon-m-information-circle" class="mi-notice__icon" />
                         <p class="mi-notice__text">
-                            إذا كنت تعتقد أن هذا القرار صدر بالخطأ، يُرجى التواصل مع الدعم الفني أو مراجعة الجهة الصحية
-                            المختصة.
+                            {{ __('If you believe this decision was made in error, please contact technical support or visit the relevant health authority.') }}
                         </p>
                     </div>
 
@@ -132,14 +131,14 @@
                     <div class="mi-actions">
                         <a href="mailto:support@bloodbridge.ps" class="mi-btn mi-btn--secondary">
                             <x-filament::icon icon="heroicon-m-envelope" class="mi-btn__icon" />
-                            <span>تواصل مع الدعم</span>
+                            <span>{{ __('Contact Support') }}</span>
                         </a>
 
                         <form action="{{ route('filament.donor.auth.logout') }}" method="post" class="mi-logout-form">
                             @csrf
                             <button type="submit" class="mi-btn mi-btn--ghost">
                                 <x-filament::icon icon="heroicon-m-arrow-right-on-rectangle" class="mi-btn__icon" />
-                                <span>تسجيل الخروج</span>
+                                <span>{{ __('Log out') }}</span>
                             </button>
                         </form>
                     </div>
@@ -149,7 +148,7 @@
 
             {{-- ── Footer ── --}}
             <p class="mi-footer">
-                نقدر رغبتك في العطاء &nbsp;·&nbsp; نتمنى لك دوام الصحة والعافية
+                {{ __('We appreciate your willingness to give') }} &nbsp;·&nbsp; {{ __('We wish you continued health and wellness') }}
             </p>
 
         </div>{{-- /mi-center --}}
@@ -215,7 +214,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            direction: rtl;
+            
             font-family: var(--mi-font-body);
             background: var(--mi-neutral-50);
             position: relative;
@@ -626,7 +625,7 @@
             flex-direction: column;
             gap: 0.2rem;
             flex: 1;
-            text-align: right;
+            text-align: start;
         }
 
         .mi-detail-row__label {

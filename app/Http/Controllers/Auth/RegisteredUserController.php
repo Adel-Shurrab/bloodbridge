@@ -78,7 +78,7 @@ class RegisteredUserController extends Controller
             'auto_lat' => ['nullable', 'numeric', 'between:31.2,32.6'],
             'auto_lng' => ['nullable', 'numeric', 'between:34.2,35.6'],
         ], [
-            'chronic_disease.in' => 'عذراً، المتبرعون الذين يعانون من أمراض مزمنة غير مؤهلين للتبرع.',
+            'chronic_disease.in' => __('Sorry, donors with chronic diseases are not eligible to donate.'),
         ]);
 
         $user = DB::transaction(function () use ($request) {

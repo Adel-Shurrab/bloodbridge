@@ -4,7 +4,7 @@
     <div class="eligibility-timer-banner">
         @if(!$data['eligible_now'])
             <p class="eligibility-timer-label">
-                أهلية التبرع التالية في :
+                {{ __('Next donation eligibility in:') }}
             </p>
         @endif
 
@@ -26,10 +26,10 @@
                                 get m() { return Math.floor((this.diff % 3600000) / 60000) },
                                 get s() { return Math.floor((this.diff % 60000) / 1000) }
                             }" x-init="setInterval(() => tick(), 1000)">
-                    <span x-text="d + ' يوم'"></span>
-                    <span x-text="h + ' س'"></span>
-                    <span x-text="m + ' د'"></span>
-                    <span x-text="s + ' ث'"></span>
+                    <span><span x-text="d"></span> {{ __('d') }}</span>
+                    <span><span x-text="h"></span> {{ __('h') }}</span>
+                    <span><span x-text="m"></span> {{ __('m') }}</span>
+                    <span><span x-text="s"></span> {{ __('s') }}</span>
                 </h2>
             @else
                 <h2>{{ $data['message'] }}</h2>

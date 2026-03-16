@@ -339,7 +339,7 @@
     line-height: 1;
     transition: all 0.3s;
     flex-shrink: 0;
-    margin-right: 1rem;
+    margin-inline-start: 1rem;
 }
 
 .file-remove:hover {
@@ -355,18 +355,21 @@
 }
 
 .password-input input {
-    padding-left: 3rem;
+    padding-inline-end: 3rem;
 }
 
 .toggle-password {
     position: absolute;
-    left: 1rem;
+    inset-inline-end: 1rem;
     background: none;
     border: none;
     cursor: pointer;
     padding: 0.25rem;
     font-size: 1.2rem;
     transition: transform 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .toggle-password:hover {
@@ -433,7 +436,7 @@
     height: 22px;
     border: 2px solid #d1d5db;
     border-radius: 6px;
-    margin-left: 0.75rem;
+    margin-inline-end: 0.75rem;
     flex-shrink: 0;
     position: relative;
     transition: all 0.3s;
@@ -476,7 +479,7 @@
 /* Info Box */
 .info-box {
     background: linear-gradient(135deg, #eff6ff, #dbeafe);
-    border-right: 4px solid #3b82f6;
+    border-inline-start: 4px solid #3b82f6;
     border-radius: 12px;
     padding: 1.25rem;
     display: flex;
@@ -562,11 +565,11 @@
 }
 
 .btn-prev {
-    margin-left: 0;
+    margin-inline-end: 0;
 }
 
 .btn-next {
-    margin-right: auto;
+    margin-inline-start: auto;
 }
 
 .btn-submit .btn-loader {
@@ -807,7 +810,7 @@
 
     .btn-next {
         order: -1;
-        margin-right: 0;
+        margin-inline-start: 0;
     }
 
     .modal-content {

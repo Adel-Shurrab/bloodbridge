@@ -1,28 +1,37 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}"
+    dir="{{ \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getCurrentLocaleDirection() }}">
 
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="description"
-        content="{{ $description ?? ($settings->seo_description ?? $settings->site_name . ' - نظام ذكي يربط المتبرعين بالمحتاجين. تبرع بالدم وأنقذ الأرواح اليوم.') }}" />
+        content="{{ $description ?? ($settings->getTranslation('seo_description') ?? __(':site_name - A smart system connecting donors with those in need. Donate blood and save lives today.', ['site_name' => $settings->getTranslation('site_name')])) }}" />
     <meta name="keywords"
-        content="{{ $settings->seo_keywords ?? 'التبرع بالدم, جسر الدم, نقل الدم, المتبرعين, المستشفيات' }}" />
-    <meta name="author" content="{{ $settings->site_name }}" />
+        content="{{ $settings->getTranslation('seo_keywords') ?? __('blood donation, blood bridge, blood transfusion, donors, hospitals') }}" />
+    <meta name="author" content="{{ $settings->getTranslation('site_name') }}" />
     <meta name="theme-color" content="#DC143C" />
     <meta property="og:title"
-        content="{{ $title ?? ($settings->seo_title ?? $settings->site_name . ' - نظام التبرع بالدم') }}" />
+        content="{{ $title ?? ($settings->getTranslation('seo_title') ?? __(':site_name - Blood Donation System', ['site_name' => $settings->getTranslation('site_name')])) }}" />
     <meta property="og:description"
-        content="{{ $description ?? ($settings->seo_description ?? 'نظام ذكي يربط المتبرعين بالمحتاجين') }}" />
+        content="{{ $description ?? ($settings->getTranslation('seo_description') ?? __('A smart system connecting donors with those in need')) }}" />
     <meta property="og:type" content="website" />
+    <script>
+        window.appConfig = {
+            locale: "{{ str_replace('_', '-', app()->getLocale()) }}",
+            dir: "{{ app()->getLocale() === 'ar' ? 'rtl' : 'ltr' }}"
+        };
+    </script>
 
-    <title>{{ $title ?? ($settings->seo_title ?? $settings->site_name . ' - إنقاذ الأرواح قطرة قطرة') }}</title>
+    <title>
+        {{ $title ?? ($settings->getTranslation('seo_title') ?? __(':site_name - Saving lives drop by drop', ['site_name' => $settings->getTranslation('site_name')])) }}
+    </title>
 
     <link rel="icon"
-        href="{{ $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.png') }}" />
+        href="{{ $settings->site_favicon ? Storage::url($settings->site_favicon) : asset('assets/images/logo.png') }}" />
     <link rel="shortcut icon"
-        href="{{ $settings->site_favicon ? Storage::disk('public')->url($settings->site_favicon) : asset('assets/images/logo.png') }}" />
+        href="{{ $settings->site_favicon ? Storage::url($settings->site_favicon) : asset('assets/images/logo.png') }}" />
 
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />

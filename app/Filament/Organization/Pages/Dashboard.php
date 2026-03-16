@@ -5,9 +5,19 @@ namespace App\Filament\Organization\Pages;
 use App\Filament\Organization\Widgets\BloodRequestStatsWidget;
 use Filament\Pages\Dashboard as BaseDashboard;
 
+
 class Dashboard extends BaseDashboard
 {
-    protected static ?string $title = 'لوحة التحكم';
+    public function getTitle(): string
+    {
+        return __('filament.pages.dashboard.title');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+        ];
+    }
 
     public function getWidgets(): array
     {
@@ -17,3 +27,4 @@ class Dashboard extends BaseDashboard
         ];
     }
 }
+

@@ -1,7 +1,7 @@
 <x-filament-widgets::widget>
     <div class="recent-activity-card">
         <div class="card-header">
-            <h2 class="card-title">الأنشطة الأخيرة</h2>
+            <h2 class="card-title">{{ __('Recent Activities') }}</h2>
         </div>
 
         <div class="timeline-container">
@@ -33,7 +33,7 @@
             height: 100%;
             display: flex;
             flex-direction: column;
-            direction: rtl;
+            
         }
 
         .dark .recent-activity-card {
@@ -43,7 +43,7 @@
 
         .card-header {
             margin-bottom: 2rem;
-            text-align: right;
+            text-align: start;
         }
 
         .card-title {
@@ -59,7 +59,7 @@
         .timeline-container {
             position: relative;
             flex-grow: 1;
-            padding-right: 1.5rem;
+            padding-inline-start: 1.5rem;
         }
 
         .timeline-line {
@@ -87,7 +87,7 @@
         }
 
         .activity-content {
-            text-align: right;
+            text-align: start;
             flex-grow: 1;
         }
 

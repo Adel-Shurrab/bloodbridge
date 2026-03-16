@@ -19,11 +19,11 @@ class CustomVerifyEmail extends VerifyEmail
         $settings = app(\App\Settings\GeneralSettings::class);
 
         return (new MailMessage)
-            ->subject('تأكيد عنوان البريد الإلكتروني - ' . $settings->site_name)
-            ->greeting('مرحباً بك في ' . $settings->site_name . '،')
-            ->line('نشكرك على التسجيل معنا! يرجى النقر على الزر أدناه لتأكيد عنوان بريدك الإلكتروني وتفعيل حسابك.')
-            ->action('تأكيد البريد الإلكتروني', $verificationUrl)
-            ->line('إذا لم تقم بإنشاء حساب لدينا، فلا داعي لاتخاذ أي إجراء آخر.')
-            ->salutation('مع تحيات فريق عمل ' . $settings->site_name);
+            ->subject(__('Email Address Verification - :site', ['site' => $settings->site_name]))
+            ->greeting(__('Welcome to :site,', ['site' => $settings->site_name]))
+            ->line(__('Thank you for registering! Please click the button below to verify your email address and activate your account.'))
+            ->action(__('Verify Email Address'), $verificationUrl)
+            ->line(__('If you did not create an account, no further action is required.'))
+            ->salutation(__('Best regards, :site Team', ['site' => $settings->site_name]));
     }
 }

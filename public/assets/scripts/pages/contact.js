@@ -4,28 +4,28 @@ function validateForm(formData) {
 
     // Name validation
     if (!formData.name || formData.name.trim().length < 3) {
-        errors.name = 'الاسم يجب أن يكون 3 أحرف على الأقل';
+        errors.name = __("Name min 3 chars");
     }
 
     // Email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     if (!formData.email || !emailRegex.test(formData.email)) {
-        errors.email = 'يرجى إدخال بريد إلكتروني صحيح';
+        errors.email = __("Invalid email");
     }
 
     // Subject validation
     if (!formData.subject || formData.subject.trim().length < 5) {
-        errors.subject = 'الموضوع يجب أن يكون 5 أحرف على الأقل';
+        errors.subject = __("Subject min 5 chars");
     }
 
     // Message validation
     if (!formData.message || formData.message.trim().length < 10) {
-        errors.message = 'الرسالة يجب أن تكون 10 أحرف على الأقل';
+        errors.message = __("Message min 10 chars");
     }
 
     // Privacy checkbox validation
     if (!formData.privacy) {
-        errors.privacy = 'يجب الموافقة على سياسة الخصوصية';
+        errors.privacy = __("Privacy agreement required");
     }
 
     return errors;
@@ -112,11 +112,11 @@ if (contactForm) {
                     displayErrors(serverErrors);
                     throw new Error('Validation failed');
                 }
-                throw new Error(result.message || 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة لاحقاً.');
+                throw new Error(result.message || __("Error sending message"));
             }
 
             // Show success message
-            document.getElementById('successMessage').textContent = result.message || 'تم إرسال رسالتك بنجاح! سنرد عليك قريباً.';
+            document.getElementById('successMessage').textContent = result.message || __("Success message");
             document.getElementById('successMessage').style.display = 'block';
 
             // Reset form
@@ -146,7 +146,7 @@ if (contactForm) {
     inputs.forEach(id => {
         const input = document.getElementById(id);
         if (input) {
-            input.addEventListener('blur', function() {
+            input.addEventListener('blur', function () {
                 const errors = validateForm({
                     [id]: this.value,
                     email: document.getElementById('email').value,

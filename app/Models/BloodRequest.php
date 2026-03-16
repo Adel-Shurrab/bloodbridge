@@ -5,16 +5,20 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Spatie\Translatable\HasTranslations;
+use App\Enums\RequestResponseStatus;
 
 class BloodRequest extends Model
 {
-    use SoftDeletes, HasFactory;
+    use SoftDeletes, HasFactory, HasTranslations;
 
     public const DEFAULT_STATUS = \App\Enums\BloodRequestStatus::PENDING;
     public const DEFAULT_URGENCY_LEVEL = \App\Enums\UrgencyLevel::NORMAL;
     public const DEFAULT_SEARCH_RADIUS_KM = 10;
     public const DEFAULT_DONORS_ACCEPTED = 0;
     public const DEFAULT_DONORS_COMPLETED = 0;
+
+    public array $translatable = ['additional_notes', 'location_address'];
 
     protected $fillable = [
         'organization_id',
@@ -27,8 +31,6 @@ class BloodRequest extends Model
         'lng',
         'location_address',
         'status',
-        'donors_accepted',
-        'donors_completed',
         'broadcasted_at',
         'fulfilled_at',
         'actual_search_radius_km',
@@ -51,6 +53,38 @@ class BloodRequest extends Model
     public function responses()
     {
         return $this->hasMany(RequestResponse::class);
+    }
+
+    public function acceptedResponses()
+    {
+        return $this->responses()->whereIn('status', [
+            RequestResponseStatus::PENDING,
+            RequestResponseStatus::ACCEPTED,
+            RequestResponseStatus::COMPLETED,
+        ]);
+    }
+
+    public function completedResponses()
+    {
+        return $this->responses()->where('status', RequestResponseStatus::COMPLETED);
+    }
+
+    public function getDonorsAcceptedAttribute(): int
+    {
+        if (array_key_exists('accepted_responses_count', $this->attributes)) {
+            return (int) $this->attributes['accepted_responses_count'];
+        }
+
+        return $this->acceptedResponses()->count();
+    }
+
+    public function getDonorsCompletedAttribute(): int
+    {
+        if (array_key_exists('completed_responses_count', $this->attributes)) {
+            return (int) $this->attributes['completed_responses_count'];
+        }
+
+        return $this->completedResponses()->count();
     }
 
     /**

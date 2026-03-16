@@ -24,52 +24,53 @@ class BloodRequestsTable
             ->recordTitleAttribute('additional_notes')
             ->columns([
                 TextColumn::make('organization.org_name')
-                    ->label('المنظمة')
+                    ->label(__('Organization Name'))
+                    ->getStateUsing(fn($record, $livewire) => $record->organization ? ($record->organization->getTranslation('org_name', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->organization->getTranslation('org_name', 'ar', false)) : null)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('blood_type')
-                    ->label('فصيلة الدم')
+                    ->label(__('Blood Type'))
                     ->badge(),
                 TextColumn::make('units_needed')
-                    ->label('الوحدات')
+                    ->label(__('Units'))
                     ->numeric()
                     ->sortable(),
                 TextColumn::make('urgency_level')
-                    ->label('الاستعجال')
+                    ->label(__('Urgency'))
                     ->badge()
                     ->sortable(),
                 TextColumn::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->badge()
                     ->sortable(),
                 TextColumn::make('created_at')
-                    ->label('تاريخ الطلب')
+                    ->label(__('Request Date'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
             ])
             ->defaultSort('created_at', 'desc')
             ->filters([
-                Tables\Filters\TrashedFilter::make()->label('المحذوفات'),
+                Tables\Filters\TrashedFilter::make()->label(__('Trashed')),
                 Tables\Filters\SelectFilter::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->options(\App\Enums\BloodRequestStatus::class),
                 Tables\Filters\SelectFilter::make('urgency_level')
-                    ->label('الاستعجال')
+                    ->label(__('Urgency'))
                     ->options(\App\Enums\UrgencyLevel::class),
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make()->label('عرض')->color('gray'),
-                    EditAction::make()->label('تعديل'),
-                    DeleteAction::make()->label('حذف'),
-                    RestoreAction::make()->label('استعادة'),
-                ])->label('خيارات')->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
+                    ViewAction::make()->label(__('View'))->color('gray'),
+                    EditAction::make()->label(__('Edit')),
+                    DeleteAction::make()->label(__('Delete')),
+                    RestoreAction::make()->label(__('Restore')),
+                ])->label(__('Options'))->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()->label('حذف'),
-                    RestoreBulkAction::make()->label('استعادة'),
+                    DeleteBulkAction::make()->label(__('Delete')),
+                    RestoreBulkAction::make()->label(__('Restore')),
                 ]),
             ]);
     }

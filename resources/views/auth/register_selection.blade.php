@@ -1,6 +1,20 @@
-<x-layout title="إنشاء حساب جديد - {{ $settings->site_name }}">
+<x-layout title="{{ __('Create New Account') }} - {{ $settings->getTranslation('site_name') }}">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/styles/pages/registration-intro.css') }}" />
+        <script>
+            window.translations = {
+                'Please select account type': '{{ __('Please select account type') }}',
+                'Loading...': '{{ __('Loading...') }}'
+            };
+
+            function __(key, replace = {}) {
+                let translation = window.translations[key] || key;
+                for (let placeholder in replace) {
+                    translation = translation.replace(':' + placeholder, replace[placeholder]);
+                }
+                return translation;
+            }
+        </script>
     @endpush
 
     <section class="registration-section">
@@ -12,13 +26,14 @@
 
         <div class="registration-container">
             <div class="registration-header">
-                <div class="header-badge">ابدأ رحلتك</div>
-                <h1>{{ $settings->signup_title }}</h1>
-                <p>{{ $settings->signup_subtitle }}</p>
+                <div class="header-badge">{{ __('Start Your Journey') }}</div>
+                <h1>{{ $settings->getTranslation('signup_title') }}</h1>
+                <p>{{ $settings->getTranslation('signup_subtitle') }}</p>
             </div>
 
             <div class="options-container">
-                <div class="option-card" id="donor-card" role="button" tabindex="0" aria-label="تسجيل كمتبرع">
+                <div class="option-card" id="donor-card" role="button" tabindex="0"
+                    aria-label="{{ __('Register as a Donor') }}">
                     <div class="option-icon donor-icon">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
@@ -27,11 +42,11 @@
                         </svg>
                     </div>
                     <div class="option-content">
-                        <h3>{{ $settings->signup_donor_title }}</h3>
-                        <p>{{ $settings->signup_donor_subtitle }}</p>
+                        <h3>{{ $settings->getTranslation('signup_donor_title') }}</h3>
+                        <p>{{ $settings->getTranslation('signup_donor_subtitle') }}</p>
                         <ul class="option-features">
-                            @foreach($settings->signup_donor_tasks ?? [] as $task)
-                                <li><span class="feature-icon">✓</span><span>{{ $task }}</span></li>
+                            @foreach ($settings->getTranslation('signup_donor_tasks') ?? [] as $task)
+                                <li><span class="feature-icon">✓</span><span>{{ $task['title'] ?? '' }}</span></li>
                             @endforeach
                         </ul>
                     </div>
@@ -43,7 +58,8 @@
                     </div>
                 </div>
 
-                <div class="option-card" id="organization-card" role="button" tabindex="0" aria-label="تسجيل كمنظمة">
+                <div class="option-card" id="organization-card" role="button" tabindex="0"
+                    aria-label="{{ __('Register as an Organization') }}">
                     <div class="option-icon organization-icon">
                         <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                             stroke-width="2">
@@ -52,11 +68,11 @@
                         </svg>
                     </div>
                     <div class="option-content">
-                        <h3>{{ $settings->signup_org_title }}</h3>
-                        <p>{{ $settings->signup_org_subtitle }}</p>
+                        <h3>{{ $settings->getTranslation('signup_org_title') }}</h3>
+                        <p>{{ $settings->getTranslation('signup_org_subtitle') }}</p>
                         <ul class="option-features">
-                            @foreach($settings->signup_org_tasks ?? [] as $task)
-                                <li><span class="feature-icon">✓</span><span>{{ $task }}</span></li>
+                            @foreach ($settings->getTranslation('signup_org_tasks') ?? [] as $task)
+                                <li><span class="feature-icon">✓</span><span>{{ $task['title'] ?? '' }}</span></li>
                             @endforeach
                         </ul>
                     </div>
@@ -71,29 +87,30 @@
 
             <div class="action-container">
                 <button id="continueBtn" class="btn btn-primary btn-continue disabled" disabled
-                    aria-label="متابعة إلى صفحة التسجيل">
-                    <span>متابعة</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    aria-label="{{ __('Continue to registration page') }}">
+                    <span>{{ __('Continue') }}</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                        stroke-width="2">
                         <path d="M5 12h14M12 5l7 7-7 7" />
                     </svg>
                 </button>
                 <p class="login-prompt">
-                    لديك حساب بالفعل؟ <a href="{{ route('login') }}">تسجيل الدخول</a>
+                    {{ __('Already have an account?') }} <a href="{{ route('login') }}">{{ __('Log In') }}</a>
                 </p>
             </div>
 
             <div class="trust-indicators">
                 <div class="trust-item">
                     <span class="trust-icon">🔒</span>
-                    <span class="trust-text">آمن ومشفر</span>
+                    <span class="trust-text">{{ __('Secure and encrypted') }}</span>
                 </div>
                 <div class="trust-item">
                     <span class="trust-icon">✓</span>
-                    <span class="trust-text">موثوق من 120+ مستشفى</span>
+                    <span class="trust-text">{{ __('Trusted by 120+ hospitals') }}</span>
                 </div>
                 <div class="trust-item">
                     <span class="trust-icon">⚡</span>
-                    <span class="trust-text">تسجيل في دقائق</span>
+                    <span class="trust-text">{{ __('Register in minutes') }}</span>
                 </div>
             </div>
         </div>

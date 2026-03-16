@@ -4,18 +4,29 @@ namespace App\Notifications;
 
 use App\Models\BloodRequest;
 use App\Enums\BloodType;
+use App\Enums\UrgencyLevel;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Actions\Action;
 
+/**
+ * Blood Request Match Notification
+ * 
+ * Sent to eligible donors when their blood type matches a request.
+ * Delivery: Database + Real-time Broadcast (Reverb)
+ * 
+ * Triggered by: DispatchBloodRequestNotifications job
+ * Recipient: Donor (User)
+ */
 class BloodRequestMatchNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected BloodRequest $bloodRequest;
-    protected ?float $distance;
+    private BloodRequest $bloodRequest;
+    private ?float $distance;
 
     /**
      * Create a new notification instance.
@@ -33,52 +44,81 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
-    /**
-     * Get the Filament database notification representation.
-     */
-    public function toDatabase(object $notifiable): array
+    private function buildFilamentNotification(object $notifiable): FilamentNotification
     {
-        $organization = $this->bloodRequest->organization;
-        $orgName = $organization?->org_name ?? 'مستشفى غير محدد';
-        $bloodType = $this->bloodRequest->blood_type->getLabel();
-        $units = $this->bloodRequest->units_needed;
-
-        $title = match ($this->bloodRequest->urgency_level->value) {
-            \App\Enums\UrgencyLevel::CRITICAL->value => 'طلب تبرع عاجل جداً',
-            default => 'طلب تبرع بالدم'
-        };
-
-        $body = "يحتاج {$orgName} إلى {$units} وحدة من فصيلة {$bloodType}";
-
-        if ($notifiable->donor?->healthProfile?->blood_type === BloodType::UNKNOWN) {
-            $body .= "\n ملاحظة: سيتم تحديد فصيلة دمك في المستشفى";
-        }
-
-        if ($this->distance) {
-            $body .= " - البعد: " . round($this->distance, 1) . " كم";
-        }
-
         return FilamentNotification::make()
-            ->title($title)
-            ->body($body)
-            ->icon(match ($this->bloodRequest->urgency_level->value) {
-                \App\Enums\UrgencyLevel::CRITICAL->value => 'heroicon-o-exclamation-triangle',
-                default => 'heroicon-o-heart'
-            })
-            ->iconColor(match ($this->bloodRequest->urgency_level->value) {
-                \App\Enums\UrgencyLevel::CRITICAL->value => 'danger',
-                default => 'primary'
-            })
+            ->title($this->getTitle())
+            ->body($this->getBody($notifiable))
+            ->icon($this->getIcon())
+            ->iconColor($this->getIconColor())
             ->actions([
                 Action::make('view')
-                    ->label('عرض الطلب')
+                    ->label(__('View Request'))
                     ->url(route('filament.donor.pages.blood-requests'))
                     ->button()
                     ->markAsRead(),
-            ])
-            ->getDatabaseMessage();
+            ]);
+    }
+
+    private function getTitle(): string
+    {
+        return match ($this->bloodRequest->urgency_level) {
+            UrgencyLevel::CRITICAL => __('Critical Blood Donation Request'),
+            default => __('Blood Donation Request'),
+        };
+    }
+
+    private function getBody(object $notifiable): string
+    {
+        $organization = $this->bloodRequest->organization;
+        $orgName = $organization?->org_name ?? __('Hospital Not Specified');
+        $bloodType = $this->bloodRequest->blood_type->getLabel();
+        $units = $this->bloodRequest->units_needed;
+
+        $body = __(':org needs :units unit(s) of blood type :blood_type', [
+            'org' => $orgName,
+            'units' => $units,
+            'blood_type' => $bloodType,
+        ]);
+
+        if ($notifiable->donor?->healthProfile?->blood_type === BloodType::UNKNOWN) {
+            $body .= "\n" . __('Note: Your blood type will be determined at the hospital');
+        }
+
+        if ($this->distance !== null) {
+            $distanceKm = round($this->distance, 1);
+            $body .= " - " . __('Distance: :distance km', ['distance' => $distanceKm]);
+        }
+
+        return $body;
+    }
+
+    private function getIcon(): string
+    {
+        return match ($this->bloodRequest->urgency_level) {
+            UrgencyLevel::CRITICAL => 'heroicon-o-exclamation-triangle',
+            default => 'heroicon-o-heart',
+        };
+    }
+
+    private function getIconColor(): string
+    {
+        return match ($this->bloodRequest->urgency_level) {
+            UrgencyLevel::CRITICAL => 'danger',
+            default => 'primary',
+        };
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        return $this->buildFilamentNotification($notifiable)->getDatabaseMessage();
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return $this->buildFilamentNotification($notifiable)->getBroadcastMessage();
     }
 }

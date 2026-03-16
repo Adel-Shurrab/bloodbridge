@@ -160,13 +160,13 @@
 .success-message {
   background-color: #d1fae5;
   color: #065f46;
-  border-left: 4px solid #10b981;
+  border-inline-end: 4px solid #10b981;
 }
 
 .contact-form .error-message {
   background-color: #fee2e2;
   color: #991b1b;
-  border-left: 4px solid #f87171;
+  border-inline-end: 4px solid #f87171;
   padding: 0.75rem;
   border-radius: 8px;
 }
@@ -262,7 +262,7 @@
   background: none;
   border: none;
   padding: 1.25rem 0.5rem;
-  text-align: right;
+  text-align: start;
   font-family: "Cairo", sans-serif;
   font-size: 1.1rem;
   font-weight: 600;

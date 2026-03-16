@@ -398,7 +398,7 @@
   gap: 1rem;
   z-index: 2000;
   transition: bottom 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55);
-  border-right: 4px solid #d32f2f;
+  border-inline-start: 4px solid #d32f2f;
 }
 
 .toast-notification.show {

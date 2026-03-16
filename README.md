@@ -65,7 +65,7 @@ To create a seamless, efficient, and life-saving bridge between blood donors and
 
 #### 🔐 Admin Panel
 
-- User management with role-based access control
+- User management with enum-based role access (Admin / Donor / Organization)
 - Blood request oversight and monitoring
 - Donor and organization verification
 - System-wide analytics and reporting
@@ -121,11 +121,11 @@ To create a seamless, efficient, and life-saving bridge between blood donors and
 
 ### 🔒 Security Features
 
-- **Role-Based Access Control** (Spatie Laravel Permission)
+- **Role-Based Access Control** (single-role enum on `users.role`)
 - Multi-tenancy support
 - Secure authentication
 - Data validation and sanitization
-- Permission-based resource access
+- Policy / guard-based resource access
 
 ---
 
@@ -149,7 +149,6 @@ To create a seamless, efficient, and life-saving bridge between blood donors and
 ### Key Packages
 
 - **filament/spatie-laravel-settings-plugin** - Persistent application settings
-- **spatie/laravel-permission** - Role and permission management
 - **simplesoftwareio/simple-qrcode** - QR code generation
 - **flowframe/laravel-trend** - Data trend analysis
 - **dotswan/filament-map-picker** - Interactive map selection
@@ -333,7 +332,7 @@ For location-based features, ensure:
 ### For Administrators
 
 1. **Access the Admin Panel**: Navigate to `/admin`
-2. **Manage Users**: Create and assign roles (Admin, Donor, Organization)
+2. **Manage Users**: Create users and set roles (Admin, Donor, Organization)
 3. **Oversee Blood Requests**: Monitor all system requests and responses
 4. **Review Analytics**: Access dashboard widgets for insights
 
@@ -460,7 +459,7 @@ composer dev
 - [x] Core blood request broadcasting
 - [x] QR code system
 - [x] Multi-panel architecture
-- [x] Role-based access control
+- [x] Enum-based roles (Admin / Donor / Organization)
 - [x] Location-based matching
 
 ---

@@ -27,29 +27,30 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('الاسم')
+                    ->label(__('Name'))
+                    ->getStateUsing(fn($record) => $record->name)
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('email')
-                    ->label('البريد الإلكتروني')
+                    ->label(__('Email'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('phone')
-                    ->label('رقم الهاتف')
+                    ->label(__('Phone Number'))
                     ->searchable(),
 
                 TextColumn::make('role')
-                    ->label('نوع الحساب')
+                    ->label(__('Account Type'))
                     ->badge()
                     ->sortable(),
 
                 ToggleColumn::make('is_active')
-                    ->label('نشط'),
+                    ->label(__('Active')),
 
                 TextColumn::make('created_at')
-                    ->label('تاريخ الإنشاء')
+                    ->label(__('Creation Date'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -57,26 +58,26 @@ class UsersTable
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('role')
-                    ->label('نوع الحساب')
+                    ->label(__('Account Type'))
                     ->options(\App\Enums\UserRole::class),
                 TernaryFilter::make('is_active')
-                    ->label('نشط'),
-                TrashedFilter::make()->label('المحذوفات'),
+                    ->label(__('Active')),
+                TrashedFilter::make()->label(__('Trashed')),
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make()->label('عرض')->color('gray'),
-                    EditAction::make()->label('تعديل'),
-                    DeleteAction::make()->label('حذف'),
-                    RestoreAction::make()->label('استعادة'),
-                    ForceDeleteAction::make()->label('حذف نهائي'),
-                ])->label('خيارات')->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
+                    ViewAction::make()->label(__('View'))->color('gray'),
+                    EditAction::make()->label(__('Edit')),
+                    DeleteAction::make()->label(__('Delete')),
+                    RestoreAction::make()->label(__('Restore')),
+                    ForceDeleteAction::make()->label(__('Force Delete')),
+                ])->label(__('Options'))->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()->label('حذف'),
-                    RestoreBulkAction::make()->label('استعادة'),
-                    ForceDeleteBulkAction::make()->label('حذف نهائي'),
+                    DeleteBulkAction::make()->label(__('Delete')),
+                    RestoreBulkAction::make()->label(__('Restore')),
+                    ForceDeleteBulkAction::make()->label(__('Force Delete')),
                 ]),
             ]);
     }

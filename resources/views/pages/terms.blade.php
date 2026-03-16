@@ -1,4 +1,4 @@
-<x-layout title="شروط الخدمة - {{ $settings->site_name }}">
+<x-layout title="{{ __('Terms of Service') }} - {{ $settings->getTranslation('site_name') }}">
 
     <style>
         html {
@@ -102,7 +102,7 @@
             display: grid;
             grid-template-columns: 240px 1fr;
             gap: 3rem;
-            direction: rtl;
+
         }
 
         /* Sidebar */
@@ -210,7 +210,7 @@
         .terms-card-danger {
             background: linear-gradient(135deg, #fff5f5 0%, #fffafa 100%);
             border-color: #fed7d7;
-            border-right: 4px solid #e53e3e;
+            border-inline-start: 4px solid #e53e3e;
         }
 
         .terms-list {
@@ -351,12 +351,12 @@
             <div class="terms-hero-icon">
                 <i class="fas fa-shield-alt"></i>
             </div>
-            <h1>شروط الخدمة والاستخدام</h1>
-            <p>يرجى قراءة هذه الشروط بعناية قبل استخدام منصة {{ $settings->site_name }}. باستخدامك للمنصة، فإنك توافق
-                على الالتزام الكامل بهذه الشروط والأحكام.</p>
+            <h1>{{ __('Terms of Service and Use') }}</h1>
+            <p>{{ __('Please read these terms carefully before using the :site_name platform. By using the platform, you agree to fully abide by these terms and conditions.', ['site_name' => $settings->getTranslation('site_name')]) }}
+            </p>
             <div class="terms-hero-meta">
                 <i class="fas fa-calendar-alt"></i>
-                آخر تحديث: {{ date('d/m/Y') }}
+                {{ __('Last Updated') }}: {{ date('d/m/Y') }}
             </div>
         </div>
     </div>
@@ -368,35 +368,37 @@
             <!-- Sidebar -->
             <aside class="terms-sidebar">
                 <div class="terms-sidebar-card">
-                    <h3>فهرس المحتوى</h3>
+                    <h3>{{ __('Table of Contents') }}</h3>
                     <nav>
                         <a href="#disclaimer" class="terms-nav-item">
-                            <span class="terms-nav-num" style="background:#fff5f5; color:#e53e3e;">١</span>
-                            إخلاء المسؤولية الطبية
+                            <span class="terms-nav-num"
+                                style="background:#fff5f5; color:#e53e3e;">{{ __('1') }}</span>
+                            {{ __('Medical Disclaimer') }}
                         </a>
                         <a href="#service-nature" class="terms-nav-item">
-                            <span class="terms-nav-num">٢</span>
-                            طبيعة الخدمة
+                            <span class="terms-nav-num">{{ __('2') }}</span>
+                            {{ __('Nature of Service') }}
                         </a>
                         <a href="#donor-duties" class="terms-nav-item">
-                            <span class="terms-nav-num">٣</span>
-                            التزامات المتبرع
+                            <span class="terms-nav-num">{{ __('3') }}</span>
+                            {{ __('Donor Obligations') }}
                         </a>
                         <a href="#org-duties" class="terms-nav-item">
-                            <span class="terms-nav-num">٤</span>
-                            التزامات المؤسسات
+                            <span class="terms-nav-num">{{ __('4') }}</span>
+                            {{ __('Health Institutions Obligations') }}
                         </a>
                         <a href="#privacy" class="terms-nav-item">
-                            <span class="terms-nav-num" style="background:#ebf8ff; color:#3182ce;">٥</span>
-                            الخصوصية والبيانات
+                            <span class="terms-nav-num"
+                                style="background:#ebf8ff; color:#3182ce;">{{ __('5') }}</span>
+                            {{ __('Privacy and Data') }}
                         </a>
                         <a href="#account" class="terms-nav-item">
-                            <span class="terms-nav-num">٦</span>
-                            تعليق الحساب
+                            <span class="terms-nav-num">{{ __('6') }}</span>
+                            {{ __('Account Suspension or Termination') }}
                         </a>
                         <a href="#updates" class="terms-nav-item">
-                            <span class="terms-nav-num">٧</span>
-                            تعديل الشروط
+                            <span class="terms-nav-num">{{ __('7') }}</span>
+                            {{ __('Modifications to Terms') }}
                         </a>
                     </nav>
                 </div>
@@ -411,30 +413,26 @@
                         <div class="terms-section-num" style="background:#fff5f5; color:#e53e3e;">
                             <i class="fas fa-exclamation-triangle"></i>
                         </div>
-                        <h2 class="terms-section-title">إخلاء المسؤولية الطبية</h2>
+                        <h2 class="terms-section-title">{{ __('Medical Disclaimer') }}</h2>
                     </div>
                     <div class="terms-card terms-card-danger">
                         <p
                             style="font-size:0.9rem; font-weight:700; color:#c53030; margin-bottom:1.25rem; display:flex; align-items:center; gap:0.5rem;">
-                            <i class="fas fa-exclamation-circle"></i> هذا البند هو الأهم — يرجى قراءته بعناية
+                            <i class="fas fa-exclamation-circle"></i>
+                            {{ __('This clause is the most important — please read it carefully') }}
                         </p>
                         <ul class="terms-list">
                             <li class="terms-list-item">
                                 <span class="terms-list-icon red"><i class="fas fa-times"></i></span>
-                                <span>منصة <strong>{{ $settings->site_name }}</strong> هي وسيط تقني فقط يهدف إلى تسهيل
-                                    التواصل بين المتبرعين والمستشفيات أو بنوك الدم. <strong>المنصة لا تقدم أي استشارات
-                                        طبية</strong> بأي شكل من الأشكال.</span>
+                                <span>{{ __('The :site_name platform is solely a technical intermediary aiming to facilitate communication between donors and hospitals or blood banks. The platform does not provide any medical consultations in any form.', ['site_name' => $settings->getTranslation('site_name')]) }}</span>
                             </li>
                             <li class="terms-list-item">
                                 <span class="terms-list-icon red"><i class="fas fa-times"></i></span>
-                                <span>المستشفى أو بنك الدم المتلقي هو <strong>المسؤول الوحيد والمباشر</strong> عن الفحص
-                                    الطبي للمتبرع، وتقييم أهليته النهائية، وإجراء فحوصات السلامة الكاملة على
-                                    الدم.</span>
+                                <span>{{ __('The receiving hospital or blood bank is the sole and direct responsible party for the medical examination of the donor, assessing their final eligibility, and conducting complete safety tests on the blood.') }}</span>
                             </li>
                             <li class="terms-list-item">
                                 <span class="terms-list-icon red"><i class="fas fa-times"></i></span>
-                                <span>المنصة وفريقها <strong>غير مسؤولين</strong> عن أي مضاعفات صحية تطرأ على المتبرع
-                                    أثناء العملية أو بعدها، أو عن أي نتائج طبية سلبية للمريض المتلقي.</span>
+                                <span>{{ __('The platform and its team are not responsible for any health complications that occur to the donor during or after the process, or for any negative medical outcomes for the recipient patient.') }}</span>
                             </li>
                         </ul>
                     </div>
@@ -444,18 +442,15 @@
                 <section id="service-nature" class="terms-section">
                     <div class="terms-section-header">
                         <div class="terms-section-num" style="background:#f0fff4; color:#38a169;">٢</div>
-                        <h2 class="terms-section-title">طبيعة الخدمة</h2>
+                        <h2 class="terms-section-title">{{ __('Nature of Service') }}</h2>
                     </div>
                     <div class="terms-card">
                         <p style="color:#4a5568; line-height:1.9; margin:0;">
-                            تقدم منصة <strong>{{ $settings->site_name }}</strong> خدمة تقنية لإنشاء قاعدة بيانات حية
-                            وفاعلة للمتبرعين بالدم، وإتاحة الفرصة للمؤسسات الصحية المعتمدة لإرسال طلبات تبرع موجهة عند
-                            الحاجة الطارئة. الخدمات الأساسية للمنصة <strong>مجانية بالكامل</strong> للمتبرعين الأفراد.
+                            {{ __('The :site_name platform provides a technical service to create a live and active database of blood donors, allowing authorized health institutions to send targeted donation requests during emergencies. The core services of the platform are completely free for individual donors.', ['site_name' => $settings->getTranslation('site_name')]) }}
                         </p>
                         <div class="terms-info-box">
                             <i class="fas fa-info-circle" style="margin-top:3px; flex-shrink:0;"></i>
-                            <span>المنصة لا تضمن توفر متبرعين في أي وقت، ولا تتحمل مسؤولية أي تأخير في الاستجابة لطلبات
-                                التبرع في حالات الطوارئ.</span>
+                            <span>{{ __('The platform does not guarantee the availability of donors at any given time, nor does it bear responsibility for any delay in responding to donation requests in emergency situations.') }}</span>
                         </div>
                     </div>
                 </section>
@@ -464,36 +459,33 @@
                 <section id="donor-duties" class="terms-section">
                     <div class="terms-section-header">
                         <div class="terms-section-num" style="background:#ebf8ff; color:#3182ce;">٣</div>
-                        <h2 class="terms-section-title">التزامات المتبرع</h2>
+                        <h2 class="terms-section-title">{{ __('Donor Obligations') }}</h2>
                     </div>
                     <div class="terms-card">
                         <ul class="terms-list">
                             <li class="terms-list-item">
                                 <span class="terms-list-icon green"><i class="fas fa-check"></i></span>
-                                <span><strong>دقة المعلومات:</strong> تقر بأن جميع البيانات الصحية والشخصية التي أدخلتها
-                                    (كفصيلة الدم والأمراض والعمر) دقيقة وحديثة ولا تحتوي على معلومات مضللة.</span>
+                                <span><strong>{{ __('Information Accuracy') }}:</strong>
+                                    {{ __('You acknowledge that all health and personal data you have entered (such as blood type, diseases, and age) is accurate, up-to-date, and does not contain misleading information.') }}</span>
                             </li>
                             <li class="terms-list-item">
                                 <span class="terms-list-icon green"><i class="fas fa-check"></i></span>
-                                <span><strong>الموافقة على الإشعارات:</strong> بالتسجيل، توافق على تلقي إشعارات عبر
-                                    البريد الإلكتروني أو الرسائل النصية عند مطابقة طلب تبرع عاجل لفصيلة دمك.</span>
+                                <span><strong>{{ __('Consent for Notifications') }}:</strong>
+                                    {{ __('By registering, you agree to receive notifications via email or text messages when an urgent donation request matches your blood type.') }}</span>
                             </li>
                             <li class="terms-list-item">
                                 <span class="terms-list-icon green"><i class="fas fa-check"></i></span>
-                                <span><strong>عدم الإلزام:</strong> تلقي طلب التبرع لا يلزمك قانونياً بالتبرع؛ لك كامل
-                                    الحرية في القبول أو الرفض بناءً على ظروفك الصحية والشخصية في تلك اللحظة.</span>
+                                <span><strong>{{ __('No Obligation') }}:</strong>
+                                    {{ __('Receiving a donation request does not legally obligate you to donate; you have complete freedom to accept or decline based on your health and personal circumstances at that moment.') }}</span>
                             </li>
                             <li class="terms-list-item">
                                 <span class="terms-list-icon green"><i class="fas fa-check"></i></span>
-                                <span><strong>الصدق الطبي الكامل:</strong> أنت ملتزم بالإفصاح الكامل عن أي موانع تبرع أو
-                                    تاريخ مرضي للطاقم الطبي في المستشفى <em>قبل</em> التبرع الفعلي، بغض النظر عما هو
-                                    مسجل في النظام.</span>
+                                <span><strong>{{ __('Total Medical Honesty') }}:</strong>
+                                    {{ __('You are committed to fully disclosing any donation deferrals or medical history to the medical staff at the hospital :before the actual donation, regardless of what is registered in the system.', ['before' => 'before']) }}</span>
                             </li>
                             <li class="terms-list-item">
                                 <span class="terms-list-icon blue"><i class="fas fa-info"></i></span>
-                                <span>عمر التسجيل المسموح به: بين <strong>{{ $settings->min_donor_age }}</strong> و
-                                    <strong>{{ $settings->max_donor_age }}</strong> عاماً. الحد الأدنى للوزن:
-                                    <strong>{{ $settings->min_donor_weight }} كجم</strong>.</span>
+                                <span>{{ __('Eligible registration age: between :min_age and :max_age years old. Minimum weight: :min_weight kg.', ['min_age' => $settings->min_donor_age, 'max_age' => $settings->max_donor_age, 'min_weight' => $settings->min_donor_weight]) }}</span>
                             </li>
                         </ul>
                     </div>
@@ -503,25 +495,21 @@
                 <section id="org-duties" class="terms-section">
                     <div class="terms-section-header">
                         <div class="terms-section-num" style="background:#fefcbf; color:#d69e2e;">٤</div>
-                        <h2 class="terms-section-title">التزامات المؤسسات الصحية</h2>
+                        <h2 class="terms-section-title">{{ __('Health Institutions Obligations') }}</h2>
                     </div>
                     <div class="terms-card">
                         <ul class="terms-list">
                             <li class="terms-list-item">
                                 <span class="terms-list-icon gray"><i class="fas fa-check"></i></span>
-                                <span>يقتصر استخدام النظام على البحث عن متبرعين للحالات الطبية الحقيقية والطارئة، ويُحظر
-                                    تماماً استغلال بيانات المتبرعين لأي غرض تجاري أو إعلاني.</span>
+                                <span>{{ __('The use of the system is restricted to searching for donors for genuine and emergent medical cases, and exploiting donor data for any commercial or advertising purpose is strictly prohibited.') }}</span>
                             </li>
                             <li class="terms-list-item">
                                 <span class="terms-list-icon gray"><i class="fas fa-check"></i></span>
-                                <span>النظام يقيّد عدد الطلبات اليومية (الحد الأقصى
-                                    <strong>{{ $settings->org_max_requests_per_day }}</strong> طلبات يومياً). يُمنع
-                                    الإرسال العشوائي لتجنب إزعاج المتبرعين.</span>
+                                <span>{{ __('The system limits the number of daily requests (a maximum of :max requests per day). Random broadcasting is prohibited to avoid disturbing donors.', ['max' => $settings->org_max_requests_per_day]) }}</span>
                             </li>
                             <li class="terms-list-item">
                                 <span class="terms-list-icon gray"><i class="fas fa-check"></i></span>
-                                <span>كل مؤسسة تتحمل المسؤولية الكاملة والمنفردة عن تطبيق معايير السلامة وإجراء الفحوصات
-                                    المخبرية والفيروسية على أي دم يُجمع عبر المنصة.</span>
+                                <span>{{ __('Each institution bears the full and individual responsibility for applying safety standards and conducting laboratory and viral testing on any blood collected via the platform.') }}</span>
                             </li>
                         </ul>
                     </div>
@@ -531,15 +519,13 @@
                 <section id="privacy" class="terms-section">
                     <div class="terms-section-header">
                         <div class="terms-section-num" style="background:#ebf8ff; color:#3182ce;">٥</div>
-                        <h2 class="terms-section-title">الخصوصية والبيانات</h2>
+                        <h2 class="terms-section-title">{{ __('Privacy and Data') }}</h2>
                     </div>
                     <div class="terms-card">
                         <p style="color:#4a5568; line-height:1.9; margin:0;">
-                            نحن نشارك الحد الأدنى من بيانات الاتصال الضرورية (كرقم الهاتف وفصيلة الدم) مع المستشفى
-                            <strong>فقط</strong> عند مطابقة طلب تبرع، وبموافقتك الضمنية عند التسجيل. لمزيد من التفاصيل،
-                            اطلع على <a href="javascript:void(0)"
-                                @click.prevent="$dispatch('open-modal', 'privacyModal')"
-                                class="terms-inline-link">سياسة الخصوصية الكاملة</a>.
+                            {{ __('We share the minimum necessary contact data (such as phone number and blood type) with the hospital only when a donation request matches, and with your explicit consent upon registration. For more details, consult the') }}
+                            <a href="javascript:void(0)" @click.prevent="$dispatch('open-modal', 'privacyModal')"
+                                class="terms-inline-link">{{ __('Full Privacy Policy') }}</a>.
                         </p>
                     </div>
                 </section>
@@ -548,13 +534,11 @@
                 <section id="account" class="terms-section">
                     <div class="terms-section-header">
                         <div class="terms-section-num" style="background:#fff5f5; color:#e53e3e;">٦</div>
-                        <h2 class="terms-section-title">تعليق أو إنهاء الحساب</h2>
+                        <h2 class="terms-section-title">{{ __('Account Suspension or Termination') }}</h2>
                     </div>
                     <div class="terms-card">
                         <p style="color:#4a5568; line-height:1.9; margin:0;">
-                            نحتفظ بالحق في تعليق أو حذف أي حساب يثبت استخدامه للمنصة بطريقة مسيئة، بما يشمل: إدخال
-                            بيانات كاذبة، التخلف المتكرر عن التبرع بعد التأكيد، أو أي انتهاك لشروط الخصوصية. سيتم إبلاغ
-                            أصحاب الحسابات قبل أي إجراء حيثما أمكن.
+                            {{ __('We reserve the right to suspend or delete any account proven to misuse the platform, including: entering false data, repeatedly failing to donate after confirmation, or any violation of privacy conditions. Account owners will be notified prior to any action where possible.') }}
                         </p>
                     </div>
                 </section>
@@ -563,13 +547,11 @@
                 <section id="updates" class="terms-section" style="margin-bottom: 0;">
                     <div class="terms-section-header">
                         <div class="terms-section-num" style="background:#f7fafc; color:#718096;">٧</div>
-                        <h2 class="terms-section-title">التعديلات على الشروط</h2>
+                        <h2 class="terms-section-title">{{ __('Modifications to Terms') }}</h2>
                     </div>
                     <div class="terms-card">
                         <p style="color:#4a5568; line-height:1.9; margin:0;">
-                            للمنصة الحق في تحديث هذه الشروط في أي وقت. سيتم إشعار المستخدمين بأي تغييرات جوهرية عبر
-                            المنصة أو البريد الإلكتروني. استمرار استخدامك للموقع بعد أي تعديل يُعدّ قبولاً صريحاً
-                            للتغييرات.
+                            {{ __('The platform reserves the right to update these terms at any time. Users will be notified of any substantial changes via the platform or email. Your continued use of the site following any modification constitutes explicit acceptance of the changes.') }}
                         </p>
                     </div>
                 </section>
@@ -577,12 +559,14 @@
                 <!-- CTA Footer -->
                 <div class="terms-cta" style="margin-top: 3.5rem;">
                     <div style="font-size:2rem; margin-bottom:1rem;">💬</div>
-                    <h3 style="font-size:1.35rem; font-weight:800; margin-bottom:0.5rem;">هل لديك استفسار قانوني؟</h3>
-                    <p style="opacity:0.75; font-size:0.95rem;">فريق {{ $settings->site_name }} مستعد للإجابة على أي
-                        تساؤلات تتعلق بهذه الشروط.</p>
+                    <h3 style="font-size:1.35rem; font-weight:800; margin-bottom:0.5rem;">
+                        {{ __('Do you have a legal inquiry?') }}</h3>
+                    <p style="opacity:0.75; font-size:0.95rem;">
+                        {{ __('The :site_name team is ready to answer any questions regarding these terms.', ['site_name' => $settings->getTranslation('site_name')]) }}
+                    </p>
                     <a href="{{ route('contact') }}" class="terms-cta-btn">
                         <i class="fas fa-envelope"></i>
-                        تواصل مع الإدارة
+                        {{ __('Contact Administration') }}
                     </a>
                 </div>
 

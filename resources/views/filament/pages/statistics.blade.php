@@ -58,7 +58,7 @@
             align-items: center;
             margin-bottom: 2rem;
             border: 1px solid rgba(211, 47, 47, 0.05);
-            direction: rtl;
+            
         }
 
         .dark .top-bar {

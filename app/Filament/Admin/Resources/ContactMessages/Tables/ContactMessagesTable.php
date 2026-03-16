@@ -18,23 +18,25 @@ class ContactMessagesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('الاسم')
+                    ->label(__('Name'))
+                    ->getStateUsing(fn($record, $livewire) => $record->getTranslation('name', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->getTranslation('name', 'ar', false))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label('البريد الإلكتروني')
+                    ->label(__('Email'))
                     ->searchable(),
                 TextColumn::make('subject')
-                    ->label('الموضوع')
+                    ->label(__('Subject'))
+                    ->getStateUsing(fn($record, $livewire) => $record->getTranslation('subject', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->getTranslation('subject', 'ar', false))
                     ->searchable(),
                 TextColumn::make('read_at')
-                    ->label('تاريخ القراءة')
+                    ->label(__('Read At'))
                     ->dateTime()
                     ->sortable()
                     ->badge()
                     ->color(fn($state) => $state ? 'success' : 'warning')
-                    ->placeholder('غير مقروءة'),
+                    ->placeholder(__('Unread')),
                 TextColumn::make('created_at')
-                    ->label('تاريخ الإرسال')
+                    ->label(__('Sent At'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -43,18 +45,18 @@ class ContactMessagesTable
                 //
             ])
             ->recordActions([
-                ViewAction::make()->label('عرض'),
+                ViewAction::make()->label(__('View')),
                 Action::make('mark_as_read')
-                    ->label('تحديد كمقروء')
+                    ->label(__('Mark as Read'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->action(fn(ContactMessage $record) => $record->update(['read_at' => now()]))
                     ->hidden(fn(ContactMessage $record) => $record->read_at !== null),
-                DeleteAction::make()->label('حذف'),
+                DeleteAction::make()->label(__('Delete')),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()->label('حذف المحدد'),
+                    DeleteBulkAction::make()->label(__('Delete Selected')),
                 ]),
             ]);
     }

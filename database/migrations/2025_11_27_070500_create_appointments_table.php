@@ -31,7 +31,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('status')
                 ->default(Appointment::DEFAULT_STATUS)
                 ->index();
-            $table->text('cancellation_reason')->nullable();
+            $table->json('cancellation_reason')->nullable();
             $table->timestamp('completed_at')->nullable();
             $table->timestamp('cancelled_at')->nullable();
             $table->softDeletes();

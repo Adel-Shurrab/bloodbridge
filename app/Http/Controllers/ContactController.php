@@ -20,10 +20,10 @@ class ContactController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'استقبال الرسائل معطل حالياً من قبل الإدارة.'
+                    'message' => __('Contact messages are currently disabled by the administrator.')
                 ], 403);
             }
-            return back()->with('error', 'استقبال الرسائل معطل حالياً من قبل الإدارة.');
+            return back()->with('error', __('Contact messages are currently disabled by the administrator.'));
         }
 
         try {
@@ -45,14 +45,15 @@ class ContactController extends Controller
 
             // Try sending emails
             try {
-                // To Admin: We will assume support_email from settings or a default
+                $settings = app(GeneralSettings::class);
+
                 $supportEmail = $settings->support_email ?? 'admin@bloodbridge.com';
+                $siteName = $settings->site_name ?? config('app.name');
+
                 if ($supportEmail) {
                     Mail::to($supportEmail)->send(new AdminContactNotificationMail($contactMessage));
                 }
 
-                // To User
-                $siteName = $settings->site_name ?? config('app.name');
                 Mail::to($contactMessage->email)->send(new UserContactConfirmationMail($contactMessage, $siteName));
             } catch (\Exception $e) {
                 Log::error('Failed to send contact emails: ' . $e->getMessage());
@@ -61,11 +62,11 @@ class ContactController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => true,
-                    'message' => 'تم إرسال رسالتك بنجاح! سنرد عليك قريباً.'
+                    'message' => __('Your message has been sent successfully! We will reply to you soon.')
                 ]);
             }
 
-            return back()->with('success', 'تم إرسال رسالتك بنجاح! سنرد عليك قريباً.');
+            return back()->with('success', __('Your message has been sent successfully! We will reply to you soon.'));
         } catch (ValidationException $e) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -79,10 +80,10 @@ class ContactController extends Controller
             if ($request->expectsJson()) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة لاحقاً.'
+                    'message' => __('An error occurred while sending your message. Please try again later.')
                 ], 500);
             }
-            return back()->with('error', 'حدث خطأ أثناء إرسال الرسالة. يرجى المحاولة لاحقاً.');
+            return back()->with('error', __('An error occurred while sending your message. Please try again later.'));
         }
     }
 }

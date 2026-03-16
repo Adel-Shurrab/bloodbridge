@@ -22,30 +22,32 @@ class OrganizationsTable
         return $table
             ->columns([
                 TextColumn::make('org_name')
-                    ->label('المنظمة')
+                    ->label(__('Organization'))
                     ->weight('bold')
+                    ->getStateUsing(fn($record) => $record->getTranslation('org_name', app()->getLocale(), false) ?: $record->getTranslation('org_name', 'ar', false))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('governorate.name')
-                    ->label('المحافظة')
+                    ->label(__('Governorate'))
+                    ->getStateUsing(fn($record) => $record->governorate?->getTranslation('name', app()->getLocale(), false) ?: $record->governorate?->getTranslation('name', 'ar', false))
                     ->sortable(),
 
                 TextColumn::make('contact_phone')
-                    ->label('الهاتف')
+                    ->label(__('Phone'))
                     ->searchable(),
 
                 TextColumn::make('daily_capacity')
-                    ->label('القدرة اليومية')
+                    ->label(__('Daily Capacity'))
                     ->sortable(),
 
                 TextColumn::make('approval_status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('created_at')
-                    ->label('تاريخ التسجيل')
+                    ->label(__('Registration Date'))
                     ->date('d/m/Y')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -53,22 +55,22 @@ class OrganizationsTable
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('approval_status')
-                    ->label('حالة الموافقة')
+                    ->label(__('Approval Status'))
                     ->options(\App\Enums\OrganizationStatus::class),
                 SelectFilter::make('governorate_id')
-                    ->label('المحافظة')
+                    ->label(__('Governorate'))
                     ->relationship('governorate', 'name'),
-                TrashedFilter::make()->label('المحذوفات'),
+                TrashedFilter::make()->label(__('Trash')),
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make()->label('عرض')->color('gray'),
-                    EditAction::make()->label('تعديل'),
-                    DeleteAction::make()->label('حذف'),
-                    RestoreAction::make()->label('استعادة'),
+                    ViewAction::make()->label(__('View'))->color('gray'),
+                    EditAction::make()->label(__('Edit')),
+                    DeleteAction::make()->label(__('Delete')),
+                    RestoreAction::make()->label(__('Restore')),
 
                     Action::make('approve')
-                        ->label('موافقة')
+                        ->label(__('Approve'))
                         ->icon('heroicon-o-check')
                         ->color('success')
                         ->requiresConfirmation()
@@ -76,11 +78,11 @@ class OrganizationsTable
                         ->action(function (Organization $record) {
                             $record->approval_status = \App\Enums\OrganizationStatus::APPROVED;
                             $record->save();
-                            Notification::make()->title('تمت الموافقة')->success()->send();
+                            Notification::make()->title(__('Approved Successfully'))->success()->send();
                         }),
 
                     Action::make('reject')
-                        ->label('رفض')
+                        ->label(__('Reject'))
                         ->icon('heroicon-o-x-mark')
                         ->color('danger')
                         ->requiresConfirmation()
@@ -88,9 +90,9 @@ class OrganizationsTable
                         ->action(function (Organization $record) {
                             $record->approval_status = \App\Enums\OrganizationStatus::REJECTED;
                             $record->save();
-                            Notification::make()->title('تم الرفض')->danger()->send();
+                            Notification::make()->title(__('Rejected Successfully'))->danger()->send();
                         }),
-                ])->label('خيارات')->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
+                ])->label(__('Actions'))->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
             ]);
     }
 }

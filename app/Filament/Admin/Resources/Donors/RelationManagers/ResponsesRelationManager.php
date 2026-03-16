@@ -14,14 +14,17 @@ class ResponsesRelationManager extends RelationManager
 {
     protected static string $relationship = 'responses';
 
-    protected static ?string $title = 'سجل الاستجابات';
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('Response History');
+    }
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 Select::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->options(\App\Enums\RequestResponseStatus::class)
                     ->required(),
             ]);
@@ -33,33 +36,29 @@ class ResponsesRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 TextColumn::make('bloodRequest.organization.org_name')
-                    ->label('المنظمة')
+                    ->label(__('Organization'))
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('bloodRequest.urgency_level')
-                    ->label('مستوى الاستعجال')
+                    ->label(__('Urgency Level'))
                     ->badge(),
                 TextColumn::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->badge(),
                 TextColumn::make('created_at')
-                    ->label('تاريخ الاستجابة')
+                    ->label(__('Response Date'))
                     ->dateTime('Y/m/d h:i A')
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->options(\App\Enums\RequestResponseStatus::class),
             ])
-            ->headerActions([
-                
-            ])
+            ->headerActions([])
             ->recordActions([
                 ViewAction::make(),
             ])
-            ->bulkActions([
-                
-            ]);
+            ->bulkActions([]);
     }
 }

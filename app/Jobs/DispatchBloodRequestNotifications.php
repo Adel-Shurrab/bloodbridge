@@ -8,8 +8,11 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use App\Models\BloodRequest;
+use App\Models\RequestResponse;
 use App\Models\User;
 use App\Notifications\BloodRequestMatchNotification;
+use App\Services\NotificationService;
+use App\Enums\NotificationType;
 
 /**
  * Production-grade job for dispatching blood request notifications to donors.
@@ -39,7 +42,8 @@ class DispatchBloodRequestNotifications implements ShouldQueue
 
     public function handle(): void
     {
-        $bloodRequest = BloodRequest::find($this->bloodRequestId);
+        /** @var BloodRequest|null $bloodRequest */
+        $bloodRequest = BloodRequest::query()->find($this->bloodRequestId);
 
         if (!$bloodRequest) {
             return;
@@ -51,6 +55,19 @@ class DispatchBloodRequestNotifications implements ShouldQueue
         User::with('donor.healthProfile')
             ->whereIn('id', $userIds)
             ->chunk(10, function (\Illuminate\Support\Collection $users) use ($bloodRequest) {
+                $donorIds = $users
+                    ->pluck('donor.id')
+                    ->filter()
+                    ->values();
+
+                $alreadyRespondedDonorIds = $donorIds->isEmpty()
+                    ? collect([])
+                    : RequestResponse::query()
+                    ->where('blood_request_id', $bloodRequest->id)
+                    ->whereIn('donor_id', $donorIds->all())
+                    ->pluck('donor_id')
+                    ->unique();
+
                 foreach ($users as $user) {
 
                     $healthProfile = $user->donor?->healthProfile;
@@ -70,8 +87,20 @@ class DispatchBloodRequestNotifications implements ShouldQueue
                         continue;
                     }
 
+                    $donorId = $user->donor?->id;
+                    if ($donorId && $alreadyRespondedDonorIds->contains($donorId)) {
+                        continue;
+                    }
+
                     $distance = $this->donorData[$user->id] ?? null;
-                    $user->notify(new BloodRequestMatchNotification($bloodRequest, $distance));
+
+                    // Use NotificationService for consistent error handling and logging
+                    // This calls via() -> toDatabase() and toBroadcast() methods
+                    app(NotificationService::class)->send(
+                        $user,
+                        new BloodRequestMatchNotification($bloodRequest, $distance),
+                        NotificationType::BLOOD_REQUEST_MATCH
+                    );
                 }
             });
     }

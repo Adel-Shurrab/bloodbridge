@@ -6,6 +6,11 @@ use \App\Filament\Donor\Widgets\DonorHeaderWidget;
 
 class Dashboard extends \Filament\Pages\Dashboard
 {
+    public function getTitle(): string
+    {
+        return __('filament.pages.dashboard.title');
+    }
+
     public function getHeading(): string
     {
         return '';
@@ -13,16 +18,17 @@ class Dashboard extends \Filament\Pages\Dashboard
     public function getWidgets(): array
     {
         return [
-            
+            DonorHeaderWidget::class,
             DonorStatsOverviewWidget::class,
         ];
     }
 
     public function getHeaderWidgets(): array
-{
-    return [
-        \App\Filament\Donor\Widgets\EligibilityCountdownWidget::class,
-    ];
-}
+    {
+        return [
+            \App\Filament\Donor\Widgets\EligibilityCountdownWidget::class,
+        ];
+    }
 
 }
+

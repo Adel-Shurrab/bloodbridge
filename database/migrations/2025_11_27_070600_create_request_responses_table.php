@@ -25,7 +25,7 @@ return new class extends Migration
                 ->onDelete('cascade');
             $table->unsignedTinyInteger('status')->default(RequestResponse::DEFAULT_STATUS)->index();
             $table->timestamp('responded_at')->nullable();
-            $table->text('decline_reason')->nullable();
+            $table->json('decline_reason')->nullable();
             $table->string('verification_qr_code')->nullable()->unique();
             $table->timestamp('qr_code_expires_at')->nullable();
             $table->timestamp('verified_at')->nullable();

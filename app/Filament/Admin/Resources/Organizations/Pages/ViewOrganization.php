@@ -7,26 +7,30 @@ use App\Enums\OrganizationStatus;
 use App\Models\Organization;
 use Filament\Actions;
 use Filament\Actions\Action;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use LaraZeus\SpatieTranslatable\Resources\Pages\ViewRecord\Concerns\Translatable;
+
 
 class ViewOrganization extends ViewRecord
 {
+    use Translatable;
+
     protected static string $resource = OrganizationResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            
             Action::make('approve')
-                ->label('اعتماد المنظمة')
+                ->label(__('Approve Organization'))
                 ->icon('heroicon-o-check-badge')
                 ->color('success')
                 ->visible(fn(Organization $record) => $record->approval_status === OrganizationStatus::PENDING)
                 ->requiresConfirmation()
-                ->modalHeading('اعتماد المنظمة')
-                ->modalDescription('هل أنت متأكد من اعتماد هذه المنظمة؟ سيتمكن مستخدمها من الدخول وإنشاء طلبات الدم.')
-                ->modalSubmitActionLabel('نعم، اعتمد')
+                ->modalHeading(__('Approve Section Heading'))
+                ->modalDescription(__('Approve Section Description'))
+                ->modalSubmitActionLabel(__('Yes, Approve'))
                 ->action(function (Organization $record): void {
                     $record->update([
                         'approval_status' => OrganizationStatus::APPROVED,
@@ -35,7 +39,7 @@ class ViewOrganization extends ViewRecord
                     ]);
 
                     Notification::make()
-                        ->title('تم اعتماد المنظمة بنجاح')
+                        ->title(__('Organization Approved Successfully'))
                         ->success()
                         ->send();
 
@@ -43,17 +47,17 @@ class ViewOrganization extends ViewRecord
                 }),
 
             Action::make('reject')
-                ->label('رفض المنظمة')
+                ->label(__('Reject Organization'))
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
                 ->visible(fn(Organization $record) => $record->approval_status === OrganizationStatus::PENDING)
                 ->requiresConfirmation()
-                ->modalHeading('رفض المنظمة')
-                ->modalDescription('سيتم رفض طلب هذه المنظمة. يُرجى إدخال سبب الرفض.')
-                ->modalSubmitActionLabel('تأكيد الرفض')
+                ->modalHeading(__('Reject Section Heading'))
+                ->modalDescription(__('Reject Section Description'))
+                ->modalSubmitActionLabel(__('Confirm Rejection'))
                 ->form([
                     \Filament\Forms\Components\Textarea::make('rejection_reason')
-                        ->label('سبب الرفض')
+                        ->label(__('Rejection Reason'))
                         ->required()
                         ->rows(3),
                 ])
@@ -64,17 +68,17 @@ class ViewOrganization extends ViewRecord
                     ]);
 
                     Notification::make()
-                        ->title('تم رفض المنظمة')
+                        ->title(__('Organization Rejected'))
                         ->danger()
                         ->send();
 
                     $this->refreshFormData(['approval_status', 'rejection_reason']);
                 }),
 
-            Actions\EditAction::make()->label('تعديل'),
-            Actions\DeleteAction::make()->label('حذف'),
-            Actions\RestoreAction::make()->label('استعادة'),
-            Actions\ForceDeleteAction::make()->label('حذف نهائي'),
+            Actions\EditAction::make()->label(__('Edit')),
+            Actions\DeleteAction::make()->label(__('Delete')),
+            Actions\RestoreAction::make()->label(__('Restore')),
+            Actions\ForceDeleteAction::make()->label(__('Force Delete')),
         ];
     }
 }

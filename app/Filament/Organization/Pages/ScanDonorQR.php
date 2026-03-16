@@ -13,15 +13,28 @@ use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Log;
 use BackedEnum;
 
+
+
 class ScanDonorQR extends Page
 {
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-qr-code';
 
     protected string $view = 'filament.organization.pages.scan-donor-qr';
 
-    protected static ?string $title = 'مسح QR Code';
+    public function getTitle(): string
+    {
+        return __('Scan QR Code');
+    }
 
-    protected static ?string $navigationLabel = 'مسح QR Code';
+    public static function getNavigationLabel(): string
+    {
+        return __('Scan QR Code');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
 
     protected static ?int $navigationSort = 2;
 
@@ -46,7 +59,7 @@ class ScanDonorQR extends Page
         $response = $qrService->validate($code, $organization);
 
         if (!$response) {
-            $this->notify('QR Code غير صالح', 'هذا الكود غير موجود، منتهي الصلاحية، أو لا يتبع لهذه المنظمة.', 'danger');
+            $this->notify(__('Invalid QR Code'), __('This code does not exist, is expired, or does not belong to this organization.'), 'danger');
             $this->foundResponse = null;
             return false;
         }
@@ -68,14 +81,37 @@ class ScanDonorQR extends Page
             return;
         }
 
-        $this->foundResponse->update([
+        $organization = filament()->getTenant() ?? Auth::user()->organization;
+
+        if (! $organization) {
+            abort(403);
+        }
+
+        $token = $this->foundResponse->verification_qr_code;
+        $qrService = app(QRCodeService::class);
+
+        $response = filled($token) ? $qrService->validate($token, $organization) : null;
+
+        if (! $response || $response->id !== $this->foundResponse->id) {
+            $this->notify(__('Invalid QR Code'), __('This code does not exist, is expired, or does not belong to this organization.'), 'danger');
+            $this->resetState();
+            return;
+        }
+
+        if ($response->status !== RequestResponseStatus::PENDING) {
+            $this->notify(__('Invalid status'), __('The donor\'s current status does not allow confirmation.'), 'warning');
+            $this->resetState();
+            return;
+        }
+
+        $response->update([
             'status' => RequestResponseStatus::ACCEPTED,
             'verified_at' => now(),
         ]);
 
         $this->notify(
-            '✅ تم تسجيل الحضور',
-            "المتبرع: {$this->foundResponse->donor->user->name}",
+            __('Attendance Registered'),
+            __('Donor: :name', ['name' => $response->donor->user->name]),
             'success',
             true
         );
@@ -103,8 +139,8 @@ class ScanDonorQR extends Page
             $seconds = RateLimiter::availableIn($rateLimitKey);
 
             $this->notify(
-                'تم تجاوز الحد المسموح',
-                "يرجى الانتظار {$seconds} ثانية قبل المحاولة مرة أخرى.",
+                __('Rate limit exceeded'),
+                __('Please wait :seconds seconds before trying again.', ['seconds' => $seconds]),
                 'warning'
             );
 
@@ -122,11 +158,11 @@ class ScanDonorQR extends Page
     private function validateDonorStatus(RequestResponse $response): bool
     {
         return match ($response->status) {
-            RequestResponseStatus::ACCEPTED => $this->notifyAndFail('تم المسح مسبقاً', "المتبرع {$response->donor->user->name} قام بتسجيل حضوره بالفعل.", 'warning'),
-            RequestResponseStatus::COMPLETED => $this->notifyAndFail('تبرع مكتمل', "هذا المتبرع أتم عملية التبرع بالفعل.", 'info'),
-            RequestResponseStatus::DECLINED => $this->notifyAndFail('مستبعد سابقاً', "عذراً، هذا المتبرع تم استبعاده طبياً.", 'danger'),
+            RequestResponseStatus::ACCEPTED => $this->notifyAndFail(__('Already scanned'), __('The donor :name has already registered their attendance.', ['name' => $response->donor->user->name]), 'warning'),
+            RequestResponseStatus::COMPLETED => $this->notifyAndFail(__('Donation completed'), __('This donor has already completed the donation process.'), 'info'),
+            RequestResponseStatus::DECLINED => $this->notifyAndFail(__('Previously excluded'), __('Sorry, this donor has been medically excluded.'), 'danger'),
             RequestResponseStatus::PENDING => true, 
-            default => $this->notifyAndFail('حالة غير صالحة', "حالة المتبرع الحالية لا تسمح بالتأكيد.", 'warning'),
+            default => $this->notifyAndFail(__('Invalid status'), __('The donor\'s current status does not allow confirmation.'), 'warning'),
         };
     }
 
@@ -150,3 +186,4 @@ class ScanDonorQR extends Page
         $notification->send();
     }
 }
+

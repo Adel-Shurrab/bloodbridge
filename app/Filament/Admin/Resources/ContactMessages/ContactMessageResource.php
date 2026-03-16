@@ -10,11 +10,15 @@ use App\Filament\Admin\Resources\ContactMessages\Tables\ContactMessagesTable;
 use App\Models\ContactMessage;
 use BackedEnum;
 use Filament\Resources\Resource;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 
 class ContactMessageResource extends Resource
 {
+    use Translatable;
+
+
     public static function canCreate(): bool
     {
         return false;
@@ -29,15 +33,34 @@ class ContactMessageResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-envelope';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'التواصل';
+    protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationLabel = 'رسائل التواصل';
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.resources.contact-messages.title');
+    }
 
-    protected static ?string $modelLabel = 'رسالة تواصل';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.communication');
+    }
 
-    protected static ?string $pluralModelLabel = 'رسائل التواصل';
+    public static function getModelLabel(): string
+    {
+        return __('filament.resources.contact-messages.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament.resources.contact-messages.plural');
+    }
 
     protected static ?string $recordTitleAttribute = 'subject';
+
+    public static function getTranslatableLocales(): array
+    {
+        return ['ar', 'en'];
+    }
 
     public static function getNavigationBadge(): ?string
     {

@@ -21,30 +21,31 @@ class AnnouncementsTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->label('عنوان الإعلان')
+                    ->label(__('Announcement Title'))
+                    ->getStateUsing(fn($record, $livewire) => $record->getTranslation('title', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->getTranslation('title', 'ar', false))
                     ->searchable(),
 
                 TextColumn::make('target_type')
-                    ->label('الجمهور المستهدف')
+                    ->label(__('Target Audience'))
                     ->formatStateUsing(fn($state) => match ($state) {
-                        'all' => 'الجميع',
-                        'role' => 'دور محدد',
-                        'specific_users' => 'مستخدمين محددين',
+                        'all' => __('All'),
+                        'role' => __('Specific Role'),
+                        'specific_users' => __('Specific Users'),
                         default => $state
                     }),
 
                 IconColumn::make('send_via_email')
-                    ->label('البريد')
+                    ->label(__('Email'))
                     ->boolean(),
 
                 TextColumn::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->badge()
                     ->color(fn($state) => $state === 1 ? 'success' : 'warning')
-                    ->formatStateUsing(fn($state) => $state === 1 ? 'منشور' : 'مسودة'),
+                    ->formatStateUsing(fn($state) => $state === 1 ? __('Published') : __('Draft')),
 
                 TextColumn::make('published_at')
-                    ->label('تاريخ النشر')
+                    ->label(__('Published At'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -53,19 +54,19 @@ class AnnouncementsTable
                 //
             ])
             ->recordActions([
-                ViewAction::make()->label('عرض'),
+                ViewAction::make()->label(__('View')),
                 Action::make('publish')
-                    ->label('إرسال')
+                    ->label(__('Send'))
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading('تأكيد الإرسال')
-                    ->modalDescription('هل أنت متأكد من رغبتك في إرسال هذا الإعلان؟ سيتم إرساله فوراً لجميع المستخدمين المستهدفين ولن تتمكن من تعديله بعد ذلك.')
-                    ->modalSubmitActionLabel('نعم، أرسل الآن')
+                    ->modalHeading(__('Confirm Send'))
+                    ->modalDescription(__('Are you sure you want to send this announcement? It will be sent immediately to all targeted users and you will not be able to edit it afterwards.'))
+                    ->modalSubmitActionLabel(__('Yes, send now'))
                     ->action(fn(Announcement $record) => $record->update(['status' => 1]))
                     ->visible(fn(Announcement $record) => $record->status === 0),
                 EditAction::make()
-                    ->label('تعديل')
+                    ->label(__('Edit'))
                     ->hidden(fn(Announcement $record) => $record->status === 1),
             ])
             ->toolbarActions([

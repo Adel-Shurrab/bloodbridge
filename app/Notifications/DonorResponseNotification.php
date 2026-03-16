@@ -7,14 +7,24 @@ use App\Enums\RequestResponseStatus;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Filament\Notifications\Notification as FilamentNotification;
 use Filament\Actions\Action;
 
+/**
+ * Donor Response Notification
+ * 
+ * Sent to organization when donor responds to a blood request.
+ * Delivery: Database + Real-time Broadcast (Reverb)
+ * 
+ * Triggered by: BloodRequestActionService::accept()
+ * Recipient: Organization Admin (User)
+ */
 class DonorResponseNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected RequestResponse $response;
+    private RequestResponse $response;
 
     /**
      * Create a new notification instance.
@@ -29,61 +39,88 @@ class DonorResponseNotification extends Notification implements ShouldQueue
      */
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
-    /**
-     * Get the database notification representation.
-     */
-    public function toDatabase(object $notifiable): array
+    private function buildFilamentNotification(object $notifiable): FilamentNotification
     {
-        $donor = $this->response->donor;
-        $bloodRequest = $this->response->bloodRequest;
-        $status = $this->response->status;
-
-        $title = match ($status->value) {
-            RequestResponseStatus::PENDING->value => 'متبرع جديد وافق على التبرع',
-            RequestResponseStatus::ACCEPTED->value => 'متبرع وصل إلى المستشفى',
-            RequestResponseStatus::COMPLETED->value => 'تبرع مكتمل',
-            RequestResponseStatus::DECLINED->value => 'تبرع مرفوض طبياً',
-            RequestResponseStatus::NO_SHOW->value => 'متبرع لم يحضر',
-            default => 'استجابة متبرع'
-        };
-
-        $body = $donor->user->name . " - فصيلة الدم: ";
-        $bloodType = $donor->healthProfile?->blood_type;
-        $body .= $bloodType ? $bloodType->getLabel() : 'غير محدد';
-
-        if ($this->response->distance) {
-            $body .= " - " . round($this->response->distance, 1) . " كم";
-        }
-
         return FilamentNotification::make()
-            ->title($title)
-            ->body($body)
-            ->icon(match ($status->value) {
-                RequestResponseStatus::COMPLETED->value => 'heroicon-o-check-circle',
-                RequestResponseStatus::DECLINED->value,
-                RequestResponseStatus::NO_SHOW->value => 'heroicon-o-x-circle',
-                default => 'heroicon-o-user'
-            })
-            ->iconColor(match ($status->value) {
-                RequestResponseStatus::COMPLETED->value => 'success',
-                RequestResponseStatus::DECLINED->value,
-                RequestResponseStatus::NO_SHOW->value => 'danger',
-                RequestResponseStatus::ACCEPTED->value => 'info',
-                default => 'warning'
-            })
+            ->title($this->getTitle())
+            ->body($this->getBody())
+            ->icon($this->getIcon())
+            ->iconColor($this->getIconColor())
             ->actions([
                 Action::make('view')
-                    ->label('عرض الرد')
-                    ->url(route('filament.organization.resources.blood-requests.view', [
-                        'tenant' => $bloodRequest->organization->slug,
-                        'record' => $bloodRequest->id,
-                    ]))
+                    ->label(__('View Response'))
+                    ->url($this->getResponseUrl())
                     ->button()
                     ->markAsRead(),
-            ])
-            ->getDatabaseMessage();
+            ]);
+    }
+
+    private function getTitle(): string
+    {
+        return match ($this->response->status) {
+            RequestResponseStatus::PENDING => __('New donor accepted donation request'),
+            RequestResponseStatus::ACCEPTED => __('Donor arrived at hospital'),
+            RequestResponseStatus::COMPLETED => __('Donation completed'),
+            RequestResponseStatus::DECLINED => __('Donation medically declined'),
+            RequestResponseStatus::NO_SHOW => __('Donor did not show up'),
+            default => __('Donor response'),
+        };
+    }
+
+    private function getBody(): string
+    {
+        $donor = $this->response->donor;
+        $bloodType = $donor->healthProfile?->blood_type;
+        
+        $body = $donor->user->name . " - " . __('Blood Type') . ": ";
+        $body .= $bloodType?->getLabel() ?? __('Not specified');
+
+        if ($this->response->distance !== null) {
+            $distanceKm = round($this->response->distance, 1);
+            $body .= " - " . __('Distance: :distance km', ['distance' => $distanceKm]);
+        }
+
+        return $body;
+    }
+
+    private function getIcon(): string
+    {
+        return match ($this->response->status) {
+            RequestResponseStatus::COMPLETED => 'heroicon-o-check-circle',
+            RequestResponseStatus::DECLINED, RequestResponseStatus::NO_SHOW => 'heroicon-o-x-circle',
+            default => 'heroicon-o-user',
+        };
+    }
+
+    private function getIconColor(): string
+    {
+        return match ($this->response->status) {
+            RequestResponseStatus::COMPLETED => 'success',
+            RequestResponseStatus::DECLINED, RequestResponseStatus::NO_SHOW => 'danger',
+            RequestResponseStatus::ACCEPTED => 'info',
+            default => 'warning',
+        };
+    }
+
+    private function getResponseUrl(): string
+    {
+        $request = $this->response->bloodRequest;
+        return route('filament.organization.resources.blood-requests.view', [
+            'tenant' => $request->organization->slug,
+            'record' => $request->id,
+        ]);
+    }
+
+    public function toDatabase(object $notifiable): array
+    {
+        return $this->buildFilamentNotification($notifiable)->getDatabaseMessage();
+    }
+
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return $this->buildFilamentNotification($notifiable)->getBroadcastMessage();
     }
 }

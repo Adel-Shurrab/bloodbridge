@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Enums\BloodType;
 use Illuminate\Database\Eloquent\Builder;
+use Spatie\Translatable\HasTranslations;
 
 class Donor extends Model
 {
@@ -18,6 +19,8 @@ class Donor extends Model
         'birth_date' => 'date',
 
     ];
+
+
 
     public const DEFAULT_POINTS = 0;
     public const DEFAULT_LEVEL = 1;

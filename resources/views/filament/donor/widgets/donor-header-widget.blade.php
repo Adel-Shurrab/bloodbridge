@@ -1,26 +1,25 @@
 <x-filament-widgets::widget>
     <div class="custom-dashboard-header">
         <div class="header-content">
-            {{-- Left side: Profile --}}
-            <div class="header-left">
+            {{-- Text side: Title and Welcome --}}
+            <div class="header-text">
+                <h1 class="dashboard-title">{{ __('filament.pages.dashboard.title') }}</h1>
+                <p class="welcome-text">
+                    {{ __('Welcome,') }} <span class="brand-text">{{ auth()->user()->name }}</span>. {{ __('Thank you for your contribution to saving lives.') }}
+                </p>
+            </div>
+
+            {{-- Profile side: Profile --}}
+            <div class="header-profile">
                 <div class="profile-box">
                     <div class="profile-text">
                         <span class="profile-name">{{ auth()->user()->name }}</span>
-                        <span class="profile-role">متبرع</span>
+                        <span class="profile-role">{{ __('Donor') }}</span>
                     </div>
                     <div class="profile-avatar">
-                        <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="Profile">
+                        <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('Profile') }}">
                     </div>
                 </div>
-            </div>
-
-            {{-- Right side: Title and Welcome --}}
-            <div class="header-right">
-                <h1 class="dashboard-title">لوحة التحكم</h1>
-                <p class="welcome-text">
-                    مرحباً بك يا <span class="brand-text">{{ auth()->user()->name }}</span>. شكراً لمساهمتك في إنقاذ
-                    الأرواح.
-                </p>
             </div>
         </div>
     </div>
@@ -28,9 +27,9 @@
     <style>
         .custom-dashboard-header {
             background: #ffffff;
-            border-radius: 2rem;
-            padding: 2.5rem;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+            border-radius: 1rem;
+            padding: 1.25rem 1.75rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
             margin-bottom: 2rem;
             width: 100%;
             transition: background-color 0.3s, border-color 0.3s;
@@ -39,26 +38,27 @@
         .dark .custom-dashboard-header {
             background: #111827;
             border: 1px solid #1f2937;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
         }
 
         .header-content {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            direction: rtl;
+            gap: 1.5rem;
         }
 
-        .header-right {
-            text-align: right;
+        .header-text {
+            text-align: start;
+            flex: 1;
         }
 
         .dashboard-title {
-            font-size: 2.5rem;
-            font-weight: 900;
+            font-size: 1.75rem;
+            font-weight: 800;
             color: #1f2937;
-            margin: 0 0 0.5rem 0;
-            line-height: 1;
+            margin: 0 0 0.25rem 0;
+            line-height: 1.2;
         }
 
         .dark .dashboard-title {
@@ -67,7 +67,7 @@
 
         .welcome-text {
             color: #9ca3af;
-            font-size: 1.25rem;
+            font-size: 1rem;
             font-weight: 500;
             margin: 0;
         }
@@ -81,19 +81,19 @@
             font-weight: 700;
         }
 
-        .header-left {
+        .header-profile {
             display: flex;
             align-items: center;
-            gap: 1.5rem;
+            flex-shrink: 0;
         }
 
         .profile-box {
             background: #fff5f5;
-            padding: 0.75rem 1.5rem;
-            border-radius: 2rem;
+            padding: 0.5rem 1rem;
+            border-radius: 1.5rem;
             display: flex;
             align-items: center;
-            gap: 1rem;
+            gap: 0.75rem;
             border: 1px solid #fee2e2;
         }
 
@@ -105,14 +105,14 @@
         .profile-text {
             display: flex;
             flex-direction: column;
-            text-align: right;
+            text-align: start;
             line-height: 1.2;
         }
 
         .profile-name {
-            font-weight: 800;
+            font-weight: 700;
             color: #1f2937;
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             display: block;
         }
 
@@ -121,7 +121,7 @@
         }
 
         .profile-role {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #6b7280;
             font-weight: 600;
             display: block;
@@ -132,12 +132,12 @@
         }
 
         .profile-avatar {
-            width: 3.5rem;
-            height: 3.5rem;
+            width: 2.75rem;
+            height: 2.75rem;
             border-radius: 50%;
             overflow: hidden;
-            border: 3px solid #ffffff;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border: 2px solid #ffffff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
 
         .dark .profile-avatar {
@@ -150,15 +150,30 @@
             object-fit: cover;
         }
 
+        @media (max-width: 1024px) {
+            .dashboard-title {
+                font-size: 1.5rem;
+            }
+            .welcome-text {
+                font-size: 0.9rem;
+            }
+        }
+
         @media (max-width: 768px) {
             .header-content {
                 flex-direction: column;
-                gap: 2rem;
+                text-align: center;
+                gap: 1.25rem;
+                padding: 0.5rem 0;
             }
 
-            .header-right {
+            .header-text {
                 text-align: center;
+            }
+
+            .header-profile {
+                justify-content: center;
             }
         }
     </style>
-</x-filament-widgets::widget>
+</x-filament-widgets::widget>

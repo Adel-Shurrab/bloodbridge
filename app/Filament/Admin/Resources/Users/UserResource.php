@@ -9,10 +9,8 @@ use App\Filament\Admin\Resources\Users\Schemas\UserForm;
 use App\Filament\Admin\Resources\Users\Tables\UsersTable;
 use App\Models\User;
 use BackedEnum;
-use UnitEnum;
 use Filament\Resources\Resource;
 use Filament\Schemas\Schema;
-use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 class UserResource extends Resource
@@ -21,13 +19,28 @@ class UserResource extends Resource
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-users';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
+    protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = 'المستخدمين';
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.resources.users.title');
+    }
 
-    protected static ?string $modelLabel = 'مستخدم';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.user-management');
+    }
 
-    protected static ?string $pluralModelLabel = 'المستخدمين';
+    public static function getModelLabel(): string
+    {
+        return __('filament.resources.users.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament.resources.users.plural');
+    }
+
 
     public static function form(Schema $schema): Schema
     {
@@ -41,9 +54,7 @@ class UserResource extends Resource
 
     public static function getRelations(): array
     {
-        return [
-            
-        ];
+        return [];
     }
 
     public static function getPages(): array

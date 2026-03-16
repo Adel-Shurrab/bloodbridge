@@ -28,8 +28,8 @@ class RecentResponsesWidget extends BaseWidget
         $organization = Auth::user()->organization;
 
         return $table
-            ->heading('آخر الاستجابات')
-            ->description('أحدث 5 استجابات من المتبرعين')
+            ->heading(__('Latest Responses'))
+            ->description(__('Latest 5 donor responses'))
             ->query(
                 RequestResponse::query()
                     ->whereHas('bloodRequest', function ($query) use ($organization) {
@@ -41,18 +41,18 @@ class RecentResponsesWidget extends BaseWidget
             )
             ->columns([
                 TextColumn::make('donor.user.name')
-                    ->label('اسم المتبرع')
+                    ->label(__('Donor Name'))
                     ->getStateUsing(fn($record) => $record->donor?->user?->name)
                     ->searchable()
                     ->icon('heroicon-o-user'),
 
                 TextColumn::make('bloodRequest.blood_type')
-                    ->label('فصيلة الدم')
+                    ->label(__('Blood Type'))
                     ->badge()
                     ->formatStateUsing(fn($state) => $state->getLabel()),
 
                 BadgeColumn::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->formatStateUsing(fn($state) => $state->getLabel())
                     ->colors([
                         'warning' => \App\Enums\RequestResponseStatus::PENDING->value,
@@ -63,54 +63,54 @@ class RecentResponsesWidget extends BaseWidget
                     ]),
 
                 TextColumn::make('created_at')
-                    ->label('تاريخ الاستجابة')
+                    ->label(__('Response Date'))
                     ->dateTime('Y-m-d H:i')
                     ->since()
                     ->icon('heroicon-o-clock'),
             ])
             ->actions([
                 ViewAction::make('view')
-                    ->label('عرض التفاصيل')
+                    ->label(__('View Details'))
                     ->icon('heroicon-o-eye')
                     ->color('info')
-                    ->modalHeading('تفاصيل استجابة المتبرع')
+                    ->modalHeading(__('Donor Response Details'))
                     ->form([
-                        Section::make('معلومات المتبرع')
+                        Section::make(__('Donor Information'))
                             ->compact()
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
                                         Placeholder::make('donor_name')
-                                            ->label('اسم المتبرع')
+                                            ->label(__('Donor Name'))
                                             ->content(fn($record) => $record->donor?->user?->name),
                                         Placeholder::make('donor_phone')
-                                            ->label('رقم الهاتف')
-                                            ->content(fn($record) => $record->donor?->user?->phone ?? 'غير متوفر'),
+                                            ->label(__('Phone Number'))
+                                            ->content(fn($record) => $record->donor?->user?->phone ?? __('Not available')),
                                     ]),
                             ]),
-                        Section::make('تفاصيل الفصيلة والتحقق')
+                        Section::make(__('Blood Type and Verification Details'))
                             ->compact()
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
                                         Placeholder::make('blood_type')
-                                            ->label('فصيلة الدم (المصرح بها)')
-                                            ->content(fn($record) => $record->donor?->healthProfile?->blood_type?->getLabel() ?? 'غير معروف'),
+                                            ->label(__('Blood Type (Self-reported)'))
+                                            ->content(fn($record) => $record->donor?->healthProfile?->blood_type?->getLabel() ?? __('Unknown')),
                                         Placeholder::make('verified_blood_type')
-                                            ->label('الفصيلة المؤكدة')
-                                            ->content(fn($record) => $record->donor?->healthProfile?->verified_blood_type?->getLabel() ?? 'لم يتم التحقق مخبرياً'),
+                                            ->label(__('Confirmed Blood Type'))
+                                            ->content(fn($record) => $record->donor?->healthProfile?->verified_blood_type?->getLabel() ?? __('Not lab-verified')),
                                     ]),
                             ]),
-                        Section::make('الحالة والتوقيت')
+                        Section::make(__('Status and Timing'))
                             ->compact()
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
                                         Placeholder::make('status')
-                                            ->label('حالة الاستجابة')
+                                            ->label(__('Response Status'))
                                             ->content(fn($record) => $record->status->getLabel()),
                                         Placeholder::make('created_at')
-                                            ->label('وقت الاستجابة')
+                                            ->label(__('Response Time'))
                                             ->content(fn($record) => $record->created_at->format('Y-m-d H:i')),
                                     ]),
                             ]),
@@ -118,3 +118,4 @@ class RecentResponsesWidget extends BaseWidget
             ]);
     }
 }
+

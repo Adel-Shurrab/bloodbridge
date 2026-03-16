@@ -22,27 +22,30 @@ class BloodRequestsRelationManager extends RelationManager
 {
     protected static string $relationship = 'bloodRequests';
 
-    protected static ?string $title = 'طلبات الدم';
+    public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
+    {
+        return __('Blood Requests (Relation)');
+    }
 
     public function form(Schema $schema): Schema
     {
         return $schema
             ->components([
                 \Filament\Forms\Components\Select::make('blood_type')
-                    ->label('فصيلة الدم')
+                    ->label(__('Blood Type'))
                     ->options(\App\Enums\BloodType::class)
                     ->required(),
                 TextInput::make('units_needed')
-                    ->label('عدد الوحدات المطلوبة')
+                    ->label(__('Units Needed'))
                     ->numeric()
                     ->required()
                     ->minValue(1),
                 \Filament\Forms\Components\Select::make('urgency_level')
-                    ->label('مستوى الاستعجال')
+                    ->label(__('Urgency Level'))
                     ->options(\App\Enums\UrgencyLevel::class)
                     ->required(),
                 \Filament\Forms\Components\Textarea::make('additional_notes')
-                    ->label('ملاحظات إضافية')
+                    ->label(__('Additional Notes'))
                     ->columnSpanFull(),
             ]);
     }
@@ -53,38 +56,36 @@ class BloodRequestsRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 TextColumn::make('blood_type')
-                    ->label('فصيلة الدم')
+                    ->label(__('Blood Type'))
                     ->badge(),
                 TextColumn::make('units_needed')
-                    ->label('الوحدات')
+                    ->label(__('Units'))
                     ->sortable(),
                 TextColumn::make('urgency_level')
-                    ->label('الاستعجال')
+                    ->label(__('Urgency'))
                     ->badge(),
                 TextColumn::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->badge(),
                 TextColumn::make('created_at')
-                    ->label('تاريخ الطلب')
+                    ->label(__('Order Date'))
                     ->dateTime('Y/m/d h:i A')
                     ->sortable(),
             ])
             ->filters([
                 \Filament\Tables\Filters\SelectFilter::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->options(\App\Enums\BloodRequestStatus::class),
             ])
             ->headerActions([
                 CreateAction::make()
-                    ->label('إنشاء طلب جديد'),
+                    ->label(__('Create New Request')),
             ])
             ->recordActions([
                 ViewAction::make(),
                 EditAction::make(),
                 DeleteAction::make(),
             ])
-            ->bulkActions([
-                
-            ]);
+            ->bulkActions([]);
     }
 }

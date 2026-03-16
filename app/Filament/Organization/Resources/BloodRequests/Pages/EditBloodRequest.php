@@ -8,12 +8,17 @@ use App\Jobs\CancelExcessResponsesJob;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
+use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
+
 use Illuminate\Support\Facades\Log;
 
 class EditBloodRequest extends EditRecord
 {
+    use Translatable;
+
     protected static string $resource = BloodRequestResource::class;
 
     private const CRITICAL_FIELDS = [
@@ -30,6 +35,7 @@ class EditBloodRequest extends EditRecord
     protected function getHeaderActions(): array
     {
         return [
+            LocaleSwitcher::make(),
             DeleteAction::make(),
             ForceDeleteAction::make(),
             RestoreAction::make(),
@@ -68,11 +74,13 @@ class EditBloodRequest extends EditRecord
                     'donors_notified'  => $count,
                 ]);
 
+                $notificationStatus = $count > 0
+                    ? __("Broadcast resent — :count potential donors", ['count' => $count])
+                    : __('Broadcast resent — No donors found in current range');
+
                 Notification::make()
-                    ->title($count > 0
-                        ? "تمت إعادة البث — {$count} متبرع محتمل"
-                        : 'تمت إعادة البث — لم يُعثر على متبرعين في النطاق الحالي')
-                    ->body('تم إلغاء استجابات المتبرعين السابقين وإشعارهم.')
+                    ->title($notificationStatus)
+                    ->body(__('Previous donor responses cancelled and notified.'))
                     ->warning()
                     ->duration(8000)
                     ->send();
@@ -83,8 +91,9 @@ class EditBloodRequest extends EditRecord
                 ]);
 
                 Notification::make()
-                    ->title('خطأ في إعادة البث')
-                    ->body('تم حفظ التعديلات لكن حدث خطأ أثناء إعادة البث.')
+                    ->danger()
+                    ->title(__('Error in resending broadcast'))
+                    ->body(__('Changes saved but error occurred while resending broadcast.'))
                     ->danger()
                     ->send();
             }
@@ -103,10 +112,12 @@ class EditBloodRequest extends EditRecord
                     'donors_notified'  => $count,
                 ]);
 
+                $notificationStatus = $count > 0
+                    ? __("Broadcast expanded — :count additional donors", ['count' => $count])
+                    : __('No additional donors found in current range');
+
                 Notification::make()
-                    ->title($count > 0
-                        ? "تم توسيع البث — {$count} متبرع إضافي"
-                        : 'لم يُعثر على متبرعين إضافيين في النطاق الحالي')
+                    ->title($notificationStatus)
                     ->success()
                     ->duration(6000)
                     ->send();
@@ -177,3 +188,4 @@ class EditBloodRequest extends EditRecord
         return $changed;
     }
 }
+

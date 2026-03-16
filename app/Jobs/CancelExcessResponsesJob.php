@@ -7,6 +7,7 @@ use App\Models\BloodRequest;
 use App\Models\RequestResponse;
 use App\Notifications\ResponseNotNeededNotification;
 use App\Services\QRCodeService;
+use App\Services\NotificationService;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -14,6 +15,7 @@ use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
 use App\Enums\BloodRequestStatus;
+use App\Enums\NotificationType;
 
 class CancelExcessResponsesJob implements ShouldQueue
 {
@@ -29,9 +31,9 @@ class CancelExcessResponsesJob implements ShouldQueue
     /**
      * Execute the job.
      */
-    public function handle(QRCodeService $qrService): void
+    public function handle(QRCodeService $qrService, NotificationService $notificationService): void
     {
-        
+
         $allowedStatuses = [
             BloodRequestStatus::FULFILLED,
             BloodRequestStatus::EXPIRED,
@@ -42,7 +44,7 @@ class CancelExcessResponsesJob implements ShouldQueue
         }
 
         $pendingResponses = RequestResponse::query()
-            ->with('donor.user') 
+            ->with('donor.user')
             ->where('blood_request_id', $this->bloodRequest->id)
             ->where('status', RequestResponseStatus::PENDING)
             ->get();
@@ -57,14 +59,18 @@ class CancelExcessResponsesJob implements ShouldQueue
         foreach ($pendingResponses as $response) {
             /** @var RequestResponse $response */
             try {
-                
+
                 $response->status = RequestResponseStatus::NOT_NEEDED;
                 $response->save();
 
                 $qrService->revoke($response);
 
                 if ($response->donor && $response->donor->user) {
-                    $response->donor->user->notify(new ResponseNotNeededNotification($response));
+                    $notificationService->send(
+                        $response->donor->user,
+                        new ResponseNotNeededNotification($response),
+                        NotificationType::RESPONSE_NOT_NEEDED
+                    );
                 }
             } catch (\Exception $e) {
                 Log::error("Failed to cancel excess response #{$response->id}: " . $e->getMessage());

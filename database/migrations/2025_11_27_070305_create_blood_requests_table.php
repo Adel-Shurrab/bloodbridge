@@ -24,7 +24,7 @@ return new class extends Migration
             $table->unsignedTinyInteger('urgency_level')
                 ->default(BloodRequest::DEFAULT_URGENCY_LEVEL)
                 ->index();
-            $table->text('additional_notes')->nullable();
+            $table->json('additional_notes')->nullable();
             $table->unsignedInteger('search_radius_km')->default(10);
             $table->integer('actual_search_radius_km')->nullable()
                 ->comment('Final radius used after expansion');
@@ -34,8 +34,6 @@ return new class extends Migration
             $table->unsignedTinyInteger('status')
                 ->default(BloodRequest::DEFAULT_STATUS)
                 ->index();
-            $table->unsignedInteger('donors_accepted')->default(0);
-            $table->unsignedInteger('donors_completed')->default(0);
             $table->timestamp('broadcasted_at')->nullable();
             $table->timestamp('fulfilled_at')->nullable();
             $table->softDeletes();

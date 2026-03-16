@@ -13,7 +13,7 @@ use Filament\Actions\ViewAction;
 
 class PendingOrganizationsWidget extends TableWidget
 {
-    protected static ?string $heading = 'منظمات بانتظار الموافقة';
+    protected static ?string $heading = 'filament.widgets.pending-organizations.heading';
 
     protected int | string | array $columnSpan = 'full';
 
@@ -23,31 +23,31 @@ class PendingOrganizationsWidget extends TableWidget
             ->query(
                 fn() => Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::PENDING, 'and')
             )
-            ->modelLabel('منظمة')
-            ->pluralModelLabel('منظمات')
+            ->modelLabel(__('Organization'))
+            ->pluralModelLabel(__('Organizations'))
             ->columns([
                 Tables\Columns\TextColumn::make('org_name')
-                    ->label('اسم المنظمة')
+                    ->label(__('Organization Name'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('responsible_person_name')
-                    ->label('المسؤول')
+                    ->label(__('Responsible Person'))
                     ->searchable(),
                 Tables\Columns\TextColumn::make('contact_email')
-                    ->label('البريد الإلكتروني'),
+                    ->label(__('Email')),
                 Tables\Columns\TextColumn::make('contact_phone')
-                    ->label('رقم الهاتف'),
+                    ->label(__('Phone Number')),
                 Tables\Columns\TextColumn::make('created_at')
-                    ->label('تاريخ التسجيل')
+                    ->label(__('Registration Date'))
                     ->dateTime('Y/m/d')
                     ->sortable(),
             ])
             ->actions([
                 ViewAction::make()
-                    ->label('عرض')
+                    ->label(__('View'))
                     ->form(fn($form) => OrganizationResource::form($form))
                     ->modalWidth('7xl'),
                 Action::make('approve')
-                    ->label('موافقة')
+                    ->label(__('Approve'))
                     ->icon('heroicon-m-check-circle')
                     ->color('success')
                     ->requiresConfirmation()
@@ -56,12 +56,12 @@ class PendingOrganizationsWidget extends TableWidget
                         $record->save();
 
                         Notification::make()
-                            ->title('تمت الموافقة بنجاح')
+                            ->title(__('Approved successfully'))
                             ->success()
                             ->send();
                     }),
                 Action::make('reject')
-                    ->label('رفض')
+                    ->label(__('Reject'))
                     ->icon('heroicon-m-x-circle')
                     ->color('danger')
                     ->requiresConfirmation()
@@ -70,12 +70,12 @@ class PendingOrganizationsWidget extends TableWidget
                         $record->save();
 
                         Notification::make()
-                            ->title('تم رفض المنظمة')
+                            ->title(__('Organization rejected'))
                             ->danger()
                             ->send();
                     }),
             ])
-            ->emptyStateHeading('لا توجد منظمات')
-            ->emptyStateDescription('لا توجد منظمات بانتظار الموافقة حالياً');
+            ->emptyStateHeading(__('No organizations'))
+            ->emptyStateDescription(__('No organizations pending approval at the moment'));
     }
 }

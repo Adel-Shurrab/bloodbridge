@@ -127,7 +127,7 @@ class OrganizationSeeder extends Seeder
         $workingDays = [0, 1, 2, 3, 4];
 
         foreach ($hospitals as $data) {
-            $gov = Governorate::where('name', $data['gov'])->first();
+            $gov = Governorate::where('name->ar', $data['gov'])->first();
 
             $user = User::create([
                 'name'      => $data['name'],

@@ -8,11 +8,21 @@ use Illuminate\Support\Facades\Auth;
 
 class SearchRadiusStatsWidget extends ChartWidget
 {
-    protected ?string $heading = 'نطاق البحث المستخدم (Gaza Innovation)';
+    protected ?string $heading = 'Used Search Radius (Gaza Innovation)';
 
     protected ?string $maxHeight = '300px';
 
-    protected ?string $description = 'توزيع نطاق البحث النهائي للطلبات';
+    protected ?string $description = 'Distribution of final search radius for requests';
+
+    public function getHeading(): string
+    {
+        return __($this->heading);
+    }
+
+    public function getDescription(): ?string
+    {
+        return __($this->description);
+    }
 
     protected function getData(): array
     {
@@ -31,13 +41,13 @@ class SearchRadiusStatsWidget extends ChartWidget
 
         foreach ($radiusGroups as $group) {
             $data[] = $group->count;
-            $labels[] = $group->actual_search_radius_km . ' كم';
+            $labels[] = $group->actual_search_radius_km . __(' km');
         }
 
         return [
             'datasets' => [
                 [
-                    'label' => 'عدد الطلبات',
+                    'label' => __('Number of Requests'),
                     'data' => $data,
                     'backgroundColor' => [
                         '#10b981',
@@ -57,3 +67,4 @@ class SearchRadiusStatsWidget extends ChartWidget
         return 'bar';
     }
 }
+

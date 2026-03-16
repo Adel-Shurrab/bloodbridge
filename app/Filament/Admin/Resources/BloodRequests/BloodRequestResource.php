@@ -10,6 +10,7 @@ use App\Filament\Admin\Resources\BloodRequests\Schemas\BloodRequestInfolist;
 use App\Filament\Admin\Resources\BloodRequests\Tables\BloodRequestsTable;
 use App\Models\BloodRequest;
 use Filament\Resources\Resource;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
 use BackedEnum;
@@ -18,17 +19,40 @@ use App\Filament\Admin\Resources\BloodRequests\RelationManagers;
 
 class BloodRequestResource extends Resource
 {
+    use Translatable;
+
     protected static ?string $model = BloodRequest::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-megaphone';
 
-    protected static string|UnitEnum|null $navigationGroup = 'طلبات التبرع';
+    protected static ?int $navigationSort = 3;
 
-    protected static ?string $navigationLabel = 'طلبات الدم';
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.resources.blood_requests.title');
+    }
 
-    protected static ?string $pluralModelLabel = 'طلبات الدم';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.operations');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('filament.resources.blood_requests.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament.resources.blood_requests.plural');
+    }
 
     protected static ?string $recordTitleAttribute = 'additional_notes';
+
+    public static function getTranslatableLocales(): array
+    {
+        return ['ar', 'en'];
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -59,5 +83,15 @@ class BloodRequestResource extends Resource
             'edit' => EditBloodRequest::route('/{record}/edit'),
             'view' => ViewBloodRequest::route('/{record}'),
         ];
+    }
+
+    public static function getEloquentQuery(): \Illuminate\Database\Eloquent\Builder
+    {
+        return parent::getEloquentQuery()
+            ->withCount([
+                'responses',
+                'acceptedResponses as accepted_responses_count',
+                'completedResponses as completed_responses_count',
+            ]);
     }
 }

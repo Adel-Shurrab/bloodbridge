@@ -9,8 +9,6 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TrashedFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use App\Enums\BloodType;
 
 class BloodRequestsTable
 {
@@ -19,49 +17,57 @@ class BloodRequestsTable
         return $table
             ->columns([
                 TextColumn::make('blood_type')
-                    ->label('فصيلة الدم')
+                    ->label(__('Blood Type'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('units_needed')
-                    ->label('الوحدات المطلوبة')
+                    ->label(__('Units Needed'))
                     ->numeric()
                     ->sortable(),
 
                 TextColumn::make('urgency_level')
-                    ->label('الاستعجال')
+                    ->label(__('Urgency'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('responses_count')
                     ->counts('responses')
-                    ->label('الردود')
+                    ->label(__('Responses'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('donors_completed')
-                    ->label('المتبرعين')
-                    ->state(fn(BloodRequest $record) => "{$record->donors_completed} / {$record->units_needed}")
+                    ->label(__('Donors'))
+                    ->state(function (BloodRequest $record) {
+                        $completed = $record->donors_completed;
+
+                        return "{$completed} / {$record->units_needed}";
+                    })
                     ->badge()
-                    ->color(fn(BloodRequest $record) => $record->donors_completed >= $record->units_needed ? 'success' : 'info'),
+                    ->color(function (BloodRequest $record) {
+                        $completed = $record->donors_completed;
+
+                        return $completed >= $record->units_needed ? 'success' : 'info';
+                    }),
 
                 TextColumn::make('created_at')
-                    ->label('تاريخ الطلب')
+                    ->label(__('Request Date'))
                     ->dateTime('d/m/Y h:i A')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('تصفية حسب الحالة')
+                    ->label(__('Filter by Status'))
                     ->options(\App\Enums\BloodRequestStatus::class),
                 SelectFilter::make('urgency_level')
-                    ->label('تصفية حسب الاستعجال')
+                    ->label(__('Filter by Urgency'))
                     ->options(\App\Enums\UrgencyLevel::class),
                 TrashedFilter::make(),
             ])
@@ -73,3 +79,4 @@ class BloodRequestsTable
             ->toolbarActions([]);
     }
 }
+

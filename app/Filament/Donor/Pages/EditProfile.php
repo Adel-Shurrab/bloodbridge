@@ -22,20 +22,31 @@ use Filament\Schemas\Components\Utilities\Get;
 use Filament\Schemas\Components\Utilities\Set;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\HasActiveLocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 
 class EditProfile extends Page implements HasForms
 {
-    use InteractsWithForms;
+    use InteractsWithForms, HasActiveLocaleSwitcher {
+        HasActiveLocaleSwitcher::getActiveFormsLocale insteadof InteractsWithForms;
+        HasActiveLocaleSwitcher::getActiveActionsLocale insteadof InteractsWithForms;
+        HasActiveLocaleSwitcher::getFilamentTranslatableContentDriver insteadof InteractsWithForms;
+    }
 
-    protected static string|\BackedEnum|null $navigationIcon = 'heroicon-m-user-circle';
-    protected static ?string $navigationLabel = 'ملفي الشخصي';
-    protected static ?int $navigationSort = 2;
+    public ?string $activeLocale = null;
+
+    protected static bool $shouldRegisterNavigation = false;
 
     protected string $view = 'filament.donor.pages.edit-profile';
 
     public ?array $data = [];
 
     public bool $bloodTypeLocked = false;
+    
+    public static function getLabel(): string
+    {
+        return __('My Profile');
+    }
 
     public function getHeading(): string
     {
@@ -45,6 +56,11 @@ class EditProfile extends Page implements HasForms
     public function getSubheading(): ?string
     {
         return null;
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [];
     }
 
     protected function getHeaderWidgets(): array
@@ -126,50 +142,50 @@ class EditProfile extends Page implements HasForms
             ])
             ->toArray();
 
-        return Section::make('الملف الشخصي')
-            ->description('قم بتحديث بياناتك الأساسية وبيانات المتبرع')
+        return Section::make(__('Personal Profile'))
+            ->description(__('Update your basic information and donor data'))
             ->schema([
-                Fieldset::make('المعلومات الأساسية')
+                Fieldset::make(__('Basic Information'))
                     ->schema([
                         TextInput::make('name')
-                            ->label('الاسم الكامل')
+                            ->label(__('Full Name'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('email')
-                            ->label('البريد الإلكتروني')
+                            ->label(__('Email'))
                             ->email()
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('phone')
-                            ->label('رقم الهاتف')
+                            ->label(__('Phone Number'))
                             ->tel()
                             ->required()
                             ->maxLength(30),
                     ])
                     ->columns(2),
 
-                Fieldset::make('بيانات المتبرع')
+                Fieldset::make(__('Donor Information'))
                     ->schema([
                         DatePicker::make('birth_date')
-                            ->label('تاريخ الميلاد')
+                            ->label(__('Date of Birth'))
                             ->required(),
 
                         Select::make('gender')
-                            ->label('الجنس')
+                            ->label(__('Gender'))
                             ->options($genderOptions)
                             ->required()
                             ->native(false),
 
                         TextInput::make('address')
-                            ->label('عنوان السكن (يتم تعبئته من الخريطة)')
+                            ->label(__('Residential Address (filled from map)'))
                             ->required()
                             ->columnSpanFull()
-                            ->helperText('يمكنك تعديل العنوان يدوياً إذا رغبت بدقة أكبر، أو حرك الدبوس على الخريطة لتحديثه.'),
+                            ->helperText(__('You can manually edit the address, or move the pin on the map to update it.')),
 
                         Map::make('location')
-                            ->label('تحديد الموقع بدقة على الخريطة')
+                            ->label(__('Set location precisely on the map'))
                             ->columnSpanFull()
                             ->defaultLocation(
                                 \App\Constants\PalestineCoordinates::GAZA['lat'],
@@ -191,7 +207,7 @@ class EditProfile extends Page implements HasForms
                                         'format' => 'json',
                                         'lat' => $lat,
                                         'lon' => $lng,
-                                        'accept-language' => 'ar'
+                                        'accept-language' => app()->getLocale()
                                     ]);
 
                                     if ($response->successful()) {
@@ -249,20 +265,20 @@ class EditProfile extends Page implements HasForms
             ])
             ->toArray();
 
-        return Section::make('الملف الصحي')
-            ->description('بيانات صحية تساعد على تحديد الأهلية للتبرع')
+        return Section::make(__('Health Profile'))
+            ->description(__('Health data that helps determine donation eligibility'))
             ->schema([
-                Fieldset::make('القياسات')
+                Fieldset::make(__('Measurements'))
                     ->schema([
                         TextInput::make('weight')
-                            ->label('الوزن (كغ)')
+                            ->label(__('Weight (kg)'))
                             ->numeric()
                             ->required()
                             ->minValue(30)
                             ->maxValue(300),
 
                         TextInput::make('height')
-                            ->label('الطول (سم)')
+                            ->label(__('Height (cm)'))
                             ->numeric()
                             ->required()
                             ->minValue(100)
@@ -270,51 +286,51 @@ class EditProfile extends Page implements HasForms
                     ])
                     ->columns(2),
 
-                Fieldset::make('الحالة الصحية')
+                Fieldset::make(__('Health Status'))
                     ->schema([
                         Toggle::make('chronic_disease')
-                            ->label('هل لديك مرض مزمن؟')
+                            ->label(__('Do you have a chronic disease?'))
                             ->default(false),
 
                         Toggle::make('infection')
-                            ->label('هل لديك عدوى نشطة حالياً؟')
+                            ->label(__('Do you have an active infection?'))
                             ->default(false),
 
                         Toggle::make('has_recent_surgery')
-                            ->label('هل أجريت عملية جراحية مؤخراً؟')
+                            ->label(__('Have you had surgery recently?'))
                             ->default(false)
                             ->live(),
 
                         DatePicker::make('surgery_date')
-                            ->label('تاريخ العملية')
+                            ->label(__('Surgery Date'))
                             ->visible(fn(Get $get) => (bool) $get('has_recent_surgery'))
                             ->required(fn(Get $get) => (bool) $get('has_recent_surgery')),
                     ])
                     ->columns(2),
 
-                Fieldset::make('فصيلة الدم')
+                Fieldset::make(__('Blood Type'))
                     ->schema([
                         Select::make('blood_type')
-                            ->label('فصيلة الدم (حسب تصريحك)')
+                            ->label(__('Blood Type (self-reported)'))
                             ->options($bloodTypeOptions)
                             ->required()
                             ->native(false)
                             ->disabled(fn() => $this->bloodTypeLocked)
                             ->helperText(
                                 fn() => $this->bloodTypeLocked
-                                    ? 'تم تأكيد فصيلة الدم من قبل المؤسسة، ولا يمكن تعديلها.'
-                                    : 'يمكنك تعديل فصيلة الدم قبل تأكيدها من المؤسسة.'
+                                    ? __('Blood type has been verified by the organization and cannot be changed.')
+                                    : __('You can change blood type before it is verified by the organization.')
                             ),
 
                         Select::make('verified_blood_type')
-                            ->label('فصيلة الدم (مؤكدة من المؤسسة)')
+                            ->label(__('Blood Type (verified by organization)'))
                             ->options($bloodTypeOptions)
                             ->disabled()
                             ->dehydrated(false)
                             ->visible(fn() => $this->bloodTypeLocked),
 
                         TextInput::make('verified_by_org_name')
-                            ->label('تم تأكيد فصيلة الدم بواسطة')
+                            ->label(__('Blood type verified by'))
                             ->disabled()
                             ->dehydrated(false)
                             ->visible(fn() => $this->bloodTypeLocked),
@@ -373,7 +389,8 @@ class EditProfile extends Page implements HasForms
 
         Notification::make()
             ->success()
-            ->title('تم حفظ البيانات بنجاح')
+            ->title(__('Profile updated successfully'))
             ->send();
     }
 }
+

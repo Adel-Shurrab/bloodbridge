@@ -22,19 +22,19 @@ class BloodRequestForm
         return $schema
             ->columns(1)
             ->components([
-                Section::make('معلومات الطلب الأساسية')
-                    ->description('حدد تفاصيل فصيلة الدم والكمية المطلوبة')
+                Section::make(__('Basic Request Information'))
+                    ->description(__('Specify blood type details and requested quantity'))
                     ->icon('heroicon-o-heart')
                     ->collapsible()
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 Select::make('blood_type')
-                                    ->label('فصيلة الدم المطلوبة')
+                                    ->label(__('Required Blood Type'))
                                     ->options(\App\Enums\BloodType::class)
                                     ->required()
                                     ->native(false)
-                                    ->placeholder('اختر فصيلة الدم')
+                                    ->placeholder(__('Select Blood Type'))
                                     ->columnSpan(1)
                                     ->searchable()
                                     ->disabled(fn($record) => $record && in_array($record->status, [
@@ -43,23 +43,23 @@ class BloodRequestForm
                                     ])),
 
                                 TextInput::make('units_needed')
-                                    ->label('عدد الوحدات')
-                                    ->helperText('الحد الأقصى 100 وحدة')
+                                    ->label(__('Units Needed'))
+                                    ->helperText(__('Maximum 100 units'))
                                     ->required()
                                     ->numeric()
                                     ->minValue(1)
                                     ->maxValue(100)
                                     ->columnSpan(1)
-                                    ->suffix('وحدة'),
+                                    ->suffix(__('Unit')),
 
                                 Select::make('urgency_level')
-                                    ->label('درجة الاستعجال')
+                                    ->label(__('Urgency Level'))
                                     ->options(\App\Enums\UrgencyLevel::class)
                                     ->required()
                                     ->default(\App\Enums\UrgencyLevel::NORMAL)
                                     ->native(false)
                                     ->columnSpan(1)
-                                    ->placeholder('حدد مستوى الأولوية')
+                                    ->placeholder(__('Specify Urgency Level'))
                                     ->disabled(fn($record) => $record && in_array($record->status, [
                                         BloodRequestStatus::FULFILLED,
                                         BloodRequestStatus::CANCELLED,
@@ -67,14 +67,14 @@ class BloodRequestForm
                             ]),
 
                         Textarea::make('additional_notes')
-                            ->label('ملاحظات إضافية')
-                            ->placeholder('أضف أي تفاصيل إضافية مثل: موعد العملية، اسم المريض، رقم التواصل...')
+                            ->label(__('Additional Notes'))
+                            ->placeholder(__('Add any additional details such as: surgery date, patient name, contact number...'))
                             ->rows(4)
                             ->columnSpanFull(),
                     ]),
 
-                Section::make('الموقع ونطاق البحث')
-                    ->description('حدد موقع الحالة ونطاق البحث عن المتبرعين. ملاحظة: استخدم الخريطة فقط إذا كان مكان التبرع خارج مقر المؤسسة.')
+                Section::make(__('Location & Search Radius'))
+                    ->description(__('Specify case location and donor search radius. Note: Use the map only if the donation location is outside the organization headquarters.'))
                     ->icon('heroicon-o-map-pin')
                     ->collapsible()
                     ->collapsed(false)
@@ -82,14 +82,14 @@ class BloodRequestForm
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('search_radius_km')
-                                    ->label('نطاق البحث عن المتبرعين')
-                                    ->helperText('المسافة بالكيلومتر للبحث عن متبرعين مناسبين')
+                                    ->label(__('Donor Search Radius'))
+                                    ->helperText(__('Distance in kilometers to search for suitable donors'))
                                     ->required()
                                     ->numeric()
                                     ->default(10)
                                     ->minValue(1)
                                     ->maxValue(100)
-                                    ->suffix('كم')
+                                    ->suffix(__('km'))
                                     ->columnSpan(2)
                                     ->disabled(fn($record) => $record && in_array($record->status, [
                                         BloodRequestStatus::FULFILLED,
@@ -97,7 +97,7 @@ class BloodRequestForm
                                     ])),
 
                                 Map::make('location')
-                                    ->label('موقع الحالة على الخريطة (اختياري)')
+                                    ->label(__('Case Location on Map (Optional)'))
                                     ->columnSpanFull()
                                     ->defaultLocation(
                                         latitude: \App\Constants\PalestineCoordinates::GAZA['lat'],
@@ -133,9 +133,9 @@ class BloodRequestForm
                                 Hidden::make('lng'),
 
                                 TextInput::make('location_address')
-                                    ->label('العنوان المحدد')
-                                    ->placeholder('أدخل تفاصيل العنوان يدوياً (مثلاً: المبنى الخارجي، الطابق الثاني...)')
-                                    ->helperText('يرجى كتابة العنوان بالتفصيل لمساعدة المتبرع في الوصول.')
+                                    ->label(__('Specific Address'))
+                                    ->placeholder(__('Enter address details manually (e.g., external building, second floor...)'))
+                                    ->helperText(__('Please write the address in detail to help the donor reach it.'))
                                     ->maxLength(500)
                                     ->columnSpanFull(),
                             ]),
@@ -143,3 +143,4 @@ class BloodRequestForm
             ]);
     }
 }
+

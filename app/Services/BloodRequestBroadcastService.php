@@ -250,6 +250,7 @@ class BloodRequestBroadcastService
             ->compatibleWith($compatibleBloodTypes)
             ->eligible()
             ->whereDoesntHave('eligibilityLogs', fn($q) => $this->applyPermanentExclusionFilter($q))
+            ->whereDoesntHave('responses', fn($q) => $q->where('blood_request_id', $bloodRequest->id))
             ->whereDoesntHave('responses', fn($q) => $this->applyRecentNotificationFilter($q, $cooldownHours));
 
         if (!empty($excludedDonorIds)) {
@@ -292,6 +293,7 @@ class BloodRequestBroadcastService
                     ->whereNull('verified_blood_type');
             })
             ->whereDoesntHave('eligibilityLogs', fn($q) => $this->applyPermanentExclusionFilter($q))
+            ->whereDoesntHave('responses', fn($q) => $q->where('blood_request_id', $bloodRequest->id))
             ->whereDoesntHave('responses', fn($q) => $this->applyRecentNotificationFilter($q, $cooldownHours));
 
         if (!empty($excludedDonorIds)) {

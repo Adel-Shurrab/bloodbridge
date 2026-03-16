@@ -12,8 +12,8 @@
         <style>
             .privacy-modal-container {
                 padding: 1.5rem;
-                direction: rtl;
-                text-align: right;
+
+                text-align: start;
             }
 
             .privacy-modal-header {
@@ -47,7 +47,7 @@
                 font-size: 0.7rem;
                 color: #a0aec0;
                 font-weight: 600;
-                margin-right: 2.5rem;
+                margin-inline-start: 2.5rem;
             }
 
             .privacy-modal-close {
@@ -73,8 +73,8 @@
             .privacy-modal-content {
                 max-height: 60vh;
                 overflow-y: auto;
-                padding-left: 1rem;
-                padding-right: 0.25rem;
+                padding-inline-end: 1rem;
+                padding-inline-start: 0.25rem;
                 position: relative;
                 z-index: 1;
             }
@@ -146,7 +146,7 @@
 
             .privacy-list li {
                 position: relative;
-                padding-right: 1.5rem;
+                padding-inline-start: 1.5rem;
                 font-size: 0.9rem;
                 color: #4a5568;
                 line-height: 1.5;
@@ -165,7 +165,7 @@
 
             .privacy-highlight {
                 background: linear-gradient(to left, #fff5f5, #ffffff);
-                border-right: 3px solid #d32f2f;
+                border-inline-start: 3px solid #d32f2f;
                 padding: 1rem;
                 border-radius: 0 6px 6px 0;
                 font-weight: 600;
@@ -222,12 +222,12 @@
             <div class="privacy-modal-title-wrapper">
                 <h2 class="privacy-modal-title">
                     <i class="fas fa-shield-heart"></i>
-                    سياسة الخصوصية
+                    {{ __('Privacy Policy') }}
                 </h2>
-                <span class="privacy-last-updated">آخر تحديث: مارس 2026</span>
+                <span class="privacy-last-updated">{{ __('Last Updated: March 2026') }}</span>
             </div>
             <button @click="$dispatch('close-modal', '{{ $name }}')" class="privacy-modal-close"
-                aria-label="إغلاق">
+                aria-label="{{ __('Close') }}">
                 <i class="fas fa-times"></i>
             </button>
         </div>
@@ -236,74 +236,77 @@
             <div class="privacy-section">
                 <div class="privacy-section-header">
                     <div class="privacy-section-icon"><i class="fas fa-info-circle"></i></div>
-                    <h3>1. مقدمة</h3>
+                    <h3>{{ __('1. Introduction') }}</h3>
                 </div>
                 <p>
-                    مرحباً بك في {{ app(\App\Settings\GeneralSettings::class)->site_name }}. نحن نولي أهمية قصوى
-                    لخصوصيتك وأمان بياناتك الصحية، ونعمل وفق أعلى معايير
-                    الحماية لضمان سرية معلوماتك وثقتك بنا كجسر لإنقاذ الأرواح.
+                    {{ __('Welcome to :site. We place the highest importance on your privacy and the security of your health data, and we work according to the highest protection standards to ensure the confidentiality of your information and your trust in us as a bridge to save lives.', ['site' => app(\App\Settings\GeneralSettings::class)->getTranslation('site_name')]) }}
                 </p>
             </div>
 
             <div class="privacy-section">
                 <div class="privacy-section-header">
                     <div class="privacy-section-icon"><i class="fas fa-id-card"></i></div>
-                    <h3>2. المعلومات التي نجمعها</h3>
+                    <h3>{{ __('2. Information We Collect') }}</h3>
                 </div>
                 <ul class="privacy-list">
-                    <li><strong>المعلومات الشخصية:</strong> الاسم، رقم الجوال، ورقم الهوية.</li>
-                    <li><strong>المعلومات الصحية:</strong> فصيلة الدم، الحالات الطبية، وتاريخ التبرع.</li>
-                    <li><strong>الموقع:</strong> المدينة والمنطقة لتسهيل التبرع.</li>
-                    <li><strong>بيانات تقنية:</strong> عنوان IP ونوع المتصفح للأمان.</li>
+                    <li><strong>{{ __('Personal Information:') }}</strong>
+                        {{ __('Name, mobile number, and ID number.') }}</li>
+                    <li><strong>{{ __('Health Information:') }}</strong>
+                        {{ __('Blood type, medical conditions, and donation history.') }}</li>
+                    <li><strong>{{ __('Location:') }}</strong> {{ __('City and region to facilitate donation.') }}
+                    </li>
+                    <li><strong>{{ __('Technical Data:') }}</strong>
+                        {{ __('IP address and browser type for security.') }}</li>
                 </ul>
             </div>
 
             <div class="privacy-section">
                 <div class="privacy-section-header">
                     <div class="privacy-section-icon"><i class="fas fa-hand-holding-heart"></i></div>
-                    <h3>3. كيف نستخدم معلوماتك</h3>
+                    <h3>{{ __('3. How We Use Your Information') }}</h3>
                 </div>
                 <ul class="privacy-list">
-                    <li>تنسيق عمليات التبرع بالدم.</li>
-                    <li>إرسال تنبيهات الحالات الطارئة.</li>
-                    <li>التحقق التلقائي من الأهلية الطبية.</li>
+                    <li>{{ __('Coordinating blood donation processes.') }}</li>
+                    <li>{{ __('Sending emergency notifications.') }}</li>
+                    <li>{{ __('Automatic verification of medical eligibility.') }}</li>
                 </ul>
             </div>
 
             <div class="privacy-section">
                 <div class="privacy-highlight">
-                    <i class="fas fa-user-lock" style="margin-left: 0.5rem; color: #d32f2f;"></i>
-                    <strong>أمانك أولاً:</strong> نحن لا نبيع بياناتك. يتم مشاركة معلوماتك فقط مع المستشفى المعني عند
-                    قبولك لطلب التبرع.
+                    <i class="fas fa-user-lock" style="margin-inline-end: 0.5rem; color: #d32f2f;"></i>
+                    <strong>{{ __('Your Safety First:') }}</strong>
+                    {{ __('We do not sell your data. Your information is only shared with the concerned hospital when you accept a donation request.') }}
                 </div>
             </div>
 
             <div class="privacy-section">
                 <div class="privacy-section-header">
                     <div class="privacy-section-icon"><i class="fas fa-lock"></i></div>
-                    <h3>4. أمن المعلومات وحمايتها</h3>
+                    <h3>{{ __('4. Information Security and Protection') }}</h3>
                 </div>
                 <ul class="privacy-list">
-                    <li>استخدام بروتوكولات تشفير متقدمة (SSL/TLS) لحماية البيانات أثناء النقل.</li>
-                    <li>تخزين البيانات الحساسة باستخدام خوارزميات تشفير AES-256 المتطورة.</li>
-                    <li>أنظمة مراقبة على مدار الساعة للكشف عن أي محاولات وصول غير مصرح بها.</li>
+                    <li>{{ __('Using advanced encryption protocols (SSL/TLS) to protect data during transmission.') }}
+                    </li>
+                    <li>{{ __('Storing sensitive data using advanced AES-256 encryption algorithms.') }}</li>
+                    <li>{{ __('24/7 monitoring systems to detect any unauthorized access attempts.') }}</li>
                 </ul>
             </div>
 
             <div class="privacy-section" style="margin-bottom: 0;">
                 <div class="privacy-section-header">
                     <div class="privacy-section-icon"><i class="fas fa-user-check"></i></div>
-                    <h3>5. حقوقك</h3>
+                    <h3>{{ __('5. Your Rights') }}</h3>
                 </div>
                 <p>
-                    لديك الحق التام في الوصول إلى بياناتك، تصحيحها، أو طلب حذف حسابك نهائياً عبر صفحة الاتصال.
+                    {{ __('You have the full right to access your data, correct it, or request to delete your account permanently via the contact page.') }}
                 </p>
             </div>
         </div>
 
         <div class="privacy-modal-footer">
             <button @click="$dispatch('close-modal', '{{ $name }}')" class="close-btn">
-                إغلاق
+                {{ __('Close') }}
             </button>
         </div>
     </div>

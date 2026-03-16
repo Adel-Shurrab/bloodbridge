@@ -1,4 +1,4 @@
-<x-layout title="إعادة تعيين كلمة المرور - {{ $settings->site_name }}">
+<x-layout title="{{ __('Reset Password') }} - {{ $settings->getTranslation('site_name') }}">
     @push('styles')
         <link rel="stylesheet" href="{{ asset('assets/styles/pages/reset-password.css') }}" />
     @endpush
@@ -22,8 +22,8 @@
                     <div class="rp-icon-wrap">
                         <i class="fa-solid fa-key"></i>
                     </div>
-                    <h1>إعادة تعيين كلمة المرور</h1>
-                    <p>الرجاء إدخال بريدك الإلكتروني وكلمة المرور الجديدة لحسابك.</p>
+                    <h1>{{ __('Reset Password') }}</h1>
+                    <p>{{ __('Please enter your email and your new password.') }}</p>
                 </div>
 
                 {{-- Form --}}
@@ -35,7 +35,7 @@
 
                     <!-- Email Address -->
                     <div class="rp-form-group">
-                        <label for="email">البريد الإلكتروني</label>
+                        <label for="email">{{ __('Email Address') }}</label>
                         <div class="rp-input-wrapper">
                             <input type="email" id="email" name="email"
                                 value="{{ old('email', $request->email) }}" placeholder="you@example.com" required
@@ -53,13 +53,14 @@
 
                     <!-- Password -->
                     <div class="rp-form-group">
-                        <label for="password">كلمة المرور الجديدة</label>
+                        <label for="password">{{ __('New Password') }}</label>
                         <div class="rp-input-wrapper">
                             <input type="password" id="password" name="password" placeholder="••••••••" required
                                 autocomplete="new-password"
                                 class="{{ $errors->has('password') ? 'is-invalid' : '' }}" />
                             <i class="fa-solid fa-lock rp-input-icon"></i>
-                            <button type="button" class="rp-toggle-btn" aria-label="تبديل رؤية كلمة المرور">
+                            <button type="button" class="rp-toggle-btn"
+                                aria-label="{{ __('Toggle password visibility') }}">
                                 <i class="fa-solid fa-eye" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -69,7 +70,7 @@
                             <div class="rp-strength-bar">
                                 <div class="rp-strength-fill" id="strengthFill"></div>
                             </div>
-                            <span class="rp-strength-text" id="strengthText">ضعيفة</span>
+                            <span class="rp-strength-text" id="strengthText">{{ __('Weak') }}</span>
                         </div>
 
                         @error('password')
@@ -82,13 +83,14 @@
 
                     <!-- Confirm Password -->
                     <div class="rp-form-group">
-                        <label for="password_confirmation">تأكيد كلمة المرور</label>
+                        <label for="password_confirmation">{{ __('Confirm New Password') }}</label>
                         <div class="rp-input-wrapper">
                             <input type="password" id="password_confirmation" name="password_confirmation"
                                 placeholder="••••••••" required autocomplete="new-password"
                                 class="{{ $errors->has('password_confirmation') ? 'is-invalid' : '' }}" />
                             <i class="fa-solid fa-shield-halved rp-input-icon"></i>
-                            <button type="button" class="rp-toggle-btn" aria-label="تبديل رؤية كلمة المرور">
+                            <button type="button" class="rp-toggle-btn"
+                                aria-label="{{ __('Toggle password visibility') }}">
                                 <i class="fa-solid fa-eye" aria-hidden="true"></i>
                             </button>
                         </div>
@@ -102,7 +104,7 @@
 
                     <button type="submit" class="rp-submit-btn" id="submitBtn">
                         <i class="fa-solid fa-floppy-disk rp-btn-text"></i>
-                        <span class="rp-btn-text">حفظ كلمة المرور الجديدة</span>
+                        <span class="rp-btn-text">{{ __('Save New Password') }}</span>
                         <span class="rp-btn-loader"></span>
                     </button>
                 </form>
@@ -110,10 +112,10 @@
                 {{-- Back to login --}}
                 <div class="rp-back-link">
                     <p>
-                        تذكرت كلمة المرور؟
+                        {{ __('Remembered your password?') }}
                         <a href="{{ route('login') }}">
                             <i class="fa-solid fa-arrow-right"></i>
-                            العودة لتسجيل الدخول
+                            {{ __('Back to Login') }}
                         </a>
                     </p>
                 </div>
@@ -125,25 +127,26 @@
 
                     <span class="rp-illustration-icon">🔐</span>
 
-                    <h2>تأمين حسابك</h2>
-                    <p>اختر كلمة مرور قوية لحماية بياناتك. نوصي باستخدام مزيج من الأحرف والأرقام والرموز.</p>
+                    <h2>{{ __('Secure Your Account') }}</h2>
+                    <p>{{ __('Choose a strong password to protect your data. We recommend using a mix of letters, numbers, and symbols.') }}
+                    </p>
 
                     <div class="rp-rules">
                         <div class="rp-rule">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>٨ أحرف على الأقل</span>
+                            <span>{{ __('At least 8 characters') }}</span>
                         </div>
                         <div class="rp-rule">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>حرف كبير وحرف صغير</span>
+                            <span>{{ __('Uppercase and lowercase letters') }}</span>
                         </div>
                         <div class="rp-rule">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>رقم واحد على الأقل</span>
+                            <span>{{ __('At least one number') }}</span>
                         </div>
                         <div class="rp-rule">
                             <i class="fa-solid fa-circle-check"></i>
-                            <span>رمز خاص واحد (!@#$)</span>
+                            <span>{{ __('One special symbol (!@#$)') }}</span>
                         </div>
                     </div>
 
@@ -161,7 +164,7 @@
                 toggleBtns.forEach(btn => {
                     btn.addEventListener('click', function() {
                         const input = this.previousElementSibling
-                        .previousElementSibling; // The input field
+                            .previousElementSibling; // The input field
                         const icon = this.querySelector('i');
 
                         if (input.type === 'password') {
@@ -200,19 +203,19 @@
 
                             if (strength <= 25) {
                                 fillBar.style.background = '#ef4444'; // Red
-                                textLabel.textContent = 'ضعيفة جداً';
+                                textLabel.textContent = "{{ __('Very Weak') }}";
                                 textLabel.style.color = '#ef4444';
                             } else if (strength <= 50) {
                                 fillBar.style.background = '#f59e0b'; // Orange
-                                textLabel.textContent = 'ضعيفة';
+                                textLabel.textContent = "{{ __('Weak') }}";
                                 textLabel.style.color = '#f59e0b';
                             } else if (strength <= 75) {
                                 fillBar.style.background = '#10b981'; // Green
-                                textLabel.textContent = 'جيدة';
+                                textLabel.textContent = "{{ __('Good') }}";
                                 textLabel.style.color = '#10b981';
                             } else {
                                 fillBar.style.background = '#059669'; // Dark Green
-                                textLabel.textContent = 'قوية';
+                                textLabel.textContent = "{{ __('Strong') }}";
                                 textLabel.style.color = '#059669';
                             }
                         } else {
