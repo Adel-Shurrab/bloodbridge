@@ -14,14 +14,6 @@ use App\Notifications\BloodRequestMatchNotification;
 use App\Services\NotificationService;
 use App\Enums\NotificationType;
 
-/**
- * Production-grade job for dispatching blood request notifications to donors.
- * 
- * Features:
- * - Eager loading to prevent N+1 queries
- * - Batch processing to avoid queue payload limits
- * - Fresh data retrieval from database
- */
 class DispatchBloodRequestNotifications implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -94,8 +86,6 @@ class DispatchBloodRequestNotifications implements ShouldQueue
 
                     $distance = $this->donorData[$user->id] ?? null;
 
-                    // Use NotificationService for consistent error handling and logging
-                    // This calls via() -> toDatabase() and toBroadcast() methods
                     app(NotificationService::class)->send(
                         $user,
                         new BloodRequestMatchNotification($bloodRequest, $distance),
@@ -105,11 +95,6 @@ class DispatchBloodRequestNotifications implements ShouldQueue
             });
     }
 
-    /**
-     * Dispatch notifications in batches to avoid queue payload limits.
-     * 
-     * Usage: DispatchBloodRequestNotifications::dispatchBatches($bloodRequest->id, $donorData);
-     */
     public static function dispatchBatches(int $bloodRequestId, array $donorData): void
     {
         $chunks = array_chunk($donorData, self::MAX_BATCH_SIZE, true);

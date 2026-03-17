@@ -3,7 +3,7 @@
         <div class="top-bar-title">
             <h1>{{ __('Dashboard') }}</h1>
             <p class="top-bar-subtitle">
-                {{ __('Welcome back, :responsible_person_name. Here is what is happening with', ['responsible_person_name' => $this->getOrganization()->responsible_person_name]) }} <span
+                {{ __('Welcome back, :name. Here is what is happening with', ['name' => $this->getOrganization()->responsible_person_name]) }} <span
                     class="brand-text">{{ $this->getOrganization()->org_name }}</span>.
             </p>
         </div>

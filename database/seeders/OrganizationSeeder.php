@@ -18,7 +18,8 @@ class OrganizationSeeder extends Seeder
 
         $hospitals = [
             [
-                'name'        => 'مجمع الشفاء الطبي',
+                'name_ar'     => 'مجمع الشفاء الطبي',
+                'name_en'     => 'Al-Shifa Medical Complex',
                 'gov'         => 'غزة',
                 'slug'        => 'al-shifa',
                 'lat'         => 31.524589,
@@ -33,7 +34,8 @@ class OrganizationSeeder extends Seeder
                 'license'     => 'LIC-SHIFA-2025',
             ],
             [
-                'name'        => 'مستشفى القدس (الهلال الأحمر)',
+                'name_ar'     => 'مستشفى القدس (الهلال الأحمر)',
+                'name_en'     => 'Al-Quds Hospital (Red Crescent)',
                 'gov'         => 'غزة',
                 'slug'        => 'al-quds',
                 'lat'         => 31.512300,
@@ -48,7 +50,8 @@ class OrganizationSeeder extends Seeder
                 'license'     => 'LIC-QUDS-2025',
             ],
             [
-                'name'        => 'المستشفى الإندونيسي',
+                'name_ar'     => 'المستشفى الإندونيسي',
+                'name_en'     => 'Indonesian Hospital',
                 'gov'         => 'شمال غزة',
                 'slug'        => 'indonesian',
                 'lat'         => 31.554000,
@@ -63,7 +66,8 @@ class OrganizationSeeder extends Seeder
                 'license'     => 'LIC-INDONESIAN-2025',
             ],
             [
-                'name'        => 'مستشفى شهداء الأقصى',
+                'name_ar'     => 'مستشفى شهداء الأقصى',
+                'name_en'     => 'Shuhada Al-Aqsa Hospital',
                 'gov'         => 'دير البلح',
                 'slug'        => 'alaqsa',
                 'lat'         => 31.417000,
@@ -78,7 +82,8 @@ class OrganizationSeeder extends Seeder
                 'license'     => 'LIC-ALAQSA-2025',
             ],
             [
-                'name'        => 'مجمع ناصر الطبي',
+                'name_ar'     => 'مجمع ناصر الطبي',
+                'name_en'     => 'Nasser Medical Complex',
                 'gov'         => 'خانيونس',
                 'slug'        => 'nasser',
                 'lat'         => 31.354700,
@@ -93,7 +98,8 @@ class OrganizationSeeder extends Seeder
                 'license'     => 'LIC-NASSER-2025',
             ],
             [
-                'name'        => 'مستشفى غزة الأوروبي',
+                'name_ar'     => 'مستشفى غزة الأوروبي',
+                'name_en'     => 'Gaza European Hospital',
                 'gov'         => 'خانيونس',
                 'slug'        => 'european',
                 'lat'         => 31.318000,
@@ -108,7 +114,8 @@ class OrganizationSeeder extends Seeder
                 'license'     => 'LIC-EUROPEAN-2025',
             ],
             [
-                'name'        => 'مستشفى الشهيد أبو يوسف النجار',
+                'name_ar'     => 'مستشفى الشهيد أبو يوسف النجار',
+                'name_en'     => 'Abu Youssef Al-Najjar Hospital',
                 'gov'         => 'رفح',
                 'slug'        => 'najjar',
                 'lat'         => 31.272000,
@@ -130,7 +137,7 @@ class OrganizationSeeder extends Seeder
             $gov = Governorate::where('name->ar', $data['gov'])->first();
 
             $user = User::create([
-                'name'      => $data['name'],
+                'name'      => $data['name_ar'],
                 'email'     => "admin@{$data['email_key']}.ps",
                 'phone'     => $data['phone'],
                 'password'  => Hash::make('password'),
@@ -141,11 +148,17 @@ class OrganizationSeeder extends Seeder
             Organization::create([
                 'user_id'                   => $user->id,
                 'governorate_id'            => $gov?->id,
-                'org_name'                  => $data['name'],
+                'org_name'                  => [
+                    'ar' => $data['name_ar'],
+                    'en' => $data['name_en'],
+                ],
                 'slug'                      => $data['slug'],
                 'license_number'            => $data['license'],
                 'responsible_person_name'   => $data['manager'],
-                'responsible_person_position' => $data['position'],
+                'responsible_person_position' => [
+                    'ar' => $data['position'],
+                    'en' => 'Management Director',
+                ],
                 'responsible_person_email'  => "manager@{$data['email_key']}.ps",
                 'contact_email'             => "contact@{$data['email_key']}.ps",
                 'contact_phone'             => $data['phone'],

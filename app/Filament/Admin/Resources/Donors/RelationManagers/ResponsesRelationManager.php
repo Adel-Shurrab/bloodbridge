@@ -37,6 +37,7 @@ class ResponsesRelationManager extends RelationManager
             ->columns([
                 TextColumn::make('bloodRequest.organization.org_name')
                     ->label(__('Organization'))
+                    ->getStateUsing(fn($record) => $record->bloodRequest?->organization ? ($record->bloodRequest->organization->getTranslation('org_name', app()->getLocale(), false) ?: $record->bloodRequest->organization->getTranslation('org_name', 'ar', false)) : null)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('bloodRequest.urgency_level')

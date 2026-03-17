@@ -34,8 +34,6 @@ class BloodRequestSeeder extends Seeder
             'lng'                   => $shifa->lng,
             'location_address'      => 'مبنى الجراحات التخصصي — الطابق الثاني',
             'status'                => BloodRequestStatus::BROADCASTED,
-            'donors_accepted'       => 2,
-            'donors_completed'      => 0,
             'broadcasted_at'        => Carbon::now()->subMinutes(30),
         ]);
 
@@ -51,8 +49,6 @@ class BloodRequestSeeder extends Seeder
             'lng'                   => $nasser->lng,
             'location_address'      => 'قسم الدم — مجمع ناصر الطبي',
             'status'                => BloodRequestStatus::BROADCASTED,
-            'donors_accepted'       => 2,
-            'donors_completed'      => 0,
             'broadcasted_at'        => Carbon::now()->subHours(2),
         ]);
 
@@ -68,8 +64,6 @@ class BloodRequestSeeder extends Seeder
             'lng'                   => $indo->lng,
             'location_address'      => 'بنك الدم — المستشفى الإندونيسي',
             'status'                => BloodRequestStatus::FULFILLED,
-            'donors_accepted'       => 4,
-            'donors_completed'      => 3,
             'broadcasted_at'        => Carbon::now()->subDays(5),
             'fulfilled_at'          => Carbon::now()->subDays(4),
         ]);
@@ -86,8 +80,6 @@ class BloodRequestSeeder extends Seeder
             'lng'                   => $quds->lng,
             'location_address'      => 'وحدة غسيل الكلى — مستشفى القدس',
             'status'                => BloodRequestStatus::EXPIRED,
-            'donors_accepted'       => 2,
-            'donors_completed'      => 0,
             'broadcasted_at'        => Carbon::now()->subHours(5),
         ]);
 
@@ -103,8 +95,6 @@ class BloodRequestSeeder extends Seeder
             'lng'                   => $aqsa->lng,
             'location_address'      => 'وحدة العناية المركزة لحديثي الولادة — الأقصى',
             'status'                => BloodRequestStatus::BROADCASTED,
-            'donors_accepted'       => 1,
-            'donors_completed'      => 0,
             'broadcasted_at'        => Carbon::now()->subHours(1),
         ]);
 
@@ -119,8 +109,6 @@ class BloodRequestSeeder extends Seeder
             'lng'                   => $european->lng,
             'location_address'      => 'بنك دم مستشفى غزة الأوروبي',
             'status'                => BloodRequestStatus::PENDING,
-            'donors_accepted'       => 0,
-            'donors_completed'      => 0,
         ]);
 
         BloodRequest::create([
@@ -134,8 +122,6 @@ class BloodRequestSeeder extends Seeder
             'lng'                   => $najjar->lng,
             'location_address'      => 'قسم الطوارئ — مستشفى أبو يوسف النجار',
             'status'                => BloodRequestStatus::CANCELLED,
-            'donors_accepted'       => 0,
-            'donors_completed'      => 0,
             'broadcasted_at'        => Carbon::now()->subDays(2),
         ]);
 
@@ -151,8 +137,6 @@ class BloodRequestSeeder extends Seeder
             'lng'                   => $shifa->lng,
             'location_address'      => 'غرفة العمليات رقم 3 — مجمع الشفاء الطبي',
             'status'                => BloodRequestStatus::EXPIRED,
-            'donors_accepted'       => 0,
-            'donors_completed'      => 0,
             'broadcasted_at'        => Carbon::now()->subDays(10),
         ]);
     }

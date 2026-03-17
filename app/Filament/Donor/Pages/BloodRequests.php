@@ -220,7 +220,8 @@ class BloodRequests extends Page implements HasTable
             Tables\Columns\TextColumn::make('organization.org_name')
                 ->label(__('Organization'))
                 ->searchable()
-                ->sortable(),
+                ->sortable()
+                ->formatStateUsing(fn($state, $record) => $record->organization?->getTranslation('org_name', app()->getLocale(), false) ?? ($record->organization?->getTranslation('org_name', 'ar', false) ?? '—')),
 
             Tables\Columns\TextColumn::make('distance_km')
                 ->label(__('Distance'))

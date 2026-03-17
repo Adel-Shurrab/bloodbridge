@@ -45,18 +45,18 @@ class RequestResponse extends Model
     public function getQrStateLabelAttribute(): string
     {
         if (blank($this->verification_qr_code)) {
-            return 'غير متوفر';
+            return __('Not available');
         }
 
         if (filled($this->verified_at)) {
-            return 'تم الاستخدام';
+            return __('Used');
         }
 
         if (filled($this->qr_code_expires_at) && now()->greaterThan($this->qr_code_expires_at)) {
-            return 'منتهي';
+            return __('Expired');
         }
 
-        return 'فعّال';
+        return __('Active');
     }
 
     public function getQrStateColorAttribute(): string

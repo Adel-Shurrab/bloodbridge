@@ -45,7 +45,7 @@ class AdminPanelProvider extends PanelProvider
             ])
             ->userMenuItems([
                 MenuItem::make()
-                    ->label('Back to Home')
+                    ->label(fn() => __('Back to Home'))
                     ->url(fn() => route('home'))
                     ->icon('heroicon-o-home'),
             ])

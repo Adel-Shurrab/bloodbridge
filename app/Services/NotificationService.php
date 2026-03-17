@@ -2,43 +2,14 @@
 
 namespace App\Services;
 
-use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Log;
 use App\Enums\NotificationType;
 use Throwable;
 
-/**
- * Centralized Notification Service
- * 
- * All notifications should be sent through this service to ensure:
- * - Consistent error handling and logging
- * - Ability to add middleware/filters
- * - Testability with dependency injection
- * - Monitoring and delivery tracking
- * 
- * Usage:
- *   $service = app(NotificationService::class);
- *   $service->send($user, new BloodRequestMatchNotification(...));
- *   
- *   // With error handling
- *   $result = $service->send($user, $notification);
- *   if ($result['success']) {
- *       Log::info('Notification sent');
- *   } else {
- *       Log::error('Notification failed: ' . $result['error']);
- *   }
- */
 class NotificationService
 {
-    /**
-     * Send a notification to a single notifiable
-     * 
-     * @param mixed $notifiable The recipient (User or any model with Notifiable trait)
-     * @param object $notification The notification instance
-     * @param NotificationType|null $type Optional type for logging
-     * 
-     * @return array<string, mixed> ['success' => bool, 'error' => ?string, 'notifiable_id' => mixed]
-     */
+
+    // Single user 
     public function send(
         mixed $notifiable,
         object $notification,
@@ -49,9 +20,31 @@ class NotificationService
             $notificationClass = get_class($notification);
             $notifiableId = $notifiable->getKey();
 
-            // Send the notification
-            $notifiable->notify($notification);
-            
+            // Get the recipient's preferred locale if available, otherwise use current locale
+            $recipientLocale = null;
+            if (method_exists($notifiable, 'getLocale')) {
+                $recipientLocale = $notifiable->getLocale();
+            } elseif (property_exists($notifiable, 'locale')) {
+                $recipientLocale = $notifiable->locale;
+            }
+
+            // If we found a locale preference, temporarily set it for notification building
+            $previousLocale = null;
+            if ($recipientLocale) {
+                $previousLocale = app()->getLocale();
+                app()->setLocale($recipientLocale);
+            }
+
+            try {
+                // Send the notification
+                $notifiable->notify($notification);
+            } finally {
+                // Restore previous locale
+                if ($previousLocale) {
+                    app()->setLocale($previousLocale);
+                }
+            }
+
             // Log success
             Log::info('Notification sent successfully', [
                 'notifiable_type' => class_basename($notifiableType),
@@ -59,8 +52,9 @@ class NotificationService
                 'notification_type' => class_basename($notificationClass),
                 'notification_class' => $notificationClass,
                 'enum_type' => $type?->value,
+                'recipient_locale' => $recipientLocale ?? app()->getLocale(),
             ]);
-            
+
             return [
                 'success' => true,
                 'error' => null,
@@ -68,7 +62,7 @@ class NotificationService
             ];
         } catch (Throwable $e) {
             $this->logFailure($notifiable, $notification, $e, $type);
-            
+
             return [
                 'success' => false,
                 'error' => $e->getMessage(),
@@ -79,18 +73,6 @@ class NotificationService
 
     /**
      * Send notifications to multiple notifiables
-     * 
-     * @param iterable $notifiables Collection of notifiables (users, donors, etc.)
-     * @param object $notification The notification instance to send
-     * @param NotificationType|null $type Optional type for logging
-     * 
-     * @return array<string, mixed> Summary of results
-     *   [
-     *       'success' => int,
-     *       'failed' => int,
-     *       'total' => int,
-     *       'failures' => array<string, string>,
-     *   ]
      */
     public function sendBatch(
         iterable $notifiables,
@@ -103,11 +85,11 @@ class NotificationService
             'total' => 0,
             'failures' => [],
         ];
-        
+
         foreach ($notifiables as $notifiable) {
             $results['total']++;
             $result = $this->send($notifiable, $notification, $type);
-            
+
             if ($result['success']) {
                 $results['success']++;
             } else {
@@ -115,7 +97,7 @@ class NotificationService
                 $results['failures'][$result['notifiable_id']] = $result['error'];
             }
         }
-        
+
         // Log batch summary
         Log::info('Batch notification completed', [
             'notification_class' => get_class($notification),
@@ -126,7 +108,7 @@ class NotificationService
             'total' => $results['total'],
             'failure_count' => count($results['failures']),
         ]);
-        
+
         // Log individual failures if any
         if (!empty($results['failures'])) {
             foreach ($results['failures'] as $id => $error) {
@@ -137,13 +119,10 @@ class NotificationService
                 ]);
             }
         }
-        
+
         return $results;
     }
 
-    /**
-     * Log a notification failure with full context
-     */
     private function logFailure(
         mixed $notifiable,
         object $notification,
@@ -164,20 +143,7 @@ class NotificationService
         ]);
     }
 
-    /**
-     * Send a notification with retries on failure
-     * 
-     * Attempts to send a notification multiple times if it fails.
-     * Useful for critical notifications that must be delivered.
-     * 
-     * @param mixed $notifiable The recipient (User or any model with Notifiable trait)
-     * @param object $notification The notification instance
-     * @param int $maxRetries Maximum number of retry attempts (default: 3)
-     * @param int $delayMs Delay between retries in milliseconds (default: 100)
-     * @param NotificationType|null $type Optional type for logging
-     * 
-     * @return array<string, mixed> ['success' => bool, 'attempts' => int, 'error' => ?string]
-     */
+    // With retry mechanism 
     public function sendWithRetry(
         mixed $notifiable,
         object $notification,
@@ -187,7 +153,7 @@ class NotificationService
     ): array {
         for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
             $result = $this->send($notifiable, $notification, $type);
-            
+
             if ($result['success']) {
                 if ($attempt > 1) {
                     Log::info('Notification succeeded after retry', [
@@ -196,20 +162,20 @@ class NotificationService
                         'attempts' => $attempt,
                     ]);
                 }
-                
+
                 return [
                     'success' => true,
                     'attempts' => $attempt,
                     'error' => null,
                 ];
             }
-            
+
             // Wait before retry (don't retry on last attempt)
             if ($attempt < $maxRetries) {
                 usleep($delayMs * 1000);
             }
         }
-        
+
         // All retries failed
         Log::error('Notification failed after all retries', [
             'notifiable_id' => $notifiable->getKey(),
@@ -217,7 +183,7 @@ class NotificationService
             'max_attempts' => $maxRetries,
             'error' => $result['error'] ?? 'Unknown error',
         ]);
-        
+
         return [
             'success' => false,
             'attempts' => $maxRetries,

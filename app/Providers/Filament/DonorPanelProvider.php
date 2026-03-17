@@ -48,7 +48,7 @@ class DonorPanelProvider extends PanelProvider
                     ->url(fn (): string => \App\Filament\Donor\Pages\ChangePassword::getUrl())
                     ->icon('heroicon-m-key'),
                 MenuItem::make()
-                    ->label(__('Back to Home'))
+                    ->label(fn() => __('Back to Home'))
                     ->url(fn() => route('home'))
                     ->icon('heroicon-o-home'),
             ])
