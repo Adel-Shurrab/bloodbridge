@@ -13,8 +13,9 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 
-class User extends Authenticatable implements FilamentUser, HasTenants, MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, HasTenants, MustVerifyEmail, HasLocalePreference
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, SoftDeletes, Notifiable;
@@ -34,6 +35,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
         'phone',
         'role',
         'is_active',
+        'locale',
     ];
 
     /**
@@ -143,5 +145,13 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
     public function sendEmailVerificationNotification(): void
     {
         $this->notify(new \App\Notifications\CustomVerifyEmail);
+    }
+
+    /**
+     * Get the user's preferred locale for notifications.
+     */
+    public function preferredLocale(): string
+    {
+        return $this->locale ?? config('app.fallback_locale');
     }
 }

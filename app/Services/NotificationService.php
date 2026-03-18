@@ -20,30 +20,23 @@ class NotificationService
             $notificationClass = get_class($notification);
             $notifiableId = $notifiable->getKey();
 
-            // Get the recipient's preferred locale if available, otherwise use current locale
+            // Use HasLocalePreference interface (preferredLocale()) if available.
+            // This is the standard Laravel approach and correctly handles Eloquent attributes.
+            // We pass the locale directly on the notification via ->locale() so it is
+            // applied by the queue worker at execution time, not just at dispatch time.
             $recipientLocale = null;
-            if (method_exists($notifiable, 'getLocale')) {
-                $recipientLocale = $notifiable->getLocale();
-            } elseif (property_exists($notifiable, 'locale')) {
-                $recipientLocale = $notifiable->locale;
+            if (method_exists($notifiable, 'preferredLocale')) {
+                $recipientLocale = $notifiable->preferredLocale();
             }
 
-            // If we found a locale preference, temporarily set it for notification building
-            $previousLocale = null;
-            if ($recipientLocale) {
-                $previousLocale = app()->getLocale();
-                app()->setLocale($recipientLocale);
+            // Apply locale on the notification object itself.
+            // For queued notifications, this ensures the queue worker runs in the correct locale.
+            if ($recipientLocale && method_exists($notification, 'locale')) {
+                $notification->locale($recipientLocale);
             }
 
-            try {
-                // Send the notification
-                $notifiable->notify($notification);
-            } finally {
-                // Restore previous locale
-                if ($previousLocale) {
-                    app()->setLocale($previousLocale);
-                }
-            }
+            // Send the notification
+            $notifiable->notify($notification);
 
             // Log success
             Log::info('Notification sent successfully', [

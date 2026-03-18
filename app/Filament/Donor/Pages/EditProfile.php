@@ -4,6 +4,7 @@ namespace App\Filament\Donor\Pages;
 
 use App\Enums\BloodType;
 use App\Enums\Gender;
+use App\Models\Governorate;
 use App\Filament\Donor\Widgets\EligibilityCountdownWidget;
 use Dotswan\MapPicker\Fields\Map;
 use Filament\Forms\Components\DatePicker;
@@ -100,6 +101,8 @@ class EditProfile extends Page implements HasForms
 
             'birth_date' => $donor?->birth_date,
             'gender' => $donor?->gender?->value ?? $donor?->gender,
+            'national_id' => $donor?->national_id,
+            'governorate_id' => $donor?->governorate_id,
             'address' => $donor?->auto_location_address ?? $donor?->address,
 
             'lat' => $lat,
@@ -156,13 +159,21 @@ class EditProfile extends Page implements HasForms
                             ->label(__('Email'))
                             ->email()
                             ->required()
-                            ->maxLength(255),
+                            ->maxLength(255)
+                            ->disabled(fn() => $this->bloodTypeLocked)
+                            ->helperText(fn() => $this->bloodTypeLocked ? __('Email cannot be changed after verification.') : null),
 
                         TextInput::make('phone')
                             ->label(__('Phone Number'))
                             ->tel()
                             ->required()
                             ->maxLength(30),
+
+                        TextInput::make('national_id')
+                            ->label(__('National ID'))
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->helperText(__('National ID cannot be changed.')),
                     ])
                     ->columns(2),
 
@@ -170,13 +181,26 @@ class EditProfile extends Page implements HasForms
                     ->schema([
                         DatePicker::make('birth_date')
                             ->label(__('Date of Birth'))
-                            ->required(),
+                            ->required()
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->helperText(__('Date of birth cannot be changed.')),
 
                         Select::make('gender')
                             ->label(__('Gender'))
                             ->options($genderOptions)
                             ->required()
-                            ->native(false),
+                            ->native(false)
+                            ->disabled()
+                            ->dehydrated(false)
+                            ->helperText(__('Gender cannot be changed.')),
+
+                        Select::make('governorate_id')
+                            ->label(__('Governorate'))
+                            ->options(Governorate::all()->pluck('name', 'id')->toArray())
+                            ->required()
+                            ->native(false)
+                            ->searchable(),
 
                         TextInput::make('address')
                             ->label(__('Residential Address (filled from map)'))
@@ -350,22 +374,35 @@ class EditProfile extends Page implements HasForms
         }
 
         DB::transaction(function () use ($data, $user) {
-
-            $user->update([
+            $userUpdate = [
                 'name' => $data['name'],
-                'email' => $data['email'],
                 'phone' => $data['phone'],
-            ]);
+            ];
+
+            if (isset($data['email'])) {
+                $userUpdate['email'] = $data['email'];
+            }
+
+            $user->update($userUpdate);
+
+            $donorUpdate = [
+                'governorate_id' => $data['governorate_id'],
+                'auto_location_address' => $data['address'],
+                'lat' => $data['lat'] ?? null,
+                'lng' => $data['lng'] ?? null,
+            ];
+
+            if (isset($data['birth_date'])) {
+                $donorUpdate['birth_date'] = $data['birth_date'];
+            }
+
+            if (isset($data['gender'])) {
+                $donorUpdate['gender'] = $data['gender'];
+            }
 
             $donor = $user->donor()->updateOrCreate(
                 ['user_id' => $user->id],
-                [
-                    'birth_date' => $data['birth_date'],
-                    'gender' => $data['gender'],
-                    'auto_location_address' => $data['address'],
-                    'lat' => $data['lat'] ?? null,
-                    'lng' => $data['lng'] ?? null,
-                ]
+                $donorUpdate
             );
 
             $healthUpdate = [

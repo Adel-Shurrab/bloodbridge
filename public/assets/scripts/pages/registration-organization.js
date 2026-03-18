@@ -622,7 +622,7 @@ function initGPSLocation() {
             // Reverse geocode to get address using Nominatim (OpenStreetMap)
             // Note: Nominatim requires a User-Agent header for identification
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`,
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=${window.currentLocale || 'ar'}`,
                 {
                     headers: {
                         'User-Agent': 'BloodBridge/1.0' // Required by Nominatim usage policy

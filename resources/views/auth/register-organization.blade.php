@@ -28,6 +28,8 @@
                 'File type not supported': '{{ __('File type not supported. Please choose PDF or image') }}'
             };
 
+            window.currentLocale = '{{ app()->getLocale() }}';
+
             function __(key, replace = {}) {
                 let translation = window.translations[key] || key;
                 for (let placeholder in replace) {

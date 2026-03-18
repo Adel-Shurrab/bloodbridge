@@ -108,15 +108,15 @@
                         <p>{{ $settings->getTranslation('login_subtitle') }}</p>
                     <div class="stats-mini">
                         <div class="stat-mini">
-                            <span class="stat-mini-number">5000+</span>
+                            <span class="stat-mini-number">{{ $stats['donors_count'] }}+</span>
                             <span class="stat-mini-label">{{ __('Donors') }}</span>
                         </div>
                         <div class="stat-mini">
-                            <span class="stat-mini-number">120</span>
+                            <span class="stat-mini-number">{{ $stats['orgs_count'] }}</span>
                             <span class="stat-mini-label">{{ __('Hospitals') }}</span>
                         </div>
                         <div class="stat-mini">
-                            <span class="stat-mini-number">4500</span>
+                            <span class="stat-mini-number">{{ $stats['lives_saved'] }}</span>
                             <span class="stat-mini-label">{{ __('Lives Saved') }}</span>
                         </div>
                     </div>

@@ -11,6 +11,8 @@
                 minDaysAfterSurgery: {{ $settings->min_days_after_surgery }}
             };
 
+            window.currentLocale = '{{ app()->getLocale() }}';
+
             window.translations = {
                 'Name is required': '{{ __('Name is required') }}',
                 'Email is required': '{{ __('Email is required') }}',
