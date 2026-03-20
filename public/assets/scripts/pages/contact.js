@@ -142,7 +142,7 @@ if (contactForm) {
     });
 
     // Real-time validation
-    const inputs = ['name', 'email', 'subject', 'message'];
+    const inputs = ['name', 'email', 'subject', 'message' , 'privacy'];
     inputs.forEach(id => {
         const input = document.getElementById(id);
         if (input) {

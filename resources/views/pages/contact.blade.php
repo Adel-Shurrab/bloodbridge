@@ -17,7 +17,7 @@
                     @if ($settings->enable_contact_messages)
                         <h3>أرسل لنا رسالة</h3>
                         <form id="contactForm" method="POST" action="{{ route('contact.submit') }}"
-                            class="contact-form">
+                            class="contact-form" novalidate>
                             @csrf
                             <div class="form-group">
                                 <label for="name">اسمك <span class="required">*</span></label>
@@ -43,18 +43,22 @@
                                     aria-describedby="messageError"></textarea>
                                 <span class="error-message" id="messageError"></span>
                             </div>
-                            <div class="form-group checkbox">
-                                <input type="checkbox" id="privacy" name="privacy" required aria-required="true" />
-                                <label for="privacy">أوافق على <a href="javascript:void(0)"
-                                        @click.prevent="$dispatch('open-modal', 'privacyModal')">سياسة الخصوصية</a>
-                                    <span class="required">*</span></label>
+                            <div style="margin-bottom: 1.5rem;">
+                                <div class="form-group checkbox" style="margin-bottom: 0px; !important">
+                                    <input type="checkbox" id="privacy" name="privacy" required aria-required="true" />
+                                    <label for="privacy">أوافق على <a href="javascript:void(0)"
+                                            @click.prevent="$dispatch('open-modal', 'privacyModal')">سياسة الخصوصية</a>
+                                        <span class="required">*</span>
+                                    </label>
+                                </div>
+                                <span class="error-message" id="privacyError" style="margin-bottom: 15px;"></span>
                             </div>
                             <button type="submit" class="btn btn-primary full-width" id="submitBtn">
                                 <span class="btn-text">إرسال الرسالة</span>
                                 <span class="btn-loader" style="display: none;">جاري الإرسال...</span>
                             </button>
-                            <div class="form-message success-message" id="successMessage" style="display: none;"></div>
-                            <div class="form-message error-message" id="errorMessage" style="display: none;"></div>
+                            <div class="form-message success-message" id="successMessage" style="display: none; margin-top: 1.5rem !important; "></div>
+                            <div class="form-message error-message" id="errorMessage" style="display: none; margin-top: 1.5rem !important;"></div>
                         </form>
                     @else
                         <div class="text-center" style="padding: 40px 20px;">

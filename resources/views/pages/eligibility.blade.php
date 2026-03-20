@@ -22,9 +22,9 @@
         </div>
 
         <div class="container mx-auto" style="max-width: 1000px; padding: 4rem 1.5rem;">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <div class="eligibility-notice-grid" style="display: grid; grid-template-columns: 240px 1fr; gap: 2rem">
                 <!-- Sidebar Navigation (Desktop) -->
-                <div class="hidden md:block">
+                <div class="hide">
                     <div
                         style="position: sticky; top: 100px; background: #fff; border: 1px solid #edf2f7; border-radius: 16px; padding: 1.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);">
                         <h3
@@ -230,6 +230,10 @@
 
             .eligibility-notice-grid {
                 grid-template-columns: 1fr !important;
+            }
+
+            .hide{
+                display:none;
             }
         }
     </style>

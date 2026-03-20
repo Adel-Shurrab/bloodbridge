@@ -215,7 +215,8 @@ function createRipple(event) {
 
   const rect = card.getBoundingClientRect();
   const size = Math.max(rect.width, rect.height);
-  const x = event.clientX - rect.right - size / 2;
+  // const x = event.clientX - rect.right - size / 2;
+  const x = event.clientX - rect.left - size / 2;
   const y = event.clientY - rect.top - size / 2;
 
   ripple.style.cssText = `
