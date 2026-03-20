@@ -48,3 +48,4 @@ class BloodTypeDemandWidget extends Widget
         ];
     }
 }
+

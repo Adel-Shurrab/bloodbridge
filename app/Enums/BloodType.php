@@ -28,7 +28,7 @@ enum BloodType: int implements HasLabel, HasColor
             self::B_NEGATIVE => 'B-',
             self::AB_POSITIVE => 'AB+',
             self::AB_NEGATIVE => 'AB-',
-            self::UNKNOWN => 'غير معروف',
+            self::UNKNOWN => __('Unknown'),
         };
     }
 

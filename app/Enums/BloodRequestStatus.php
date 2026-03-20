@@ -16,11 +16,11 @@ enum BloodRequestStatus: int implements HasLabel, HasColor
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::PENDING => 'قيد الانتظار',
-            self::BROADCASTED => 'تم البث',
-            self::FULFILLED => 'تم التنفيذ',
-            self::CANCELLED => 'ملغي',
-            self::EXPIRED => 'منتهي',
+            self::PENDING => __('Pending'),
+            self::BROADCASTED => __('Broadcasted'),
+            self::FULFILLED => __('Fulfilled'),
+            self::CANCELLED => __('Cancelled'),
+            self::EXPIRED => __('Expired'),
         };
     }
 

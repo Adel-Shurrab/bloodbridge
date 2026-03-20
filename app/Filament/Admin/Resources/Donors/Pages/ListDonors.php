@@ -3,7 +3,7 @@
 namespace App\Filament\Admin\Resources\Donors\Pages;
 
 use App\Filament\Admin\Resources\Donors\DonorResource;
-use Filament\Actions\CreateAction;
+use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
 
 class ListDonors extends ListRecords
@@ -13,7 +13,7 @@ class ListDonors extends ListRecords
     protected function getHeaderActions(): array
     {
         return [
-            CreateAction::make(),
+            Actions\CreateAction::make(),
         ];
     }
 }

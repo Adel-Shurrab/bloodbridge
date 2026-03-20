@@ -3,9 +3,11 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Translatable\HasTranslations;
 
 class Achievement extends Model
 {
+    use HasTranslations;
     
     public const CRITERIA_DONATIONS = 'donations';
     public const CRITERIA_POINTS = 'points';
@@ -18,6 +20,8 @@ class Achievement extends Model
     public const DEFAULT_POINTS_REWARDS = 0;
     public const DEFAULT_CRITERIA_VALUE = 0;
     public const DEFAULT_DISPLAY_ORDER = 0;
+
+    public array $translatable = ['name', 'description'];
 
     protected $fillable = [
         'name',

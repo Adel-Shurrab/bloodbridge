@@ -13,25 +13,35 @@ class Statistics extends Page
 {
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'الإحصائيات';
+    protected static ?int $navigationSort = 1;
 
-    protected string $view = 'filament.pages.statistics';
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.pages.statistics.title');
+    }
 
-    protected static ?string $title = 'الإحصائيات';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.system-reports');
+    }
 
-    protected static ?string $navigationLabel = 'الإحصائيات';
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('filament.pages.statistics.title');
+    }
 
     protected function getHeaderWidgets(): array
     {
         return [
-            
+            AdvancedStatsOverview::class,
+            BloodTypeDemandWidget::class,
+            RecentActivityWidget::class,
+            EngagementChartWidget::class,
         ];
     }
 
     protected function getFooterWidgets(): array
     {
-        return [
-            
-        ];
+        return [];
     }
 }

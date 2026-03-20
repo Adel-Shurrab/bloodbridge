@@ -45,26 +45,27 @@ class BloodRequestStatsWidget extends BaseWidget
             ->count();
 
         return [
-            Stat::make('طلبات الدم النشطة', $activeRequests)
-                ->description('الطلبات المعلقة والمفعلة')
+            Stat::make(__('Active Blood Requests'), $activeRequests)
+                ->description(__('Pending and activated requests'))
                 ->descriptionIcon('heroicon-o-clipboard-document-list')
                 ->color($activeRequests > 0 ? 'warning' : 'gray')
                 ->url(route('filament.organization.resources.blood-requests.index', ['tenant' => $organization->slug])),
 
-            Stat::make('طلبات عاجلة', $criticalRequests)
-                ->description('تحتاج اهتمام فوري')
+            Stat::make(__('Urgent Requests'), $criticalRequests)
+                ->description(__('Needs immediate attention'))
                 ->descriptionIcon('heroicon-o-exclamation-triangle')
                 ->color($criticalRequests > 0 ? 'danger' : 'success'),
 
-            Stat::make('استجابات المتبرعين', $pendingResponses)
-                ->description('بانتظار المراجعة')
+            Stat::make(__('Donor Responses'), $pendingResponses)
+                ->description(__('Awaiting review'))
                 ->descriptionIcon('heroicon-o-user-group')
                 ->color($pendingResponses > 0 ? 'info' : 'gray'),
 
-            Stat::make('تبرعات اليوم', $todayDonations)
-                ->description('تم إكمالها اليوم')
+            Stat::make(__('Today\'s Donations'), $todayDonations)
+                ->description(__('Completed today'))
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),
         ];
     }
 }
+

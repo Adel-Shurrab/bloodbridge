@@ -3,11 +3,10 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 use Filament\Tables\Table;
 use Filament\Actions\Action;
-use Filament\Tables\Columns\ToggleColumn;
+use BezhanSalleh\LanguageSwitch\LanguageSwitch;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -33,7 +32,20 @@ class AppServiceProvider extends ServiceProvider
         try {
             $settings = app(\App\Settings\GeneralSettings::class);
             view()->share('settings', $settings);
-            config(['app.name' => $settings->site_name]);
+            config(['app.name' => (string) $settings->site_name]);
+
+            \Illuminate\Support\Facades\DB::listen(function ($query) {
+                if (str_contains(strtolower($query->sql), 'delete from `notifications`') || str_contains(strtolower($query->sql), 'update `notifications`')) {
+                    \Illuminate\Support\Facades\Log::info('Notification Query:', [
+                        'sql' => $query->sql,
+                        'bindings' => $query->bindings,
+                        'time' => $query->time,
+                        'url' => request()->fullUrl(),
+                        'method' => request()->method(),
+                        'user_id' => auth()->id(),
+                    ]);
+                }
+            });
         } catch (\Throwable $e) {
         }
 
@@ -42,8 +54,12 @@ class AppServiceProvider extends ServiceProvider
                 ->filtersTriggerAction(
                     fn(Action $action) => $action
                         ->button()
-                        ->label('تصفية'),
+                        ->label(__('Filter')),
                 );
+        });
+
+        LanguageSwitch::configureUsing(function (LanguageSwitch $switch) {
+            $switch->locales(['ar', 'en']);
         });
     }
 }

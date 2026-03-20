@@ -28,7 +28,7 @@ class AdminContactNotificationMail extends Mailable
     public function envelope(): Envelope
     {
         return new Envelope(
-            subject: 'رسالة اتصال جديدة: ' . $this->contactMessage->subject,
+            subject: __('New Contact Message') . ': ' . $this->contactMessage->subject,
         );
     }
 

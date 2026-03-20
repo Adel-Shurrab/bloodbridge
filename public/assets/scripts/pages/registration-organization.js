@@ -84,7 +84,7 @@ function initFileUpload() {
                 // Check file size (5MB max)
                 const maxSize = 5 * 1024 * 1024; // 5MB in bytes
                 if (file.size > maxSize) {
-                    showError("licenseUpload", "حجم الملف يجب أن يكون أقل من 5 ميغا بايت");
+                    showError("licenseUpload", __("File too large"));
                     fileInput.value = "";
                     return;
                 }
@@ -92,7 +92,7 @@ function initFileUpload() {
                 // Check file type
                 const allowedTypes = ["application/pdf", "image/jpeg", "image/jpg", "image/png"];
                 if (!allowedTypes.includes(file.type)) {
-                    showError("licenseUpload", "نوع الملف غير مدعوم. يرجى اختيار PDF أو صورة");
+                    showError("licenseUpload", __("File type not supported"));
                     fileInput.value = "";
                     return;
                 }
@@ -219,31 +219,27 @@ function validateStep(step) {
         ["organizationName", "opening_time", "closing_time", "daily_capacity", "working_days"].forEach(clearError);
 
         if (!organizationName) {
-            showError("organizationName", "اسم المنظمة مطلوب");
+            showError("organizationName", __("Org name required"));
             isValid = false;
         }
 
         if (!isOpen247Val) {
             if (!openingTime) {
-                showError("opening_time", "وقت الافتتاح مطلوب");
+                showError("opening_time", __("Opening time required"));
                 isValid = false;
             }
             if (!closingTime) {
-                showError("closing_time", "وقت الإغلاق مطلوب");
+                showError("closing_time", __("Closing time required"));
                 isValid = false;
             }
         }
 
         if (workingDays.length === 0) {
-            // We need a way to show error for working_days. 
-            // The showError function expects an ID, but working_days doesn't have one on a single element.
-            // I'll add an ID to the container or just use a dummy one if I can't find it.
-            // Let's check if there is an error-message span near the checkbox grid.
             const workingDaysContainer = document.querySelector('.checkbox-grid').closest('.form-group');
             if (workingDaysContainer) {
                 const errorSpan = workingDaysContainer.querySelector('.error-message');
                 if (errorSpan) {
-                    errorSpan.textContent = "يرجى اختيار يوم عمل واحد على الأقل";
+                    errorSpan.textContent = __("Min one working day");
                     workingDaysContainer.classList.add('error');
                 }
             }
@@ -251,7 +247,7 @@ function validateStep(step) {
         }
 
         if (!dailyCapacity || parseInt(dailyCapacity) <= 0) {
-            showError("daily_capacity", "القدرة الاستيعابية مطلوبة ويجب أن تكون أكبر من 0");
+            showError("daily_capacity", __("Daily capacity required"));
             isValid = false;
         }
 
@@ -277,25 +273,25 @@ function validateStep(step) {
         ["contactEmail", "contactPhone", "governorate_id"].forEach(clearError);
 
         if (!contactEmail) {
-            showError("contactEmail", "البريد الإلكتروني مطلوب");
+            showError("contactEmail", __("Email is required"));
             isValid = false;
         } else if (!validateEmail(contactEmail)) {
-            showError("contactEmail", "البريد الإلكتروني غير صحيح");
+            showError("contactEmail", __("Invalid email address"));
             isValid = false;
         }
 
         if (!contactPhone) {
-            showError("contactPhone", "رقم الجوال مطلوب");
+            showError("contactPhone", __("Mobile number is required"));
             isValid = false;
         } else if (!validatePhone(contactPhone)) {
-            showError("contactPhone", "رقم الجوال غير صحيح");
+            showError("contactPhone", __("Invalid mobile number"));
             isValid = false;
         }
 
 
 
         if (!governorateId) {
-            showError("governorate_id", "المحافظة مطلوبة");
+            showError("governorate_id", __("Governorate is required"));
             isValid = false;
         }
 
@@ -320,46 +316,46 @@ function validateStep(step) {
         ["licenseNumber", "licenseUpload", "adminName", "responsible_person_position", "adminEmail", "adminPassword", "adminPassword_confirmation"].forEach(clearError);
 
         if (!licenseNumber) {
-            showError("licenseNumber", "رقم الترخيص مطلوب");
+            showError("licenseNumber", __("License number required"));
             isValid = false;
         }
 
         if (!licenseUpload.files.length) {
-            showError("licenseUpload", "يرجى تحميل الرخصة");
+            showError("licenseUpload", __("Please upload license"));
             isValid = false;
         }
 
         if (!adminName) {
-            showError("adminName", "اسم جهة الاتصال مطلوب");
+            showError("adminName", __("Contact name required"));
             isValid = false;
         }
 
         if (!responsiblePersonPosition) {
-            showError("responsible_person_position", "المسمى الوظيفي مطلوب");
+            showError("responsible_person_position", __("Job title required"));
             isValid = false;
         }
 
         if (!adminEmail) {
-            showError("adminEmail", "البريد الإلكتروني مطلوب");
+            showError("adminEmail", __("Email is required"));
             isValid = false;
         } else if (!validateEmail(adminEmail)) {
-            showError("adminEmail", "البريد الإلكتروني غير صحيح");
+            showError("adminEmail", __("Invalid email address"));
             isValid = false;
         }
 
         if (!adminPassword) {
-            showError("adminPassword", "كلمة السر مطلوبة");
+            showError("adminPassword", __("Password is required"));
             isValid = false;
         } else if (!validatePassword(adminPassword)) {
-            showError("adminPassword", "كلمة السر يجب أن تكون 8 أحرف على الأقل");
+            showError("adminPassword", __("Password must be at least 8 characters"));
             isValid = false;
         }
 
         if (!adminPassword_confirmation) {
-            showError("adminPassword_confirmation", "تأكيد كلمة السر مطلوب");
+            showError("adminPassword_confirmation", __("Confirm password is required"));
             isValid = false;
         } else if (adminPassword !== adminPassword_confirmation) {
-            showError("adminPassword_confirmation", "كلمة السر غير متطابقة");
+            showError("adminPassword_confirmation", __("Passwords do not match"));
             isValid = false;
         }
 
@@ -377,7 +373,7 @@ function validateStep(step) {
 
         if (!termsAgree.checked) {
             if (errorElement) {
-                errorElement.textContent = "يجب الموافقة على الشروط والأحكام";
+                errorElement.textContent = __("Must agree to terms");
             }
             isValid = false;
         } else {
@@ -454,9 +450,9 @@ function populateReview() {
     const adminInfoReview = document.getElementById("adminInfoReview");
 
     const getWorkingHoursText = () => {
-        if (formData.isOpen247) return "تعمل على مدار 24 ساعة (24/7)";
+        if (formData.isOpen247) return __("Working 24/7");
         if (formData.openingTime && formData.closingTime) return `${formData.openingTime} - ${formData.closingTime}`;
-        return "غير محدد";
+        return __("Not specified");
     };
 
     // Organization Information
@@ -471,7 +467,7 @@ function populateReview() {
         </div>
         <div class="review-item">
             <span class="review-label">أيام العمل</span>
-            <span class="review-value">${formData.workingDays && formData.workingDays.length > 0 ? formData.workingDays.join(", ") : "غير محدد"}</span>
+            <span class="review-value">${formData.workingDays && formData.workingDays.length > 0 ? formData.workingDays.join(", ") : __("Not specified")}</span>
         </div>
         <div class="review-item">
             <span class="review-label">القدرة الاستيعابية</span>
@@ -512,7 +508,7 @@ function populateReview() {
         </div>
         <div class="review-item">
             <span class="review-label">الرخصة المحملة</span>
-            <span class="review-value">${formData.licenseFile ? formData.licenseFile.name : "غير محدد"}</span>
+            <span class="review-value">${formData.licenseFile ? formData.licenseFile.name : __("Not specified")}</span>
         </div>
         <div class="review-item">
             <span class="review-label">اسم المسؤول</span>
@@ -626,7 +622,7 @@ function initGPSLocation() {
             // Reverse geocode to get address using Nominatim (OpenStreetMap)
             // Note: Nominatim requires a User-Agent header for identification
             const response = await fetch(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=ar`,
+                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}&accept-language=${window.currentLocale || 'ar'}`,
                 {
                     headers: {
                         'User-Agent': 'BloodBridge/1.0' // Required by Nominatim usage policy

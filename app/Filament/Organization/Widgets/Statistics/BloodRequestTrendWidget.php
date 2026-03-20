@@ -10,9 +10,14 @@ use Flowframe\Trend\TrendValue;
 
 class BloodRequestTrendWidget extends ChartWidget
 {
-    protected ?string $heading = 'طلبات الدم - آخر 30 يوم';
+    protected ?string $heading = 'Blood Requests - Last 30 Days';
 
     protected ?string $maxHeight = '300px';
+
+    public function getHeading(): string
+    {
+        return __($this->heading);
+    }
 
     protected int | string | array $columnSpan = 'full';
 
@@ -34,7 +39,7 @@ class BloodRequestTrendWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'طلبات الدم',
+                    'label' => __('Blood Requests'),
                     'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
                     'borderColor' => '#3b82f6',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
@@ -50,3 +55,4 @@ class BloodRequestTrendWidget extends ChartWidget
         return 'line';
     }
 }
+

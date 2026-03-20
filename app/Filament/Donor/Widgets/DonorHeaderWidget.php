@@ -10,3 +10,4 @@ class DonorHeaderWidget extends Widget
 
     protected int | string | array $columnSpan = 'full';
 }
+

@@ -2,12 +2,9 @@
 
 namespace App\Filament\Admin\Resources\Donors\Schemas;
 
-use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Section;
 use Filament\Infolists\Components\TextEntry;
-use Filament\Infolists\Components\IconEntry;
-use Filament\Support\Icons\Heroicon;
 
 class DonorInfolist
 {
@@ -16,180 +13,183 @@ class DonorInfolist
         return $schema
             ->components([
 
-                Section::make('معلومات شخصية')
+                Section::make(__('Personal Information'))
                     ->icon('heroicon-o-user-circle')
                     ->columns(3)
                     ->components([
                         TextEntry::make('user.name')
-                            ->label('الاسم الكامل')
+                            ->label(__('Full Name'))
                             ->weight('bold')
-                            ->size('lg'),
+                            ->size('lg')
+                            ->getStateUsing(fn($record, $livewire) => $record->user ? ($record->user->name) : null),
 
                         TextEntry::make('national_id')
-                            ->label('رقم الهوية الوطنية')
+                            ->label(__('National ID'))
                             ->copyable()
-                            ->copyMessage('تم النسخ!')
+                            ->copyMessage(__('Copied!'))
                             ->icon('heroicon-o-identification'),
 
                         TextEntry::make('gender')
-                            ->label('الجنس')
+                            ->label(__('Gender'))
                             ->badge(),
 
                         TextEntry::make('user.email')
-                            ->label('البريد الإلكتروني')
+                            ->label(__('Email'))
                             ->copyable()
                             ->icon('heroicon-o-envelope')
                             ->url(fn($state) => 'mailto:' . $state),
 
                         TextEntry::make('user.phone')
-                            ->label('رقم الهاتف')
+                            ->label(__('Phone'))
                             ->copyable()
                             ->icon('heroicon-o-phone')
                             ->url(fn($state) => 'tel:' . $state),
 
                         TextEntry::make('birth_date')
-                            ->label('تاريخ الميلاد')
+                            ->label(__('Birth Date'))
                             ->date('Y/m/d')
                             ->icon('heroicon-o-calendar'),
 
                         TextEntry::make('governorate.name')
-                            ->label('المحافظة')
+                            ->label(__('Governorate'))
                             ->badge()
                             ->color('info')
-                            ->icon('heroicon-o-map-pin'),
+                            ->icon('heroicon-o-map-pin')
+                            ->getStateUsing(fn($record, $livewire) => $record->governorate?->getTranslation('name', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->governorate?->getTranslation('name', 'ar', false)),
 
                         TextEntry::make('auto_location_address')
-                            ->label('العنوان')
+                            ->label(__('Address'))
                             ->columnSpan(2)
-                            ->placeholder('لا يوجد عنوان مسجّل'),
+                            ->placeholder(__('No address registered')),
                     ]),
 
-                Section::make('بيانات النظام')
+                Section::make(__('System Data'))
                     ->icon('heroicon-o-chart-bar')
                     ->columns(4)
                     ->components([
                         TextEntry::make('points')
-                            ->label('النقاط المتراكمة')
-                            ->formatStateUsing(fn($state) => number_format($state) . ' نقطة')
+                            ->label(__('Accumulated Points'))
+                            ->formatStateUsing(fn($state) => number_format($state) . ' ' . __('points'))
                             ->badge()
                             ->color('warning')
                             ->size('lg'),
 
                         TextEntry::make('level')
-                            ->label('مستوى المتبرع')
-                            ->formatStateUsing(fn($state) => 'المستوى ' . $state)
+                            ->label(__('Donor Level'))
+                            ->formatStateUsing(fn($state) => __('Level') . ' ' . $state)
                             ->badge()
                             ->color('primary'),
 
                         TextEntry::make('created_at')
-                            ->label('تاريخ التسجيل')
+                            ->label(__('Registration Date'))
                             ->dateTime('Y/m/d')
                             ->since()
                             ->icon('heroicon-o-clock'),
 
                         TextEntry::make('updated_at')
-                            ->label('آخر تحديث')
+                            ->label(__('Last Update'))
                             ->dateTime('Y/m/d H:i')
                             ->icon('heroicon-o-arrow-path'),
                     ]),
 
-                Section::make('الملف الصحي')
+                Section::make(__('Health Profile'))
                     ->icon('heroicon-o-heart')
                     ->columns(4)
                     ->components([
 
                         TextEntry::make('healthProfile.blood_type')
-                            ->label('فصيلة الدم (المعلنة)')
+                            ->label(__('Blood Type (Declared)'))
                             ->badge()
                             ->size('xl'),
 
                         TextEntry::make('healthProfile.verified_blood_type')
-                            ->label('فصيلة الدم (موثّقة)')
+                            ->label(__('Blood Type (Verified)'))
                             ->badge()
                             ->color('success')
-                            ->placeholder('غير موثّقة بعد'),
+                            ->placeholder(__('Not verified yet')),
 
                         TextEntry::make('healthProfile.weight')
-                            ->label('الوزن')
-                            ->suffix(' كجم')
-                            ->formatStateUsing(fn($state) => $state ? $state . ' كجم' : '—')
+                            ->label(__('Weight'))
+                            ->suffix(' ' . __('kg'))
+                            ->formatStateUsing(fn($state) => $state ? $state . ' ' . __('kg') : '—')
                             ->color(fn($state) => $state && $state < 50 ? 'danger' : null),
 
                         TextEntry::make('healthProfile.height')
-                            ->label('الطول')
-                            ->formatStateUsing(fn($state) => $state ? $state . ' سم' : '—')
+                            ->label(__('Height'))
+                            ->formatStateUsing(fn($state) => $state ? $state . ' ' . __('cm') : '—')
                             ->color(fn($state) => $state && $state < 140 ? 'danger' : null),
 
                         TextEntry::make('healthProfile.is_eligible')
-                            ->label('أهلية التبرع')
-                            ->formatStateUsing(fn($state) => $state ? '✓ مؤهل للتبرع' : '✗ غير مؤهل حالياً')
+                            ->label(__('Donation Eligibility'))
+                            ->formatStateUsing(fn($state) => $state ? '✓ ' . __('Eligible to donate') : '✗ ' . __('Not eligible currently'))
                             ->badge()
                             ->size('lg')
                             ->color(fn($state) => $state ? 'success' : 'danger'),
 
                         TextEntry::make('healthProfile.next_eligible_date')
-                            ->label('تاريخ الأهلية التالية')
+                            ->label(__('Next Eligibility Date'))
                             ->date('Y/m/d')
                             ->placeholder('—')
                             ->icon('heroicon-o-calendar-days')
                             ->color('warning'),
 
                         TextEntry::make('healthProfile.total_donations')
-                            ->label('إجمالي التبرعات')
-                            ->formatStateUsing(fn($state) => $state . ' تبرع')
+                            ->label(__('Total Donations'))
+                            ->formatStateUsing(fn($state) => $state . ' ' . __('donations'))
+
                             ->badge()
                             ->color('primary'),
 
                         TextEntry::make('healthProfile.last_donation_date')
-                            ->label('آخر تبرع')
+                            ->label(__('Last Donation'))
                             ->date('Y/m/d')
                             ->since()
-                            ->placeholder('لا يوجد')
+                            ->placeholder(__('None'))
                             ->icon('heroicon-o-clock'),
 
                         TextEntry::make('healthProfile.chronic_disease')
-                            ->label('مرض مزمن')
-                            ->formatStateUsing(fn($state) => $state ? 'نعم' : 'لا')
+                            ->label(__('Chronic Disease'))
+                            ->formatStateUsing(fn($state) => $state ? __('Yes') : __('No'))
                             ->badge()
                             ->color(fn($state) => $state ? 'danger' : 'success'),
 
                         TextEntry::make('healthProfile.infection')
-                            ->label('إصابة حالية')
-                            ->formatStateUsing(fn($state) => $state ? 'نعم' : 'لا')
+                            ->label(__('Current Infection'))
+                            ->formatStateUsing(fn($state) => $state ? __('Yes') : __('No'))
                             ->badge()
                             ->color(fn($state) => $state ? 'danger' : 'success'),
 
                         TextEntry::make('healthProfile.has_recent_surgery')
-                            ->label('جراحة حديثة')
-                            ->formatStateUsing(fn($state) => $state ? 'نعم' : 'لا')
+                            ->label(__('Recent Surgery'))
+                            ->formatStateUsing(fn($state) => $state ? __('Yes') : __('No'))
                             ->badge()
                             ->color(fn($state) => $state ? 'warning' : 'success'),
 
                         TextEntry::make('healthProfile.recent_donation')
-                            ->label('تبرع حديث (< 90 يوم)')
-                            ->formatStateUsing(fn($state) => $state ? 'نعم' : 'لا')
+                            ->label(__('Recent Donation (< 90 days)'))
+                            ->formatStateUsing(fn($state) => $state ? __('Yes') : __('No'))
                             ->badge()
                             ->color(fn($state) => $state ? 'warning' : 'success'),
                     ]),
 
-                Section::make('الموقع الجغرافي')
+                Section::make(__('Geographic Location'))
                     ->icon('heroicon-o-map-pin')
                     ->collapsed()
                     ->columns(3)
                     ->components([
                         TextEntry::make('governorate.name')
-                            ->label('المحافظة'),
+                            ->label(__('Governorate')),
 
                         TextEntry::make('lat')
-                            ->label('خط العرض')
-                            ->placeholder('غير محدد'),
+                            ->label(__('Latitude'))
+                            ->placeholder(__('Not specified')),
 
                         TextEntry::make('lng')
-                            ->label('خط الطول')
-                            ->placeholder('غير محدد'),
+                            ->label(__('Longitude'))
+                            ->placeholder(__('Not specified')),
 
                         TextEntry::make('google_maps_link')
-                            ->label('رابط خرائط Google')
+                            ->label(__('Google Maps Link'))
                             ->columnSpanFull()
                             ->getStateUsing(fn($record) => $record->lat
                                 ? "({$record->lat}, {$record->lng})"
@@ -197,7 +197,7 @@ class DonorInfolist
                             ->url(fn($record) => $record->lat
                                 ? "https://www.google.com/maps?q={$record->lat},{$record->lng}"
                                 : null, true)
-                            ->placeholder('لا توجد إحداثيات'),
+                            ->placeholder(__('No coordinates')),
                     ]),
             ]);
     }

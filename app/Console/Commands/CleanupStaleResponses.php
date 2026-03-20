@@ -6,7 +6,6 @@ use Illuminate\Console\Command;
 use App\Models\RequestResponse;
 use App\Enums\RequestResponseStatus;
 use App\Enums\UrgencyLevel;
-use Carbon\Carbon;
 
 class CleanupStaleResponses extends Command
 {
@@ -15,14 +14,14 @@ class CleanupStaleResponses extends Command
      *
      * @var string
      */
-    protected $signature = 'blood:cleanup-stale-responses {--hours=6 : Hours after which PENDING responses are marked as IGNORED}';
+    protected $signature = 'blood:cleanup-stale-responses';
 
     /**
      * The console command description.
      *
      * @var string
      */
-    protected $description = 'Automatically mark stale PENDING responses as IGNORED after specified timeout';
+    protected $description = 'Mark stale PENDING responses as UNREACHABLE (CRITICAL: 8h, NORMAL: 48h)';
 
     /**
      * Execute the console command.

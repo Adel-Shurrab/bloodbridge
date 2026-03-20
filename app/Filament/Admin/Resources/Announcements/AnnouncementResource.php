@@ -12,24 +12,47 @@ use App\Filament\Admin\Resources\Announcements\Tables\AnnouncementsTable;
 use App\Models\Announcement;
 use BackedEnum;
 use Filament\Resources\Resource;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 use Filament\Schemas\Schema;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Model;
 
 class AnnouncementResource extends Resource
 {
+    use Translatable;
+
     protected static ?string $model = Announcement::class;
 
     protected static string|BackedEnum|null $navigationIcon = 'heroicon-o-megaphone';
 
-    protected static string|\UnitEnum|null $navigationGroup = 'التواصل';
+    protected static ?int $navigationSort = 1;
 
-    protected static ?string $navigationLabel = 'الإعلانات والمراسلات';
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.resources.announcements.title');
+    }
 
-    protected static ?string $modelLabel = 'إعلان';
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.communication');
+    }
 
-    protected static ?string $pluralModelLabel = 'الإعلانات';
+    public static function getModelLabel(): string
+    {
+        return __('filament.resources.announcements.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament.resources.announcements.plural');
+    }
 
     protected static ?string $recordTitleAttribute = 'title';
+
+    public static function getTranslatableLocales(): array
+    {
+        return ['ar', 'en'];
+    }
 
     public static function getNavigationBadge(): ?string
     {
@@ -49,6 +72,16 @@ class AnnouncementResource extends Resource
     public static function table(Table $table): Table
     {
         return AnnouncementsTable::configure($table);
+    }
+
+    public static function canEdit(Model $record): bool
+    {
+        return $record->status === 0;
+    }
+
+    public static function canDelete(Model $record): bool
+    {
+        return $record->status === 0;
     }
 
     public static function getRelations(): array

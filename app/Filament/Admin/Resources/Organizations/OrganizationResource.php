@@ -9,26 +9,51 @@ use App\Filament\Admin\Resources\Organizations\Tables\OrganizationsTable;
 use App\Filament\Admin\Resources\Organizations\RelationManagers\BloodRequestsRelationManager;
 use App\Models\Organization;
 use BackedEnum;
-use UnitEnum;
 use Filament\Schemas\Components\Group;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Resources\Resource;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\Translatable;
 use Filament\Schemas\Schema;
 use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Table;
 
 class OrganizationResource extends Resource
 {
+    use Translatable;
+
     protected static ?string $model = Organization::class;
 
     protected static string|BackedEnum|null $navigationIcon = Heroicon::BuildingOffice;
-    protected static string|\UnitEnum|null $navigationGroup = 'إدارة المستخدمين';
-    protected static ?string $navigationLabel = 'المنظمات';
-    protected static ?string $modelLabel = 'منظمة';
-    protected static ?string $pluralModelLabel = 'المنظمات';
+
+    protected static ?int $navigationSort = 2;
+
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.resources.organizations.title');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.operations');
+    }
+
+    public static function getModelLabel(): string
+    {
+        return __('filament.resources.organizations.singular');
+    }
+
+    public static function getPluralModelLabel(): string
+    {
+        return __('filament.resources.organizations.plural');
+    }
+
+    public static function getTranslatableLocales(): array
+    {
+        return ['ar', 'en'];
+    }
 
     public static function form(Schema $schema): Schema
     {
@@ -40,32 +65,32 @@ class OrganizationResource extends Resource
                 Grid::make(['lg' => 3])
                     ->schema([
                         Group::make([
-                            ($components[0] ?? null)?->visible(fn($operation) => $operation === 'create'), 
-                            $components[1] ?? null, 
-                            $components[2] ?? null, 
-                            $components[3] ?? null, 
+                            ($components[0] ?? null)?->visible(fn($operation) => $operation === 'create'),
+                            $components[1] ?? null,
+                            $components[2] ?? null,
+                            $components[3] ?? null,
                         ])->columnSpan(['lg' => 2]),
 
                         Group::make([
-                            Section::make('الحالة')
+                            Section::make(__('Status'))
                                 ->schema([
                                     Select::make('approval_status')
-                                        ->label('حالة الموافقة')
+                                        ->label(__('Approval Status'))
                                         ->options(\App\Enums\OrganizationStatus::class)
                                         ->default(\App\Enums\OrganizationStatus::PENDING)
                                         ->required()
                                         ->columnSpanFull(),
                                 ]),
 
-                            Section::make('بيانات النظام')
+                            Section::make(__('System Data'))
                                 ->schema([
                                     TextInput::make('created_at')
-                                        ->label('تاريخ التسجيل')
+                                        ->label(__('Registration Date'))
                                         ->disabled()
                                         ->visible(fn($record) => $record !== null),
 
                                     TextInput::make('updated_at')
-                                        ->label('آخر تحديث')
+                                        ->label(__('Last Update'))
                                         ->disabled()
                                         ->visible(fn($record) => $record !== null),
                                 ]),

@@ -51,11 +51,12 @@ function animateCounter(element, target, duration = 2000) {
 
     const timer = setInterval(() => {
         current += increment;
+        const locale = window.appConfig ? window.appConfig.locale : 'en';
         if (current >= target) {
-            element.textContent = target.toLocaleString('ar-EG');
+            element.textContent = target.toLocaleString(locale);
             clearInterval(timer);
         } else {
-            element.textContent = Math.floor(current).toLocaleString('ar-EG');
+            element.textContent = Math.floor(current).toLocaleString(locale);
         }
     }, 16);
 }

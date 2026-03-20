@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Illuminate\View\View;
-use Illuminate\Support\Facades\Cache;
-use App\Models\Donor;
-use App\Models\Appointment;
-use App\Models\Organization;
+
+use App\Traits\ProvidesPublicStats;
 
 class PublicPagesController extends Controller
 {
+    use ProvidesPublicStats;
+
     /**
      * Show the home page with dynamic stats.
      */
@@ -51,30 +50,5 @@ class PublicPagesController extends Controller
     public function terms(): View
     {
         return view('pages.terms');
-    }
-
-    /**
-     * Calculate and cache public statistics.
-     * Caches results for 1 hour to prevent database load.
-     */
-    private function getStats(): array
-    {
-        return Cache::remember('public_stats', 60 * 60, function () {
-
-            $donationsCount = Appointment::where('status', '=', \App\Enums\AppointmentStatus::COMPLETED, 'and')->count('*');
-
-            $orgsCount = Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::APPROVED, 'and')->count('*');
-
-            $donorsCount = Donor::count('*');
-
-            $livesSaved = $donationsCount * 3;
-
-            return [
-                'donations_count' => $donationsCount,
-                'orgs_count' => $orgsCount,
-                'donors_count' => $donorsCount,
-                'lives_saved' => $livesSaved,
-            ];
-        });
     }
 }

@@ -1,10 +1,11 @@
 <x-filament-widgets::widget>
     <div class="top-bar">
         <div class="top-bar-title">
-            <h1>لوحة التحكم</h1>
+            <h1>{{ __('Dashboard') }}</h1>
             <p class="top-bar-subtitle">
-                مرحباً بعودتك، {{ auth()->user()->name }}. إليك ما يحدث مع <span
-                    class="brand-text">{{ app(\App\Settings\GeneralSettings::class)->site_name }}</span>.
+                {{ __('Welcome back, :name.', ['name' => auth()->user()->name]) }}
+                {{ __('Here is what is happening with') }} <span
+                    class="brand-text">{{ app(\App\Settings\GeneralSettings::class)->getTranslation('site_name') }}</span>.
             </p>
         </div>
         <div class="top-bar-actions">
@@ -14,7 +15,7 @@
                 <div class="profile-info">
                     <span class="profile-name">{{ auth()->user()->name }}</span>
                     <span class="profile-role">
-                        {{ auth()->user()->role === \App\Enums\UserRole::ADMIN ? 'مسؤول النظام' : 'مؤسسة' }}
+                        {{ auth()->user()->role === \App\Enums\UserRole::ADMIN ? __('System Administrator') : __('Organization') }}
                     </span>
                 </div>
                 <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="Profile" class="profile-img">
@@ -33,7 +34,7 @@
             align-items: center;
             margin-bottom: 2rem;
             border: 1px solid rgba(211, 47, 47, 0.05);
-            direction: rtl;
+
             transition: all 0.3s;
         }
 
@@ -48,7 +49,7 @@
         }
 
         .top-bar-title {
-            text-align: right;
+            text-align: start;
         }
 
         .top-bar-title h1 {

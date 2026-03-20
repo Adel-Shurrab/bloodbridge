@@ -15,39 +15,39 @@ class UserForm
     {
         return $schema
             ->components([
-                Section::make('معلومات المستخدم')
+                Section::make(__('User Information'))
                     ->schema([
                         TextInput::make('name')
-                            ->label('الاسم')
+                            ->label(__('Name'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('email')
-                            ->label('البريد الإلكتروني')
+                            ->label(__('Email'))
                             ->email()
                             ->required()
                             ->maxLength(255)
                             ->unique('users', 'email', ignoreRecord: true),
 
                         TextInput::make('phone')
-                            ->label('رقم الهاتف')
+                            ->label(__('Phone Number'))
                             ->tel()
                             ->required()
                             ->maxLength(255)
                             ->unique('users', 'phone', ignoreRecord: true),
 
                         Select::make('role')
-                            ->label('نوع الحساب')
+                            ->label(__('Account Type'))
                             ->options(\App\Enums\UserRole::class)
                             ->required(),
 
                         Toggle::make('is_active')
-                            ->label('نشط')
+                            ->label(__('Active'))
                             ->default(true)
                             ->required(),
 
                         TextInput::make('password')
-                            ->label('كلمة المرور')
+                            ->label(__('Password'))
                             ->password()
                             ->revealable()
                             ->dehydrated(fn($state) => filled($state))

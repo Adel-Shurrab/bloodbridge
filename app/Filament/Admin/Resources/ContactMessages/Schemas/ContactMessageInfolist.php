@@ -12,23 +12,23 @@ class ContactMessageInfolist
         return $schema
             ->components([
                 TextEntry::make('name')
-                    ->label('الاسم'),
+                    ->label(__('Name')),
                 TextEntry::make('email')
-                    ->label('البريد الإلكتروني'),
+                    ->label(__('Email')),
                 TextEntry::make('subject')
-                    ->label('الموضوع'),
+                    ->label(__('Subject')),
                 TextEntry::make('message')
-                    ->label('الرسالة')
+                    ->label(__('Message'))
                     ->columnSpanFull(),
                 TextEntry::make('ip_address')
-                    ->label('عنوان IP')
+                    ->label(__('IP Address'))
                     ->placeholder('-'),
                 TextEntry::make('read_at')
-                    ->label('تاريخ القراءة')
+                    ->label(__('Read At'))
                     ->dateTime()
-                    ->placeholder('غير مقروءة بعد'),
+                    ->placeholder(__('Not read yet')),
                 TextEntry::make('created_at')
-                    ->label('تاريخ الإرسال')
+                    ->label(__('Sent At'))
                     ->dateTime(),
             ]);
     }

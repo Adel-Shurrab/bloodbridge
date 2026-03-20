@@ -47,13 +47,13 @@ class CustomResetPassword extends Notification
         $settings = app(\App\Settings\GeneralSettings::class);
 
         return (new MailMessage)
-            ->subject('إعادة تعيين كلمة المرور - ' . $settings->site_name)
-            ->greeting('مرحباً بك في ' . $settings->site_name . '،')
-            ->line('لقد تلقينا طلباً لإعادة تعيين كلمة المرور الخاصة بحسابك المرتبط بهذا البريد الإلكتروني.')
-            ->action('إعادة تعيين كلمة المرور', url(config('app.url') . route('password.reset', $this->token, false)))
-            ->line('هذا الرابط صالح لمدة 60 دقيقة فقط.')
-            ->line('إذا لم تطلب إعادة تعيين كلمة المرور، فلا داعي لاتخاذ أي إجراء آخر.')
-            ->salutation('مع تحيات فريق عمل ' . $settings->site_name);
+            ->subject(__('Reset Password - :site', ['site' => $settings->site_name]))
+            ->greeting(__('Welcome to :site,', ['site' => $settings->site_name]))
+            ->line(__('We received a request to reset the password for your account associated with this email address.'))
+            ->action(__('Reset Password'), url(config('app.url') . route('password.reset', $this->token, false)))
+            ->line(__('This link is only valid for 60 minutes.'))
+            ->line(__('If you did not request a password reset, no further action is required.'))
+            ->salutation(__('Best regards, :site Team', ['site' => $settings->site_name]));
     }
 
     /**

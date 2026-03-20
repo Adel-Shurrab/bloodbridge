@@ -5,8 +5,7 @@
         </h2>
 
         <p class="mt-1 text-sm text-gray-600 dark:text-gray-400">
-            تأكد من استخدام كلمة مرور قوية (٨ أحرف على الأقل، تشمل حروفاً كبيرة وصغيرة وأرقاماً ورموزاً) للحفاظ على أمان
-            حسابك.
+            {{ __('Ensure your account is using a strong password (at least 8 characters, including uppercase, lowercase, numbers, and symbols) to stay secure.') }}
         </p>
     </header>
 

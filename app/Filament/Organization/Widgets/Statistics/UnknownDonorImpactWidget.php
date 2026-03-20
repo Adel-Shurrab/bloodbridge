@@ -41,20 +41,21 @@ class UnknownDonorImpactWidget extends BaseWidget
             ->count();
 
         return [
-            Stat::make('🇵🇸 متبرعون بفصيلة غير معروفة', number_format($unknownDonors))
-                ->description('Gaza Innovation - توسيع قاعدة المتبرعين')
+            Stat::make(__('🇵🇸 Donors with unknown blood type'), number_format($unknownDonors))
+                ->description(__('Gaza Innovation - Expanding donor base'))
                 ->descriptionIcon('heroicon-o-user-plus')
                 ->color('gray'),
 
-            Stat::make('معدل التحقق', $conversionRate . '%')
-                ->description('تم التحقق من فصيلتهم')
+            Stat::make(__('Verification Rate'), $conversionRate . '%')
+                ->description(__('Blood type verified'))
                 ->descriptionIcon('heroicon-o-shield-check')
                 ->color($conversionRate > 50 ? 'success' : 'warning'),
 
-            Stat::make('استجابات المتبرعين المجهولين', number_format($unknownResponses))
-                ->description('ساهموا في الطلبات')
+            Stat::make(__('Unknown donor responses'), number_format($unknownResponses))
+                ->description(__('Contributed to requests'))
                 ->descriptionIcon('heroicon-o-heart')
                 ->color('info'),
         ];
     }
 }
+

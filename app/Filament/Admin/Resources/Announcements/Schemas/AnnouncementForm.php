@@ -17,46 +17,46 @@ class AnnouncementForm
     {
         return $schema
             ->components([
-                Section::make('محتوى الإعلان')
-                    ->description('أدخل محتوى الرسالة التي سيتم إرسالها.')
+                Section::make(__('Announcement Content'))
+                    ->description(__('Enter the message content to be sent.'))
                     ->schema([
                         TextInput::make('title')
-                            ->label('عنوان الإعلان')
+                            ->label(__('Announcement Title'))
                             ->required()
                             ->maxLength(255)
                             ->disabled(fn($record) => $record?->status === 1),
                         RichEditor::make('body')
-                            ->label('نص الإعلان (الرسالة)')
+                            ->label(__('Announcement Body (Message)'))
                             ->required()
                             ->disabled(fn($record) => $record?->status === 1),
                     ]),
 
-                Section::make('إعدادات الإرسال')
-                    ->description('حدد الفئة المستهدفة للإعلان.')
+                Section::make(__('Sending Settings'))
+                    ->description(__('Select target audience for the announcement.'))
                     ->schema([
                         Select::make('target_type')
-                            ->label('الجمهور المستهدف')
+                            ->label(__('Target Audience'))
                             ->options([
-                                'all' => 'جميع المستخدمين (النشطين والموثقين)',
-                                'role' => 'دور محدد',
-                                'specific_users' => 'مستخدمين محددين'
+                                'all' => __('All Users (Active and Verified)'),
+                                'role' => __('Specific Role'),
+                                'specific_users' => __('Specific Users')
                             ])
                             ->required()
                             ->live()
                             ->disabled(fn($record) => $record?->status === 1),
 
                         Select::make('target_role')
-                            ->label('الدور المستهدف')
+                            ->label(__('Target Role'))
                             ->options([
-                                'App\Models\Donor' => 'المتبرعين',
-                                'App\Models\Organization' => 'المنظمات'
+                                'App\Models\Donor' => __('Donors'),
+                                'App\Models\Organization' => __('Organizations')
                             ])
                             ->required(fn($get) => $get('target_type') === 'role')
                             ->visible(fn($get) => $get('target_type') === 'role')
                             ->disabled(fn($record) => $record?->status === 1),
 
                         Select::make('targeted_users_ids')
-                            ->label('تحديد المستخدمين')
+                            ->label(__('Select Users'))
                             ->multiple()
                             ->searchable()
                             ->getSearchResultsUsing(fn(string $search) => User::whereNotNull('email_verified_at')->where('name', 'like', "%{$search}%")->limit(50)->pluck('name', 'id'))
@@ -67,15 +67,15 @@ class AnnouncementForm
                             ->columnSpanFull(),
 
                         Toggle::make('send_via_email')
-                            ->label('إرسال نسخة عبر البريد الإلكتروني أيضاً')
+                            ->label(__('Send Copy Via Email Also'))
                             ->default(false)
                             ->disabled(fn($record) => $record?->status === 1),
 
                         Select::make('status')
-                            ->label('حالة النشر')
+                            ->label(__('Publish Status'))
                             ->options([
-                                0 => 'مسودة',
-                                1 => 'منشور (سيتم الإرسال فوراً ولن يمكن التعديل)'
+                                0 => __('Draft'),
+                                1 => __('Published (Sent immediately and cannot be edited)')
                             ])
                             ->default(0)
                             ->required()

@@ -21,11 +21,28 @@ class ManageGeneralSettings extends SettingsPage
 {
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-cog-6-tooth';
 
-    protected static string | \UnitEnum | null $navigationGroup = 'الإعدادات';
+    protected static ?int $navigationSort = 2;
 
-    protected static ?string $navigationLabel = 'الإعدادات العامة';
-    protected static ?string $title = 'الإعدادات العامة';
-    protected static ?string $description = 'إدارة الإعدادات العامة';
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.pages.manage-general-settings.title');
+    }
+
+    public static function getNavigationGroup(): ?string
+    {
+        return __('filament.navigation.system-reports');
+    }
+
+    public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
+    {
+        return __('filament.pages.manage-general-settings.title');
+    }
+
+    public function getSubheading(): string | \Illuminate\Contracts\Support\Htmlable | null
+    {
+        return __('filament.pages.manage-general-settings.description');
+    }
+
     protected static string $settings = GeneralSettings::class;
 
     public function form(Schema $schema): Schema
@@ -35,274 +52,697 @@ class ManageGeneralSettings extends SettingsPage
                 Tabs::make('Settings')
                     ->tabs([
                         Tab::make('System Rules')
-                            ->label('قواعد النظام')
+                            ->label(__('System Rules'))
                             ->icon('heroicon-o-scale')
                             ->schema([
-                                Section::make('أهلية التبرع')
+                                Section::make(__('Donor Eligibility'))
                                     ->schema([
-                                        TextInput::make('min_donor_age')->label('الحد الأدنى للعمر (سنة)')->numeric()->required(),
-                                        TextInput::make('max_donor_age')->label('الحد الأقصى للعمر (سنة)')->numeric()->required(),
-                                        TextInput::make('min_donor_weight')->label('الحد الأدنى للوزن (كجم)')->numeric()->required(),
-                                        TextInput::make('min_donor_height')->label('الحد الأدنى للطول (سم)')->numeric()->required(),
-                                        TextInput::make('min_days_between_donations')->label('المدة بين التبرعات (يوم)')->numeric()->required(),
-                                        TextInput::make('min_days_after_surgery')->label('المدة بعد العمليات الجراحية (يوم)')->numeric()->required(),
+                                        TextInput::make('min_donor_age')->label(__('Min Donor Age (Years)'))->numeric()->required(),
+                                        TextInput::make('max_donor_age')->label(__('Max Donor Age (Years)'))->numeric()->required(),
+                                        TextInput::make('min_donor_weight')->label(__('Min Donor Weight (kg)'))->numeric()->required(),
+                                        TextInput::make('min_donor_height')->label(__('Min Donor Height (cm)'))->numeric()->required(),
+                                        TextInput::make('min_days_between_donations')->label(__('Min Days Between Donations (Days)'))->numeric()->required(),
+                                        TextInput::make('min_days_after_surgery')->label(__('Min Days After Surgery (Days)'))->numeric()->required(),
                                     ])->columns(2),
-                                Section::make('قيود المنظمات')
+                                Section::make(__('Organization Constraints'))
                                     ->schema([
-                                        TextInput::make('org_max_requests_per_day')->label('الحد الأقصى للطلبات يومياً')->numeric()->required(),
+                                        TextInput::make('org_max_requests_per_day')->label(__('Max Requests Per Day'))->numeric()->required(),
                                     ]),
                             ]),
 
                         Tab::make('Identity & System')
-                            ->label('هوية الموقع والنظام')
+                            ->label(__('Identity & System'))
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
-                                Section::make('هوية الموقع')
+                                Section::make(__('Site Identity'))
                                     ->schema([
-                                        TextInput::make('site_name')
-                                            ->label('اسم الموقع')
-                                            ->required(),
-                                        TextInput::make('site_slogan')
-                                            ->label('شعار الموقع (Slogan)'),
+                                        Tabs::make('Site Identity Tabs')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('site_name.ar')
+                                                            ->label(__('Site Name (Arabic)'))
+                                                            ->required(),
+                                                        TextInput::make('site_slogan.ar')
+                                                            ->label(__('Site Slogan (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('site_name.en')
+                                                            ->label(__('Site Name (English)'))
+                                                            ->required(),
+                                                        TextInput::make('site_slogan.en')
+                                                            ->label(__('Site Slogan (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                         FileUpload::make('site_logo')
-                                            ->label('لوجو الموقع')
+                                            ->label(__('Site Logo'))
                                             ->image()
                                             ->disk('public')
                                             ->directory('settings'),
                                         FileUpload::make('site_favicon')
-                                            ->label('أيقونة الموقع (Favicon)')
+                                            ->label(__('Site Favicon'))
                                             ->image()
                                             ->disk('public')
                                             ->directory('settings'),
                                     ])->columns(2),
-                                Section::make('حالة الموقع')
+                                Section::make(__('Site Status'))
                                     ->schema([
                                         Toggle::make('maintenance_mode')
-                                            ->label('وضع الصيانة')
-                                            ->helperText('تفعيل هذا الخيار سيضع الموقع في وضع الصيانة.')
+                                            ->label(__('Maintenance Mode'))
+                                            ->helperText(__('Enable this option to put the site in maintenance mode.'))
                                             ->live(),
-                                        TextInput::make('maintenance_message')
-                                            ->label('رسالة الصيانة')
+                                        Tabs::make('Maintenance Message Tabs')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('maintenance_message.ar')
+                                                            ->label(__('Maintenance Message (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('maintenance_message.en')
+                                                            ->label(__('Maintenance Message (English)')),
+                                                    ]),
+                                            ])
                                             ->visible(fn($get) => $get('maintenance_mode'))
                                             ->columnSpanFull(),
                                     ]),
                             ]),
 
                         Tab::make('Contact & Social')
-                            ->label('التواصل والاجتماعي')
+                            ->label(__('Contact & Social'))
                             ->icon('heroicon-o-at-symbol')
                             ->schema([
-                                Section::make('معلومات التواصل')
+                                Section::make(__('Contact Information'))
                                     ->schema([
                                         TextInput::make('support_email')
-                                            ->label('البريد الإلكتروني للدعم')
+                                            ->label(__('Support Email'))
                                             ->rule('email')
                                             ->required(),
                                         TextInput::make('support_phone')
-                                            ->label('رقم هاتف الدعم'),
-                                        TextInput::make('address')
-                                            ->label('العنوان'),
-                                        TextInput::make('working_days')
-                                            ->label('أيام العمل'),
-                                        TextInput::make('working_hours')
-                                            ->label('ساعات العمل'),
+                                            ->label(__('Support Phone')),
+                                        Tabs::make('Contact Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('address.ar')
+                                                            ->label(__('Address (Arabic)')),
+                                                        TextInput::make('working_days.ar')
+                                                            ->label(__('Working Days (Arabic)')),
+                                                        TextInput::make('working_hours.ar')
+                                                            ->label(__('Working Hours (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('address.en')
+                                                            ->label(__('Address (English)')),
+                                                        TextInput::make('working_days.en')
+                                                            ->label(__('Working Days (English)')),
+                                                        TextInput::make('working_hours.en')
+                                                            ->label(__('Working Hours (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ])->columns(2),
-                                Section::make('روابط التواصل الاجتماعي')
+                                Section::make(__('Social Media Links'))
                                     ->schema([
-                                        TextInput::make('facebook_url')->label('Facebook URL'),
-                                        TextInput::make('twitter_url')->label('Twitter (X) URL'),
-                                        TextInput::make('instagram_url')->label('Instagram URL'),
-                                        TextInput::make('linkedin_url')->label('LinkedIn URL'),
-                                        TextInput::make('youtube_url')->label('YouTube URL'),
+                                        TextInput::make('facebook_url')->label(__('Facebook URL')),
+                                        TextInput::make('twitter_url')->label(__('Twitter (X) URL')),
+                                        TextInput::make('instagram_url')->label(__('Instagram URL')),
+                                        TextInput::make('linkedin_url')->label(__('LinkedIn URL')),
+                                        TextInput::make('youtube_url')->label(__('YouTube URL')),
                                     ])->columns(2),
                             ]),
 
                         Tab::make('SEO')
-                            ->label('تحسين محركات البحث')
+                            ->label(__('SEO'))
                             ->icon('heroicon-o-magnifying-glass')
                             ->schema([
-                                TextInput::make('seo_title')
-                                    ->label('عنوان SEO الافتراضي'),
-                                Textarea::make('seo_description')
-                                    ->label('وصف SEO الافتراضي'),
-                                TextInput::make('seo_keywords')
-                                    ->label('كلمات SEO المفتاحية'),
+                                Tabs::make('SEO Localized')
+                                    ->tabs([
+                                        Tab::make('Arabic')
+                                            ->label(__('Arabic'))
+                                            ->schema([
+                                                TextInput::make('seo_title.ar')
+                                                    ->label(__('Default SEO Title (Arabic)')),
+                                                Textarea::make('seo_description.ar')
+                                                    ->label(__('Default SEO Description (Arabic)')),
+                                                TextInput::make('seo_keywords.ar')
+                                                    ->label(__('SEO Keywords (Arabic)')),
+                                            ]),
+                                        Tab::make('English')
+                                            ->label(__('English'))
+                                            ->schema([
+                                                TextInput::make('seo_title.en')
+                                                    ->label(__('Default SEO Title (English)')),
+                                                Textarea::make('seo_description.en')
+                                                    ->label(__('Default SEO Description (English)')),
+                                                TextInput::make('seo_keywords.en')
+                                                    ->label(__('SEO Keywords (English)')),
+                                            ]),
+                                    ])->columnSpanFull(),
                             ]),
 
                         Tab::make('Home Page')
-                            ->label('الصفحة الرئيسية')
+                            ->label(__('Home Page'))
                             ->icon('heroicon-o-home')
                             ->schema([
-                                Section::make('قسم البطل (Hero)')
+                                Section::make(__('Hero Section'))
                                     ->schema([
-                                        TextInput::make('home_hero_title')->label('العنوان الرئيسي'),
-                                        Textarea::make('home_hero_subtitle')->label('العنوان الفرعي'),
-                                        FileUpload::make('home_hero_image')->label('صورة القسم')->image()->disk('public')->directory('settings'),
+                                        Tabs::make('Hero Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('home_hero_title.ar')->label(__('Main Title (Arabic)')),
+                                                        Textarea::make('home_hero_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('home_hero_title.en')->label(__('Main Title (English)')),
+                                                        Textarea::make('home_hero_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        FileUpload::make('home_hero_image')->label(__('Section Image'))->image()->disk('public')->directory('settings'),
                                     ]),
-                                Section::make('المميزات')
+                                Section::make(__('Features'))
                                     ->schema([
-                                        TextInput::make('home_features_title')->label('عنوان القسم'),
-                                        TextInput::make('home_features_subtitle')->label('وصف القسم'),
-                                        Repeater::make('home_features')
-                                            ->label('قائمة المميزات')
-                                            ->schema([
-                                                TextInput::make('icon')->label('الأيقونة (Emoji or HTML)'),
-                                                TextInput::make('title')->label('العنوان'),
-                                                TextInput::make('text')->label('الوصف'),
-                                            ])->columns(3),
+                                        Tabs::make('Features Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('home_features_title.ar')->label(__('Section Title (Arabic)')),
+                                                        TextInput::make('home_features_subtitle.ar')->label(__('Section Description (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('home_features_title.en')->label(__('Section Title (English)')),
+                                                        TextInput::make('home_features_subtitle.en')->label(__('Section Description (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        Tabs::make('Features List Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Repeater::make('home_features.ar')
+                                                            ->label(__('Features List (Arabic)'))
+                                                            ->schema([
+                                                                TextInput::make('icon')->label(__('Icon (Emoji or HTML)')),
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ])->columns(3),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Repeater::make('home_features.en')
+                                                            ->label(__('Features List (English)'))
+                                                            ->schema([
+                                                                TextInput::make('icon')->label(__('Icon (Emoji or HTML)')),
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ])->columns(3),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('كيف يعمل (للمتبرعين)')
+                                Section::make(__('How It Works (For Donors)'))
                                     ->schema([
-                                        Repeater::make('home_how_it_works_donor')
-                                            ->label('خطوات المتبرع')
-                                            ->schema([
-                                                TextInput::make('title')->label('العنوان'),
-                                                TextInput::make('text')->label('الوصف'),
-                                            ])->columns(2),
+                                        Tabs::make('Donor Steps Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Repeater::make('home_how_it_works_donor.ar')
+                                                            ->label(__('Donor Steps (Arabic)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ])->columns(2),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Repeater::make('home_how_it_works_donor.en')
+                                                            ->label(__('Donor Steps (English)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ])->columns(2),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('كيف يعمل (للمنظمات)')
+                                Section::make(__('How It Works (For Organizations)'))
                                     ->schema([
-                                        Repeater::make('home_how_it_works_org')
-                                            ->label('خطوات المنظمة')
-                                            ->schema([
-                                                TextInput::make('title')->label('العنوان'),
-                                                TextInput::make('text')->label('الوصف'),
-                                            ])->columns(2),
+                                        Tabs::make('Org Steps Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Repeater::make('home_how_it_works_org.ar')
+                                                            ->label(__('Organization Steps (Arabic)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ])->columns(2),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Repeater::make('home_how_it_works_org.en')
+                                                            ->label(__('Organization Steps (English)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ])->columns(2),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('قسم التسجيل (CTA)')
+                                Section::make(__('Signup Section (CTA)'))
                                     ->schema([
-                                        TextInput::make('home_cta_title')->label('العنوان'),
-                                        TextInput::make('home_cta_subtitle')->label('العنوان الفرعي'),
+                                        Tabs::make('CTA Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('home_cta_title.ar')->label(__('Title (Arabic)')),
+                                                        TextInput::make('home_cta_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('home_cta_title.en')->label(__('Title (English)')),
+                                                        TextInput::make('home_cta_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
                             ]),
 
                         Tab::make('About Page')
-                            ->label('من نحن')
+                            ->label(__('About Page'))
                             ->icon('heroicon-o-information-circle')
                             ->schema([
-                                Section::make('افتتاحية الصفحة')
+                                Section::make(__('Page Intro'))
                                     ->schema([
-                                        TextInput::make('about_hero_title')->label('العنوان'),
-                                        TextInput::make('about_hero_subtitle')->label('العنوان الفرعي'),
+                                        Tabs::make('About Intro Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('about_hero_title.ar')->label(__('Title (Arabic)')),
+                                                        TextInput::make('about_hero_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('about_hero_title.en')->label(__('Title (English)')),
+                                                        TextInput::make('about_hero_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('المهمة والرؤية')
+                                Section::make(__('Mission & Vision'))
                                     ->schema([
+                                        Tabs::make('Mission Vision Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Grid::make(2)
+                                                            ->schema([
+                                                                Group::make([
+                                                                    TextInput::make('about_mission_title1.ar')->label(__('Mission Title (Arabic)')),
+                                                                    Textarea::make('about_mission_text1.ar')->label(__('Mission Text (Arabic)')),
+                                                                ]),
+                                                                Group::make([
+                                                                    TextInput::make('about_mission_title2.ar')->label(__('Vision Title (Arabic)')),
+                                                                    Textarea::make('about_mission_text2.ar')->label(__('Vision Text (Arabic)')),
+                                                                ]),
+                                                            ]),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Grid::make(2)
+                                                            ->schema([
+                                                                Group::make([
+                                                                    TextInput::make('about_mission_title1.en')->label(__('Mission Title (English)')),
+                                                                    Textarea::make('about_mission_text1.en')->label(__('Mission Text (English)')),
+                                                                ]),
+                                                                Group::make([
+                                                                    TextInput::make('about_mission_title2.en')->label(__('Vision Title (English)')),
+                                                                    Textarea::make('about_mission_text2.en')->label(__('Vision Text (English)')),
+                                                                ]),
+                                                            ]),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                         Grid::make(2)
                                             ->schema([
-                                                Group::make([
-                                                    TextInput::make('about_mission_title1')->label('عنوان المهمة'),
-                                                    Textarea::make('about_mission_text1')->label('نص المهمة'),
-                                                    FileUpload::make('about_mission_image1')->label('صورة المهمة')->image()->disk('public')->directory('settings'),
-                                                ]),
-                                                Group::make([
-                                                    TextInput::make('about_mission_title2')->label('عنوان الرؤية'),
-                                                    Textarea::make('about_mission_text2')->label('نص الرؤية'),
-                                                    FileUpload::make('about_mission_image2')->label('صورة الرؤية')->image()->disk('public')->directory('settings'),
-                                                ]),
+                                                FileUpload::make('about_mission_image1')->label(__('Mission Image'))->image()->disk('public')->directory('settings'),
+                                                FileUpload::make('about_mission_image2')->label(__('Vision Image'))->image()->disk('public')->directory('settings'),
                                             ]),
                                     ]),
-                                Section::make('القيم')
+                                Section::make(__('Values'))
                                     ->schema([
-                                        TextInput::make('about_values_title')->label('عنوان القسم'),
-                                        TextInput::make('about_values_subtitle')->label('وصف القسم'),
-                                        Repeater::make('about_values')
-                                            ->label('قائمة القيم')
-                                            ->schema([
-                                                TextInput::make('title')->label('العنوان'),
-                                                TextInput::make('text')->label('الوصف'),
-                                                TextInput::make('icon')->label('الأيقونة (Emoji or HTML)'),
-                                                FileUpload::make('image')->label('الصورة')->image()->disk('public')->directory('settings'),
-                                            ])->columns(3),
+                                        Tabs::make('Values Intro Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('about_values_title.ar')->label(__('Section Title (Arabic)')),
+                                                        TextInput::make('about_values_subtitle.ar')->label(__('Section Description (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('about_values_title.en')->label(__('Section Title (English)')),
+                                                        TextInput::make('about_values_subtitle.en')->label(__('Section Description (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        Tabs::make('Values List Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Repeater::make('about_values.ar')
+                                                            ->label(__('Values List (Arabic)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('icon')->label(__('Icon (Emoji or HTML)')),
+                                                                FileUpload::make('image')->label(__('Image'))->image()->disk('public')->directory('settings'),
+                                                            ])->columns(2),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Repeater::make('about_values.en')
+                                                            ->label(__('Values List (English)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('icon')->label(__('Icon (Emoji or HTML)')),
+                                                                FileUpload::make('image')->label(__('Image'))->image()->disk('public')->directory('settings'),
+                                                            ])->columns(2),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('الفريق')
+                                Section::make(__('Team'))
                                     ->schema([
-                                        TextInput::make('about_team_title')->label('عنوان القسم'),
-                                        TextInput::make('about_team_subtitle')->label('وصف القسم'),
-                                        Repeater::make('about_team_members')
-                                            ->label('أعضاء الفريق')
-                                            ->schema([
-                                                TextInput::make('name')->label('الاسم'),
-                                                TextInput::make('role')->label('الوظيفة'),
-                                                Textarea::make('bio')->label('نبذة'),
-                                                FileUpload::make('image')->label('الصورة')->image(),
-                                            ])->columns(2),
+                                        Tabs::make('Team Intro Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('about_team_title.ar')->label(__('Section Title (Arabic)')),
+                                                        TextInput::make('about_team_subtitle.ar')->label(__('Section Description (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('about_team_title.en')->label(__('Section Title (English)')),
+                                                        TextInput::make('about_team_subtitle.en')->label(__('Section Description (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        Tabs::make('Team Members Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Repeater::make('about_team_members.ar')
+                                                            ->label(__('Team Members (Arabic)'))
+                                                            ->schema([
+                                                                TextInput::make('name')->label(__('Name')),
+                                                                TextInput::make('role')->label(__('Role')),
+                                                                Textarea::make('bio')->label(__('Bio')),
+                                                                FileUpload::make('image')->label(__('Image'))->image(),
+                                                            ])->columns(2),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Repeater::make('about_team_members.en')
+                                                            ->label(__('Team Members (English)'))
+                                                            ->schema([
+                                                                TextInput::make('name')->label(__('Name')),
+                                                                TextInput::make('role')->label(__('Role')),
+                                                                Textarea::make('bio')->label(__('Bio')),
+                                                                FileUpload::make('image')->label(__('Image'))->image(),
+                                                            ])->columns(2),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('التأثير والانضمام')
+                                Section::make(__('Impact & Join'))
                                     ->schema([
-                                        TextInput::make('about_impact_title')->label('عنوان التأثير'),
-                                        Textarea::make('about_impact_text')->label('نص التأثير'),
-                                        TextInput::make('about_join_title')->label('عنوان الانضمام'),
-                                        TextInput::make('about_join_subtitle')->label('وصف الانضمام'),
+                                        Tabs::make('Impact Join Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('about_impact_title.ar')->label(__('Impact Title (Arabic)')),
+                                                        Textarea::make('about_impact_text.ar')->label(__('Impact Text (Arabic)')),
+                                                        TextInput::make('about_join_title.ar')->label(__('Join Title (Arabic)')),
+                                                        TextInput::make('about_join_subtitle.ar')->label(__('Join Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('about_impact_title.en')->label(__('Impact Title (English)')),
+                                                        Textarea::make('about_impact_text.en')->label(__('Impact Text (English)')),
+                                                        TextInput::make('about_join_title.en')->label(__('Join Title (English)')),
+                                                        TextInput::make('about_join_subtitle.en')->label(__('Join Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
                             ]),
 
                         Tab::make('Contact & FAQs')
-                            ->label('تواصل معنا')
+                            ->label(__('Contact & FAQs'))
                             ->icon('heroicon-o-phone')
                             ->schema([
-                                Section::make('استقبال الرسائل')
+                                Section::make(__('Receiving Messages'))
                                     ->schema([
                                         Toggle::make('enable_contact_messages')
-                                            ->label('استقبال رسائل التواصل')
-                                            ->helperText('تفعيل هذا الخيار سيسمح للزوار بإرسال رسائل عبر نموذج اتصل بنا.')
+                                            ->label(__('Enable Contact Messages'))
+                                            ->helperText(__('This option allows visitors to send messages via the Contact Us form.'))
                                             ->default(true),
                                     ]),
-                                Section::make('افتتاحية الصفحة')
+                                Section::make(__('Page Intro'))
                                     ->schema([
-                                        TextInput::make('contact_hero_title')->label('العنوان'),
-                                        TextInput::make('contact_hero_subtitle')->label('العنوان الفرعي'),
+                                        Tabs::make('Contact Page Intro Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('contact_hero_title.ar')->label(__('Title (Arabic)')),
+                                                        TextInput::make('contact_hero_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('contact_hero_title.en')->label(__('Title (English)')),
+                                                        TextInput::make('contact_hero_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('الأسئلة الشائعة')
+                                Section::make(__('FAQs'))
                                     ->schema([
-                                        Repeater::make('contact_faqs')
-                                            ->label('الأسئلة الشائعة')
-                                            ->schema([
-                                                TextInput::make('question')->label('السؤال'),
-                                                Textarea::make('answer')->label('الإجابة'),
-                                            ])->columns(1),
+                                        Tabs::make('FAQs Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Repeater::make('contact_faqs.ar')
+                                                            ->label(__('FAQs (Arabic)'))
+                                                            ->schema([
+                                                                TextInput::make('question')->label(__('Question')),
+                                                                Textarea::make('answer')->label(__('Answer')),
+                                                            ])->columns(1),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Repeater::make('contact_faqs.en')
+                                                            ->label(__('FAQs (English)'))
+                                                            ->schema([
+                                                                TextInput::make('question')->label(__('Question')),
+                                                                Textarea::make('answer')->label(__('Answer')),
+                                                            ])->columns(1),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
                             ]),
 
                         Tab::make('Auth Pages')
-                            ->label('صفحات الدخول')
-                            ->icon('heroicon-o-user-plus')
+                            ->label(__('Auth Pages'))
+                            ->icon('heroicon-o-lock-closed')
                             ->schema([
-                                Section::make('تسجيل الدخول')
+                                Section::make(__('Login Page'))
                                     ->schema([
-                                        TextInput::make('login_title')->label('العنوان'),
-                                        TextInput::make('login_subtitle')->label('الوصف'),
-                                        FileUpload::make('login_image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                        Tabs::make('Login Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('login_title.ar')->label(__('Title (Arabic)')),
+                                                        Textarea::make('login_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('login_title.en')->label(__('Title (English)')),
+                                                        Textarea::make('login_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        FileUpload::make('login_image')->label(__('Image'))->image(),
                                     ]),
-                                Section::make('حساب جديد (الاختيار)')
+                                Section::make(__('Signup Choice Page'))
                                     ->schema([
-                                        TextInput::make('signup_title')->label('العنوان'),
-                                        TextInput::make('signup_subtitle')->label('الوصف'),
+                                        Tabs::make('Signup Choice Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('signup_title.ar')->label(__('Title (Arabic)')),
+                                                        Textarea::make('signup_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('signup_title.en')->label(__('Title (English)')),
+                                                        Textarea::make('signup_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('أنا متبرع (في خيار التسجيل)')
+                                Section::make(__('Donor Signup Page'))
                                     ->schema([
-                                        TextInput::make('signup_donor_title')->label('العنوان'),
-                                        TextInput::make('signup_donor_subtitle')->label('الوصف'),
-                                        FileUpload::make('signup_donor_image')->label('الصورة')->image()->disk('public')->directory('settings'),
-                                        TagsInput::make('signup_donor_tasks')->label('المهام/المميزات'),
+                                        Tabs::make('Donor Signup Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('signup_donor_title.ar')->label(__('Title (Arabic)')),
+                                                        Textarea::make('signup_donor_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('signup_donor_title.en')->label(__('Title (English)')),
+                                                        Textarea::make('signup_donor_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        FileUpload::make('signup_donor_image')->label(__('Image'))->image(),
+                                        Tabs::make('Donor Tasks Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Repeater::make('signup_donor_tasks.ar')
+                                                            ->label(__('Tasks (Arabic)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ]),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Repeater::make('signup_donor_tasks.en')
+                                                            ->label(__('Tasks (English)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ]),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('أنا منظمة (في خيار التسجيل)')
+                                Section::make(__('Organization Signup Page'))
                                     ->schema([
-                                        TextInput::make('signup_org_title')->label('العنوان'),
-                                        TextInput::make('signup_org_subtitle')->label('الوصف'),
-                                        FileUpload::make('signup_org_image')->label('الصورة')->image()->disk('public')->directory('settings'),
-                                        TagsInput::make('signup_org_tasks')->label('المهام/المميزات'),
+                                        Tabs::make('Org Signup Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('signup_org_title.ar')->label(__('Title (Arabic)')),
+                                                        Textarea::make('signup_org_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('signup_org_title.en')->label(__('Title (English)')),
+                                                        Textarea::make('signup_org_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        FileUpload::make('signup_org_image')->label(__('Image'))->image(),
+                                        Tabs::make('Org Tasks Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        Repeater::make('signup_org_tasks.ar')
+                                                            ->label(__('Tasks (Arabic)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ]),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        Repeater::make('signup_org_tasks.en')
+                                                            ->label(__('Tasks (English)'))
+                                                            ->schema([
+                                                                TextInput::make('title')->label(__('Title')),
+                                                                TextInput::make('text')->label(__('Description')),
+                                                            ]),
+                                                    ]),
+                                            ])->columnSpanFull(),
                                     ]),
-                                Section::make('صفحة التسجيل كمتبرع')
+                                Section::make(__('Donor Registration Welcome'))
                                     ->schema([
-                                        TextInput::make('donor_register_title')->label('العنوان'),
-                                        TextInput::make('donor_register_subtitle')->label('الوصف'),
-                                        FileUpload::make('donor_register_image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                        Tabs::make('Donor Reg Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('donor_register_title.ar')->label(__('Title (Arabic)')),
+                                                        Textarea::make('donor_register_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('donor_register_title.en')->label(__('Title (English)')),
+                                                        Textarea::make('donor_register_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        FileUpload::make('donor_register_image')->label(__('Image'))->image(),
                                     ]),
-                                Section::make('صفحة التسجيل كمنظمة')
+                                Section::make(__('Organization Registration Welcome'))
                                     ->schema([
-                                        TextInput::make('org_register_title')->label('العنوان'),
-                                        TextInput::make('org_register_subtitle')->label('الوصف'),
-                                        FileUpload::make('org_register_image')->label('الصورة')->image()->disk('public')->directory('settings'),
+                                        Tabs::make('Org Reg Localized')
+                                            ->tabs([
+                                                Tab::make('Arabic')
+                                                    ->label(__('Arabic'))
+                                                    ->schema([
+                                                        TextInput::make('org_register_title.ar')->label(__('Title (Arabic)')),
+                                                        Textarea::make('org_register_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                    ]),
+                                                Tab::make('English')
+                                                    ->label(__('English'))
+                                                    ->schema([
+                                                        TextInput::make('org_register_title.en')->label(__('Title (English)')),
+                                                        Textarea::make('org_register_subtitle.en')->label(__('Subtitle (English)')),
+                                                    ]),
+                                            ])->columnSpanFull(),
+                                        FileUpload::make('org_register_image')->label(__('Image'))->image(),
                                     ]),
                             ]),
                     ])->columnSpanFull(),

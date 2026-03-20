@@ -4,15 +4,29 @@ namespace App\Filament\Organization\Pages;
 
 use Filament\Pages\Page;
 
+
+
 class Statistics extends Page
 {
-    protected static ?string $navigationLabel = 'الإحصائيات';
+    public static function getNavigationLabel(): string
+    {
+        return __('filament.pages.statistics.title');
+    }
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
 
     protected static ?int $navigationSort = -1;
 
-    protected static ?string $title = 'الإحصائيات والتقارير';
+    public function getTitle(): string
+    {
+        return __('filament.pages.statistics.title');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+        ];
+    }
 
     protected string $view = 'filament.organization.pages.statistics';
 
@@ -38,3 +52,4 @@ class Statistics extends Page
         return [];
     }
 }
+

@@ -6,6 +6,7 @@ use App\Enums\OrganizationStatus;
 use Filament\Facades\Filament;
 use Filament\Pages\Page;
 
+
 class PendingApproval extends Page
 {
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-clock';
@@ -19,10 +20,16 @@ class PendingApproval extends Page
         $tenant = Filament::getTenant();
 
         if ($tenant && $tenant->approval_status === OrganizationStatus::REJECTED) {
-            return 'طلب المؤسسة مرفوض';
+            return __('Organization Request Rejected');
         }
 
-        return 'في انتظار الموافقة';
+        return __('Pending Approval');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+        ];
     }
 
     public function getHeading(): string
@@ -37,3 +44,4 @@ class PendingApproval extends Page
         return $tenant && $tenant->approval_status !== OrganizationStatus::APPROVED;
     }
 }
+

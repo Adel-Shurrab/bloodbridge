@@ -1,16 +1,16 @@
 <x-filament-widgets::widget>
     <div class="blood-demand-card">
-        <h2 class="card-title">فصيلة الدم الأكثر احتياجاً</h2>
+        <h2 class="card-title">{{ __('Most Needed Blood Type') }}</h2>
 
         @php $data = $this->getDemandData(); @endphp
 
         <div class="most-needed-section">
             <span class="blood-type-big">{{ $data['most_needed'] }}</span>
-            <span class="demand-label">الأكثر طلباً</span>
+            <span class="demand-label">{{ __('Most Requested') }}</span>
         </div>
 
         <div class="demand-grid">
-            @foreach($data['breakdown'] as $item)
+            @foreach ($data['breakdown'] as $item)
                 <div class="demand-item">
                     <span class="item-value">{{ $item['value'] }}</span>
                     <span class="item-label">{{ $item['label'] }}</span>
@@ -27,7 +27,7 @@
             box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05);
             height: 100%;
             text-align: center;
-            direction: rtl;
+
         }
 
         .dark .blood-demand-card {

@@ -9,14 +9,19 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\View\View;
 
+use App\Traits\ProvidesPublicStats;
+
 class AuthenticatedSessionController extends Controller
 {
+    use ProvidesPublicStats;
+
     /**
      * Display the login view.
      */
     public function create(): View
     {
-        return view('auth.login');
+        $stats = $this->getStats();
+        return view('auth.login', compact('stats'));
     }
 
     /**

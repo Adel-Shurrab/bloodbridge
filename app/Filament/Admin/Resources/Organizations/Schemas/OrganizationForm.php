@@ -2,82 +2,37 @@
 
 namespace App\Filament\Admin\Resources\Organizations\Schemas;
 
-use App\Models\User;
+use App\Enums\UserRole;
 use App\Models\Organization;
-
-use Filament\Forms\Components\TextInput;
-use Filament\Forms\Components\FileUpload;
-use Filament\Forms\Components\Select;
-use Filament\Forms\Components\TimePicker;
+use App\Models\User;
 use Filament\Forms\Components\CheckboxList;
-use Filament\Forms\Components\Radio;
-use Filament\Schemas\Components\Grid;
-use Filament\Schemas\Schema;
-use Filament\Schemas\Components\Section;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Placeholder;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\TimePicker;
+use Filament\Schemas\Components\Grid;
+use Filament\Schemas\Components\Section;
+use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Hash;
 
 class OrganizationForm
 {
+    /**
+     * Configure the organization form schema.
+     */
     public static function configure(Schema $schema): Schema
     {
         return $schema
             ->components([
-                Section::make('حساب المستخدم')
-                    ->description('إنشاء حساب مستخدم جديد أو اختيار حساب موجود')
+                Section::make(__('User Account'))
+                    ->description(__('Create New User Account or Select Existing'))
                     ->icon('heroicon-o-user-circle')
                     ->schema([
-                        Radio::make('user_creation_mode')
-                            ->label('طريقة إضافة المستخدم')
-                            ->options([
-                                'create' => 'إنشاء مستخدم جديد',
-                                'select' => 'اختيار مستخدم موجود',
-                            ])
-                            ->default('create')
-                            ->inline()
-                            ->live()
-                            ->required()
-                            ->columnSpanFull(),
-
-                        TextInput::make('new_user_name')
-                            ->label('اسم المستخدم')
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        TextInput::make('new_user_email')
-                            ->label('البريد الإلكتروني')
-                            ->email()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->unique('users', 'email', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        TextInput::make('new_user_phone')
-                            ->label('رقم الهاتف')
-                            ->tel()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->unique('users', 'phone', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create')
-                            ->live()
-                            ->afterStateUpdated(function ($state, $set, $get) {
-                                if ($get('user_creation_mode') === 'create') {
-                                    $set('contact_phone', $state);
-                                }
-                            }),
-
-                        TextInput::make('new_user_password')
-                            ->label('كلمة المرور')
-                            ->password()
-                            ->revealable()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->minLength(8)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
                         Select::make('user_id')
-                            ->label('الحساب المرتبط')
+                            ->label(__('Linked Account'))
                             ->relationship('user', 'name', function ($query) {
-                                return $query->where('role', \App\Enums\UserRole::ORGANIZATION)
+                                return $query->where('role', UserRole::ORGANIZATION)
                                     ->orderByRaw('EXISTS (SELECT 1 FROM organizations WHERE organizations.user_id = users.id) ASC')
                                     ->orderBy('name');
                             })
@@ -85,50 +40,69 @@ class OrganizationForm
                                 $isOccupied = Organization::where('user_id', $user->id)
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->exists();
-                                return $isOccupied ? "{$user->name} (مشغول)" : $user->name;
+                                return $isOccupied ? $user->name . ' (' . __('Occupied') . ')' : $user->name;
                             })
                             ->disableOptionWhen(function (string $value, $record) {
                                 return Organization::where('user_id', $value)
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->exists();
                             })
-                            ->live()
-                            ->afterStateUpdated(function ($state, $set, $operation) {
-                                if ($operation !== 'create') return;
-
-                                if (! $state) {
-                                    $set('contact_phone', null);
-                                    return;
-                                }
-
-                                $user = User::find($state);
-                                if ($user) {
-                                    $set('contact_phone', $user->phone);
-                                }
-                            })
-                            ->required(fn($get) => $get('user_creation_mode') === 'select')
+                            ->required()
                             ->searchable()
                             ->preload()
-                            ->visible(fn($get) => $get('user_creation_mode') === 'select'),
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label(__('Name'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('email')
+                                    ->label(__('Email'))
+                                    ->email()
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique('users', 'email'),
+
+                                TextInput::make('phone')
+                                    ->label(__('Phone'))
+                                    ->tel()
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique('users', 'phone'),
+
+                                TextInput::make('password')
+                                    ->label(__('Password'))
+                                    ->password()
+                                    ->revealable()
+                                    ->required()
+                                    ->minLength(8)
+                                    ->dehydrateStateUsing(fn($state) => $state ? Hash::make($state) : null)
+                                    ->hidden(fn(string $context) => $context === 'edit'),
+                            ])
+                            ->createOptionAction(function ($action) {
+                                return $action
+                                    ->modalHeading(__('Create New User'))
+                                    ->modalSubmitActionLabel(__('Create'));
+                            }),
                     ])->columns(2),
 
-                Section::make('معلومات المنظمة')
-                    ->description('المعلومات الأساسية والترخيص')
+                Section::make(__('Organization Information'))
+                    ->description(__('Basic information and license'))
                     ->icon('heroicon-o-information-circle')
                     ->schema([
                         TextInput::make('org_name')
-                            ->label('اسم المنظمة')
+                            ->label(__('Organization Name'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('license_number')
-                            ->label('رقم الترخيص')
+                            ->label(__('License Number'))
                             ->unique('organizations', 'license_number', ignoreRecord: true)
                             ->required()
                             ->maxLength(255),
 
                         FileUpload::make('license_document_path')
-                            ->label('وثيقة الترخيص')
+                            ->label(__('License Document'))
                             ->image()
                             ->disk('public')
                             ->directory('organization-licenses')
@@ -137,11 +111,11 @@ class OrganizationForm
                             ->downloadable(),
 
                         TextInput::make('description')
-                            ->label('وصف المنظمة')
+                            ->label(__('Organization Description'))
                             ->columnSpanFull(),
 
                         TextInput::make('user_name')
-                            ->label('اسم المسؤول')
+                            ->label(__('Manager Name'))
                             ->formatStateUsing(fn($record) => $record?->user?->name)
                             ->required()
                             ->maxLength(255)
@@ -149,12 +123,12 @@ class OrganizationForm
                             ->hidden(fn($operation) => $operation === 'create'),
 
                         TextInput::make('responsible_person_position')
-                            ->label('منصب المسؤول')
+                            ->label(__('Manager Position'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('user_email')
-                            ->label('البريد الإلكتروني للمسؤول')
+                            ->label(__('Manager Email'))
                             ->formatStateUsing(fn($record) => $record?->user?->email)
                             ->email()
                             ->required()
@@ -163,92 +137,78 @@ class OrganizationForm
                             ->hidden(fn($operation) => $operation === 'create'),
                     ])->columns(2),
 
-                Section::make('معلومات التواصل العام')
-                    ->description('كيف يمكن للجمهور التواصل مع المنظمة')
+                Section::make(__('Public Contact Information'))
+                    ->description(__('How the public can contact the organization'))
                     ->icon('heroicon-o-phone')
                     ->schema([
                         TextInput::make('contact_email')
-                            ->label('البريد الإلكتروني للتواصل')
+                            ->label(__('Contact Email'))
                             ->email()
                             ->unique('organizations', 'contact_email', ignoreRecord: true)
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('contact_phone')
-                            ->label('رقم هاتف التواصل')
+                            ->label(__('Contact Phone'))
                             ->tel()
                             ->unique('organizations', 'contact_phone', ignoreRecord: true)
                             ->required()
                             ->maxLength(255),
                     ])->columns(2),
 
-                Section::make('الموقع وساعات العمل')
-                    ->description('تفاصيل الموقع الجغرافي وأوقات الدوام')
+                Section::make(__('Location and Opening Hours'))
+                    ->description(__('Geographic location details and operating hours'))
                     ->icon('heroicon-o-map-pin')
                     ->schema([
                         Grid::make(2)
                             ->schema([
                                 Select::make('governorate_id')
-                                    ->label('المحافظة')
+                                    ->label(__('Governorate'))
                                     ->relationship('governorate', 'name')
                                     ->required()
                                     ->searchable()
                                     ->preload(),
 
                                 TimePicker::make('opening_time')
-                                    ->label('وقت الفتح'),
+                                    ->label(__('Opening Time')),
 
                                 TimePicker::make('closing_time')
-                                    ->label('وقت الإغلاق'),
+                                    ->label(__('Closing Time')),
 
                                 Placeholder::make('24_7_indicator')
-                                    ->label('ساعات العمل')
-                                    ->content('يعمل على مدار 24 ساعة')
+                                    ->label(__('Working Hours'))
+                                    ->content(__('Operates 24/7'))
                                     ->visible(fn($record) => $record && $record->opening_time === null && $record->closing_time === null),
                             ]),
 
                         CheckboxList::make('working_days')
-                            ->label('أيام العمل')
-                            ->options([
-                                'Saturday' => 'السبت',
-                                'Sunday' => 'الأحد',
-                                'Monday' => 'الاثنين',
-                                'Tuesday' => 'الثلاثاء',
-                                'Wednesday' => 'الأربعاء',
-                                'Thursday' => 'الخميس',
-                                'Friday' => 'الجمعة',
-                            ])
+                            ->label(__('Working Days'))
+                            ->options(Organization::getWorkingDaysOptions())
                             ->columns(4)
                             ->required()
+                            ->dehydrated(true)
+                            ->dehydrateStateUsing(fn($state) => is_array($state) ? array_map('intval', array_values($state)) : [])
                             ->columnSpanFull()
                             ->hidden(fn($operation) => $operation === 'view'),
 
                         Placeholder::make('working_days_display')
-                            ->label('أيام العمل')
+                            ->label(__('Working Days'))
                             ->content(function ($record) {
                                 if (! $record || ! $record->working_days) {
                                     return '-';
                                 }
 
-                                $days = [
-                                    'Saturday' => 'السبت',
-                                    'Sunday' => 'الأحد',
-                                    'Monday' => 'الاثنين',
-                                    'Tuesday' => 'الثلاثاء',
-                                    'Wednesday' => 'الأربعاء',
-                                    'Thursday' => 'الخميس',
-                                    'Friday' => 'الجمعة',
-                                ];
+                                $days = Organization::getWorkingDaysOptions();
 
                                 return collect($record->working_days)
                                     ->map(fn($day) => $days[$day] ?? $day)
-                                    ->implode('، ');
+                                    ->implode(', ');
                             })
                             ->columnSpanFull()
                             ->visible(fn($operation) => $operation === 'view'),
 
                         TextInput::make('daily_capacity')
-                            ->label('القدرة اليومية')
+                            ->label(__('Daily Capacity'))
                             ->numeric()
                             ->required()
                             ->minValue(1),

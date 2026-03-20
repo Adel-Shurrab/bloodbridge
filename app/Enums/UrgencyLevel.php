@@ -13,8 +13,8 @@ enum UrgencyLevel: int implements HasLabel, HasColor
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::NORMAL => 'عادي',
-            self::CRITICAL => 'حرج',
+            self::NORMAL => __('Normal'),
+            self::CRITICAL => __('Critical'),
         };
     }
 

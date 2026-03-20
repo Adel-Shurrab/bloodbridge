@@ -62,35 +62,36 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
         $completionRate = $requestsReceived > 0 ? round(($completed / $requestsReceived) * 100) : 0;
 
         return [
-            Stat::make('إجمالي التبرعات', $totalDonations)
+            Stat::make(__('Total Donations'), $totalDonations)
                 ->icon('heroicon-m-heart')
                 ->color('danger') 
-                ->description('عدد تبرعاتك منذ التسجيل'),
+                ->description(__('Number of your donations since registration')),
 
-            Stat::make('آخر تاريخ تبرع', $lastDonationLabel)
+            Stat::make(__('Last Donation Date'), $lastDonationLabel)
                 ->icon('heroicon-m-calendar-days')
                 ->color('info') 
-                ->description('أحدث تبرع قمت به'),
+                ->description(__('Your most recent donation')),
 
-            Stat::make('الطلبات المستلمة', $requestsReceived)
+            Stat::make(__('Requests Received'), $requestsReceived)
                 ->icon('heroicon-m-inbox')
                 ->color('primary') 
-                ->description('طلبات مطابقة لفصيلة دمك'),
+                ->description(__('Requests matching your blood type')),
 
-            Stat::make('الطلبات المقبولة', $accepted + $completed)
+            Stat::make(__('Requests Accepted'), $accepted + $completed)
                 ->icon('heroicon-m-check-badge')
                 ->color('success') 
-                ->description('عدد الطلبات التي وافقت عليها'),
+                ->description(__('Number of requests you have accepted')),
 
-            Stat::make('نسبة القبول', $acceptanceRate . '%')
+            Stat::make(__('Acceptance Rate'), $acceptanceRate . '%')
                 ->icon('heroicon-m-chart-bar')
                 ->color($acceptanceRate >= 70 ? 'success' : 'warning')
-                ->description('المقبول من إجمالي ردودك'),
+                ->description(__('Accepted out of your total responses')),
 
-            Stat::make('نسبة الإكمال', $completionRate . '%')
+            Stat::make(__('Completion Rate'), $completionRate . '%')
                 ->icon('heroicon-m-trophy')
                 ->color($completionRate === 100 ? 'success' : 'warning')
-                ->description('المكتمل من الطلبات المقبولة'),
+                ->description(__('Completed out of accepted requests')),
         ];
     }
 }
+

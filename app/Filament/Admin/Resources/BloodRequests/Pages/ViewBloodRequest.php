@@ -7,27 +7,31 @@ use App\Enums\BloodRequestStatus;
 use App\Models\BloodRequest;
 use Filament\Actions;
 use Filament\Actions\Action;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\ViewRecord;
+use LaraZeus\SpatieTranslatable\Resources\Pages\ViewRecord\Concerns\Translatable;
+
 use Carbon\Carbon;
 
 class ViewBloodRequest extends ViewRecord
 {
+    use Translatable;
+
     protected static string $resource = BloodRequestResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
-            
             Action::make('broadcast')
-                ->label('بث الطلب')
+                ->label(__('Broadcast Request'))
                 ->icon('heroicon-o-megaphone')
                 ->color('primary')
                 ->visible(fn(BloodRequest $record) => $record->status === BloodRequestStatus::PENDING)
                 ->requiresConfirmation()
-                ->modalHeading('بث طلب الدم')
-                ->modalDescription('سيتم إرسال إشعار لجميع المتبرعين المؤهلين في نطاق البحث. هل تريد المتابعة؟')
-                ->modalSubmitActionLabel('نعم، ابدأ البث')
+                ->modalHeading(__('Broadcast Request Heading'))
+                ->modalDescription(__('Broadcast Request Description'))
+                ->modalSubmitActionLabel(__('Yes, Start Broadcast'))
                 ->action(function (BloodRequest $record): void {
                     $record->update([
                         'status'         => BloodRequestStatus::BROADCASTED,
@@ -35,7 +39,7 @@ class ViewBloodRequest extends ViewRecord
                     ]);
 
                     Notification::make()
-                        ->title('تم بث الطلب بنجاح')
+                        ->title(__('Request Broadcasted Successfully'))
                         ->success()
                         ->send();
 
@@ -43,14 +47,14 @@ class ViewBloodRequest extends ViewRecord
                 }),
 
             Action::make('fulfill')
-                ->label('تعيين كمكتمل')
+                ->label(__('Mark as Fulfilled'))
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->visible(fn(BloodRequest $record) => $record->status === BloodRequestStatus::BROADCASTED)
                 ->requiresConfirmation()
-                ->modalHeading('إتمام الطلب')
-                ->modalDescription('هل تأكدت أن الوحدات المطلوبة قد تم التبرع بها؟')
-                ->modalSubmitActionLabel('نعم، أتمّ الطلب')
+                ->modalHeading(__('Fulfill Request Heading'))
+                ->modalDescription(__('Fulfill Request Description'))
+                ->modalSubmitActionLabel(__('Yes, Fulfill Request'))
                 ->action(function (BloodRequest $record): void {
                     $record->update([
                         'status'       => BloodRequestStatus::FULFILLED,
@@ -58,7 +62,7 @@ class ViewBloodRequest extends ViewRecord
                     ]);
 
                     Notification::make()
-                        ->title('تم تعيين الطلب كمكتمل')
+                        ->title(__('Request Marked as Fulfilled'))
                         ->success()
                         ->send();
 
@@ -66,7 +70,7 @@ class ViewBloodRequest extends ViewRecord
                 }),
 
             Action::make('cancel')
-                ->label('إلغاء الطلب')
+                ->label(__('Cancel Request'))
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
                 ->visible(fn(BloodRequest $record) => in_array($record->status, [
@@ -74,24 +78,24 @@ class ViewBloodRequest extends ViewRecord
                     BloodRequestStatus::BROADCASTED,
                 ]))
                 ->requiresConfirmation()
-                ->modalHeading('إلغاء الطلب')
-                ->modalDescription('سيتم إلغاء هذا الطلب ولن يظهر للمتبرعين.')
-                ->modalSubmitActionLabel('نعم، إلغِ الطلب')
+                ->modalHeading(__('Cancel Request Heading'))
+                ->modalDescription(__('Cancel Request Description'))
+                ->modalSubmitActionLabel(__('Yes, Cancel Request'))
                 ->action(function (BloodRequest $record): void {
                     $record->update(['status' => BloodRequestStatus::CANCELLED]);
 
                     Notification::make()
-                        ->title('تم إلغاء الطلب')
+                        ->title(__('Request Canceled'))
                         ->warning()
                         ->send();
 
                     $this->refreshFormData(['status']);
                 }),
 
-            Actions\EditAction::make()->label('تعديل'),
-            Actions\DeleteAction::make()->label('حذف'),
-            Actions\RestoreAction::make()->label('استعادة'),
-            Actions\ForceDeleteAction::make()->label('حذف نهائي'),
+            Actions\EditAction::make()->label(__('Edit')),
+            Actions\DeleteAction::make()->label(__('Delete')),
+            Actions\RestoreAction::make()->label(__('Restore')),
+            Actions\ForceDeleteAction::make()->label(__('Force Delete')),
         ];
     }
 }

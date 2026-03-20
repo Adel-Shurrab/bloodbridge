@@ -1,9 +1,9 @@
 <x-filament-widgets::widget>
     <div class="top-bar">
         <div class="top-bar-title">
-            <h1>لوحة التحكم</h1>
+            <h1>{{ __('Dashboard') }}</h1>
             <p class="top-bar-subtitle">
-                مرحباً بعودتك، {{ auth()->user()->name }}. إليك ما يحدث مع <span
+                {{ __('Welcome back, :name. Here is what is happening with', ['name' => $this->getOrganization()->responsible_person_name]) }} <span
                     class="brand-text">{{ $this->getOrganization()->org_name }}</span>.
             </p>
         </div>
@@ -12,7 +12,7 @@
             {{-- Profile Section --}}
             <div class="profile-section">
                 <div class="profile-info">
-                    <span class="profile-name">{{ auth()->user()->name }}</span>
+                    <span class="profile-name">{{ $this->getOrganization()->responsible_person_name }}</span>
                     <span class="profile-role">
                         {{ $this->getOrganization()->org_name }}
                     </span>
@@ -33,7 +33,7 @@
             align-items: center;
             margin-bottom: 2rem;
             border: 1px solid rgba(211, 47, 47, 0.05);
-            direction: rtl;
+
             transition: all 0.3s;
         }
 
@@ -48,7 +48,7 @@
         }
 
         .top-bar-title {
-            text-align: right;
+            text-align: start;
         }
 
         .top-bar-title h1 {

@@ -6,16 +6,25 @@ use Carbon\Carbon;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Notification;
+use Illuminate\Notifications\Messages\BroadcastMessage;
 use Filament\Notifications\Notification as FilamentNotification;
 
+/**
+ * Donor Ineligibility Notification
+ *
+ * Sent to donor when they're marked ineligible/excluded from donation.
+ * Delivery: Database + Real-time Broadcast (Reverb)
+ *
+ * Recipient: Donor (User)
+ */
 class DonorIneligibilityNotification extends Notification implements ShouldQueue
 {
     use Queueable;
 
-    protected string $eligibilityStatus;
-    protected ?string $rejectionReason;
-    protected mixed $nextEligibleDate;
-    protected ?string $organizationName;
+    private string $eligibilityStatus;
+    private ?string $rejectionReason;
+    private mixed $nextEligibleDate;
+    private ?string $organizationName;
 
     public function __construct(
         string $eligibilityStatus,
@@ -31,68 +40,105 @@ class DonorIneligibilityNotification extends Notification implements ShouldQueue
 
     public function via(object $notifiable): array
     {
-        return ['database'];
+        return ['database', 'broadcast'];
     }
 
-    public function toDatabase(object $notifiable): array
+    /**
+     * Build the notification structure.
+     */
+    private function buildFilamentNotification(object $notifiable): FilamentNotification
     {
-        $orgName = $this->organizationName ?? 'المنظمة';
+        return FilamentNotification::make()
+            ->title($this->getTitle())
+            ->body($this->getBody())
+            ->icon($this->getIcon())
+            ->iconColor($this->getIconColor());
+    }
 
-        $rejectionLabels = [
-            // Temporary
-            'low_hemoglobin'    => 'نقص الهيموجلوبين',
-            'underweight'       => 'نقص الوزن',
-            'recent_illness'    => 'مرض حديث / مضادات حيوية',
-            'low_blood_pressure' => 'انخفاض ضغط الدم',
-            'other_temp'        => 'أسباب طبية مؤقتة أخرى',
-            // Permanent
-            'blood_virus'       => 'وجود فيروسات في الدم (HCV/HBV/HIV)',
-            'chronic_disease'   => 'مرض مزمن يمنع التبرع',
-            'heart_disease'     => 'أمراض القلب',
-            'cancer'            => 'تاريخ مرضي للسرطان',
-            'other_perm'        => 'أسباب طبية دائمة أخرى',
-        ];
+    private function getTitle(): string
+    {
+        return $this->eligibilityStatus === 'temporary'
+            ? __('Temporarily ineligible for donation')
+            : __('Permanently excluded from blood donation');
+    }
 
-        $reasonLabel = $this->rejectionReason
-            ? ($rejectionLabels[$this->rejectionReason] ?? $this->rejectionReason)
-            : null;
+    private function getBody(): string
+    {
+        $orgName = $this->organizationName ?? __('The Organization');
+        $reasonLabel = $this->getRejectionReasonLabel();
 
         if ($this->eligibilityStatus === 'temporary') {
-            $title = 'غير مؤهل مؤقتاً للتبرع';
+            $body = __(':orgName reported that you are temporarily ineligible to donate blood', 
+                ['orgName' => $orgName]);
 
-            $body = "أفادت {$orgName} بأنك غير مؤهل للتبرع بالدم مؤقتاً";
-
-            if ($reasonLabel) {
-                $body .= " بسبب: {$reasonLabel}";
+            if ($reasonLabel !== null) {
+                $body .= ' ' . __('Due to: :reason', ['reason' => $reasonLabel]);
             }
 
-            if ($this->nextEligibleDate) {
+            if ($this->nextEligibleDate !== null) {
                 $date = Carbon::parse($this->nextEligibleDate)->format('Y/m/d');
-                $body .= ". موعد أهليتك المتوقع: {$date}";
+                $body .= '. ' . __('Expected eligibility date: :date', ['date' => $date]);
             }
 
-            return FilamentNotification::make()
-                ->title($title)
-                ->body($body)
-                ->icon('heroicon-o-clock')
-                ->iconColor('warning')
-                ->getDatabaseMessage();
+            return $body;
         }
 
         // Permanent
-        $title = 'تم استبعادك من التبرع بالدم';
+        $body = __(':orgName reported your permanent exclusion from blood donation', 
+            ['orgName' => $orgName]);
 
-        $body = "أفادت {$orgName} باستبعادك الدائم من التبرع بالدم";
-
-        if ($reasonLabel) {
-            $body .= " بسبب: {$reasonLabel}";
+        if ($reasonLabel !== null) {
+            $body .= ' ' . __('Due to: :reason', ['reason' => $reasonLabel]);
         }
 
-        return FilamentNotification::make()
-            ->title($title)
-            ->body($body)
-            ->icon('heroicon-o-x-circle')
-            ->iconColor('danger')
-            ->getDatabaseMessage();
+        return $body;
+    }
+
+    private function getRejectionReasonLabel(): ?string
+    {
+        $rejectionLabels = [
+            'low_hemoglobin' => __('Low Hemoglobin'),
+            'underweight' => __('Underweight'),
+            'recent_illness' => __('Recent illness / Antibiotics'),
+            'low_blood_pressure' => __('Low Blood Pressure'),
+            'other_temp' => __('Other temporary medical reasons'),
+            'blood_virus' => __('Presence of blood viruses (HCV/HBV/HIV)'),
+            'chronic_disease' => __('Chronic disease preventing donation'),
+            'heart_disease' => __('Heart Diseases'),
+            'cancer' => __('Medical history of cancer'),
+            'other_perm' => __('Other permanent medical reasons'),
+        ];
+
+        return $this->rejectionReason 
+            ? ($rejectionLabels[$this->rejectionReason] ?? $this->rejectionReason)
+            : null;
+    }
+
+    private function getIcon(): string
+    {
+        return $this->eligibilityStatus === 'temporary'
+            ? 'heroicon-o-clock'
+            : 'heroicon-o-x-circle';
+    }
+
+    private function getIconColor(): string
+    {
+        return $this->eligibilityStatus === 'temporary' ? 'warning' : 'danger';
+    }
+
+    /**
+     * Get the database notification representation.
+     */
+    public function toDatabase(object $notifiable): array
+    {
+        return $this->buildFilamentNotification($notifiable)->getDatabaseMessage();
+    }
+
+    /**
+     * Get the broadcast representation of the notification.
+     */
+    public function toBroadcast(object $notifiable): BroadcastMessage
+    {
+        return $this->buildFilamentNotification($notifiable)->getBroadcastMessage();
     }
 }

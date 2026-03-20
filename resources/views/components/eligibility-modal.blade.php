@@ -12,8 +12,8 @@
         <style>
             .eligibility-modal-container {
                 padding: 1.5rem;
-                direction: rtl;
-                text-align: right;
+
+                text-align: start;
             }
 
             .eligibility-modal-header {
@@ -115,7 +115,7 @@
 
             .eligibility-notice {
                 background: #fffaf0;
-                border-right: 4px solid #ed8936;
+                border-inline-start: 4px solid #ed8936;
                 padding: 1rem;
                 border-radius: 4px 8px 8px 4px;
                 font-size: 0.85rem;
@@ -174,7 +174,7 @@
         <div class="eligibility-modal-header">
             <h2 class="eligibility-modal-title">
                 <i class="fas fa-check-circle"></i>
-                متطلبات الأهلية للتبرع
+                {{ __('Donation Eligibility Requirements') }}
             </h2>
             <button @click="$dispatch('close-modal', '{{ $name }}')" class="eligibility-modal-close">
                 <i class="fas fa-times"></i>
@@ -184,39 +184,42 @@
         <div class="eligibility-grid">
             <div class="eligibility-card">
                 <div class="eligibility-card-icon"><i class="fas fa-calendar-alt"></i></div>
-                <h4>العمر</h4>
-                <p>يجب أن يكون العمر بين {{ $settings->min_donor_age }} و {{ $settings->max_donor_age }} عاماً.</p>
+                <h4>{{ __('Age') }}</h4>
+                <p>{{ __('You must be between :min and :max years old.', ['min' => $settings->min_donor_age, 'max' => $settings->max_donor_age]) }}
+                </p>
             </div>
             <div class="eligibility-card">
                 <div class="eligibility-card-icon"><i class="fas fa-weight"></i></div>
-                <h4>الوزن</h4>
-                <p>يجب ألا يقل الوزن عن {{ $settings->min_donor_weight }} كجم.</p>
+                <h4>{{ __('Weight') }}</h4>
+                <p>{{ __('Your weight should not be less than :weight kg.', ['weight' => $settings->min_donor_weight]) }}
+                </p>
             </div>
             <div class="eligibility-card">
                 <div class="eligibility-card-icon"><i class="fas fa-heartbeat"></i></div>
-                <h4>الصحة العامة</h4>
-                <p>يجب ألا يعاني المتبرع من أمراض معدية أو مزمنة غير مسيطر عليها.</p>
+                <h4>{{ __('General Health') }}</h4>
+                <p>{{ __('The donor must not suffer from infectious or uncontrolled chronic diseases.') }}</p>
             </div>
             <div class="eligibility-card">
                 <div class="eligibility-card-icon"><i class="fas fa-clock"></i></div>
-                <h4>الفترة الزمنية</h4>
-                <p>يجب مرور {{ $settings->min_days_between_donations }} يوماً على الأقل منذ آخر تبرع بالدم.</p>
+                <h4>{{ __('Time Period') }}</h4>
+                <p>{{ __('At least :days days must have passed since the last blood donation.', ['days' => $settings->min_days_between_donations]) }}
+                </p>
             </div>
         </div>
 
         <div class="eligibility-notice">
             <i class="fas fa-exclamation-triangle"></i>
-            <strong>ملاحظة هامة:</strong> سيتم إجراء فحص سريع لنسبة الهيموجلوبين وضغط الدم قبل كل عملية تبرع لضمان
-            سلامتك.
+            <strong>{{ __('Important Note:') }}</strong>
+            {{ __('A rapid hemoglobin and blood pressure check will be performed before each donation to ensure your safety.') }}
         </div>
 
         <div class="eligibility-footer">
             <a href="{{ route('eligibility') }}" class="view-more-link">
-                المتطلبات الكاملة والحالات المرضية
+                {{ __('Full Requirements and Medical Conditions') }}
                 <i class="fas fa-arrow-left"></i>
             </a>
             <button @click="$dispatch('close-modal', '{{ $name }}')" class="close-btn">
-                حسناً
+                {{ __('OK') }}
             </button>
         </div>
     </div>

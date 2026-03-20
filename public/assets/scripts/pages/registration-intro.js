@@ -102,7 +102,7 @@ function selectOption(option, selectedCard, otherCard, continueBtn) {
   if (continueBtn) {
     continueBtn.disabled = false;
     continueBtn.classList.remove('disabled');
-    
+
     // Add pulse animation to continue button
     continueBtn.style.animation = 'pulse 0.5s';
     setTimeout(() => {
@@ -120,9 +120,9 @@ function initContinueButton() {
 
   continueBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    
+
     if (!selectedOption) {
-      showNotification('الرجاء اختيار نوع الحساب');
+      showNotification(__("Please select account type"));
       return;
     }
 
@@ -130,7 +130,7 @@ function initContinueButton() {
     continueBtn.disabled = true;
     const originalText = continueBtn.innerHTML;
     continueBtn.innerHTML = `
-      <span>جاري التحميل...</span>
+      <span>${__("Loading...")}</span>
       <div class="spinner"></div>
     `;
 
@@ -154,7 +154,7 @@ function showNotification(message) {
     <span class="notification-icon">ℹ️</span>
     <span class="notification-text">${message}</span>
   `;
-  
+
   document.body.appendChild(notification);
 
   // Remove after 3 seconds

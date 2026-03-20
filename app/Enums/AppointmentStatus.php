@@ -14,9 +14,9 @@ enum AppointmentStatus: int implements HasLabel, HasColor
     public function getLabel(): ?string
     {
         return match ($this) {
-            self::SCHEDULED => 'مجدول',
-            self::COMPLETED => 'مكتمل',
-            self::CANCELLED => 'ملغي',
+            self::SCHEDULED => __('Scheduled'),
+            self::COMPLETED => __('Completed'),
+            self::CANCELLED => __('Cancelled'),
         };
     }
 

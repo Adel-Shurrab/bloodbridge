@@ -15,134 +15,142 @@ class OrganizationInfolist
         return $schema
             ->components([
 
-                Section::make('هوية المنظمة')
+                Section::make(__('Organization Identity'))
                     ->icon('heroicon-o-building-office-2')
                     ->columns(3)
                     ->components([
                         TextEntry::make('org_name')
-                            ->label('اسم المنظمة')
+                            ->label(__('Organization Name'))
                             ->weight('bold')
                             ->size('lg')
                             ->columnSpan(2),
 
                         TextEntry::make('slug')
-                            ->label('المعرّف (Slug)')
+                            ->label(__('Slug'))
                             ->copyable()
                             ->badge()
                             ->color('gray'),
 
                         TextEntry::make('license_number')
-                            ->label('رقم الترخيص')
+                            ->label(__('License Number'))
                             ->copyable()
                             ->icon('heroicon-o-document-text'),
 
                         TextEntry::make('governorate.name')
-                            ->label('المحافظة')
+                            ->label(__('Governorate'))
                             ->badge()
                             ->color('info'),
 
                         TextEntry::make('description')
-                            ->label('وصف المنظمة')
+                            ->label(__('Organization Description'))
                             ->columnSpanFull()
-                            ->placeholder('لا يوجد وصف'),
+                            ->placeholder(__('No description')),
                     ]),
 
-                Section::make('حالة الموافقة')
+                Section::make(__('Approval Status'))
                     ->icon('heroicon-o-shield-check')
                     ->columns(3)
                     ->components([
 
                         TextEntry::make('approval_status')
-                            ->label('الحالة')
+                            ->label(__('Status'))
                             ->badge()
                             ->size('lg'),
 
                         TextEntry::make('approved_at')
-                            ->label('تاريخ الاعتماد')
+                            ->label(__('Approval Date'))
                             ->dateTime('Y/m/d')
-                            ->placeholder('لم يتم الاعتماد بعد')
+                            ->placeholder(__('Not approved yet'))
                             ->icon('heroicon-o-check-badge'),
 
                         TextEntry::make('approvedBy.name')
-                            ->label('اعتمد بواسطة')
+                            ->label(__('Approved By'))
                             ->placeholder('—')
                             ->icon('heroicon-o-user'),
 
                         TextEntry::make('rejection_reason')
-                            ->label('سبب الرفض')
+                            ->label(__('Rejection Reason'))
                             ->placeholder('—')
                             ->color('danger')
                             ->visible(fn($record) => filled($record?->rejection_reason)),
 
                         TextEntry::make('created_at')
-                            ->label('تاريخ التسجيل')
+                            ->label(__('Registration Date'))
                             ->dateTime('Y/m/d')
                             ->since()
                             ->icon('heroicon-o-clock'),
                     ]),
 
-                Section::make('المسؤول')
+                Section::make(__('Manager'))
                     ->icon('heroicon-o-user-circle')
                     ->columns(3)
                     ->components([
                         TextEntry::make('responsible_person_name')
-                            ->label('الاسم')
+                            ->label(__('Name'))
                             ->weight('semibold'),
 
                         TextEntry::make('responsible_person_position')
-                            ->label('المنصب')
+                            ->label(__('Position'))
                             ->placeholder('—'),
 
                         TextEntry::make('responsible_person_email')
-                            ->label('البريد الشخصي')
+                            ->label(__('Personal Email'))
                             ->icon('heroicon-o-envelope')
                             ->url(fn($state) => $state ? 'mailto:' . $state : null)
                             ->placeholder('—'),
                     ]),
 
-                Section::make('معلومات التواصل')
+                Section::make(__('Contact Information'))
                     ->icon('heroicon-o-phone-arrow-up-right')
                     ->columns(3)
                     ->components([
                         TextEntry::make('user.email')
-                            ->label('البريد الرسمي للحساب')
+                            ->label(__('Official Account Email'))
                             ->icon('heroicon-o-envelope')
                             ->copyable()
                             ->url(fn($state) => $state ? 'mailto:' . $state : null),
 
                         TextEntry::make('contact_email')
-                            ->label('البريد الرسمي للتواصل')
+                            ->label(__('Official Contact Email'))
                             ->icon('heroicon-o-envelope')
                             ->copyable()
                             ->url(fn($state) => $state ? 'mailto:' . $state : null),
 
                         TextEntry::make('contact_phone')
-                            ->label('هاتف التواصل')
+                            ->label(__('Contact Phone'))
                             ->copyable()
                             ->icon('heroicon-o-phone')
                             ->url(fn($state) => $state ? 'tel:' . $state : null),
                     ]),
 
-                Section::make('أوقات العمل والطاقة الاستيعابية')
+                Section::make(__('Working Hours and Capacity'))
                     ->icon('heroicon-o-clock')
                     ->columns(4)
                     ->components([
                         TextEntry::make('opening_time')
-                            ->label('وقت الفتح')
-                            ->placeholder('غير محدد'),
+                            ->label(__('Opening Time'))
+                            ->placeholder(__('Not specified')),
 
                         TextEntry::make('closing_time')
-                            ->label('وقت الإغلاق')
-                            ->placeholder('غير محدد'),
+                            ->label(__('Closing Time'))
+                            ->placeholder(__('Not specified')),
 
                         TextEntry::make('daily_capacity')
-                            ->label('الطاقة اليومية')
-                            ->formatStateUsing(fn($state) => $state ? $state . ' متبرع/يوم' : '—'),
+                            ->label(__('Daily Capacity'))
+                            ->formatStateUsing(fn($state) => $state ? $state . ' ' . __('donors/day') : '—'),
 
                         TextEntry::make('working_days')
-                            ->label('أيام العمل')
+                            ->label(__('Working Days'))
                             ->getStateUsing(function ($record) {
-                                $names = ['الأحد', 'الإثنين', 'الثلاثاء', 'الأربعاء', 'الخميس', 'الجمعة', 'السبت'];
+                                $names = [
+                                    __('Sunday'),
+                                    __('Monday'),
+                                    __('Tuesday'),
+                                    __('Wednesday'),
+                                    __('Thursday'),
+                                    __('Friday'),
+                                    __('Saturday'),
+                                ];
                                 $raw  = $record->working_days;
                                 $days = is_array($raw) ? $raw : json_decode($raw ?? '[]', true);
                                 if (! is_array($days) || empty($days)) return '—';
@@ -150,57 +158,57 @@ class OrganizationInfolist
                             }),
                     ]),
 
-                Section::make('الإحصائيات')
+                Section::make(__('Statistics'))
                     ->icon('heroicon-o-chart-bar-square')
                     ->columns(3)
                     ->components([
                         TextEntry::make('total_request_created')
-                            ->label('إجمالي الطلبات المنشأة')
-                            ->formatStateUsing(fn($state) => number_format($state) . ' طلب')
+                            ->label(__('Total Requests Created'))
+                            ->formatStateUsing(fn($state) => number_format($state) . ' ' . __('requests'))
                             ->badge()
                             ->color('primary'),
 
                         TextEntry::make('total_donation_verified')
-                            ->label('إجمالي التبرعات المُوثّقة')
-                            ->formatStateUsing(fn($state) => number_format($state) . ' تبرع')
+                            ->label(__('Total Verified Donations'))
+                            ->formatStateUsing(fn($state) => number_format($state) . ' ' . __('donations'))
                             ->badge()
                             ->color('success'),
 
                         TextEntry::make('bloodRequests_count')
-                            ->label('الطلبات النشطة حالياً')
+                            ->label(__('Currently Active Requests'))
                             ->getStateUsing(fn($record) => $record->bloodRequests()->active()->count())
-                            ->formatStateUsing(fn($state) => $state . ' طلب')
+                            ->formatStateUsing(fn($state) => $state . ' ' . __('requests'))
                             ->badge()
                             ->color(fn($state) => $state > 0 ? 'warning' : 'gray'),
                     ]),
 
-                Section::make('الموقع الجغرافي')
+                Section::make(__('Geographic Location'))
                     ->icon('heroicon-o-map-pin')
                     ->collapsed()
                     ->columns(3)
                     ->components([
                         TextEntry::make('auto_location_address')
-                            ->label('العنوان')
+                            ->label(__('Address'))
                             ->columnSpanFull()
-                            ->placeholder('لا يوجد عنوان'),
+                            ->placeholder(__('No address')),
 
                         TextEntry::make('lat')
-                            ->label('خط العرض')
-                            ->placeholder('غير محدد'),
+                            ->label(__('Latitude'))
+                            ->placeholder(__('Not specified')),
 
                         TextEntry::make('lng')
-                            ->label('خط الطول')
-                            ->placeholder('غير محدد'),
+                            ->label(__('Longitude'))
+                            ->placeholder(__('Not specified')),
 
                         TextEntry::make('google_maps_link')
-                            ->label('رابط خرائط Google')
+                            ->label(__('Google Maps Link'))
                             ->getStateUsing(fn($record) => $record->lat
                                 ? "({$record->lat}, {$record->lng})"
                                 : null)
                             ->url(fn($record) => $record->lat
                                 ? "https://www.google.com/maps?q={$record->lat},{$record->lng}"
                                 : null, true)
-                            ->placeholder('لا توجد إحداثيات'),
+                            ->placeholder(__('No coordinates')),
                     ]),
             ]);
     }

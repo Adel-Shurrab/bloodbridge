@@ -164,7 +164,7 @@
 
 .alert-error {
     background-color: #fee2e2;
-    border-left: 4px solid #f87171;
+    border-inline-end: 4px solid #f87171;
     color: #991b1b;
 }
 
@@ -219,21 +219,24 @@
 
 .input-icon {
     position: absolute;
-    right: 1rem;
+    inset-inline-start: 1rem;
     font-size: 1.2rem;
     pointer-events: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .input-wrapper input {
     width: 100%;
-    padding: 0.875rem 1rem 0.875rem 3rem;
+    padding: 0.875rem 1rem;
+    padding-inline-start: 3rem;
     border: 2px solid #e5e7eb;
     border-radius: 12px;
     font-size: 1rem;
-    font-family: "Cairo", sans-serif;
+    font-family: inherit;
     transition: all 0.3s;
     background: #f9fafb;
-    padding-right: 43px;
 }
 
 .input-wrapper input:focus {
@@ -250,13 +253,16 @@
 /* Toggle Password Button */
 .toggle-password {
     position: absolute;
-    left: 1rem;
+    inset-inline-end: 1rem;
     background: none;
     border: none;
     cursor: pointer;
     padding: 0.25rem;
     font-size: 1.2rem;
     transition: transform 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .toggle-password:hover {
@@ -298,7 +304,7 @@
     height: 20px;
     border: 2px solid #d1d5db;
     border-radius: 6px;
-    margin-left: 0.75rem;
+    margin-inline-end: 0.75rem;
     position: relative;
     transition: all 0.3s;
     background: white;
@@ -343,7 +349,7 @@
     border-top-color: white;
     border-radius: 50%;
     animation: spin 0.8s linear infinite;
-    margin-right: 0.5rem;
+    margin-inline-start: 0.5rem;
 }
 
 @keyframes spin {

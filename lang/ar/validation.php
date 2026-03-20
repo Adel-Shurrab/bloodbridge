@@ -81,5 +81,12 @@ return [
         'current_password' => 'كلمة المرور الحالية',
         'new_password' => 'كلمة المرور الجديدة',
         'new_password_confirmation' => 'تأكيد كلمة المرور الجديدة',
+        'is_24_hours' => 'العمل على مدار الساعة',
+        'terms' => 'الشروط والأحكام',
+        'termsAgree' => 'الموافقة على الشروط',
+        'auto_location_address' => 'العنوان التلقائي',
+        'auto_lat' => 'خط العرض',
+        'auto_lng' => 'خط الطول',
+        'blood_type' => 'فصيلة الدم',
     ],
 ];

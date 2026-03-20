@@ -23,3 +23,4 @@ class OrganizationHeaderWidget extends Widget
         return Auth::user()->organization;
     }
 }
+

@@ -5,7 +5,7 @@
 **A Modern Blood Donation Management Platform**
 
 [![Laravel](https://img.shields.io/badge/Laravel-12.x-FF2D20?style=for-the-badge&logo=laravel)](https://laravel.com)
-[![Filament](https://img.shields.io/badge/Filament-3.x-FDAE4B?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTI0IDQ4QzM3LjI1NDggNDggNDggMzcuMjU0OCA0OCAyNEM0OCAxMC43NDUyIDM3LjI1NDggMCAyNCAwQzEwLjc0NTIgMCAwIDEwLjc0NTIgMCAyNEMwIDM3LjI1NDggMTAuNzQ1MiA0OCAyNCA0OFoiIGZpbGw9IiNGRkQ3MDAiLz4KPC9zdmc+Cg==)](https://filamentphp.com)
+[![Filament](https://img.shields.io/badge/Filament-4.x-FDAE4B?style=for-the-badge&logo=data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDgiIGhlaWdodD0iNDgiIHZpZXdCb3g9IjAgMCA0OCA0OCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTI0IDQ4QzM3LjI1NDggNDggNDggMzcuMjU0OCA0OCAyNEM0OCAxMC43NDUyIDM3LjI1NDggMCAyNCAwQzEwLjc0NTIgMCAwIDEwLjc0NTIgMCAyNEMwIDM3LjI1NDggMTAuNzQ1MiA0OCAyNCA0OFoiIGZpbGw9IiNGRkQ3MDAiLz4KPC9zdmc+Cg==)](https://filamentphp.com)
 [![PHP](https://img.shields.io/badge/PHP-8.3+-777BB4?style=for-the-badge&logo=php)](https://php.net)
 [![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)](LICENSE)
 
@@ -17,6 +17,8 @@ _Connecting donors with those in need through intelligent matching and real-time
 >
 > This project is currently **under active development**. Features are being continuously added and refined.
 > Some functionalities may be incomplete or subject to change.
+>
+> **Note**: This is a **private repository**. For access and contribution details, please contact the development team.
 
 </div>
 
@@ -28,12 +30,16 @@ _Connecting donors with those in need through intelligent matching and real-time
 - [Key Features](#-key-features)
 - [Technology Stack](#-technology-stack)
 - [System Architecture](#-system-architecture)
+- [System Requirements](#-system-requirements)
 - [Getting Started](#-getting-started)
 - [Configuration](#-configuration)
+- [Database Schema](#-database-schema)
+- [API Endpoints](#-api-endpoints)
 - [Usage](#-usage)
 - [Project Structure](#-project-structure)
 - [Development](#-development)
-- [Contributing](#-contributing)
+- [Known Issues](#-known-issues)
+- [Roadmap](#-roadmap)
 - [License](#-license)
 
 ---
@@ -65,7 +71,7 @@ To create a seamless, efficient, and life-saving bridge between blood donors and
 
 #### 🔐 Admin Panel
 
-- User management with role-based access control
+- User management with enum-based role access (Admin / Donor / Organization)
 - Blood request oversight and monitoring
 - Donor and organization verification
 - System-wide analytics and reporting
@@ -77,9 +83,9 @@ To create a seamless, efficient, and life-saving bridge between blood donors and
 - Health profile tracking
 - Blood donation history
 - QR code for quick identification
-- Appointment scheduling
-- Achievement system and gamification
 - Blood request notifications
+- ⏳ Appointment scheduling (in development)
+- ⏳ Achievement system and gamification (in development)
 
 #### 🏢 Organization Panel
 
@@ -121,11 +127,11 @@ To create a seamless, efficient, and life-saving bridge between blood donors and
 
 ### 🔒 Security Features
 
-- **Role-Based Access Control** (Spatie Laravel Permission)
+- **Role-Based Access Control** (single-role enum on `users.role`)
 - Multi-tenancy support
 - Secure authentication
 - Data validation and sanitization
-- Permission-based resource access
+- Policy / guard-based resource access
 
 ---
 
@@ -135,25 +141,26 @@ To create a seamless, efficient, and life-saving bridge between blood donors and
 
 - **Framework**: [Laravel 12.x](https://laravel.com) - The latest PHP framework
 - **PHP**: 8.3+ - Modern PHP with latest features
-- **Database**: SQLite (Development) / MySQL/PostgreSQL (Production ready)
+- **Database**: SQLite (Development) / MySQL or PostgreSQL (Production)
 - **Queue System**: Database-backed job queue
 - **Cache**: Database cache driver
 
 ### Frontend
 
-- **Admin Interface**: [Filament 3.x](https://filamentphp.com) - Modern admin panel builder
-- **CSS Framework**: [Tailwind CSS 3.x](https://tailwindcss.com) - Utility-first CSS
-- **JavaScript**: Alpine.js - Lightweight reactive framework
-- **Build Tool**: Vite - Next-generation frontend tooling
+- **Admin Interface**: [Filament 4.x](https://filamentphp.com) - Modern admin panel builder
+- **CSS Framework**: [Tailwind CSS 4.x](https://tailwindcss.com) - Utility-first CSS
+- **JavaScript**: [Alpine.js 3.x](https://alpinejs.dev/) - Lightweight reactive framework
+- **Build Tool**: [Vite 7.x](https://vitejs.dev/) - Next-generation frontend tooling
 
 ### Key Packages
 
 - **filament/spatie-laravel-settings-plugin** - Persistent application settings
-- **spatie/laravel-permission** - Role and permission management
 - **simplesoftwareio/simple-qrcode** - QR code generation
+- **endroid/qr-code** - Alternative QR code library
 - **flowframe/laravel-trend** - Data trend analysis
 - **dotswan/filament-map-picker** - Interactive map selection
 - **pusher/pusher-php-server** - Real-time broadcasting support
+- **laravel/reverb** - Native WebSocket server for broadcasting
 
 ### Development Tools
 
@@ -208,74 +215,167 @@ The platform includes a sophisticated blood type matching system that:
 
 ---
 
+## � System Requirements
+
+### Minimum Requirements
+
+- **PHP**: 8.3 or higher
+- **Composer**: 2.4 or higher
+- **Node.js**: 18.x or higher
+- **NPM**: 9.x or higher
+- **Database**: SQLite 3.26+ (development) or MySQL 8.0+ / PostgreSQL 12+ (production)
+- **Disk Space**: At least 1GB for dependencies and assets
+
+### Recommended Requirements
+
+- **PHP**: 8.3+ with extensions: `curl`, `mbstring`, `sqlite3`, `mysql` or `pgsql`, `bcmath`, `json`
+- **Node.js**: 20.x LTS
+- **Database**: PostgreSQL 14+ (recommended for production)
+- **Memory**: 2GB RAM minimum for development, 4GB+ for production
+- **CPU**: Multi-core processor for queue processing
+
+### Operating Systems
+
+- **Linux**: Ubuntu 22.04+, CentOS 8+, Debian 12+
+- **macOS**: 12+
+- **Windows**: 10/11 with WSL2 recommended for development
+
+---
+
 ## 🚀 Getting Started
 
 ### Prerequisites
 
-- PHP 8.3 or higher
-- Composer
-- Node.js & NPM
-- SQLite (development) or MySQL/PostgreSQL (production)
+Before starting, ensure you have all [system requirements](#-system-requirements) installed:
+
+```bash
+# Verify PHP version
+php -v
+
+# Verify Composer
+composer --version
+
+# Verify Node.js and NPM
+node -v && npm -v
+```
 
 ### Installation
 
-1. **Clone the repository**
+#### Step 1: Clone the Repository
 
-    ```bash
-    git clone https://github.com/yourusername/bloodbridge.git
-    cd bloodbridge
-    ```
+```bash
+git clone https://github.com/your-organization/bloodbridge.git
+cd bloodbridge
+```
 
-2. **Install dependencies**
+#### Step 2: Install PHP Dependencies
 
-    ```bash
-    composer install
-    npm install
-    ```
+```bash
+composer install
+```
 
-3. **Environment setup**
+This will install all Laravel packages and their dependencies. You can use `--no-plugins` flag if you encounter any issues:
 
-    ```bash
-    cp .env.example .env
-    php artisan key:generate
-    ```
+```bash
+composer install --no-plugins
+```
 
-4. **Database setup**
+#### Step 3: Install Node.js Dependencies
 
-    ```bash
-    # Create SQLite database (development)
-    touch database/database.sqlite
+```bash
+npm install
+```
 
-    # Run migrations
-    php artisan migrate
+#### Step 4: Environment Configuration
 
-    # Seed the database (optional)
-    php artisan db:seed
-    ```
+Copy the example environment file and generate an application key:
 
-5. **Build frontend assets**
+```bash
+cp .env.example .env
+php artisan key:generate
+```
 
-    ```bash
-    npm run build
-    ```
+Your `.env` file is now created with a unique encryption key. Do not commit this file to version control.
 
-6. **Start the development server**
+#### Step 5: Database Setup
 
-    ```bash
-    # Using Laravel's built-in server
-    php artisan serve
+**For Development (SQLite):**
 
-    # Or use the custom dev script (runs server, queue, and vite)
-    composer dev
-    ```
+```bash
+# Create SQLite database file
+touch database/database.sqlite
 
-### Quick Setup
+# Run migrations
+php artisan migrate
 
-Alternatively, use the automated setup script:
+# (Optional) Seed initial data
+php artisan db:seed
+```
+
+**For Production (MySQL/PostgreSQL):**
+
+Update your `.env` file with database credentials:
+
+```env
+DB_CONNECTION=mysql
+DB_HOST=127.0.0.1
+DB_PORT=3306
+DB_DATABASE=bloodbridge
+DB_USERNAME=your_username
+DB_PASSWORD=your_password
+```
+
+Then run:
+
+```bash
+php artisan migrate
+php artisan db:seed
+```
+
+#### Step 6: Build Frontend Assets
+
+```bash
+npm run dev    # For development with watch mode
+npm run build  # For production build
+```
+
+#### Step 7: Start the Application
+
+```bash
+# Using Laravel's built-in development server
+php artisan serve
+
+# The application will be available at http://localhost:8000
+```
+
+#### Step 8: Access the Admin Panel
+
+Navigate to `http://localhost:8000/admin` and log in with your seeded admin credentials.
+
+### Quick Setup Script
+
+You can also use the automated setup script to run all steps:
 
 ```bash
 composer setup
 ```
+
+This will handle installation, environment setup, and database initialization automatically.
+
+### Development Server with All Services
+
+For local development with queue processing and live asset compilation:
+
+```bash
+composer dev
+```
+
+This command starts:
+- Laravel development server (port 8000)
+- Queue worker for job processing
+- Vite dev server for asset compilation
+
+**Note**: Requires `supervisor` or `tmux` to run multiple processes.
 
 ---
 
@@ -286,45 +386,221 @@ composer setup
 Key configuration options in `.env`:
 
 ```env
+# Application
 APP_NAME=BloodBridge
 APP_ENV=local
+APP_DEBUG=true
 APP_URL=http://localhost:8000
 
 # Database
 DB_CONNECTION=sqlite
-# OR for MySQL/PostgreSQL
+DB_DATABASE=database/database.sqlite
+
+# For MySQL
 # DB_CONNECTION=mysql
 # DB_HOST=127.0.0.1
 # DB_PORT=3306
 # DB_DATABASE=bloodbridge
+# DB_USERNAME=root
+# DB_PASSWORD=
+
+# For PostgreSQL
+# DB_CONNECTION=pgsql
+# DB_HOST=127.0.0.1
+# DB_PORT=5432
+# DB_DATABASE=bloodbridge
 
 # Queue Configuration
-QUEUE_CONNECTION=database
+QUEUE_CONNECTION=database  # Options: database, redis, sqs, beanstalk
 
-# Cache
-CACHE_STORE=database
+# Cache Configuration
+CACHE_STORE=database       # Options: database, redis, memcached, array
 
-# Mail (configure for production)
+# Mail Configuration
 MAIL_MAILER=smtp
-MAIL_HOST=mailhog
+MAIL_HOST=localhost
 MAIL_PORT=1025
+MAIL_USERNAME=null
+MAIL_PASSWORD=null
+MAIL_ENCRYPTION=null
+MAIL_FROM_NAME="BloodBridge"
+
+# Session
+SESSION_DRIVER=cookie
+
+# Broadcasting (for real-time notifications)
+BROADCAST_DRIVER=log       # Use 'pusher' for production WebSocket support
+PUSHER_APP_ID=
+PUSHER_APP_KEY=
+PUSHER_APP_SECRET=
+PUSHER_APP_CLUSTER=mt1
 ```
 
 ### Application Settings
 
-Most application settings are managed through the Filament admin panel under **Settings**, including:
+Most application settings are managed through the **Filament Admin Panel** under **Settings**:
 
-- General application settings
-- Notification preferences
-- System defaults
-- Feature toggles
+1. Navigate to `/admin`
+2. Go to **Settings** section
+3. Configure:
+   - General application settings
+   - Notification preferences
+   - System defaults
+   - Feature toggles
+   - Blood type matching rules
 
 ### Geolocation Setup
 
-For location-based features, ensure:
+For location-based donor matching features:
 
-1. Governorate data is seeded (`php artisan db:seed --class=GovernorateSeeder`)
-2. Spatial indexes are created (handled by migrations)
+1. **Seed governorate data:**
+   ```bash
+   php artisan db:seed --class=GovernorateSeeder
+   ```
+
+2. **Verify migration:** Ensure spatial indexes are created (handled automatically by migrations)
+
+3. **Test location features:** Use the admin panel to create a test blood request with location data
+
+### Cache Configuration
+
+For optimal performance, configure cache:
+
+```bash
+# Clear all caches
+php artisan cache:clear
+
+# Optimize for production
+php artisan config:cache
+php artisan route:cache
+php artisan view:cache
+```
+
+---
+
+## 🗄️ Database Schema
+
+### Core Models & Relationships
+
+#### Users
+- **users** - System users (Admin, Donor, Organization)
+  - `id` - Primary key
+  - `email` - Unique email address
+  - `password` - Hashed password
+  - `role` - Enum: Admin, Donor, Organization
+  - `phone` - Contact phone
+
+#### Donors
+- **donors** - Donor profiles
+  - Relationship: `user_id` → users
+  - Blood type and health information
+  
+  - **donor_health_profiles** - Detailed medical eligibility
+    - Relationship: `donor_id` → donors
+    - Eligibility status and restrictions
+
+#### Organizations
+- **organizations** - Blood banks, hospitals, NGOs
+  - Relationship: `user_id` → users
+  - Contact and location information
+
+#### Blood Requests
+- **blood_requests** - Donation requests
+  - Relationship: `organization_id` → organizations
+  - Blood type needed
+  - Urgency level (Normal, Urgent, Critical)
+  - Status (Pending, Matched, Fulfilled, Cancelled)
+  - Location (GPS coordinates or governorate)
+  
+  - **request_responses** - Donor responses to requests
+    - Relationship: `blood_request_id` → blood_requests
+    - Relationship: `donor_id` → donors
+    - Response status and timestamp
+
+#### Appointments
+- **appointments** - Scheduled donations
+  - Relationship: `blood_request_id` → blood_requests
+  - Relationship: `donor_id` → donors
+  - Status and scheduling information
+
+#### Other Models
+- **governorates** - Geographic regions for location matching
+- **eligibility_logs** - Tracking of donor eligibility decisions
+- **achievements** - Gamification and donor rewards
+- **notifications** - Persistent notification records
+
+### Key Indexes
+
+- `blood_requests(blood_type, status, created_at)`
+- `donors(blood_type, governorate_id)`
+- `donors(latitude, longitude)` - Spatial index for GPS matching
+- `appointment_donors(appointment_id, donor_id)` - Unique constraint
+
+---
+
+## 🔌 API Endpoints
+
+### Authentication
+
+```
+POST   /api/auth/login           - Login user
+POST   /api/auth/logout          - Logout user
+POST   /api/auth/register        - Register new account
+POST   /api/auth/refresh         - Refresh auth token
+```
+
+### Blood Requests
+
+```
+GET    /api/blood-requests       - List all requests
+POST   /api/blood-requests       - Create new request
+GET    /api/blood-requests/{id}  - Get request details
+PUT    /api/blood-requests/{id}  - Update request
+DELETE /api/blood-requests/{id}  - Cancel request
+
+GET    /api/blood-requests/{id}/responses  - Get request responses
+```
+
+### Donor Features
+
+```
+GET    /api/donors                    - List donors
+GET    /api/donors/{id}               - Get donor profile
+PUT    /api/donors/{id}               - Update donor profile
+GET    /api/donors/{id}/health        - Get health profile
+POST   /api/donors/{id}/responses     - Submit response to request
+
+GET    /api/donors/{id}/appointments  - Get donor's appointments
+GET    /api/donors/{id}/achievements  - Get donor achievements
+```
+
+### Organizations
+
+```
+GET    /api/organizations              - List organizations
+POST   /api/organizations              - Create organization
+GET    /api/organizations/{id}         - Get organization details
+PUT    /api/organizations/{id}         - Update organization
+
+GET    /api/organizations/{id}/requests  - Organization's requests
+```
+
+### Notifications
+
+```
+GET    /api/notifications           - List user notifications
+PUT    /api/notifications/{id}/read  - Mark as read
+DELETE /api/notifications/{id}       - Delete notification
+```
+
+### Search & Matching
+
+```
+GET    /api/donors/search?blood_type=O+&location=cairo    - Search compatible donors
+GET    /api/compatibility/{donor_id}/{blood_type}         - Check blood compatibility
+```
+
+**Note**: Full API documentation with request/response examples is available in [API_DOCUMENTATION.md](API_DOCUMENTATION.md) (if available).
 
 ---
 
@@ -332,36 +608,233 @@ For location-based features, ensure:
 
 ### For Administrators
 
-1. **Access the Admin Panel**: Navigate to `/admin`
-2. **Manage Users**: Create and assign roles (Admin, Donor, Organization)
-3. **Oversee Blood Requests**: Monitor all system requests and responses
-4. **Review Analytics**: Access dashboard widgets for insights
+#### Accessing the Admin Panel
 
-### For Organizations
+1. Navigate to `http://localhost:8000/admin`
+2. Log in with admin credentials
+3. You'll see the admin dashboard with key metrics
 
-1. **Access Organization Panel**: Navigate to `/organization`
-2. **Create Blood Requests**:
-    - Specify blood type needed
-    - Set urgency level (Normal, Urgent, Critical)
-    - Provide location (GPS or governorate)
-    - Add patient details
-3. **Manage Responses**: Review donor responses and schedule appointments
-4. **Track Statistics**: Monitor request fulfillment rates
+#### Managing Users
+
+1. **Create a New User**
+   - Go to **Users** → **Create**
+   - Fill in email, password, and select role (Admin, Donor, or Organization)
+   - Click **Create**
+
+2. **Verify Users**
+   - Navigate to **Users** list
+   - Verify/unverify donor and organization accounts
+   - Track user activity and engagement
+
+#### Overseeing Blood Requests
+
+1. **View All Requests**
+   - Go to **Blood Requests**
+   - Filter by status, blood type, or urgency
+   - View request details and donor responses
+
+2. **Monitor Matching**
+   - Check request broadcasts
+   - See which donors have been notified
+   - Review response statistics
+
+3. **Manage Analytics**
+   - Access dashboard widgets
+   - View key metrics (requests created, responses, fulfillment rate)
+   - Generate reports
+
+#### System Configuration
+
+1. **Settings**
+   - Click **Settings** in admin panel
+   - Configure application defaults
+   - Manage notification preferences
+   - Enable/disable features
+
+Example configuration:
+```
+- Blood Type Matching Rules: Enable strict/loose matching
+- Notification Radius: Default search radius for donors
+- Urgency Levels: Define urgency criteria
+- System Announcements: Send broadcast messages
+```
+
+---
+
+### For Organizations (Blood Banks, Hospitals, NGOs)
+
+#### Accessing the Organization Panel
+
+1. Register as an organization at `/register_selection`
+2. Navigate to `http://localhost:8000/organization`
+3. Complete organization profile (name, location, contact)
+
+#### Creating Blood Requests
+
+1. **Create New Request**
+   - Click **New Blood Request**
+   - Fill in request details:
+     - **Blood Type Needed**: Select from ABO + Rh factor
+     - **Quantity**: Number of units needed
+     - **Urgency Level**:
+       - **Normal**: Routine request (3-7 days)
+       - **Urgent**: High priority (1-3 days)
+       - **Critical**: Life-saving (immediate)
+     - **Location**: Enter GPS coordinates or select governorate
+     - **Patient Details**: Add demographic info (name, age, condition)
+     - **Special Notes**: Medical requirements or restrictions
+
+2. **Example Request Creation**
+   ```
+   Blood Type: O+
+   Quantity: 3 units
+   Urgency: Critical
+   Location: Cairo (Latitude: 30.0444, Longitude: 31.2357)
+   Patient: 45-year-old male, surgical emergency
+   ```
+
+3. **Submit Request**
+   - Click **Submit**
+   - System automatically notifies compatible donors
+   - Request enters broadcast queue
+
+#### Managing Donor Responses
+
+1. **View Responses**
+   - Go to **My Requests**
+   - Click on a request to view responses
+   - See donor status: Accepted, Pending, Declined
+
+2. **Schedule Appointments**
+   - Click **Schedule Appointment** next to donor response
+   - Set date and time
+   - Add appointment notes
+   - Confirm scheduling
+
+3. **Manage Appointments**
+   - View calendar of scheduled appointments
+   - Send reminders to donors
+   - Mark as completed or cancelled
+
+#### Analytics & Reporting
+
+1. **Request Statistics**
+   - Total requests created
+   - Response rate (% of notifications that responded)
+   - Fulfillment rate (% fulfilled)
+   - Average response time
+
+2. **Donor Database**
+   - Search donors by blood type
+   - Filter by location/availability
+   - View donor history
+
+---
 
 ### For Donors
 
-1. **Access Donor Panel**: Navigate to `/donor`
-2. **Complete Health Profile**: Ensure accurate medical information
-3. **Respond to Requests**: View and respond to blood request notifications
-4. **Track Donations**: View donation history and achievements
-5. **View QR Code**: Access personal QR code for quick identification
+#### Accessing the Donor Panel
+
+1. Register as a donor at `/register_selection`
+2. Navigate to `http://localhost:8000/donor`
+3. Complete your profile
+
+#### Setting Up Your Profile
+
+1. **Basic Information**
+   - Name, age, gender
+   - Contact information
+   - Blood type (verified by admin)
+
+2. **Health Profile**
+   - Medical history
+   - Current medications
+   - Previous donations
+   - Any restrictions or allergies
+
+3. **Location Information**
+   - Enable GPS for location-based matching
+   - Or select your governorate
+   - This helps organizations find you when blood is needed
+
+#### Responding to Blood Requests
+
+1. **Receive Notifications**
+   - When a compatible blood request is created, you'll be notified
+   - Check **Notifications** dashboard
+   - View match distance and urgency level
+
+2. **Review Request Details**
+   - Blood type needed
+   - Patient information (age, condition)
+   - Urgency level
+   - Location and distance
+   
+3. **Submit Your Response**
+   - Click **Accept** if you can donate
+   - Click **Decline** with reason if you cannot
+   - Your response is sent to the organization
+
+4. **Schedule Appointment**
+   - Once accepted, organization will contact you
+   - View scheduled appointment in calendar
+   - Receive reminders before appointment
+
+#### Tracking Your Donations
+
+1. **Donation History**
+   - View all completed donations
+   - Track donation dates
+   - View blood units donated
+
+2. **Health Profile Updates**
+   - Update health information after donations
+   - Log any post-donation side effects
+   - Update eligibility status
+
+#### Achievements & Gamification
+
+1. **View Achievements**
+   - First Donation badge
+   - 5 Donations milestone
+   - 10+ Donations level
+   - Regular Donor status
+
+2. **Leaderboard**
+   - See top donors in your region
+   - Track your ranking
+   - Earn recognition
+
+3. **QR Code**
+   - Generate personal QR code for identification
+   - Show at donation centers for quick recognition
+   - Rate-limited to 10 per minute
+
+#### Appointment Management
+
+1. **View Upcoming Appointments**
+   - Calendar view of scheduled donations
+   - Appointment details and location
+   - Organization contact information
+
+2. **Manage Appointments**
+   - Reschedule if needed
+   - Cancel appointments with reason
+   - Add notes about availability
+
+---
 
 ### Public Pages
 
-- **Home** (`/`) - Landing page
-- **About** (`/about`) - Information about the platform
-- **Contact** (`/contact`) - Contact form
-- **Registration** (`/register_selection`) - Donor or Organization signup
+**Non-Authenticated Users:**
+
+1. **Home** (`/`) - Landing page with overview
+2. **About** (`/about`) - Information about BloodBridge
+3. **Contact** (`/contact`) - Contact form for inquiries
+4. **Registration** (`/register_selection`) - Choose role:
+   - Register as Donor
+   - Register as Organization
+5. **Login** (`/login`) - Sign in to your account
 
 ---
 
@@ -370,33 +843,119 @@ For location-based features, ensure:
 ```
 bloodbridge/
 ├── app/
-│   ├── Console/          # Artisan commands
-│   ├── Enums/            # Blood types, statuses, urgency levels
-│   ├── Filament/
-│   │   ├── Admin/        # Admin panel resources & pages
-│   │   ├── Donor/        # Donor panel resources
-│   │   └── Organization/ # Organization panel resources
-│   ├── Http/             # Controllers, middleware, requests
-│   ├── Jobs/             # Async notification dispatch jobs
-│   ├── Models/           # Eloquent models
-│   ├── Notifications/    # Notification classes
-│   ├── Services/         # Business logic
-│   │   ├── BloodRequestBroadcastService.php
-│   │   └── QRCodeService.php
-│   └── Settings/         # Persistent settings models
+│   ├── Console/              # Artisan commands
+│   │   └── Commands/         # Custom CLI commands
+│   ├── Constants/            # Application constants (e.g., coordinates)
+│   ├── Contracts/            # Service interfaces
+│   ├── Enums/                # PHP Enums
+│   │   ├── AppointmentStatus.php
+│   │   ├── BloodRequestStatus.php
+│   │   ├── BloodType.php     # Blood type definitions with compatibility
+│   │   └── Gender.php
+│   ├── Events/               # Application events
+│   ├── Filament/             # Admin & panel interfaces
+│   │   ├── Admin/            # Admin panel resources & pages
+│   │   │   ├── Resources/    # Filament CRUD resources
+│   │   │   └── Pages/        # Admin custom pages
+│   │   ├── Donor/            # Donor panel
+│   │   └── Organization/     # Organization panel
+│   ├── Http/                 # HTTP layer
+│   │   ├── Controllers/      # Request handlers
+│   │   ├── Middleware/       # HTTP middleware
+│   │   └── Requests/         # Form request validation
+│   ├── Jobs/                 # Queued jobs
+│   │   └── DispatchNotifications.php
+│   ├── Listeners/            # Event listeners
+│   ├── Livewire/             # Livewire components (if used)
+│   ├── Mail/                 # Mailable classes
+│   ├── Models/               # Eloquent models
+│   │   ├── User.php          # System user
+│   │   ├── Donor.php         # Donor profile
+│   │   ├── BloodRequest.php  # Blood request
+│   │   └── ...
+│   ├── Notifications/        # Notification classes
+│   │   ├── BloodRequestMatchNotification.php
+│   │   ├── DonorResponseNotification.php
+│   │   └── ...
+│   ├── Policies/             # Authorization policies
+│   ├── Providers/            # Service providers
+│   ├── Services/             # Business logic
+│   │   ├── BloodRequestBroadcastService.php  # Core matching logic
+│   │   ├── DonorEligibilityService.php       # Eligibility checks
+│   │   └── QRCodeService.php                 # QR code generation
+│   ├── Settings/             # Persistent settings models
+│   └── View/                 # View components & traits
+├── bootstrap/                # Application bootstrap
+│   ├── app.php              # Bootstrap script
+│   └── providers.php        # Service provider registration
+├── config/                  # Configuration files
+│   ├── app.php             # Application config
+│   ├── auth.php            # Authentication config
+│   ├── database.php        # Database connections
+│   ├── filament.php        # Filament admin panel config
+│   ├── mail.php            # Mail configuration
+│   ├── queue.php           # Queue driver config
+│   └── ...
 ├── database/
-│   ├── migrations/       # Database schema
-│   ├── seeders/          # Data seeders
-│   └── factories/        # Model factories
+│   ├── migrations/          # Schema migrations
+│   │   ├── 2024_01_01_000000_create_users_table.php
+│   │   ├── 2024_01_02_000000_create_blood_requests_table.php
+│   │   └── ...
+│   ├── seeders/             # Database seeders
+│   │   ├── DatabaseSeeder.php
+│   │   ├── AdminUserSeeder.php
+│   │   └── GovernorateSeeder.php
+│   └── factories/           # Model factories for testing
+│       ├── UserFactory.php
+│       ├── BloodRequestFactory.php
+│       └── ...
 ├── resources/
-│   ├── views/            # Blade templates
-│   └── css/              # Styles
-├── routes/
-│   ├── web.php           # Web routes
-│   └── auth.php          # Authentication routes
-├── public/               # Public assets
-└── tests/                # Pest tests
+│   ├── views/               # Blade templates
+│   │   ├── layouts/         # Layout templates
+│   │   ├── pages/           # Page templates
+│   │   ├── components/      # Reusable components
+│   │   └── ...
+│   └── css/                 # Stylesheets
+│       └── app.css
+├── routes/                  # Route definitions
+│   ├── web.php             # Web routes
+│   ├── api.php             # API routes
+│   ├── auth.php            # Authentication routes
+│   └── console.php         # Console command routes
+├── storage/
+│   ├── app/                # File storage
+│   ├── logs/               # Application logs
+│   └── framework/          # Framework files
+├── tests/                  # Test suite
+│   ├── Feature/            # Feature tests
+│   │   ├── NotificationClassesTest.php
+│   │   └── ...
+│   ├── Unit/               # Unit tests
+│   └── TestCase.php        # Base test class
+├── public/                 # Public assets
+│   ├── index.php          # Application entry point
+│   ├── assets/            # Static assets
+│   └── build/             # Vite build output
+├── .env.example           # Example environment file
+├── artisan                # Artisan CLI tool
+├── composer.json          # PHP dependencies
+├── package.json           # Node dependencies
+├── phpunit.xml            # PHPUnit configuration
+├── tailwind.config.js     # Tailwind CSS configuration
+├── vite.config.js         # Vite build configuration
+└── README.md             # This file
 ```
+
+### Key Files
+
+| File | Purpose |
+|------|---------|
+| `app/Services/BloodRequestBroadcastService.php` | Core matching and notification algorithm |
+| `app/Models/BloodRequest.php` | Blood request model with relationships |
+| `app/Jobs/DispatchNotifications.php` | Async notification dispatcher |
+| `database/migrations/` | Database schema definitions |
+| `routes/web.php` | Web route definitions |
+| `config/filament.php` | Admin panel configuration |
 
 ---
 
@@ -408,39 +967,133 @@ bloodbridge/
 # Run all tests
 php artisan test
 
-# Or using Pest directly
+# Run specific test file
+php artisan test tests/Feature/NotificationClassesTest.php
+
+# Run with coverage report
+php artisan test --coverage
+
+# Using Pest directly
 ./vendor/bin/pest
+
+# Watch mode (re-run on file changes)
+./vendor/bin/pest --watch
 ```
 
-### Code Style
+### Code Quality
 
 ```bash
 # Fix code style using Pint
 ./vendor/bin/pint
+
+# Check without fixing
+./vendor/bin/pint --test
+
+# Fix specific file
+./vendor/bin/pint app/Models/BloodRequest.php
 ```
 
 ### Queue Worker (Development)
 
 ```bash
-# Process queued jobs
+# Process queued jobs with retry limit
 php artisan queue:listen --tries=1
+
+# Process specific queue
+php artisan queue:listen notifications
+
+# Monitor queue status
+php artisan queue:monitor
 ```
 
-### Development Server with All Services
+### Development Tools
 
 ```bash
-# Runs server, queue worker, and vite concurrently
-composer dev
+# Real-time log monitoring
+php artisan pail
+
+# Laravel Tinker (REPL)
+php artisan tinker
+
+# Optimize development environment
+php artisan optimize:clear
+```
+
+### Database Migrations
+
+```bash
+# Create new migration
+php artisan make:migration create_table_name
+
+# Run pending migrations
+php artisan migrate
+
+# Rollback migrations
+php artisan migrate:rollback
+
+# Rollback all and re-run
+php artisan migrate:refresh
+
+# Refresh and seed
+php artisan migrate:fresh --seed
 ```
 
 ### Debugging
 
-- Laravel Debugbar is available in development mode
-- Use `php artisan pail` for real-time log monitoring
+- **Laravel Debugbar**: Available at the bottom of pages in development mode
+  - Shows queries, routes, views, and performance metrics
+  - Access configuration in `config/debugbar.php`
+
+- **Pail Logs**: Monitor real-time logs with:
+  ```bash
+  php artisan pail
+  ```
+
+- **Browser DevTools**: Inspect network requests and WebSocket broadcasts
 
 ---
 
-## 🗺️ Roadmap
+## ⚠️ Known Issues & Limitations
+
+### Current Limitations
+
+1. **Single Role Per User**
+   - Users can only have one role (Admin, Donor, or Organization)
+   - A user cannot simultaneously be a donor and organization staff
+   - **Workaround**: Create separate accounts for different roles
+
+2. **Location-Based Matching**
+   - GPS-based matching requires valid latitude/longitude
+   - Fallback to governorate-based matching if coordinates unavailable
+   - Database must be seeded with governorate data for region matching
+
+3. **Real-time Notifications**
+   - Broadcasting currently uses `log` driver in development
+   - Production requires Pusher or similar WebSocket provider
+   - See [Deployment](#-deployment) for production setup
+
+4. **Queue Processing**
+   - Notifications are sent asynchronously via queued jobs
+   - Queue worker must be running for messages to be sent
+   - Failed jobs are stored in `failed_jobs` table
+
+5. **Concurrent Blood Request Creation**
+   - High-volume simultaneous requests may create duplicate matches
+   - **Workaround**: Implement request-level locking in future versions
+
+### Known Bugs
+
+1. **Health Profile Eligibility**
+   - Eligibility status may not update immediately after profile changes
+   - **Solution**: Run `php artisan queue:listen` to process pending jobs
+
+2. **QR Code Generation**
+   - Rate limiting (10 per minute) may reject rapid generation requests
+   - **Solution**: Implement caching for frequently accessed codes
+
+---
+
+## ️ Roadmap
 
 ### Planned Features
 
@@ -460,60 +1113,174 @@ composer dev
 - [x] Core blood request broadcasting
 - [x] QR code system
 - [x] Multi-panel architecture
-- [x] Role-based access control
+- [x] Enum-based roles (Admin / Donor / Organization)
 - [x] Location-based matching
 
 ---
 
-## 🤝 Contributing
+## �️ Roadmap
 
-Contributions are welcome! This project is under active development.
+### In Development (Current)
 
-### How to Contribute
+- [x] Core blood request broadcasting system
+- [x] Intelligent donor-request matching algorithm
+- [x] Multi-panel architecture (Admin, Donor, Organization)
+- [x] Enum-based role system (Admin / Donor / Organization)
+- [x] Location-based donor matching (GPS + Governorate)
+- [x] QR code identification system
+- [x] Achievement/gamification system
+- [x] Database-backed notification system
+- [x] Async job processing for notifications
+- [x] Health profile eligibility tracking
+- [x] Appointment scheduling
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+### Short-term (Next 2-3 Months)
 
-### Development Guidelines
+- [ ] Mobile-responsive Donor/Organization panels
+- [ ] Advanced donor filtering (health conditions, availability)
+- [ ] Appointment reminders (Email/SMS)
+- [ ] Blood inventory management system
+- [ ] Donation feedback forms
+- [ ] Enhanced analytics and reporting
+- [ ] User activity logging and audit trails
+- [ ] Bulk donor import from CSV
+- [ ] Notification preferences (frequency, channels)
 
-- Follow PSR-12 coding standards
-- Write tests for new features
-- Update documentation as needed
-- Use conventional commit messages
+### Medium-term (3-6 Months)
+
+- [ ] Multi-language support (Arabic, English)
+- [ ] Telegram bot for notifications
+- [ ] WhatsApp integration for alerts
+- [ ] Campaign management for blood drives
+- [ ] Donor eligibility calculator
+- [ ] Advanced statistical analysis (Flowframe)
+- [ ] Email templates for other notifications
+- [ ] Backend API v1.0 release
+- [ ] Webhook support for third-party integrations
+- [ ] Database query optimization and caching
+
+### Long-term (6-12 Months)
+
+- [ ] Mobile application (iOS/Android)
+- [ ] Real-time broadcasting with Pusher integration
+- [ ] Blood bank inventory sync
+- [ ] Hospital EHR integration
+- [ ] Machine learning for donor matching
+- [ ] Advanced reporting and BI tools
+- [ ] Public API for third-party developers
+- [ ] Blockchain-based donation verification
+- [ ] Multi-tenancy enhancements
 
 ---
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+
+### What This Means
+
+- ✅ Free to use, modify, and distribute
+- ✅ Can be used for commercial projects
+- ✅ Must include license notice
+- ✅ Provided "as-is" without warranty
 
 ---
 
 ## 🙏 Acknowledgments
 
-- Built with [Laravel](https://laravel.com)
-- Admin panel powered by [Filament](https://filamentphp.com)
-- Icons and UI components from [Heroicons](https://heroicons.com)
-- Geolocation features using spatial databases
+- **[Laravel](https://laravel.com)** - Modern PHP framework powering the backend
+- **[Filament](https://filamentphp.com)** - Beautiful admin panel builder
+- **[Tailwind CSS](https://tailwindcss.com)** - Utility-first CSS framework
+- **[Pest](https://pestphp.com)** - Modern testing framework
+- **[Simple QRCode](https://github.com/SimpleSoftwareIO/simple-qrcode)** - QR code generation
+- **[Pusher](https://pusher.com)** - Real-time broadcasting capabilities
 
 ---
 
-## 📞 Support
+## 📞 Support & Contact
 
-For support, questions, or suggestions:
+### Getting Help
 
-- Open an issue on GitHub
+**For Development/Technical Issues:**
+- Open an issue on the repository
+- Check existing issues before creating new ones
+- Provide detailed reproduction steps and environment info
+
+**For Access to Private Repository:**
 - Contact the development team
+- Submit your credentials and use case
+- Await approval and access grant
+
+**For Feature Requests:**
+- Open an issue with label `enhancement`
+- Describe your use case
+- Link related issues
+
+**For Bug Reports:**
+- Open an issue with label `bug`
+- Include error logs and screenshots
+- Include reproduction steps
+
+### Community
+
+Connect with other contributors:
+- GitHub Discussions (if enabled)
+- Discord/Slack community (if available)
+- Monthly community calls (schedule shared on repo)
+
+---
+
+## 🔐 Security
+
+### Reporting Security Vulnerabilities
+
+**Please do not open public issues for security vulnerabilities.**
+
+Instead:
+1. Email security concerns to the maintainers privately
+2. Include reproduction steps and impact assessment
+3. Allow 90 days for fixes before public disclosure
+4. Your name and attribution (if desired) will be included in security patch notes
+
+---
+
+## 💡 Questions & FAQ
+
+**Q: Can I use BloodBridge for production blood donation management?**
+> Possibly, but this is under active development. Thoroughly test all features and conduct security audits before production use.
+
+**Q: Is there a demo version?**
+> Currently, the project is private. Contact the development team for demo access.
+
+**Q: How do I integrate with our blood bank system?**
+> API endpoints are available. See [API Endpoints](#-api-endpoints) section for details. Full integration documentation coming soon.
+
+**Q: Can I deploy on Windows?**
+> Deployment is possible but not recommended. Use Linux servers for production. Development on Windows works excellently with WSL2.
+
+**Q: What database works best?**
+> PostgreSQL 14+ is recommended for production. MySQL 8.0+ and SQLite work but have limitations at scale.
+
+**Q: How do I report issues?**
+> See [Support & Contact](#-support--contact) section for guidelines on reporting bugs, security issues, and feature requests.
+
+**Q: Can I contribute to this project?**
+> Yes! See the [Contributing](#-contributing) section for guidelines and setup instructions. This is a private repository, so contact maintainers for access.
 
 ---
 
 <div align="center">
 
-**Made with ❤️ for saving lives**
+## 🩸 Made with ❤️ for Saving Lives
 
-_Star ⭐ this repository if you find it helpful!_
+**BloodBridge** — Connecting donors with those in need through technology and compassion.
+
+[⭐ Star this repository](https://github.com/your-org/bloodbridge) | [📖 Docs](README.md) | [🐛 Report Bug](https://github.com/your-org/bloodbridge/issues) | [💡 Request Feature](https://github.com/your-org/bloodbridge/issues) | [📞 Contact](mailto:contact@bloodbridge.dev)
+
+---
+
+### Last Updated
+
+December 2024 • Built by dedicated developers committed to saving lives through blood donation
 
 </div>

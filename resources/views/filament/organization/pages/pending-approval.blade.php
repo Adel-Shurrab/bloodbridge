@@ -4,10 +4,10 @@
         $isRejected = $tenant && $tenant->approval_status === \App\Enums\OrganizationStatus::REJECTED;
         $statusColor = $isRejected ? 'danger' : 'warning';
         $icon = $isRejected ? 'heroicon-o-x-circle' : 'heroicon-o-clock';
-        $heading = $isRejected ? 'تم رفض طلب الانضمام' : 'في انتظار الموافقة';
+        $heading = $isRejected ? __('Organization Request Rejected') : __('Pending Approval');
         $description = $isRejected
-            ? 'نعتذر، ولكن مؤسستك لا تستوفي الشروط المطلوبة حالياً. يرجى التواصل مع الإدارة للمزيد من التفاصيل.'
-            : 'شكراً لتسجيلك في BloodBridge. نقوم حالياً بمراجعة البيانات والوثائق المقدمة لتفعيل حسابك.';
+            ? __('We apologize, but your organization does not currently meet the required conditions. Please contact administration for more details.')
+            : __('Thank you for registering on BloodBridge. We are currently reviewing the submitted data and documents to activate your account.');
     @endphp
 
     <div class="pending-page-container">
@@ -76,10 +76,10 @@
                                         </div>
                                         <div class="step-content">
                                             <h3 class="step-title">
-                                                تقديم طلب التسجيل
+                                                {{ __('Submit Registration Request') }}
                                             </h3>
                                             <p class="step-description">
-                                                تم استلام البيانات والوثائق بنجاح
+                                                {{ __('Data and documents received successfully') }}
                                             </p>
                                         </div>
                                     </div>
@@ -95,10 +95,10 @@
                                         </div>
                                         <div class="step-content">
                                             <h3 class="step-title">
-                                                مراجعة الوثائق والبيانات
+                                                {{ __('Review Documents and Data') }}
                                             </h3>
                                             <p class="step-description active">
-                                                جاري التحقق من قبل فريق الإدارة
+                                                {{ __('Verification in progress by the admin team') }}
                                             </p>
                                         </div>
                                     </div>
@@ -112,10 +112,10 @@
                                         </div>
                                         <div class="step-content">
                                             <h3 class="step-title">
-                                                تفعيل الحساب
+                                                {{ __('Account Activation') }}
                                             </h3>
                                             <p class="step-description">
-                                                سيتم إشعارك فور اكتمال المراجعة
+                                                {{ __('You will be notified once the review is complete') }}
                                             </p>
                                         </div>
                                     </div>
@@ -132,9 +132,9 @@
                                     class="info-icon blue"
                                 />
                                 <div class="info-text">
-                                    <p class="info-title">ماذا يحدث الآن؟</p>
+                                    <p class="info-title">{{ __('What happens now?') }}</p>
                                     <p class="info-description">
-                                        يقوم فريقنا بمراجعة معلومات مؤسستك والتأكد من استيفائها لجميع المتطلبات. عادة ما تستغرق هذه العملية من 24 إلى 48 ساعة.
+                                        {{ __('Our team is reviewing your organization\'s information and ensuring it meets all requirements. This process usually takes 24 to 48 hours.') }}
                                     </p>
                                 </div>
                             </div>
@@ -148,9 +148,9 @@
                                     class="info-icon danger"
                                 />
                                 <div class="info-text">
-                                    <p class="info-title danger">لماذا تم رفض الطلب؟</p>
+                                    <p class="info-title danger">{{ __('Why was the request rejected?') }}</p>
                                     <p class="info-description danger">
-                                        قد يكون السبب عدم اكتمال البيانات، عدم وضوح الوثائق، أو عدم استيفاء الشروط المطلوبة. للحصول على تفاصيل محددة، يُرجى التواصل مع فريق الدعم.
+                                        {{ __('The reason might be incomplete data, unclear documents, or unfulfilled conditions. For specific details, please contact the support team.') }}
                                     </p>
                                 </div>
                             </div>
@@ -162,14 +162,14 @@
                         
                         <a href="mailto:support@bloodbridge.ps" class="btn btn-gray">
                             <x-filament::icon icon="heroicon-m-lifebuoy" class="w-5 h-5" />
-                            تواصل مع الدعم
+                            {{ __('Contact Support') }}
                         </a>
 
                         <form action="{{ route('filament.organization.auth.logout') }}" method="post">
                             @csrf
                             <button type="submit" class="btn btn-danger-outline">
                                 <x-filament::icon icon="heroicon-m-arrow-left-on-rectangle" class="w-5 h-5" />
-                                تسجيل الخروج
+                                {{ __('Log out') }}
                             </button>
                         </form>
                         
@@ -180,7 +180,7 @@
 
             {{-- Footer --}}
             <p class="page-footer">
-                جميع الحقوق محفوظة &copy; {{ date('Y') }} BloodBridge Organization Portal
+                {{ __('All rights reserved') }} &copy; {{ date('Y') }} {{ __('BloodBridge Organization Portal') }}
             </p>
 
         </div>
@@ -228,7 +228,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            direction: rtl;
+            
             overflow: hidden;
             padding: 1rem 0;
         }
@@ -454,8 +454,8 @@
             line-height: 1.5rem;
             margin-bottom: 1.25rem;
             max-width: 36rem;
-            margin-left: auto;
-            margin-right: auto;
+            margin-inline-end: auto;
+            margin-inline-start: auto;
             font-size: 0.875rem;
         }
         

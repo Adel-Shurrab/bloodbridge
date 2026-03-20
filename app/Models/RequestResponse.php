@@ -3,11 +3,15 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Spatie\Translatable\HasTranslations;
 
 class RequestResponse extends Model
 {
+    use HasTranslations;
 
     public const DEFAULT_STATUS = \App\Enums\RequestResponseStatus::PENDING;
+
+    public array $translatable = ['decline_reason'];
 
     protected $fillable = [
         'blood_request_id',
@@ -41,18 +45,18 @@ class RequestResponse extends Model
     public function getQrStateLabelAttribute(): string
     {
         if (blank($this->verification_qr_code)) {
-            return 'غير متوفر';
+            return __('Not available');
         }
 
         if (filled($this->verified_at)) {
-            return 'تم الاستخدام';
+            return __('Used');
         }
 
         if (filled($this->qr_code_expires_at) && now()->greaterThan($this->qr_code_expires_at)) {
-            return 'منتهي';
+            return __('Expired');
         }
 
-        return 'فعّال';
+        return __('Active');
     }
 
     public function getQrStateColorAttribute(): string

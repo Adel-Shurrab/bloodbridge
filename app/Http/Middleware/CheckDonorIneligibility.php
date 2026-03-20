@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use App\Enums\UserRole;
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -11,6 +12,10 @@ class CheckDonorIneligibility
     public function handle(Request $request, Closure $next): Response
     {
         $user = auth()->user();
+
+        if ($user && $user->role === UserRole::ADMIN) {
+            return $next($request);
+        }
 
         if (!$user || !$user->donor) {
             return $next($request);

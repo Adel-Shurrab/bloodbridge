@@ -3,7 +3,7 @@
         {{ $this->form }}
 
         <x-filament::button type="submit" icon="heroicon-m-check">
-            تغيير كلمة المرور
+            {{ __('Change Password') }}
         </x-filament::button>
     </form>
 </x-filament-panels::page>

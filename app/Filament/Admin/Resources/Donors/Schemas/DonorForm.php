@@ -2,6 +2,7 @@
 
 namespace App\Filament\Admin\Resources\Donors\Schemas;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\Donor;
 use Filament\Forms\Components\TextInput;
@@ -13,6 +14,7 @@ use Filament\Schemas\Schema;
 use Filament\Schemas\Components\Fieldset;
 use Filament\Schemas\Components\Section;
 use Filament\Schemas\Components\Grid;
+use Illuminate\Support\Facades\Hash;
 
 class DonorForm
 {
@@ -20,83 +22,73 @@ class DonorForm
     {
         return $schema
             ->components([
-                Section::make('حساب المستخدم')
-                    ->description('إنشاء حساب مستخدم جديد أو اختيار حساب موجود')
+                Section::make(__('User Account'))
+                    ->description(__('Create New User Account or Select Existing'))
                     ->icon('heroicon-o-user-circle')
-                    ->visible(fn($operation) => $operation === 'create')
                     ->schema([
-                        Radio::make('user_creation_mode')
-                            ->label('طريقة إضافة المستخدم')
-                            ->options([
-                                'create' => 'إنشاء مستخدم جديد',
-                                'select' => 'اختيار مستخدم موجود',
-                            ])
-                            ->default('create')
-                            ->inline()
-                            ->live()
-                            ->required()
-                            ->columnSpanFull(),
-
-                        TextInput::make('new_user_name')
-                            ->label('اسم المستخدم')
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        TextInput::make('new_user_email')
-                            ->label('البريد الإلكتروني')
-                            ->email()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->unique('users', 'email', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        TextInput::make('new_user_phone')
-                            ->label('رقم الهاتف')
-                            ->tel()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->maxLength(255)
-                            ->unique('users', 'phone', ignoreRecord: true)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
-                        TextInput::make('new_user_password')
-                            ->label('كلمة المرور')
-                            ->password()
-                            ->revealable()
-                            ->required(fn($get) => $get('user_creation_mode') === 'create')
-                            ->minLength(8)
-                            ->visible(fn($get) => $get('user_creation_mode') === 'create'),
-
                         Select::make('user_id')
-                            ->label('الحساب المرتبط')
+                            ->label(__('Linked Account'))
                             ->relationship('user', 'name', function ($query) {
-                                return $query->where('role', \App\Enums\UserRole::DONOR)
+                                return $query->where('role', UserRole::DONOR)
                                     ->orderByRaw('EXISTS (SELECT 1 FROM donors WHERE donors.user_id = users.id) ASC')
                                     ->orderBy('name');
                             })
                             ->getOptionLabelFromRecordUsing(function (User $user, $record) {
-                                $isOccupied = Donor::where('user_id', '=', $user->id, 'and')
+                                $isOccupied = Donor::where('user_id', $user->id)
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->exists();
-                                return $isOccupied ? "{$user->name} (مشغول)" : $user->name;
+                                return $isOccupied ? $user->name . ' (' . __('Occupied') . ')' : $user->name;
                             })
                             ->disableOptionWhen(function (string $value, $record) {
-                                return Donor::where('user_id', '=', $value, 'and')
+                                return Donor::where('user_id', $value)
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->exists();
                             })
-                            ->required(fn($get) => $get('user_creation_mode') === 'select')
+                            ->required()
                             ->searchable()
                             ->preload()
-                            ->visible(fn($get) => $get('user_creation_mode') === 'select'),
+                            ->createOptionForm([
+                                TextInput::make('name')
+                                    ->label(__('Name'))
+                                    ->required()
+                                    ->maxLength(255),
+
+                                TextInput::make('email')
+                                    ->label(__('Email'))
+                                    ->email()
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique('users', 'email'),
+
+                                TextInput::make('phone')
+                                    ->label(__('Phone'))
+                                    ->tel()
+                                    ->required()
+                                    ->maxLength(255)
+                                    ->unique('users', 'phone'),
+
+                                TextInput::make('password')
+                                    ->label(__('Password'))
+                                    ->password()
+                                    ->revealable()
+                                    ->required()
+                                    ->minLength(8)
+                                    ->dehydrateStateUsing(fn($state) => $state ? Hash::make($state) : null)
+                                    ->hidden(fn(string $context) => $context === 'edit'),
+                            ])
+                            ->createOptionAction(function ($action) {
+                                return $action
+                                    ->modalHeading(__('Create New User'))
+                                    ->modalSubmitActionLabel(__('Create'));
+                            }),
                     ])->columns(2),
 
-                Section::make('المعلومات الشخصية')
-                    ->description('البيانات الأساسية للمتبرع')
+                Section::make(__('Personal Information'))
+                    ->description(__('Basic donor data'))
                     ->icon('heroicon-o-identification')
                     ->schema([
                         TextInput::make('national_id')
-                            ->label('رقم الهوية الوطنية')
+                            ->label(__('National ID'))
                             ->required()
                             ->maxLength(9)
                             ->minLength(9)
@@ -104,13 +96,13 @@ class DonorForm
                             ->unique('donors', 'national_id', ignoreRecord: true),
 
                         Select::make('gender')
-                            ->label('الجنس')
+                            ->label(__('Gender'))
                             ->options(\App\Enums\Gender::class)
                             ->required()
                             ->native(false),
 
                         DatePicker::make('birth_date')
-                            ->label('تاريخ الميلاد')
+                            ->label(__('Birth Date'))
                             ->required()
                             ->native(false)
                             ->maxDate(now()->subYears(app(\App\Settings\GeneralSettings::class)->min_donor_age))
@@ -118,26 +110,26 @@ class DonorForm
                             ->displayFormat('Y/m/d'),
 
                         Select::make('governorate_id')
-                            ->label('المحافظة')
+                            ->label(__('Governorate'))
                             ->relationship('governorate', 'name')
                             ->searchable()
                             ->preload()
                             ->required(),
                     ])->columns(2),
 
-                Section::make('الموقع الجغرافي')
-                    ->description('الإحداثيات الجغرافية للمتبرع (اختياري)')
+                Section::make(__('Geographic Location'))
+                    ->description(__('Geographic coordinates of the donor (optional)'))
                     ->icon('heroicon-o-map-pin')
                     ->schema([
                         TextInput::make('lat')
-                            ->label('خط العرض (Latitude)')
+                            ->label(__('Latitude'))
                             ->numeric()
                             ->minValue(-90)
                             ->maxValue(90)
                             ->step(0.000001),
 
                         TextInput::make('lng')
-                            ->label('خط الطول (Longitude)')
+                            ->label(__('Longitude'))
                             ->numeric()
                             ->minValue(-180)
                             ->maxValue(180)
@@ -145,79 +137,79 @@ class DonorForm
                     ])->columns(2)
                     ->collapsed(),
 
-                Section::make('الملف الصحي')
-                    ->description('المعلومات الصحية والطبية')
+                Section::make(__('Health Profile'))
+                    ->description(__('Health and medical information'))
                     ->icon('heroicon-o-heart')
                     ->relationship('healthProfile')
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 Select::make('blood_type')
-                                    ->label('فصيلة الدم')
+                                    ->label(__('Blood Type'))
                                     ->options(\App\Enums\BloodType::class)
                                     ->required()
                                     ->native(false),
 
                                 TextInput::make('weight')
-                                    ->label('الوزن (كجم)')
+                                    ->label(__('Weight'))
                                     ->numeric()
                                     ->minValue(app(\App\Settings\GeneralSettings::class)->min_donor_weight)
                                     ->maxValue(200)
-                                    ->suffix('كجم'),
+                                    ->suffix(__('kg')),
 
                                 TextInput::make('height')
-                                    ->label('الطول (سم)')
+                                    ->label(__('Height'))
                                     ->numeric()
-                                    ->minValue(120) 
-                                    
+                                    ->minValue(120)
+
                                     ->minValue(app(\App\Settings\GeneralSettings::class)->min_donor_height)
                                     ->maxValue(220)
-                                    ->suffix('سم'),
+                                    ->suffix(__('cm')),
                             ]),
 
-                        Fieldset::make('الحالة الصحية')
+                        Fieldset::make(__('Health Status'))
                             ->schema([
                                 Toggle::make('recent_donation')
-                                    ->label('تبرع حديثاً')
+                                    ->label(__('Recent Donation'))
                                     ->default(false)
                                     ->live()
                                     ->inline(false),
 
                                 Toggle::make('chronic_disease')
-                                    ->label('مرض مزمن')
+                                    ->label(__('Chronic Disease'))
                                     ->default(false)
                                     ->inline(false),
 
                                 Toggle::make('infection')
-                                    ->label('لديه عدوى')
+                                    ->label(__('Infection'))
                                     ->default(false)
                                     ->inline(false),
 
                                 Toggle::make('has_recent_surgery')
-                                    ->label('خضع لعملية جراحية مؤخراً')
+                                    ->label(__('Recent Surgery'))
                                     ->default(false)
                                     ->live()
                                     ->inline(false),
                             ])->columns(3),
 
-                        Fieldset::make('تواريخ التبرع والعمليات')
+                        Fieldset::make(__('Donation and Surgery Dates'))
                             ->schema([
                                 DatePicker::make('last_donation_date')
-                                    ->label('تاريخ آخر تبرع')
+                                    ->label(__('Last Donation Date'))
                                     ->native(false)
                                     ->maxDate(now())
                                     ->visible(fn($get) => $get('recent_donation'))
                                     ->required(fn($get) => $get('recent_donation')),
 
                                 DatePicker::make('surgery_date')
-                                    ->label('تاريخ العملية الجراحية')
+                                    ->label(__('Surgery Date'))
                                     ->native(false)
                                     ->maxDate(now())
                                     ->visible(fn($get) => $get('has_recent_surgery'))
                                     ->required(fn($get) => $get('has_recent_surgery')),
 
                                 DatePicker::make('next_eligible_date')
-                                    ->label('تاريخ الأهلية القادم')
+                                    ->label(__('Next Eligible Date'))
                                     ->native(false)
                                     ->minDate(now())
                                     ->hidden()

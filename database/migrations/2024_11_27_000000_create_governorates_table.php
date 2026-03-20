@@ -14,14 +14,21 @@ return new class extends Migration
     {
         Schema::create('governorates', function (Blueprint $table) {
             $table->id();
-            $table->string('name')->unique()->index();
+            $table->json('name');
             $table->timestamps();
         });
 
-        $governorates = ['غزة', 'خانيونس', 'شمال غزة', 'دير البلح', 'رفح'];
-        foreach ($governorates as $name) {
+        $governorates = [
+            ['ar' => 'غزة', 'en' => 'Gaza'],
+            ['ar' => 'خانيونس', 'en' => 'Khan Younis'],
+            ['ar' => 'شمال غزة', 'en' => 'North Gaza'],
+            ['ar' => 'دير البلح', 'en' => 'Deir al-Balah'],
+            ['ar' => 'رفح', 'en' => 'Rafah'],
+        ];
+
+        foreach ($governorates as $gov) {
             DB::table('governorates')->insert([
-                'name' => $name,
+                'name' => json_encode($gov),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

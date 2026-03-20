@@ -16,3 +16,4 @@ class DashboardHeaderWidget extends Widget
         return Auth::user();
     }
 }
+

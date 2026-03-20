@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}" dir="{{ \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getCurrentLocaleDirection() }}">
 
 <head>
     <meta charset="UTF-8">
@@ -33,8 +33,8 @@
         }
 
         .details th {
-            text-align: right;
-            padding-left: 10px;
+            text-align: start;
+            padding-inline-end: 10px;
             width: 120px;
             color: #6b7280;
         }
@@ -56,31 +56,31 @@
 <body>
     <div class="container">
         <div class="header">
-            <h2 style="color: #e11d48; margin: 0;">رسالة اتصال جديدة</h2>
+            <h2 style="color: #e11d48; margin: 0;">{{ __('New Contact Message') }}</h2>
         </div>
-        <p>لقد تلقيت رسالة اتصال جديدة من خلال الموقع.</p>
+        <p>{{ __('You have received a new contact message from the website.') }}</p>
 
         <table class="details">
             <tr>
-                <th>الاسم:</th>
+                <th>{{ __('Name') }}:</th>
                 <td>{{ $contactMessage->name }}</td>
             </tr>
             <tr>
-                <th>البريد الإلكتروني:</th>
+                <th>{{ __('Email') }}:</th>
                 <td>{{ $contactMessage->email }}</td>
             </tr>
             <tr>
-                <th>الموضوع:</th>
+                <th>{{ __('Subject') }}:</th>
                 <td>{{ $contactMessage->subject }}</td>
             </tr>
             <tr>
-                <th>عنوان الـ IP:</th>
+                <th>{{ __('IP Address') }}:</th>
                 <td>{{ $contactMessage->ip_address }}</td>
             </tr>
         </table>
 
         <div style="margin-top: 20px;">
-            <strong>نص الرسالة:</strong>
+            <strong>{{ __('Message') }}:</strong>
             <div class="message-box">{{ $contactMessage->message }}</div>
         </div>
     </div>

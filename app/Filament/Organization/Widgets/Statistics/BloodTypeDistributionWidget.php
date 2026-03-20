@@ -9,9 +9,14 @@ use Illuminate\Support\Facades\Auth;
 
 class BloodTypeDistributionWidget extends ChartWidget
 {
-    protected ?string $heading = 'التوزيع حسب فصيلة الدم';
+    protected ?string $heading = 'Distribution by Blood Type';
 
     protected ?string $maxHeight = '300px';
+
+    public function getHeading(): string
+    {
+        return __($this->heading);
+    }
 
     protected function getData(): array
     {
@@ -54,7 +59,7 @@ class BloodTypeDistributionWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'الطلبات',
+                    'label' => __('Requests'),
                     'data' => $data,
                     'backgroundColor' => $colors,
                     'borderWidth' => 0,
@@ -70,3 +75,4 @@ class BloodTypeDistributionWidget extends ChartWidget
         return 'doughnut';
     }
 }
+

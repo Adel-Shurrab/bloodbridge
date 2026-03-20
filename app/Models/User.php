@@ -13,13 +13,15 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Collection;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Contracts\Translation\HasLocalePreference;
 
-class User extends Authenticatable implements FilamentUser, HasTenants, MustVerifyEmail
+class User extends Authenticatable implements FilamentUser, HasTenants, MustVerifyEmail, HasLocalePreference
 {
     /** @use HasFactory<\Database\Factories\UserFactory> */
     use HasFactory, SoftDeletes, Notifiable;
 
     public const DEFAULT_IS_ACTIVE = true;
+
 
     /**
      * The attributes that are mass assignable.
@@ -33,6 +35,7 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
         'phone',
         'role',
         'is_active',
+        'locale',
     ];
 
     /**
@@ -61,6 +64,16 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
     {
         $panelId = $panel->getId();
 
+        // Admin super-access: allow admins to access any panel.
+        if ($this->role === \App\Enums\UserRole::ADMIN) {
+            return true;
+        }
+
+        // Inactive users cannot access any panels.
+        if (! $this->is_active) {
+            return false;
+        }
+
         return match ($panelId) {
             'admin' => $this->role === \App\Enums\UserRole::ADMIN,
             'donor' => $this->role === \App\Enums\UserRole::DONOR,
@@ -71,11 +84,21 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
 
     public function getTenants(Panel $panel): array|Collection
     {
+        // Admin super-access: admins can access all tenants.
+        if ($this->role === \App\Enums\UserRole::ADMIN) {
+            return \App\Models\Organization::query()->get();
+        }
+
         return $this->organization ? collect([$this->organization]) : collect();
     }
 
     public function canAccessTenant(Model $tenant): bool
     {
+        // Admin super-access: allow admins to access any tenant.
+        if ($this->role === \App\Enums\UserRole::ADMIN) {
+            return true;
+        }
+
         return $this->organization?->id === $tenant->id;
     }
 
@@ -122,5 +145,13 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
     public function sendEmailVerificationNotification(): void
     {
         $this->notify(new \App\Notifications\CustomVerifyEmail);
+    }
+
+    /**
+     * Get the user's preferred locale for notifications.
+     */
+    public function preferredLocale(): string
+    {
+        return $this->locale ?? config('app.fallback_locale');
     }
 }

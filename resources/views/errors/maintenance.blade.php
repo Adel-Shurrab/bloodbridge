@@ -1,10 +1,11 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="{{ app()->getLocale() }}"
+    dir="{{ \Mcamara\LaravelLocalization\Facades\LaravelLocalization::getCurrentLocaleDirection() }}">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الموقع تحت الصيانة - {{ $settings->site_name }}</title>
+    <title>{{ __('Site under maintenance') }} - {{ $settings->getTranslation('site_name') }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
         body {
@@ -160,31 +161,32 @@
     </div>
 
     <div class="maintenance-container">
-        @if($settings->site_logo)
-            <img src="{{ Storage::url($settings->site_logo) }}" alt="{{ $settings->site_name }}" class="logo-img">
+        @if ($settings->site_logo)
+            <img src="{{ Storage::url($settings->site_logo) }}" alt="{{ $settings->getTranslation('site_name') }}"
+                class="logo-img">
         @else
             <div class="icon-box">🛠️</div>
         @endif
 
-        <h1>الموقع تحت الصيانة</h1>
+        <h1>{{ __('Site under maintenance') }}</h1>
         <p>
-            {{ $settings->maintenance_message ?? 'نحن نقوم ببعض التحسينات حالياً. سنعود للعمل قريباً!' }}
+            {{ $settings->getTranslation('maintenance_message') ?: __('We are currently making some improvements. We will be back soon!') }}
         </p>
 
         <div style="font-weight: 600; color: #a0aec0; font-size: 0.9rem;">
-            شكرًا لزيارة <span class="brand-name">{{ $settings->site_name }}</span>
+            {{ __('Thank you for visiting') }} <span class="brand-name">{{ $settings->getTranslation('site_name') }}</span>
         </div>
 
         @auth
             <div class="auth-actions">
                 <form action="{{ route('logout') }}?redirect=/login" method="POST" style="display: inline;">
                     @csrf
-                    <button type="submit" class="btn btn-logout">تسجيل الخروج</button>
+                    <button type="submit" class="btn btn-logout">{{ __('Log out') }}</button>
                 </form>
             </div>
         @else
             <div class="auth-actions">
-                <a href="/login" class="btn btn-admin">تسجيل الدخول</a>
+                <a href="/login" class="btn btn-admin">{{ __('Log in') }}</a>
             </div>
         @endauth
     </div>

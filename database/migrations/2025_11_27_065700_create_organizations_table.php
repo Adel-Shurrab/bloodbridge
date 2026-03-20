@@ -18,13 +18,13 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class)->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Governorate::class)->nullable()->constrained()->nullOnDelete();
-            $table->string('org_name')->index();
+            $table->json('org_name')->index();
             $table->string('slug')->nullable()->unique();
-            $table->text('description')->nullable();
+            $table->json('description')->nullable();
             $table->string('license_number')->unique()->index();
             $table->string('license_document_path')->nullable();
             $table->string('responsible_person_name');
-            $table->string('responsible_person_position')->nullable();
+            $table->json('responsible_person_position')->nullable();
             $table->string('responsible_person_email')->nullable();
             $table->string('contact_email')->unique();
             $table->string('contact_phone')->unique();
@@ -36,7 +36,7 @@ return new class extends Migration
             $table->json('working_days')->nullable();
             $table->unsignedInteger('daily_capacity')->default(Organization::DEFAULT_DAILY_CAPACITY);
             $table->timestamp('approved_at')->nullable();
-            $table->text('rejection_reason')->nullable();
+            $table->json('rejection_reason')->nullable();
             $table->unsignedInteger('total_request_created')->default(Organization::DEFAULT_TOTAL_REQUEST_CREATED);
             $table->unsignedInteger('total_donation_verified')->default(Organization::DEFAULT_TOTAL_DONATION_VERIFIED);
             $table->unsignedTinyInteger('approval_status')->default(Organization::DEFAULT_APPROVAL_STATUS)->index();

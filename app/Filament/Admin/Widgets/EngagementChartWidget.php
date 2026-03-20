@@ -7,7 +7,10 @@ use Filament\Widgets\ChartWidget;
 
 class EngagementChartWidget extends ChartWidget
 {
-    protected ?string $heading = 'أوقات التفاعل الذروة';
+    public function getHeading(): ?string
+    {
+        return __('Peak Engagement Times');
+    }
 
     protected string $color = 'danger';
 
@@ -30,7 +33,7 @@ class EngagementChartWidget extends ChartWidget
 
         for ($i = 11; $i >= 0; $i--) {
             $month = $now->copy()->subMonths($i);
-            $labels[] = $month->format('M');
+            $labels[] = $month->translatedFormat('M');
             $key = $month->format('Y-m');
             $data[] = $countsByMonth->get($key, 0);
         }
@@ -38,7 +41,7 @@ class EngagementChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => 'طلبات الدم',
+                    'label' => __('Blood Requests'),
                     'data' => $data,
                     'fill' => 'start',
                     'backgroundColor' => 'rgba(239, 68, 68, 0.1)',

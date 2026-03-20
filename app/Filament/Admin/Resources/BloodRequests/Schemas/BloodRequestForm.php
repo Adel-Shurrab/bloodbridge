@@ -18,30 +18,30 @@ class BloodRequestForm
         return $schema
             ->components([
                 Select::make('organization_id')
-                    ->label('المنظمة')
+                    ->label(__('Organization'))
                     ->relationship('organization', 'org_name')
                     ->searchable()
                     ->preload(),
                 Select::make('blood_type')
-                    ->label('فصيلة الدم')
+                    ->label(__('Blood Type'))
                     ->options(\App\Enums\BloodType::class),
                 TextInput::make('units_needed')
-                    ->label('الوحدات المطلوبة')
+                    ->label(__('Units Needed'))
                     ->numeric(),
                 Select::make('urgency_level')
-                    ->label('مستوى الاستعجال')
+                    ->label(__('Urgency Level'))
                     ->options(\App\Enums\UrgencyLevel::class),
                 Select::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->options(\App\Enums\BloodRequestStatus::class),
                 Textarea::make('additional_notes')
-                    ->label('ملاحظات إضافية')
+                    ->label(__('Additional Notes'))
                     ->columnSpanFull(),
                 DateTimePicker::make('broadcasted_at')
-                    ->label('تاريخ البث')
+                    ->label(__('Broadcast Date'))
                     ->visibleOn('view'),
                 DateTimePicker::make('fulfilled_at')
-                    ->label('تاريخ الاكتمال')
+                    ->label(__('Fulfilled Date'))
                     ->visibleOn('view'),
             ]);
     }

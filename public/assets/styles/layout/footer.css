@@ -3,7 +3,7 @@
     background: linear-gradient(135deg, #00637c 0%, #004d61 100%);
     color: white;
     padding: 3rem 2rem 1rem;
-    text-align: right;
+    text-align: start;
 }
 
 .footer-container {
@@ -19,7 +19,7 @@
 }
 
 .footer-section {
-    text-align: right;
+    text-align: start;
 }
 
 .footer-section h4 {

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\RequestResponseStatus;
+use App\Enums\NotificationType;
 use App\Models\BloodRequest;
 use App\Models\Donor;
 use App\Models\RequestResponse;
@@ -70,7 +71,11 @@ class BloodRequestActionService
         $orgUser = $request->organization?->user;
         if ($orgUser) {
             $response->load(['donor.user', 'donor.healthProfile', 'bloodRequest.organization']);
-            $orgUser->notify(new DonorResponseNotification($response));
+            app(NotificationService::class)->send(
+                $orgUser,
+                new DonorResponseNotification($response),
+                NotificationType::DONOR_RESPONSE
+            );
         }
 
         return $response;

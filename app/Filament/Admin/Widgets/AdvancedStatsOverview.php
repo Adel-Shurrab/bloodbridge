@@ -17,10 +17,10 @@ class AdvancedStatsOverview extends StatsOverview
             : 0;
 
         return [
-            $this->makeStat('الطلبات المكتملة', number_format($completedRequests), 'heroicon-s-check-circle', 'emerald'),
-            $this->makeStat('الطلبات المرسلة', number_format($totalRequests), 'heroicon-s-play-circle', 'blue'),
-            $this->makeStat('نسبة القبول', $acceptanceRate . '%', 'heroicon-s-receipt-percent', 'orange'),
-            $this->makeStat('إجمالي المتبرعين', number_format(Donor::count('*')), 'heroicon-s-users', 'indigo'),
+            $this->makeStat(__('Completed Requests'), number_format($completedRequests), 'heroicon-s-check-circle', 'emerald'),
+            $this->makeStat(__('Sent Requests'), number_format($totalRequests), 'heroicon-s-play-circle', 'blue'),
+            $this->makeStat(__('Acceptance Rate'), $acceptanceRate . '%', 'heroicon-s-receipt-percent', 'orange'),
+            $this->makeStat(__('Total Donors'), number_format(Donor::count('*')), 'heroicon-s-users', 'indigo'),
         ];
     }
 }

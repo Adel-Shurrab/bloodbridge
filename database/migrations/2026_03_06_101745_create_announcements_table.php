@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('announcements', function (Blueprint $table) {
             $table->id();
-            $table->string('title');
-            $table->text('body');
+            $table->json('title');
+            $table->json('body');
             $table->enum('target_type', ['all', 'role', 'specific_users']);
             $table->string('target_role')->nullable();
             $table->json('targeted_users_ids')->nullable();

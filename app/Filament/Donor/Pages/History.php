@@ -5,6 +5,7 @@ namespace App\Filament\Donor\Pages;
 use App\Enums\RequestResponseStatus;
 use App\Models\RequestResponse;
 use Filament\Pages\Page;
+use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Table;
@@ -13,15 +14,34 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
+use LaraZeus\SpatieTranslatable\Resources\Concerns\HasActiveLocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 
 class History extends Page implements HasTable
 {
-    use InteractsWithTable;
+    use InteractsWithTable, HasActiveLocaleSwitcher {
+        HasActiveLocaleSwitcher::getActiveFormsLocale insteadof InteractsWithTable;
+        HasActiveLocaleSwitcher::getActiveActionsLocale insteadof InteractsWithTable;
+        HasActiveLocaleSwitcher::getFilamentTranslatableContentDriver insteadof InteractsWithTable;
+    }
+
+    public ?string $activeLocale = null;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
-    protected static ?string $navigationLabel = 'السجل';
-    protected static ?string $title = 'تاريخ التبرعات';
+    public static function getNavigationLabel(): string
+    {
+        return __('Donation History');
+    }
+    public function getTitle(): string
+    {
+        return __('Donation History');
+    }
     protected static ?int $navigationSort = 30;
+
+    protected function getHeaderActions(): array
+    {
+        return [];
+    }
 
     public function getView(): string
     {
@@ -35,58 +55,59 @@ class History extends Page implements HasTable
             ->defaultSort('responded_at', 'desc')
             ->columns([
                 TextColumn::make('bloodRequest.organization.org_name')
-                    ->label('المؤسسة')
+                    ->label(__('Organization'))
+                    ->getStateUsing(fn($record) => $record->bloodRequest?->organization ? ($record->bloodRequest->organization->getTranslation('org_name', app()->getLocale(), false) ?: $record->bloodRequest->organization->getTranslation('org_name', 'ar', false)) : null)
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('bloodRequest.blood_type')
-                    ->label('فصيلة الطلب')
+                    ->label(__('Requested Blood Type'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('bloodRequest.units_needed')
-                    ->label('الوحدات المطلوبة')
+                    ->label(__('Units Needed'))
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->label('حالتي')
+                    ->label(__('My Status'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('responded_at')
-                    ->label('تاريخ الرد')
+                    ->label(__('Response Date'))
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
 
                 TextColumn::make('verified_at')
-                    ->label('وقت التحقق')
+                    ->label(__('Verification Time'))
                     ->dateTime('Y-m-d H:i')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
                 TextColumn::make('decline_reason')
-                    ->label('سبب الاستبعاد/الرفض')
+                    ->label(__('Decline/Rejection Reason'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->wrap()
                     ->limit(60)
                     ->visible(fn(?RequestResponse $record) => filled($record?->decline_reason)),
 
                 TextColumn::make('qr_state')
-                    ->label('حالة QR')
+                    ->label(__('QR Status'))
                     ->badge()
                     ->state(fn(RequestResponse $record) => $record->qr_state_label)
                     ->color(fn(RequestResponse $record) => $record->qr_state_color),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label('الحالة')
+                    ->label(__('Status'))
                     ->options(RequestResponseStatus::class),
 
                 Filter::make('responded_at_range')
-                    ->label('نطاق التاريخ')
+                    ->label(__('Date Range'))
                     ->form([
-                        DatePicker::make('from')->label('من'),
-                        DatePicker::make('until')->label('إلى'),
+                        DatePicker::make('from')->label(__('From')),
+                        DatePicker::make('until')->label(__('To')),
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query
@@ -99,8 +120,8 @@ class History extends Page implements HasTable
 
     protected function getTableQuery(): Builder
     {
-        /** @var \App\Models\User $user */
-        $user = auth()->user();
+        /** @var \App\Models\User|null $user */
+        $user = Auth::user();
 
         return RequestResponse::query()
             ->with(['bloodRequest.organization'])
@@ -110,3 +131,4 @@ class History extends Page implements HasTable
             ->where('status', '!=', RequestResponseStatus::PENDING);
     }
 }
+

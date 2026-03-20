@@ -13,12 +13,27 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 
+
+
 class ChangePassword extends Page implements HasForms
 {
     use InteractsWithForms;
 
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-m-key';
-    protected static ?string $navigationLabel = 'تغيير كلمة المرور';
+    public static function getNavigationLabel(): string
+    {
+        return __('Change Password');
+    }
+    public function getTitle(): string
+    {
+        return __('Change Password');
+    }
+
+    protected function getHeaderActions(): array
+    {
+        return [
+        ];
+    }
     protected static ?int $navigationSort = 100; // Put it at the end
 
     protected string $view = 'filament.organization.pages.change-password';
@@ -35,18 +50,18 @@ class ChangePassword extends Page implements HasForms
         return $schema
             ->statePath('data')
             ->components([
-                Section::make('أمان الحساب')
-                    ->description('قم بتحديث كلمة المرور الخاصة بك بانتظام للحفاظ على أمان حسابك.')
+                Section::make(__('Account Security'))
+                    ->description(__('Update your password regularly to keep your account secure.'))
                     ->schema([
                         TextInput::make('current_password')
-                            ->label('كلمة المرور الحالية')
+                            ->label(__('Current Password'))
                             ->password()
                             ->revealable()
                             ->required()
                             ->currentPassword(),
 
                         TextInput::make('new_password')
-                            ->label('كلمة المرور الجديدة')
+                            ->label(__('New Password'))
                             ->password()
                             ->revealable()
                             ->required()
@@ -54,7 +69,7 @@ class ChangePassword extends Page implements HasForms
                             ->confirmed(),
 
                         TextInput::make('new_password_confirmation')
-                            ->label('تأكيد كلمة المرور الجديدة')
+                            ->label(__('Confirm New Password'))
                             ->password()
                             ->revealable()
                             ->required()
@@ -76,7 +91,8 @@ class ChangePassword extends Page implements HasForms
 
         Notification::make()
             ->success()
-            ->title('تم تغيير كلمة المرور بنجاح')
+            ->title(__('Password changed successfully'))
             ->send();
     }
 }
+
