@@ -809,14 +809,14 @@ function initGPSLocation() {
         } catch (error) {
             console.error('GPS Error:', error);
 
-            let errorMessage = 'فشل في تحديد الموقع';
+            let errorMessage = __('Failed to get location');
 
             if (error.code === 1) {
-                errorMessage = 'يرجى السماح بالوصول إلى موقعك';
+                errorMessage = __('Please allow access to your location');
             } else if (error.code === 2) {
-                errorMessage = 'الموقع غير متاح حالياً';
+                errorMessage = __('Location is unavailable');
             } else if (error.code === 3) {
-                errorMessage = 'انتهت مهلة الطلب';
+                errorMessage = __('Request timeout');
             }
 
             showError('auto_location_address', errorMessage);

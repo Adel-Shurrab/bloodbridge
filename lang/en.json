@@ -1367,5 +1367,12 @@
     "Welcome,": "Welcome,",
     "Donor": "Donor",
     "Thank you for your contribution to saving lives.": "Thank you for your contribution to saving lives.",
-    "Save Changes": "Save Changes"
+    "Save Changes": "Save Changes",
+    "Please allow access to your location": "Please allow access to your location",
+    "Location is unavailable right now": "Location is unavailable right now",
+    "Request timeout": "Request timeout",
+    "Failed to determine location": "Failed to determine location",
+    "Browser does not support geolocation": "Browser does not support geolocation",
+    "Failed to get address": "Failed to get address",
+    "Please wait a moment before retrying": "Please wait a moment before retrying"
 }
