@@ -1366,5 +1366,12 @@
     "غزة": "Gaza",
     "⚠ Self-reported": "⚠ إفادة من المتبرع",
     "✓ Lab Verified": "✓ موثق مخبرياً",
-    "🇵🇸 Donors with unknown blood type": "🇵🇸 متبرعين بفصيلة دم غير معروفة"
+    "🇵🇸 Donors with unknown blood type": "🇵🇸 متبرعين بفصيلة دم غير معروفة",
+    "Please allow access to your location": "يرجى السماح بالوصول إلى موقعك",
+    "Location is unavailable right now": "الموقع غير متاح حالياً",
+    "Request timeout": "انتهت مهلة الطلب",
+    "Failed to determine location": "فشل في تحديد الموقع",
+    "Browser does not support geolocation": "المتصفح لا يدعم تحديد الموقع الجغرافي",
+    "Failed to get address": "فشل في الحصول على العنوان",
+    "Please wait a moment before retrying": "يرجى الانتظار قليلاً قبل المحاولة مرة أخرى"
 }

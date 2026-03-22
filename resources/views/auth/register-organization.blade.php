@@ -25,7 +25,14 @@
                 'Not specified': '{{ __('Not specified') }}',
                 'Working 24/7': '{{ __('Works 24/7') }}',
                 'File too large': '{{ __('File size must be less than 5MB') }}',
-                'File type not supported': '{{ __('File type not supported. Please choose PDF or image') }}'
+                'File type not supported': '{{ __('File type not supported. Please choose PDF or image') }}',
+                'Please allow access to your location': '{{ __('Please allow access to your location') }}',
+                'Location is unavailable': '{{ __('Location is unavailable right now') }}',
+                'Request timeout': '{{ __('Request timeout') }}',
+                'Failed to get location': '{{ __('Failed to determine location') }}',
+                'Browser does not support geolocation': '{{ __('Browser does not support geolocation') }}',
+                'Failed to get address': '{{ __('Failed to get address') }}',
+                'Please wait a moment before retrying': '{{ __('Please wait a moment before retrying') }}'
             };
 
             window.currentLocale = '{{ app()->getLocale() }}';

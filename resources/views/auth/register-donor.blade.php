@@ -70,7 +70,14 @@
                 'kg': '{{ __('kg') }}',
                 'cm': '{{ __('cm') }}',
                 'Personal Information': '{{ __('Personal Information') }}',
-                'Health Profile': '{{ __('Health Profile') }}'
+                'Health Profile': '{{ __('Health Profile') }}',
+                'Please allow access to your location': '{{ __('Please allow access to your location') }}',
+                'Location is unavailable': '{{ __('Location is unavailable right now') }}',
+                'Request timeout': '{{ __('Request timeout') }}',
+                'Failed to get location': '{{ __('Failed to determine location') }}',
+                'Browser does not support geolocation': '{{ __('Browser does not support geolocation') }}',
+                'Failed to get address': '{{ __('Failed to get address') }}',
+                'Please wait a moment before retrying': '{{ __('Please wait a moment before retrying') }}'
             };
 
             function __(key, replace = {}) {
