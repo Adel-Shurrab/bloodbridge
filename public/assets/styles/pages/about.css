@@ -133,7 +133,14 @@
   transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
   position: relative;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(30px);
 }
+
+.mission-card.animate-in {
+  animation: slideUp .6s ease-out forwards;
+}
+
 
 .mission-card::before {
   content: "";
@@ -230,6 +237,12 @@
   transition: all 0.3s;
   position: relative;
   overflow: hidden;
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.value-card.animate-in {
+  animation: slideUp .6s ease-out forwards;
 }
 
 .value-card::before {
@@ -318,8 +331,13 @@
 .team-card {
   text-align: center;
   transition: transform 0.3s;
+  opacity: 0;
+  transform: translateY(30px);
 }
 
+.team-card.animate-in {
+  animation: slideUp .6s ease-out forwards;
+}
 .team-card:hover {
   transform: translateY(-10px);
 }
@@ -396,8 +414,13 @@
   text-align: center;
   transition: all 0.3s;
   border: 2px solid rgba(255, 255, 255, 0.2);
+  opacity: 0;
+  transform: translateY(30px);
 }
 
+.impact-card.animate-in {
+  animation: slideUp .6s ease-out forwards;
+}
 .impact-card:hover {
   background: rgba(255, 255, 255, 0.15);
   transform: translateY(-10px);

@@ -140,7 +140,7 @@
                             </div>
                             <div class="info-box mini" style="margin: 0 0 1.5rem 0; padding: 0.75rem 1rem;">
                                 <div class="info-icon">💡</div>
-                                <div class="info-content">
+                                <div class="info-content" style="display:flex; align-items:center;">
                                     <p style="font-size: 0.85rem;">
                                         {{ __('Providing operating hours helps donors choose the appropriate time to visit you.') }}
                                     </p>
@@ -182,10 +182,9 @@
                                         class="required">*</span></label>
                                 <input type="number" id="daily_capacity" name="daily_capacity"
                                     value="{{ old('daily_capacity') }}" min="1"
-                                    placeholder="{{ __('Example: 50') }}" />
+                                    placeholder="{{ __('Example: 50') }}" />                                
+                                <span class="helper-text">{{ __('The estimated number of donors the organization can receive daily. Entering this number helps us organize the flow of donors.') }}</span>
                                 <span class="error-message"></span>
-                                <span
-                                    class="helper-text">{{ __('The estimated number of donors the organization can receive daily. Entering this number helps us organize the flow of donors.') }}</span>
                             </div>
                         </div>
 
@@ -248,7 +247,7 @@
                                     <input type="text" id="auto_location_address" name="auto_location_address"
                                         value="{{ old('auto_location_address') }}"
                                         placeholder="{{ __('Click the location button to determine the organization\'s location automatically') }}"
-                                        readonly style="flex: 1; background: #f9fafb; cursor: pointer;" />
+                                        readonly style="flex: 1; background: #f9fafb; caret-color:transparent;" class="no"/>
                                     <button type="button" id="gps-location-btn" class="btn btn-outline"
                                         style="padding: 0.875rem 1.5rem; white-space: nowrap; min-width: auto;"
                                         title="{{ __('Determine location automatically') }}">
@@ -270,161 +269,160 @@
                             </div>
                         </div>
                     </div>
-            </div>
-            <div class="form-step" id="step3">
-                <h2 class="step-title">{{ __('Documentation & Management') }}</h2>
+                    <div class="form-step" id="step3">
+                        <h2 class="step-title">{{ __('Documentation & Management') }}</h2>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="licenseNumber">{{ __('Official License Number') }} <span
-                                class="required">*</span></label>
-                        <input type="text" id="licenseNumber" name="licenseNumber"
-                            value="{{ old('licenseNumber') }}" placeholder="LIC-123456789" />
-                        <span class="error-message"></span>
-                    </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="licenseNumber">{{ __('Official License Number') }} <span
+                                        class="required">*</span></label>
+                                <input type="text" id="licenseNumber" name="licenseNumber"
+                                    value="{{ old('licenseNumber') }}" placeholder="LIC-123456789" />
+                                <span class="error-message"></span>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="licenseUpload">{{ __('Upload License') }} <span class="required">*</span></label>
-                        <div class="file-upload-wrapper">
-                            <input type="file" id="licenseUpload" name="licenseUpload"
-                                accept=".pdf,.jpg,.jpeg,.png" class="file-input" />
-                            <div class="file-upload-display" id="fileUploadDisplay">
-                                <div class="file-icon">📄</div>
-                                <div class="file-text">
-                                    <span class="file-prompt">{{ __('Click to upload') }}</span>
-                                    <span class="file-hint">{{ __('PDF, JPG, PNG up to 5MB') }}</span>
+                            <div class="form-group">
+                                <label for="licenseUpload">{{ __('Upload License') }} <span class="required">*</span></label>
+                                <div class="file-upload-wrapper">
+                                    <input type="file" id="licenseUpload" name="licenseUpload"
+                                        accept=".pdf,.jpg,.jpeg,.png" class="file-input" />
+                                    <div class="file-upload-display" id="fileUploadDisplay" style="flex-direction:column;">
+                                        <div class="file-icon">📄</div>
+                                        <div class="file-text">
+                                            <span class="file-prompt">{{ __('Click to upload') }}</span>
+                                            <span class="file-hint">{{ __('PDF, JPG, PNG up to 5MB') }}</span>
+                                        </div>
+                                    </div>
+                                    <div class="file-selected" id="fileSelected" style="display: none; margin-top:0;">
+                                        <span class="file-name" id="fileName"></span>
+                                        <button type="button" class="file-remove" id="fileRemove">×</button>
+                                    </div>
                                 </div>
-                            </div>
-                            <div class="file-selected" id="fileSelected" style="display: none">
-                                <span class="file-name" id="fileName"></span>
-                                <button type="button" class="file-remove" id="fileRemove">×</button>
+                                <span class="error-message"></span>
                             </div>
                         </div>
-                        <span class="error-message"></span>
-                    </div>
-                </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="adminName">{{ __('Administrative Contact Name') }} <span
-                                class="required">*</span></label>
-                        <input type="text" id="adminName" name="adminName" value="{{ old('adminName') }}"
-                            placeholder="{{ __('John Doe') }}" />
-                        <span class="error-message"></span>
-                    </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="adminName">{{ __('Administrative Contact Name') }} <span
+                                        class="required">*</span></label>
+                                <input type="text" id="adminName" name="adminName" value="{{ old('adminName') }}"
+                                    placeholder="{{ __('John Doe') }}" />
+                                <span class="error-message"></span>
+                            </div>
 
-                    <div class="form-group">
-                        <label for="responsible_person_position">{{ __('Job Title') }} <span
-                                class="required">*</span></label>
-                        <input type="text" id="responsible_person_position" name="responsible_person_position"
-                            value="{{ old('responsible_person_position') }}"
-                            placeholder="{{ __('Public Relations Manager') }}" />
-                        <span class="error-message"></span>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="adminEmail">{{ __('Administrator Email') }} <span
-                                class="required">*</span></label>
-                        <input type="email" id="adminEmail" name="adminEmail" value="{{ old('adminEmail') }}"
-                            placeholder="admin@organization.com" />
-                        <span class="error-message"></span>
-                    </div>
-                </div>
-
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="adminPassword">{{ __('Password') }} <span class="required">*</span></label>
-                        <div class="password-input">
-                            <input type="password" id="adminPassword" name="adminPassword" placeholder="••••••••" />
-                            <button type="button" class="toggle-password" data-target="adminPassword">
-                                <span class="eye-icon">👁️</span>
-                            </button>
+                            <div class="form-group">
+                                <label for="responsible_person_position">{{ __('Job Title') }} <span
+                                        class="required">*</span></label>
+                                <input type="text" id="responsible_person_position" name="responsible_person_position"
+                                    value="{{ old('responsible_person_position') }}"
+                                    placeholder="{{ __('Public Relations Manager') }}" />
+                                <span class="error-message"></span>
+                            </div>
                         </div>
-                        <span class="error-message"></span>
-                        <span class="helper-text">{{ __('Must be at least 8 characters') }}</span>
-                    </div>
 
-                    <div class="form-group">
-                        <label for="adminPassword_confirmation">{{ __('Confirm Password') }} <span
-                                class="required">*</span></label>
-                        <div class="password-input">
-                            <input type="password" id="adminPassword_confirmation" name="adminPassword_confirmation"
-                                placeholder="••••••••" />
-                            <button type="button" class="toggle-password" data-target="adminPassword_confirmation">
-                                <span class="eye-icon">👁️</span>
-                            </button>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="adminEmail">{{ __('Administrator Email') }} <span
+                                        class="required">*</span></label>
+                                <input type="email" id="adminEmail" name="adminEmail" value="{{ old('adminEmail') }}"
+                                    placeholder="admin@organization.com" />
+                                <span class="error-message"></span>
+                            </div>
                         </div>
-                        <span class="error-message"></span>
+
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="adminPassword">{{ __('Password') }} <span class="required">*</span></label>
+                                <div class="password-input" style="position:relative;">
+                                    <input type="password" id="adminPassword" name="adminPassword" placeholder="••••••••" style="flex:1;"/>
+                                    <button type="button" class="toggle-password" data-target="adminPassword" style="position:absolute;">
+                                        <span class="eye-icon">👁️</span>
+                                    </button>
+                                </div>
+                                <span class="error-message"></span>
+                                <span class="helper-text">{{ __('Must be at least 8 characters') }}</span>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="adminPassword_confirmation">{{ __('Confirm Password') }} <span
+                                        class="required">*</span></label>
+                                <div class="password-input" style="position:relative;">
+                                    <input type="password" id="adminPassword_confirmation" name="adminPassword_confirmation"
+                                        placeholder="••••••••" style="flex:1;"/>
+                                    <button type="button" class="toggle-password" data-target="adminPassword_confirmation" style="position:absolute;">
+                                        <span class="eye-icon">👁️</span>
+                                    </button>
+                                </div>
+                                <span class="error-message"></span>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
 
-            <div class="form-step" id="step4">
-                <h2 class="step-title">{{ __('Review Information') }}</h2>
+                    <div class="form-step" id="step4">
+                        <h2 class="step-title">{{ __('Review Information') }}</h2>
 
-                <div class="review-section">
-                    <h3>{{ __('Organization Information') }}</h3>
-                    <div class="review-grid" id="organizationInfoReview"></div>
-                </div>
+                        <div class="review-section">
+                            <h3>{{ __('Organization Information') }}</h3>
+                            <div class="review-grid" id="organizationInfoReview"></div>
+                        </div>
 
-                <div class="review-section">
-                    <h3>{{ __('Contact Information') }}</h3>
-                    <div class="review-grid" id="contactInfoReview"></div>
-                </div>
+                        <div class="review-section">
+                            <h3>{{ __('Contact Information') }}</h3>
+                            <div class="review-grid" id="contactInfoReview"></div>
+                        </div>
 
-                <div class="review-section">
-                    <h3>{{ __('Administrative Details') }}</h3>
-                    <div class="review-grid" id="adminInfoReview"></div>
-                </div>
+                        <div class="review-section">
+                            <h3>{{ __('Administrative Details') }}</h3>
+                            <div class="review-grid" id="adminInfoReview"></div>
+                        </div>
 
-                <div class="info-box">
-                    <div class="info-icon">ℹ️</div>
-                    <div class="info-content">
-                        <strong>{{ __('Note:') }}</strong>
-                        <p>{{ __('Your request will be reviewed by our team. We will send you an email once your account is fully activated.') }}
-                        </p>
+                        <div class="info-box">
+                            <div class="info-icon">ℹ️</div>
+                            <div class="info-content">
+                                <strong>{{ __('Note:') }}</strong>
+                                <p>{{ __('Your request will be reviewed by our team. We will send you an email once your account is fully activated.') }}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="form-group checkbox-group">
+                            <label class="checkbox-label">
+                                <input type="checkbox" id="termsAgree" name="termsAgree" required value="1" />
+                                <span class="checkbox-custom"></span>
+                                <span class="checkbox-text">{{ __('I have read and agreed to') }} <a
+                                        href="{{ route('terms') }}" target="_blank"
+                                        class="terms-link">{{ __('Terms of Service') }}</a> {{ __('and') }} <a
+                                        href="javascript:void(0)" @click.prevent="$dispatch('open-modal', 'privacyModal')"
+                                        class="terms-link">{{ __('Privacy Policy') }}</a> <span
+                                        class="required">*</span></span>
+                            </label>
+                            <span class="error-message"></span>
+                        </div>
                     </div>
-                </div>
 
-                <div class="form-group checkbox-group">
-                    <label class="checkbox-label">
-                        <input type="checkbox" id="termsAgree" name="termsAgree" required value="1" />
-                        <span class="checkbox-custom"></span>
-                        <span class="checkbox-text">{{ __('I have read and agreed to') }} <a
-                                href="{{ route('terms') }}" target="_blank"
-                                class="terms-link">{{ __('Terms of Service') }}</a> {{ __('and') }} <a
-                                href="javascript:void(0)" @click.prevent="$dispatch('open-modal', 'privacyModal')"
-                                class="terms-link">{{ __('Privacy Policy') }}</a> <span
-                                class="required">*</span></span>
-                    </label>
-                    <span class="error-message"></span>
-                </div>
+                    <div class="form-navigation">
+                        <button type="button" class="btn btn-outline btn-prev" id="prevBtn" style="display: none">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M19 12H5M12 19l-7-7 7-7" />
+                            </svg>
+                            <span>{{ __('Previous') }}</span>
+                        </button>
+                        <button type="button" class="btn btn-primary btn-next" id="nextBtn">
+                            <span>{{ __('Next') }}</span>
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M5 12h14M12 5l7 7-7 7" />
+                            </svg>
+                        </button>
+                        <button type="submit" class="btn btn-primary btn-submit" id="submitBtn" style="display: none">
+                            <span>{{ __('Submit Request') }}</span>
+                            <span class="btn-loader"></span>
+                        </button>
+                    </div>
+                </form>
             </div>
-
-            <div class="form-navigation">
-                <button type="button" class="btn btn-outline btn-prev" id="prevBtn" style="display: none">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M19 12H5M12 19l-7-7 7-7" />
-                    </svg>
-                    <span>{{ __('Previous') }}</span>
-                </button>
-                <button type="button" class="btn btn-primary btn-next" id="nextBtn">
-                    <span>{{ __('Next') }}</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="2">
-                        <path d="M5 12h14M12 5l7 7-7 7" />
-                    </svg>
-                </button>
-                <button type="submit" class="btn btn-primary btn-submit" id="submitBtn" style="display: none">
-                    <span>{{ __('Submit Request') }}</span>
-                    <span class="btn-loader"></span>
-                </button>
-            </div>
-            </form>
-        </div>
         </div>
     </section>
 

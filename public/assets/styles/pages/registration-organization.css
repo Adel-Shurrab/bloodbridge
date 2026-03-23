@@ -241,6 +241,11 @@
     box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
 }
 
+.form-group .no:focus{
+    border: 2px solid #e5e7eb !important;
+    box-shadow: none;
+}
+
 .form-group input.error,
 .form-group select.error,
 .form-group textarea.error {
@@ -344,7 +349,6 @@
 
 .file-remove:hover {
     background: #b91c1c;
-    transform: rotate(90deg);
 }
 
 /* Password Input */
