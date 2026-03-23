@@ -3,6 +3,7 @@
 namespace App\Filament\Organization\Widgets\Statistics;
 
 use App\Enums\BloodType;
+use App\Models\Organization;
 use App\Models\BloodRequest;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
@@ -20,8 +21,22 @@ class BloodTypeDistributionWidget extends ChartWidget
 
     protected function getData(): array
     {
-        
-        $organizationId = once(fn() => Auth::user()->organization->id);
+        $organizationId = $this->getOrganizationId();
+
+        if (! $organizationId) {
+            return [
+                'datasets' => [
+                    [
+                        'label' => __('Requests'),
+                        'data' => [],
+                        'backgroundColor' => [],
+                        'borderWidth' => 0,
+                        'hoverOffset' => 4,
+                    ],
+                ],
+                'labels' => [],
+            ];
+        }
 
         $stats = BloodRequest::query()
             ->where('organization_id', $organizationId)
@@ -74,5 +89,20 @@ class BloodTypeDistributionWidget extends ChartWidget
     {
         return 'doughnut';
     }
-}
 
+    protected function getOrganization(): ?Organization
+    {
+        $tenant = filament()->getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $tenant;
+        }
+
+        return Auth::user()?->organization;
+    }
+
+    protected function getOrganizationId(): ?int
+    {
+        return $this->getOrganization()?->getKey();
+    }
+}

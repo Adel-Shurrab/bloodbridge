@@ -1,10 +1,12 @@
 <x-filament-widgets::widget>
+    @php($organization = $this->getOrganizationRecord())
+
     <div class="top-bar">
         <div class="top-bar-title">
             <h1>{{ __('Dashboard') }}</h1>
             <p class="top-bar-subtitle">
-                {{ __('Welcome back, :name. Here is what is happening with', ['name' => $this->getOrganization()->responsible_person_name]) }} <span
-                    class="brand-text">{{ $this->getOrganization()->org_name }}</span>.
+                {{ __('Welcome back, :name. Here is what is happening with', ['name' => $organization?->responsible_person_name ?? auth()->user()?->name ?? __('User')]) }} <span
+                    class="brand-text">{{ $organization?->org_name ?? __('your organization') }}</span>.
             </p>
         </div>
         <div class="top-bar-actions">
@@ -12,9 +14,9 @@
             {{-- Profile Section --}}
             <div class="profile-section">
                 <div class="profile-info">
-                    <span class="profile-name">{{ $this->getOrganization()->responsible_person_name }}</span>
+                    <span class="profile-name">{{ $organization?->responsible_person_name ?? auth()->user()?->name ?? __('User') }}</span>
                     <span class="profile-role">
-                        {{ $this->getOrganization()->org_name }}
+                        {{ $organization?->org_name ?? __('Organization') }}
                     </span>
                 </div>
                 <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="Profile" class="profile-img">

@@ -3,6 +3,7 @@
 namespace App\Filament\Organization\Pages;
 
 use App\Enums\RequestResponseStatus;
+use App\Models\Organization;
 use App\Models\RequestResponse;
 use App\Services\QRCodeService;
 use Filament\Forms\Components\TextInput;
@@ -54,7 +55,12 @@ class ScanDonorQR extends Page
         }
 
         $qrService = app(QRCodeService::class);
-        $organization = filament()->getTenant() ?? Auth::user()->organization;
+        $organization = $this->getOrganization();
+
+        if (! $organization) {
+            $this->notify(__('Access error'), __('No organization tenant is active for this session.'), 'danger');
+            return false;
+        }
 
         $response = $qrService->validate($code, $organization);
 
@@ -81,7 +87,7 @@ class ScanDonorQR extends Page
             return;
         }
 
-        $organization = filament()->getTenant() ?? Auth::user()->organization;
+        $organization = $this->getOrganization();
 
         if (! $organization) {
             abort(403);
@@ -132,7 +138,7 @@ class ScanDonorQR extends Page
 
     private function checkRateLimit(): bool
     {
-        $orgId = filament()->getTenant()?->id ?? Auth::user()->organization_id;
+        $orgId = $this->getOrganizationId() ?? 'unknown';
         $rateLimitKey = 'qr-scan:org:' . $orgId;
 
         if (RateLimiter::tooManyAttempts($rateLimitKey, 30)) {
@@ -185,5 +191,20 @@ class ScanDonorQR extends Page
 
         $notification->send();
     }
-}
 
+    protected function getOrganization(): ?Organization
+    {
+        $tenant = filament()->getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $tenant;
+        }
+
+        return Auth::user()?->organization;
+    }
+
+    protected function getOrganizationId(): ?int
+    {
+        return $this->getOrganization()?->getKey();
+    }
+}
