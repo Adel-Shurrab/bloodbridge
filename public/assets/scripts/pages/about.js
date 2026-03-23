@@ -166,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavbarScroll();
     initMobileMenu();
     initScrollAnimations();
-    initSmoothScroll();
     initStaggeredAnimations();
     initParallax();
     initInteractiveEffects();
