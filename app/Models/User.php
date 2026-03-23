@@ -64,11 +64,6 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
     {
         $panelId = $panel->getId();
 
-        // Admin super-access: allow admins to access any panel.
-        if ($this->role === \App\Enums\UserRole::ADMIN) {
-            return true;
-        }
-
         // Inactive users cannot access any panels.
         if (! $this->is_active) {
             return false;
@@ -84,9 +79,8 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
 
     public function getTenants(Panel $panel): array|Collection
     {
-        // Admin super-access: admins can access all tenants.
-        if ($this->role === \App\Enums\UserRole::ADMIN) {
-            return \App\Models\Organization::query()->get();
+        if ($this->role !== \App\Enums\UserRole::ORGANIZATION) {
+            return collect();
         }
 
         return $this->organization ? collect([$this->organization]) : collect();
@@ -94,9 +88,8 @@ class User extends Authenticatable implements FilamentUser, HasTenants, MustVeri
 
     public function canAccessTenant(Model $tenant): bool
     {
-        // Admin super-access: allow admins to access any tenant.
-        if ($this->role === \App\Enums\UserRole::ADMIN) {
-            return true;
+        if ($this->role !== \App\Enums\UserRole::ORGANIZATION) {
+            return false;
         }
 
         return $this->organization?->id === $tenant->id;

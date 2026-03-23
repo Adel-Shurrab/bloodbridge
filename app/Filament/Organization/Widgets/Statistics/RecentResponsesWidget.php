@@ -2,11 +2,11 @@
 
 namespace App\Filament\Organization\Widgets\Statistics;
 
+use App\Models\Organization;
 use App\Models\RequestResponse;
 use Filament\Tables;
 use Filament\Tables\Table;
 use Filament\Widgets\TableWidget as BaseWidget;
-use Illuminate\Support\Facades\Auth;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\BadgeColumn;
 use Filament\Actions\ViewAction;
@@ -14,6 +14,7 @@ use Filament\Schemas\Components\Section;
 use Filament\Forms\Components\Placeholder;
 use Filament\Schemas\Components\Grid;
 use Filament\Schemas\Schema;
+use Illuminate\Support\Facades\Auth;
 
 class RecentResponsesWidget extends BaseWidget
 {
@@ -25,16 +26,20 @@ class RecentResponsesWidget extends BaseWidget
 
     public function table(Table $table): Table
     {
-        $organization = Auth::user()->organization;
+        $organization = $this->getOrganization();
 
         return $table
             ->heading(__('Latest Responses'))
             ->description(__('Latest 5 donor responses'))
             ->query(
                 RequestResponse::query()
-                    ->whereHas('bloodRequest', function ($query) use ($organization) {
-                        $query->where('organization_id', $organization->id);
-                    })
+                    ->when(
+                        $organization,
+                        fn($query) => $query->whereHas('bloodRequest', function ($bloodRequestQuery) use ($organization) {
+                            $bloodRequestQuery->where('organization_id', $organization->id);
+                        }),
+                        fn($query) => $query->whereRaw('1 = 0')
+                    )
                     ->with(['donor.user', 'bloodRequest'])
                     ->latest()
                     ->limit(5)
@@ -117,5 +122,15 @@ class RecentResponsesWidget extends BaseWidget
                     ]),
             ]);
     }
-}
 
+    protected function getOrganization(): ?Organization
+    {
+        $tenant = filament()->getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $tenant;
+        }
+
+        return Auth::user()?->organization;
+    }
+}

@@ -2,20 +2,24 @@
 
 namespace App\Filament\Organization\Widgets\Statistics;
 
+use App\Models\Organization;
 use App\Models\BloodRequest;
 use App\Models\RequestResponse;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
-use Illuminate\Support\Facades\Auth;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
+use Illuminate\Support\Facades\Auth;
 
 class OverviewStatsWidget extends BaseWidget
 {
     protected function getStats(): array
     {
-        
-        $organization = once(fn() => Auth::user()->organization);
+        $organization = $this->getOrganization();
+
+        if (! $organization) {
+            return [];
+        }
 
         $totalRequests = BloodRequest::where('organization_id', $organization->id)->count();
 
@@ -64,8 +68,11 @@ class OverviewStatsWidget extends BaseWidget
 
     private function getRequestsTrend(): array
     {
-        
-        $organizationId = once(fn() => Auth::user()->organization->id);
+        $organizationId = $this->getOrganizationId();
+
+        if (! $organizationId) {
+            return [];
+        }
 
         $data = Trend::query(
             BloodRequest::query()->where('organization_id', $organizationId)
@@ -79,5 +86,20 @@ class OverviewStatsWidget extends BaseWidget
 
         return $data->map(fn(TrendValue $value) => $value->aggregate)->toArray();
     }
-}
 
+    protected function getOrganization(): ?Organization
+    {
+        $tenant = filament()->getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $tenant;
+        }
+
+        return Auth::user()?->organization;
+    }
+
+    protected function getOrganizationId(): ?int
+    {
+        return $this->getOrganization()?->getKey();
+    }
+}

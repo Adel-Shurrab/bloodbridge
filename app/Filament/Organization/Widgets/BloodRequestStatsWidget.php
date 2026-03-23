@@ -3,6 +3,7 @@
 namespace App\Filament\Organization\Widgets;
 
 use App\Enums\BloodRequestStatus;
+use App\Models\Organization;
 use App\Models\BloodRequest;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -14,7 +15,11 @@ class BloodRequestStatsWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $organization = Auth::user()->organization;
+        $organization = $this->getOrganization();
+
+        if (! $organization) {
+            return [];
+        }
 
         $activeRequests = BloodRequest::where('organization_id', $organization->id)
             ->whereIn('status', [
@@ -67,5 +72,15 @@ class BloodRequestStatsWidget extends BaseWidget
                 ->color('success'),
         ];
     }
-}
 
+    protected function getOrganization(): ?Organization
+    {
+        $tenant = filament()->getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $tenant;
+        }
+
+        return Auth::user()?->organization;
+    }
+}

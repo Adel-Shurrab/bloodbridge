@@ -2,6 +2,7 @@
 
 namespace App\Filament\Organization\Widgets\Statistics;
 
+use App\Models\Organization;
 use App\Models\BloodRequest;
 use Filament\Widgets\ChartWidget;
 use Illuminate\Support\Facades\Auth;
@@ -26,8 +27,19 @@ class SearchRadiusStatsWidget extends ChartWidget
 
     protected function getData(): array
     {
-        
-        $organization = once(fn() => Auth::user()->organization);
+        $organization = $this->getOrganization();
+
+        if (! $organization) {
+            return [
+                'datasets' => [
+                    [
+                        'label' => __('Number of Requests'),
+                        'data' => [],
+                    ],
+                ],
+                'labels' => [],
+            ];
+        }
 
         $radiusGroups = BloodRequest::where('organization_id', $organization->id)
             ->whereNotNull('actual_search_radius_km')
@@ -66,5 +78,15 @@ class SearchRadiusStatsWidget extends ChartWidget
     {
         return 'bar';
     }
-}
 
+    protected function getOrganization(): ?Organization
+    {
+        $tenant = filament()->getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $tenant;
+        }
+
+        return Auth::user()?->organization;
+    }
+}

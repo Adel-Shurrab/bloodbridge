@@ -2,11 +2,12 @@
 
 namespace App\Filament\Organization\Widgets\Statistics;
 
+use App\Models\Organization;
 use App\Models\BloodRequest;
 use Filament\Widgets\ChartWidget;
-use Illuminate\Support\Facades\Auth;
 use Flowframe\Trend\Trend;
 use Flowframe\Trend\TrendValue;
+use Illuminate\Support\Facades\Auth;
 
 class BloodRequestTrendWidget extends ChartWidget
 {
@@ -23,8 +24,22 @@ class BloodRequestTrendWidget extends ChartWidget
 
     protected function getData(): array
     {
-        
-        $organizationId = once(fn() => Auth::user()->organization->id);
+        $organizationId = $this->getOrganizationId();
+
+        if (! $organizationId) {
+            return [
+                'datasets' => [
+                    [
+                        'label' => __('Blood Requests'),
+                        'data' => [],
+                        'borderColor' => '#3b82f6',
+                        'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
+                        'fill' => true,
+                    ],
+                ],
+                'labels' => [],
+            ];
+        }
 
         $data = Trend::query(
             BloodRequest::query()->where('organization_id', $organizationId)
@@ -54,5 +69,20 @@ class BloodRequestTrendWidget extends ChartWidget
     {
         return 'line';
     }
-}
 
+    protected function getOrganization(): ?Organization
+    {
+        $tenant = filament()->getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $tenant;
+        }
+
+        return Auth::user()?->organization;
+    }
+
+    protected function getOrganizationId(): ?int
+    {
+        return $this->getOrganization()?->getKey();
+    }
+}

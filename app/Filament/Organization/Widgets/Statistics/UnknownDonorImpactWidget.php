@@ -4,6 +4,7 @@ namespace App\Filament\Organization\Widgets\Statistics;
 
 use App\Enums\BloodType;
 use App\Models\Donor;
+use App\Models\Organization;
 use App\Models\RequestResponse;
 use Filament\Widgets\StatsOverviewWidget as BaseWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -15,7 +16,11 @@ class UnknownDonorImpactWidget extends BaseWidget
 
     protected function getStats(): array
     {
-        $organization = Auth::user()->organization;
+        $organization = $this->getOrganization();
+
+        if (! $organization) {
+            return [];
+        }
 
         $unknownDonors = Donor::whereHas('healthProfile', function ($query) {
             $query->where('blood_type', BloodType::UNKNOWN)
@@ -57,5 +62,15 @@ class UnknownDonorImpactWidget extends BaseWidget
                 ->color('info'),
         ];
     }
-}
 
+    protected function getOrganization(): ?Organization
+    {
+        $tenant = filament()->getTenant();
+
+        if ($tenant instanceof Organization) {
+            return $tenant;
+        }
+
+        return Auth::user()?->organization;
+    }
+}
