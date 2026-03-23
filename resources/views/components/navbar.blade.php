@@ -18,7 +18,7 @@
                 <a href="{{ auth()->user()->getDashboardUrl() }}" class="btn btn-primary">{{ __('Dashboard') }}</a>
                 <form method="POST" action="{{ route('logout') }}" style="display: inline;">
                     @csrf
-                    <button type="submit" class="btn btn-outline">{{ __('Log Out') }}</button>
+                    <button type="submit" class="btn btn-outline" style="padding: 1rem 1.5rem;">{{ __('Log Out') }}</button>
                 </form>
             @else
                 <a href="{{ route('login') }}" class="btn btn-outline">{{ __('Log In') }}</a>
@@ -60,7 +60,7 @@
             <a href="{{ auth()->user()->getDashboardUrl() }}" class="btn btn-primary">{{ __('Dashboard') }}</a>
             <form method="POST" action="{{ route('logout') }}" style="display: block; width: 100%;">
                 @csrf
-                <button type="submit" class="btn btn-outline" style="width: 100%;">{{ __('Log Out') }}</button>
+                <button type="submit" class="btn btn-outline" style="width: 100%; padding: 1rem 1.5rem;">{{ __('Log Out') }}</button>
             </form>
         @else
             <a href="{{ route('login') }}" class="btn btn-outline">{{ __('Log In') }}</a>
