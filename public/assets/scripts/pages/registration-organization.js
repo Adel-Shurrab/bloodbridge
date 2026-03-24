@@ -707,6 +707,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (userType !== "organization") {
         // Redirect back if not organization
         console.log("User type mismatch");
+        window.location.href = "{{ route('register.selection') }}";
     }
 });
 

@@ -714,6 +714,9 @@ function showStep(step) {
         nextBtn.style.display = 'flex';
         submitBtn.style.display = 'none';
     }
+
+    // Scroll to top
+    window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 /**
