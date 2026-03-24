@@ -9,20 +9,16 @@ use Illuminate\Support\Facades\Auth;
 
 class SearchRadiusStatsWidget extends ChartWidget
 {
-    protected ?string $heading = 'Used Search Radius (Gaza Innovation)';
-
     protected ?string $maxHeight = '300px';
-
-    protected ?string $description = 'Distribution of final search radius for requests';
 
     public function getHeading(): string
     {
-        return __($this->heading);
+        return __('organization.used_search_radius');
     }
 
     public function getDescription(): ?string
     {
-        return __($this->description);
+        return __('organization.distribution_of_final_search_radius');
     }
 
     protected function getData(): array
@@ -33,7 +29,7 @@ class SearchRadiusStatsWidget extends ChartWidget
             return [
                 'datasets' => [
                     [
-                        'label' => __('Number of Requests'),
+                        'label' => __('organization.number_of_requests'),
                         'data' => [],
                     ],
                 ],
@@ -53,13 +49,13 @@ class SearchRadiusStatsWidget extends ChartWidget
 
         foreach ($radiusGroups as $group) {
             $data[] = $group->count;
-            $labels[] = $group->actual_search_radius_km . __(' km');
+            $labels[] = $group->actual_search_radius_km . ' ' . __('organization.km');
         }
 
         return [
             'datasets' => [
                 [
-                    'label' => __('Number of Requests'),
+                    'label' => __('organization.number_of_requests'),
                     'data' => $data,
                     'backgroundColor' => [
                         '#10b981',

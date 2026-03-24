@@ -17,46 +17,46 @@ class AnnouncementForm
     {
         return $schema
             ->components([
-                Section::make(__('Announcement Content'))
-                    ->description(__('Enter the message content to be sent.'))
+                Section::make(__('admin.announcement_content'))
+                    ->description(__('admin.enter_the_message_content_to_be_sent'))
                     ->schema([
                         TextInput::make('title')
-                            ->label(__('Announcement Title'))
+                            ->label(__('admin.announcement_title'))
                             ->required()
                             ->maxLength(255)
                             ->disabled(fn($record) => $record?->status === 1),
                         RichEditor::make('body')
-                            ->label(__('Announcement Body (Message)'))
+                            ->label(__('admin.announcement_body_message'))
                             ->required()
                             ->disabled(fn($record) => $record?->status === 1),
                     ]),
 
-                Section::make(__('Sending Settings'))
-                    ->description(__('Select target audience for the announcement.'))
+                Section::make(__('admin.sending_settings'))
+                    ->description(__('admin.select_target_audience_for_the_announcement'))
                     ->schema([
                         Select::make('target_type')
-                            ->label(__('Target Audience'))
+                            ->label(__('admin.target_audience'))
                             ->options([
-                                'all' => __('All Users (Active and Verified)'),
-                                'role' => __('Specific Role'),
-                                'specific_users' => __('Specific Users')
+                                'all' => __('admin.all_users_active_and_verified'),
+                                'role' => __('admin.specific_role'),
+                                'specific_users' => __('admin.specific_users'),
                             ])
                             ->required()
                             ->live()
                             ->disabled(fn($record) => $record?->status === 1),
 
                         Select::make('target_role')
-                            ->label(__('Target Role'))
+                            ->label(__('admin.target_role'))
                             ->options([
-                                'App\Models\Donor' => __('Donors'),
-                                'App\Models\Organization' => __('Organizations')
+                                'App\Models\Donor' => __('admin.donors'),
+                                'App\Models\Organization' => __('admin.organizations'),
                             ])
                             ->required(fn($get) => $get('target_type') === 'role')
                             ->visible(fn($get) => $get('target_type') === 'role')
                             ->disabled(fn($record) => $record?->status === 1),
 
                         Select::make('targeted_users_ids')
-                            ->label(__('Select Users'))
+                            ->label(__('admin.select_users'))
                             ->multiple()
                             ->searchable()
                             ->getSearchResultsUsing(fn(string $search) => User::whereNotNull('email_verified_at')->where('name', 'like', "%{$search}%")->limit(50)->pluck('name', 'id'))
@@ -67,15 +67,15 @@ class AnnouncementForm
                             ->columnSpanFull(),
 
                         Toggle::make('send_via_email')
-                            ->label(__('Send Copy Via Email Also'))
+                            ->label(__('admin.send_copy_via_email_also'))
                             ->default(false)
                             ->disabled(fn($record) => $record?->status === 1),
 
                         Select::make('status')
-                            ->label(__('Publish Status'))
+                            ->label(__('admin.publish_status'))
                             ->options([
-                                0 => __('Draft'),
-                                1 => __('Published (Sent immediately and cannot be edited)')
+                                0 => __('admin.draft'),
+                                1 => __('admin.published_sent_immediately_and_cannot_be_edited'),
                             ])
                             ->default(0)
                             ->required()

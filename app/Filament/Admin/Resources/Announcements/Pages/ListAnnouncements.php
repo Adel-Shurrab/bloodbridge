@@ -26,10 +26,10 @@ class ListAnnouncements extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => Tab::make(__('All')),
-            'sent' => Tab::make(__('Sent'))
+            'all' => Tab::make(__('admin.all')),
+            'sent' => Tab::make(__('admin.sent'))
                 ->modifyQueryUsing(fn($query) => $query->where('status', 1)),
-            'draft' => Tab::make(__('Drafts'))
+            'draft' => Tab::make(__('admin.drafts'))
                 ->modifyQueryUsing(fn($query) => $query->where('status', 0)),
         ];
     }

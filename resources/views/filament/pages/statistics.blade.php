@@ -2,18 +2,18 @@
     <div class="statistics-page-layout">
         <div class="top-bar">
             <div class="top-bar-title">
-                <h1>{{ __('filament.pages.statistics.title') }}</h1>
+                <h1>{{ __('admin.statistics_title') }}</h1>
                 <p class="top-bar-subtitle">
-                    {{ __('Key metrics and insights for blood donation requests.') }}
+                    {{ __('admin.statistics_subtitle') }}
                 </p>
             </div>
             <div class="top-bar-actions">
                 <div class="profile-section">
                     <div class="profile-info">
                         <span class="profile-name">{{ auth()->user()->name }}</span>
-                        <span class="profile-role">{{ __('System Administrator') }}</span>
+                        <span class="profile-role">{{ __('admin.system_administrator') }}</span>
                     </div>
-                    <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('Profile') }}" class="profile-img">
+                    <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('admin.profile') }}" class="profile-img">
                 </div>
             </div>
         </div>

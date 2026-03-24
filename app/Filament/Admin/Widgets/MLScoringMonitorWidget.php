@@ -22,8 +22,6 @@ class MLScoringMonitorWidget extends Widget
 
     protected int | string | array $columnSpan = 'full';
 
-    public bool $retraining = false;
-
     public function getData(): array
     {
         $settings = app(ScoringSettings::class);
@@ -58,10 +56,10 @@ class MLScoringMonitorWidget extends Widget
         };
 
         $circuitLabel = match ($circuitState) {
-            'closed' => __('Closed - FastAPI healthy'),
-            'half_open' => __('Half-Open - Testing recovery'),
-            'open' => __('Open - FastAPI unreachable'),
-            default => __('Unknown'),
+            'closed' => __('admin.closed_fastapi_healthy'),
+            'half_open' => __('admin.half_open_testing_recovery'),
+            'open' => __('admin.open_fastapi_unreachable'),
+            default => __('admin.unknown'),
         };
 
         $epsilon = $settings->exploration_ratio;
@@ -89,12 +87,12 @@ class MLScoringMonitorWidget extends Widget
 
         return [
             'mlEnabled' => $settings->ml_scoring_enabled,
-            'modelVersion' => $latest?->model_version ?? __('No model yet'),
-            'lastTrained' => $latest?->training_date?->diffForHumans() ?? __('Never'),
+            'modelVersion' => $latest?->model_version ?? __('admin.no_model_yet'),
+            'lastTrained' => $latest?->training_date?->diffForHumans() ?? __('admin.never'),
             'dataRecords' => $latest?->data_records_used ?? 0,
-            'aucRoc' => $aucRoc ? number_format($aucRoc, 3) : __('N/A'),
+            'aucRoc' => $aucRoc ? number_format($aucRoc, 3) : __('admin.not_available_short'),
             'aucColor' => $aucColor,
-            'acceptanceRate' => $acceptanceRate ? $acceptanceRate . '%' : __('No data'),
+            'acceptanceRate' => $acceptanceRate ? $acceptanceRate . '%' : __('admin.no_data'),
             'circuitState' => $circuitState,
             'circuitColor' => $circuitColor,
             'circuitLabel' => $circuitLabel,
@@ -104,25 +102,5 @@ class MLScoringMonitorWidget extends Widget
         ];
     }
 
-    public function retrain(): void
-    {
-        try {
-            $this->retraining = true;
 
-            app(DonorScoringService::class)->triggerRetraining();
-
-            Notification::make()
-                ->success()
-                ->title(__('Model retraining started successfully'))
-                ->send();
-        } catch (\Exception $e) {
-            Notification::make()
-                ->danger()
-                ->title(__('Retraining failed'))
-                ->body($e->getMessage())
-                ->send();
-        } finally {
-            $this->retraining = false;
-        }
-    }
 }

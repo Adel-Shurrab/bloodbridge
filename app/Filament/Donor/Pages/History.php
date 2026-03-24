@@ -30,11 +30,11 @@ class History extends Page implements HasTable
     protected static string|\BackedEnum|null $navigationIcon = 'heroicon-o-clock';
     public static function getNavigationLabel(): string
     {
-        return __('Donation History');
+        return __('donor.donation_history');
     }
     public function getTitle(): string
     {
-        return __('Donation History');
+        return __('donor.donation_history');
     }
     protected static ?int $navigationSort = 30;
 
@@ -55,59 +55,59 @@ class History extends Page implements HasTable
             ->defaultSort('responded_at', 'desc')
             ->columns([
                 TextColumn::make('bloodRequest.organization.org_name')
-                    ->label(__('Organization'))
+                    ->label(__('donor.organization'))
                     ->getStateUsing(fn($record) => $record->bloodRequest?->organization ? ($record->bloodRequest->organization->getTranslation('org_name', app()->getLocale(), false) ?: $record->bloodRequest->organization->getTranslation('org_name', 'ar', false)) : null)
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('bloodRequest.blood_type')
-                    ->label(__('Requested Blood Type'))
+                    ->label(__('donor.requested_blood_type'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('bloodRequest.units_needed')
-                    ->label(__('Units Needed'))
+                    ->label(__('donor.units_needed'))
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->label(__('My Status'))
+                    ->label(__('donor.my_status'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('responded_at')
-                    ->label(__('Response Date'))
+                    ->label(__('donor.response_date'))
                     ->dateTime('Y-m-d H:i')
                     ->sortable(),
 
                 TextColumn::make('verified_at')
-                    ->label(__('Verification Time'))
+                    ->label(__('donor.verification_time'))
                     ->dateTime('Y-m-d H:i')
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->sortable(),
 
                 TextColumn::make('decline_reason')
-                    ->label(__('Decline/Rejection Reason'))
+                    ->label(__('donor.decline_rejection_reason'))
                     ->toggleable(isToggledHiddenByDefault: true)
                     ->wrap()
                     ->limit(60)
                     ->visible(fn(?RequestResponse $record) => filled($record?->decline_reason)),
 
                 TextColumn::make('qr_state')
-                    ->label(__('QR Status'))
+                    ->label(__('donor.qr_status'))
                     ->badge()
                     ->state(fn(RequestResponse $record) => $record->qr_state_label)
                     ->color(fn(RequestResponse $record) => $record->qr_state_color),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label(__('Status'))
+                    ->label(__('donor.status'))
                     ->options(RequestResponseStatus::class),
 
                 Filter::make('responded_at_range')
-                    ->label(__('Date Range'))
+                    ->label(__('donor.date_range'))
                     ->form([
-                        DatePicker::make('from')->label(__('From')),
-                        DatePicker::make('until')->label(__('To')),
+                        DatePicker::make('from')->label(__('donor.from')),
+                        DatePicker::make('until')->label(__('donor.to')),
                     ])
                     ->query(function (Builder $query, array $data) {
                         return $query
@@ -131,4 +131,3 @@ class History extends Page implements HasTable
             ->where('status', '!=', RequestResponseStatus::PENDING);
     }
 }
-

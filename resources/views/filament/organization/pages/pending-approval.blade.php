@@ -4,10 +4,10 @@
         $isRejected = $tenant && $tenant->approval_status === \App\Enums\OrganizationStatus::REJECTED;
         $statusColor = $isRejected ? 'danger' : 'warning';
         $icon = $isRejected ? 'heroicon-o-x-circle' : 'heroicon-o-clock';
-        $heading = $isRejected ? __('Organization Request Rejected') : __('Pending Approval');
+        $heading = $isRejected ? __('organization.organization_request_rejected') : __('organization.pending_approval');
         $description = $isRejected
-            ? __('We apologize, but your organization does not currently meet the required conditions. Please contact administration for more details.')
-            : __('Thank you for registering on BloodBridge. We are currently reviewing the submitted data and documents to activate your account.');
+            ? __('organization.pending_rejected_description')
+            : __('organization.pending_approval_description');
     @endphp
 
     <div class="pending-page-container">
@@ -76,10 +76,10 @@
                                         </div>
                                         <div class="step-content">
                                             <h3 class="step-title">
-                                                {{ __('Submit Registration Request') }}
+                                                {{ __('organization.submit_registration_request') }}
                                             </h3>
                                             <p class="step-description">
-                                                {{ __('Data and documents received successfully') }}
+                                                {{ __('organization.data_documents_received_successfully') }}
                                             </p>
                                         </div>
                                     </div>
@@ -95,10 +95,10 @@
                                         </div>
                                         <div class="step-content">
                                             <h3 class="step-title">
-                                                {{ __('Review Documents and Data') }}
+                                                {{ __('organization.review_documents_and_data') }}
                                             </h3>
                                             <p class="step-description active">
-                                                {{ __('Verification in progress by the admin team') }}
+                                                {{ __('organization.verification_in_progress') }}
                                             </p>
                                         </div>
                                     </div>
@@ -112,10 +112,10 @@
                                         </div>
                                         <div class="step-content">
                                             <h3 class="step-title">
-                                                {{ __('Account Activation') }}
+                                                {{ __('organization.account_activation') }}
                                             </h3>
                                             <p class="step-description">
-                                                {{ __('You will be notified once the review is complete') }}
+                                                {{ __('organization.you_will_be_notified_when_review_complete') }}
                                             </p>
                                         </div>
                                     </div>
@@ -132,9 +132,9 @@
                                     class="info-icon blue"
                                 />
                                 <div class="info-text">
-                                    <p class="info-title">{{ __('What happens now?') }}</p>
+                                    <p class="info-title">{{ __('organization.what_happens_now') }}</p>
                                     <p class="info-description">
-                                        {{ __('Our team is reviewing your organization\'s information and ensuring it meets all requirements. This process usually takes 24 to 48 hours.') }}
+                                        {{ __('organization.team_reviewing_information') }}
                                     </p>
                                 </div>
                             </div>
@@ -148,9 +148,9 @@
                                     class="info-icon danger"
                                 />
                                 <div class="info-text">
-                                    <p class="info-title danger">{{ __('Why was the request rejected?') }}</p>
+                                    <p class="info-title danger">{{ __('organization.why_request_rejected') }}</p>
                                     <p class="info-description danger">
-                                        {{ __('The reason might be incomplete data, unclear documents, or unfulfilled conditions. For specific details, please contact the support team.') }}
+                                        {{ __('organization.reason_might_be_incomplete_data') }}
                                     </p>
                                 </div>
                             </div>
@@ -162,14 +162,14 @@
                         
                         <a href="mailto:support@bloodbridge.ps" class="btn btn-gray">
                             <x-filament::icon icon="heroicon-m-lifebuoy" class="w-5 h-5" />
-                            {{ __('Contact Support') }}
+                            {{ __('organization.contact_support') }}
                         </a>
 
                         <form action="{{ route('filament.organization.auth.logout') }}" method="post">
                             @csrf
                             <button type="submit" class="btn btn-danger-outline">
                                 <x-filament::icon icon="heroicon-m-arrow-left-on-rectangle" class="w-5 h-5" />
-                                {{ __('Log out') }}
+                                {{ __('organization.log_out') }}
                             </button>
                         </form>
                         
@@ -180,7 +180,7 @@
 
             {{-- Footer --}}
             <p class="page-footer">
-                {{ __('All rights reserved') }} &copy; {{ date('Y') }} {{ __('BloodBridge Organization Portal') }}
+                {{ __('organization.all_rights_reserved') }} &copy; {{ date('Y') }} {{ __('organization.organization_portal') }}
             </p>
 
         </div>

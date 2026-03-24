@@ -7,6 +7,7 @@ return [
      */
     'settings' => [
         App\Settings\GeneralSettings::class,
+        App\Settings\ScoringSettings::class,
     ],
 
     /*

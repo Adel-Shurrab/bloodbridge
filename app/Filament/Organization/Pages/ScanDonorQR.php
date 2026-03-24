@@ -24,12 +24,12 @@ class ScanDonorQR extends Page
 
     public function getTitle(): string
     {
-        return __('Scan QR Code');
+        return __('organization.scan_qr_code');
     }
 
     public static function getNavigationLabel(): string
     {
-        return __('Scan QR Code');
+        return __('organization.scan_qr_code');
     }
 
     protected function getHeaderActions(): array
@@ -58,14 +58,14 @@ class ScanDonorQR extends Page
         $organization = $this->getOrganization();
 
         if (! $organization) {
-            $this->notify(__('Access error'), __('No organization tenant is active for this session.'), 'danger');
+            $this->notify(__('organization.access_error'), __('organization.no_organization_tenant_active'), 'danger');
             return false;
         }
 
         $response = $qrService->validate($code, $organization);
 
         if (!$response) {
-            $this->notify(__('Invalid QR Code'), __('This code does not exist, is expired, or does not belong to this organization.'), 'danger');
+            $this->notify(__('organization.invalid_qr_code'), __('organization.code_invalid_or_expired_or_wrong_org'), 'danger');
             $this->foundResponse = null;
             return false;
         }
@@ -99,13 +99,13 @@ class ScanDonorQR extends Page
         $response = filled($token) ? $qrService->validate($token, $organization) : null;
 
         if (! $response || $response->id !== $this->foundResponse->id) {
-            $this->notify(__('Invalid QR Code'), __('This code does not exist, is expired, or does not belong to this organization.'), 'danger');
+            $this->notify(__('organization.invalid_qr_code'), __('organization.code_invalid_or_expired_or_wrong_org'), 'danger');
             $this->resetState();
             return;
         }
 
         if ($response->status !== RequestResponseStatus::PENDING) {
-            $this->notify(__('Invalid status'), __('The donor\'s current status does not allow confirmation.'), 'warning');
+            $this->notify(__('organization.invalid_status'), __('organization.donor_status_does_not_allow_confirmation'), 'warning');
             $this->resetState();
             return;
         }
@@ -116,8 +116,8 @@ class ScanDonorQR extends Page
         ]);
 
         $this->notify(
-            __('Attendance Registered'),
-            __('Donor: :name', ['name' => $response->donor->user->name]),
+            __('organization.attendance_registered'),
+            __('organization.donor_name_label', ['name' => $response->donor->user->name]),
             'success',
             true
         );
@@ -145,8 +145,8 @@ class ScanDonorQR extends Page
             $seconds = RateLimiter::availableIn($rateLimitKey);
 
             $this->notify(
-                __('Rate limit exceeded'),
-                __('Please wait :seconds seconds before trying again.', ['seconds' => $seconds]),
+                __('organization.rate_limit_exceeded'),
+                __('organization.please_wait_seconds_before_trying_again', ['seconds' => $seconds]),
                 'warning'
             );
 
@@ -164,11 +164,11 @@ class ScanDonorQR extends Page
     private function validateDonorStatus(RequestResponse $response): bool
     {
         return match ($response->status) {
-            RequestResponseStatus::ACCEPTED => $this->notifyAndFail(__('Already scanned'), __('The donor :name has already registered their attendance.', ['name' => $response->donor->user->name]), 'warning'),
-            RequestResponseStatus::COMPLETED => $this->notifyAndFail(__('Donation completed'), __('This donor has already completed the donation process.'), 'info'),
-            RequestResponseStatus::DECLINED => $this->notifyAndFail(__('Previously excluded'), __('Sorry, this donor has been medically excluded.'), 'danger'),
+            RequestResponseStatus::ACCEPTED => $this->notifyAndFail(__('organization.already_scanned'), __('organization.donor_already_registered_attendance', ['name' => $response->donor->user->name]), 'warning'),
+            RequestResponseStatus::COMPLETED => $this->notifyAndFail(__('organization.donation_completed'), __('organization.donor_already_completed_donation'), 'info'),
+            RequestResponseStatus::DECLINED => $this->notifyAndFail(__('organization.previously_excluded'), __('organization.donor_medically_excluded'), 'danger'),
             RequestResponseStatus::PENDING => true, 
-            default => $this->notifyAndFail(__('Invalid status'), __('The donor\'s current status does not allow confirmation.'), 'warning'),
+            default => $this->notifyAndFail(__('organization.invalid_status'), __('organization.donor_status_does_not_allow_confirmation'), 'warning'),
         };
     }
 

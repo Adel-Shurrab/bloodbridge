@@ -21,7 +21,7 @@ class RecentActivityWidget extends Widget
         BloodRequest::latest()->limit(5)->get()->each(function ($request) use ($activities) {
             $bloodLabel = $request->blood_type?->getLabel() ?? $request->blood_type;
             $activities->push([
-                'title' => __('New donation request created for :type.', ['type' => $bloodLabel]),
+                'title' => __('admin.new_donation_request_created', ['type' => $bloodLabel]),
                 'time' => $request->created_at->diffForHumans(),
                 'icon' => 'heroicon-m-plus-circle',
                 'color' => 'blue',
@@ -31,7 +31,7 @@ class RecentActivityWidget extends Widget
 
         Donor::with('user')->latest()->limit(5)->get()->each(function ($donor) use ($activities) {
             $activities->push([
-                'title' => __('New donor (:name) registered in the system.', ['name' => $donor->user->name ?? 'Unknown']),
+                'title' => __('admin.new_donor_registered', ['name' => $donor->user->name ?? __('admin.unknown')]),
                 'time' => $donor->created_at->diffForHumans(),
                 'icon' => 'heroicon-m-user-plus',
                 'color' => 'emerald',
@@ -45,7 +45,7 @@ class RecentActivityWidget extends Widget
             ->get()
             ->each(function ($org) use ($activities) {
                 $activities->push([
-                    'title' => __('Organization approval successful: :name.', ['name' => $org->org_name ?? $org->name]),
+                    'title' => __('admin.organization_approval_successful', ['name' => $org->org_name ?? $org->name]),
                     'time' => $org->updated_at->diffForHumans(),
                     'icon' => 'heroicon-m-check-badge',
                     'color' => 'orange',

@@ -43,24 +43,24 @@ class OverviewStatsWidget extends BaseWidget
         $responseRate = $totalRequests > 0 ? round(($totalResponses / $totalRequests) * 100, 1) : 0;
 
         return [
-            Stat::make(__('Total Requests'), number_format($totalRequests))
-                ->description(__('All blood requests'))
+            Stat::make(__('organization.total_requests'), number_format($totalRequests))
+                ->description(__('organization.all_blood_requests'))
                 ->descriptionIcon('heroicon-o-clipboard-document-list')
                 ->color('primary')
                 ->chart($this->getRequestsTrend()),
 
-            Stat::make(__('Completed Donations'), number_format($totalDonations))
-                ->description(__('Total successful donations'))
+            Stat::make(__('organization.completed_donations'), number_format($totalDonations))
+                ->description(__('organization.total_successful_donations'))
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),
 
-            Stat::make(__('Active Donors'), number_format($activeDonors))
-                ->description(__('Last 30 days'))
+            Stat::make(__('organization.active_donors'), number_format($activeDonors))
+                ->description(__('organization.last_30_days'))
                 ->descriptionIcon('heroicon-o-user-group')
                 ->color('info'),
 
-            Stat::make(__('Response Rate'), $responseRate . '%')
-                ->description(__('Percentage of responses received'))
+            Stat::make(__('organization.response_rate'), $responseRate . '%')
+                ->description(__('organization.percentage_of_responses_received'))
                 ->descriptionIcon('heroicon-o-chart-bar')
                 ->color($responseRate > 70 ? 'success' : ($responseRate > 40 ? 'warning' : 'danger')),
         ];

@@ -29,8 +29,8 @@ class RecentResponsesWidget extends BaseWidget
         $organization = $this->getOrganization();
 
         return $table
-            ->heading(__('Latest Responses'))
-            ->description(__('Latest 5 donor responses'))
+            ->heading(__('organization.latest_responses'))
+            ->description(__('organization.latest_5_donor_responses'))
             ->query(
                 RequestResponse::query()
                     ->when(
@@ -46,18 +46,18 @@ class RecentResponsesWidget extends BaseWidget
             )
             ->columns([
                 TextColumn::make('donor.user.name')
-                    ->label(__('Donor Name'))
+                    ->label(__('organization.donor_name'))
                     ->getStateUsing(fn($record) => $record->donor?->user?->name)
                     ->searchable()
                     ->icon('heroicon-o-user'),
 
                 TextColumn::make('bloodRequest.blood_type')
-                    ->label(__('Blood Type'))
+                    ->label(__('organization.blood_type'))
                     ->badge()
                     ->formatStateUsing(fn($state) => $state->getLabel()),
 
                 BadgeColumn::make('status')
-                    ->label(__('Status'))
+                    ->label(__('organization.status'))
                     ->formatStateUsing(fn($state) => $state->getLabel())
                     ->colors([
                         'warning' => \App\Enums\RequestResponseStatus::PENDING->value,
@@ -68,54 +68,54 @@ class RecentResponsesWidget extends BaseWidget
                     ]),
 
                 TextColumn::make('created_at')
-                    ->label(__('Response Date'))
+                    ->label(__('organization.response_date'))
                     ->dateTime('Y-m-d H:i')
                     ->since()
                     ->icon('heroicon-o-clock'),
             ])
             ->actions([
                 ViewAction::make('view')
-                    ->label(__('View Details'))
+                    ->label(__('organization.view_details'))
                     ->icon('heroicon-o-eye')
                     ->color('info')
-                    ->modalHeading(__('Donor Response Details'))
+                    ->modalHeading(__('organization.donor_response_details'))
                     ->form([
-                        Section::make(__('Donor Information'))
+                        Section::make(__('organization.donor_information'))
                             ->compact()
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
                                         Placeholder::make('donor_name')
-                                            ->label(__('Donor Name'))
+                                            ->label(__('organization.donor_name'))
                                             ->content(fn($record) => $record->donor?->user?->name),
                                         Placeholder::make('donor_phone')
-                                            ->label(__('Phone Number'))
-                                            ->content(fn($record) => $record->donor?->user?->phone ?? __('Not available')),
+                                            ->label(__('organization.phone_number'))
+                                            ->content(fn($record) => $record->donor?->user?->phone ?? __('organization.not_available')),
                                     ]),
                             ]),
-                        Section::make(__('Blood Type and Verification Details'))
+                        Section::make(__('organization.blood_type_and_verification_details'))
                             ->compact()
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
                                         Placeholder::make('blood_type')
-                                            ->label(__('Blood Type (Self-reported)'))
-                                            ->content(fn($record) => $record->donor?->healthProfile?->blood_type?->getLabel() ?? __('Unknown')),
+                                            ->label(__('organization.blood_type_self_reported'))
+                                            ->content(fn($record) => $record->donor?->healthProfile?->blood_type?->getLabel() ?? __('organization.unknown')),
                                         Placeholder::make('verified_blood_type')
-                                            ->label(__('Confirmed Blood Type'))
-                                            ->content(fn($record) => $record->donor?->healthProfile?->verified_blood_type?->getLabel() ?? __('Not lab-verified')),
+                                            ->label(__('organization.confirmed_blood_type'))
+                                            ->content(fn($record) => $record->donor?->healthProfile?->verified_blood_type?->getLabel() ?? __('organization.not_lab_verified')),
                                     ]),
                             ]),
-                        Section::make(__('Status and Timing'))
+                        Section::make(__('organization.status_and_timing'))
                             ->compact()
                             ->schema([
                                 Grid::make(2)
                                     ->schema([
                                         Placeholder::make('status')
-                                            ->label(__('Response Status'))
+                                            ->label(__('organization.response_status'))
                                             ->content(fn($record) => $record->status->getLabel()),
                                         Placeholder::make('created_at')
-                                            ->label(__('Response Time'))
+                                            ->label(__('organization.response_time'))
                                             ->content(fn($record) => $record->created_at->format('Y-m-d H:i')),
                                     ]),
                             ]),

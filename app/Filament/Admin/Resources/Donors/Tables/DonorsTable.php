@@ -23,23 +23,23 @@ class DonorsTable
         return $table
             ->columns([
                 TextColumn::make('user.name')
-                    ->label(__('Name'))
+                    ->label(__('admin.name'))
                     ->description(fn($record) => $record->user?->email)
                     ->getStateUsing(fn($record) => $record->user?->name)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('national_id')
-                    ->label(__('National ID'))
+                    ->label(__('admin.national_id'))
                     ->searchable(),
                 TextColumn::make('gender')
-                    ->label(__('Gender'))
+                    ->label(__('admin.gender'))
                     ->badge(),
                 TextColumn::make('healthProfile.blood_type')
-                    ->label(__('Blood Type'))
+                    ->label(__('organization.blood_type'))
                     ->badge()
                     ->sortable(),
                 TextColumn::make('healthProfile.total_donations')
-                    ->label(__('Total Donations'))
+                    ->label(__('admin.total_donations'))
                     ->formatStateUsing(fn($state) => $state ?? 0)
                     ->badge()
                     ->color(fn($state) => match (true) {
@@ -50,19 +50,19 @@ class DonorsTable
                     })
                     ->sortable(),
                 TextColumn::make('governorate.name')
-                    ->label(__('Governorate'))
+                    ->label(__('admin.governorate'))
                     ->getStateUsing(fn($record) => $record->governorate?->getTranslation('name', app()->getLocale(), false) ?: $record->governorate?->getTranslation('name', 'ar', false))
                     ->sortable(),
                 TextColumn::make('birth_date')
-                    ->label(__('Birth Date'))
+                    ->label(__('admin.birth_date'))
                     ->date('Y/m/d')
                     ->sortable(),
                 TextColumn::make('points')
-                    ->label(__('Points'))
+                    ->label(__('admin.points'))
                     ->formatStateUsing(fn($state) => number_format($state))
                     ->sortable(),
                 TextColumn::make('level')
-                    ->label(__('Level'))
+                    ->label(__('admin.level'))
                     ->formatStateUsing(fn($state) => number_format($state))
                     ->sortable(),
                 TextColumn::make('deleted_at')
@@ -82,15 +82,15 @@ class DonorsTable
             ->filters([
                 TrashedFilter::make(),
                 SelectFilter::make('gender')
-                    ->label(__('Gender'))
+                    ->label(__('admin.gender'))
                     ->options(\App\Enums\Gender::class),
                 SelectFilter::make('governorate_id')
-                    ->label(__('Governorate'))
+                    ->label(__('admin.governorate'))
                     ->relationship('governorate', 'name')
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('blood_type')
-                    ->label(__('Blood Type'))
+                    ->label(__('organization.blood_type'))
                     ->options(\App\Enums\BloodType::class)
                     ->query(function (Builder $query, array $data) {
                         if (empty($data['value'])) {
@@ -103,16 +103,16 @@ class DonorsTable
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make()->label(__('View'))->color('gray'),
-                    EditAction::make()->label(__('Edit')),
-                    DeleteAction::make()->label(__('Delete')),
-                    RestoreAction::make()->label(__('Restore')),
-                ])->label(__('Actions'))->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
+                    ViewAction::make()->label(__('admin.view'))->color('gray'),
+                    EditAction::make()->label(__('admin.edit')),
+                    DeleteAction::make()->label(__('admin.delete')),
+                    RestoreAction::make()->label(__('admin.restore')),
+                ])->label(__('admin.actions'))->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()->label(__('Delete')),
-                    RestoreBulkAction::make()->label(__('Restore')),
+                    DeleteBulkAction::make()->label(__('admin.delete')),
+                    RestoreBulkAction::make()->label(__('admin.restore')),
                 ]),
             ]);
     }

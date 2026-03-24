@@ -3,7 +3,7 @@
         {{ $this->form }}
 
         <x-filament::button type="submit" icon="heroicon-m-check">
-            {{ __('Save Changes') }}
+            {{ __('donor.save_changes') }}
         </x-filament::button>
     </form>
 </x-filament-panels::page>

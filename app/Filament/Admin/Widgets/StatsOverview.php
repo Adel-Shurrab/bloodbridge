@@ -17,25 +17,25 @@ class StatsOverview extends Widget
     {
         return [
             $this->makeStat(
-                label: __('Pending Verifications'),
+                label: __('admin.pending_verifications'),
                 value: Organization::where('approval_status', '=', \App\Enums\OrganizationStatus::PENDING, 'and')->count('*'),
                 icon: 'heroicon-s-document-text',
                 theme: 'red',
             ),
             $this->makeStat(
-                label: __('Total Donors'),
+                label: __('admin.total_donors'),
                 value: number_format(Donor::count('*')),
                 icon: 'heroicon-s-users',
                 theme: 'blue',
             ),
             $this->makeStat(
-                label: __('Approved Organizations'),
+                label: __('admin.approved_organizations'),
                 value: Organization::where('approval_status', \App\Enums\OrganizationStatus::APPROVED)->count('*'),
                 icon: 'heroicon-s-check',
                 theme: 'emerald',
             ),
             $this->makeStat(
-                label: __('Completed Donations'),
+                label: __('admin.completed_donations'),
                 value: BloodRequest::where('status', \App\Enums\BloodRequestStatus::FULFILLED)->count('*'),
                 icon: 'heroicon-s-heart',
                 theme: 'pink',

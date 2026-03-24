@@ -24,10 +24,10 @@ class ListContactMessages extends ListRecords
     public function getTabs(): array
     {
         return [
-            'all' => Tab::make(__('All')),
-            'unread' => Tab::make(__('Unread'))
+            'all' => Tab::make(__('admin.all')),
+            'unread' => Tab::make(__('admin.unread'))
                 ->modifyQueryUsing(fn($query) => $query->whereNull('read_at')),
-            'read' => Tab::make(__('Read'))
+            'read' => Tab::make(__('admin.read'))
                 ->modifyQueryUsing(fn($query) => $query->whereNotNull('read_at')),
         ];
     }

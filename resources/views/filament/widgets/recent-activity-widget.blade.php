@@ -1,7 +1,7 @@
 <x-filament-widgets::widget>
     <div class="recent-activity-card">
         <div class="card-header">
-            <h2 class="card-title">{{ __('Recent Activities') }}</h2>
+            <h2 class="card-title">{{ __('admin.recent_activities') }}</h2>
         </div>
 
         <div class="timeline-container">

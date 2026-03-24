@@ -50,24 +50,24 @@ class BloodRequestStatsWidget extends BaseWidget
             ->count();
 
         return [
-            Stat::make(__('Active Blood Requests'), $activeRequests)
-                ->description(__('Pending and activated requests'))
+            Stat::make(__('organization.active_blood_requests'), $activeRequests)
+                ->description(__('organization.pending_and_activated_requests'))
                 ->descriptionIcon('heroicon-o-clipboard-document-list')
                 ->color($activeRequests > 0 ? 'warning' : 'gray')
                 ->url(route('filament.organization.resources.blood-requests.index', ['tenant' => $organization->slug])),
 
-            Stat::make(__('Urgent Requests'), $criticalRequests)
-                ->description(__('Needs immediate attention'))
+            Stat::make(__('organization.urgent_requests'), $criticalRequests)
+                ->description(__('organization.needs_immediate_attention'))
                 ->descriptionIcon('heroicon-o-exclamation-triangle')
                 ->color($criticalRequests > 0 ? 'danger' : 'success'),
 
-            Stat::make(__('Donor Responses'), $pendingResponses)
-                ->description(__('Awaiting review'))
+            Stat::make(__('organization.donor_responses'), $pendingResponses)
+                ->description(__('organization.awaiting_review'))
                 ->descriptionIcon('heroicon-o-user-group')
                 ->color($pendingResponses > 0 ? 'info' : 'gray'),
 
-            Stat::make(__('Today\'s Donations'), $todayDonations)
-                ->description(__('Completed today'))
+            Stat::make(__('organization.todays_donations'), $todayDonations)
+                ->description(__('organization.completed_today'))
                 ->descriptionIcon('heroicon-o-check-circle')
                 ->color('success'),
         ];

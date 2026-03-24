@@ -27,30 +27,30 @@ class UsersTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label(__('Name'))
+                    ->label(__('admin.name'))
                     ->getStateUsing(fn($record) => $record->name)
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('email')
-                    ->label(__('Email'))
+                    ->label(__('admin.email'))
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('phone')
-                    ->label(__('Phone Number'))
+                    ->label(__('admin.phone_number'))
                     ->searchable(),
 
                 TextColumn::make('role')
-                    ->label(__('Account Type'))
+                    ->label(__('admin.account_type'))
                     ->badge()
                     ->sortable(),
 
                 ToggleColumn::make('is_active')
-                    ->label(__('Active')),
+                    ->label(__('admin.active')),
 
                 TextColumn::make('created_at')
-                    ->label(__('Creation Date'))
+                    ->label(__('admin.creation_date'))
                     ->dateTime()
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: true),
@@ -58,26 +58,26 @@ class UsersTable
             ->defaultSort('created_at', 'desc')
             ->filters([
                 SelectFilter::make('role')
-                    ->label(__('Account Type'))
+                    ->label(__('admin.account_type'))
                     ->options(\App\Enums\UserRole::class),
                 TernaryFilter::make('is_active')
-                    ->label(__('Active')),
-                TrashedFilter::make()->label(__('Trashed')),
+                    ->label(__('admin.active')),
+                TrashedFilter::make()->label(__('admin.trashed')),
             ])
             ->actions([
                 ActionGroup::make([
-                    ViewAction::make()->label(__('View'))->color('gray'),
-                    EditAction::make()->label(__('Edit')),
-                    DeleteAction::make()->label(__('Delete')),
-                    RestoreAction::make()->label(__('Restore')),
-                    ForceDeleteAction::make()->label(__('Force Delete')),
-                ])->label(__('Options'))->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
+                    ViewAction::make()->label(__('admin.view'))->color('gray'),
+                    EditAction::make()->label(__('admin.edit')),
+                    DeleteAction::make()->label(__('admin.delete')),
+                    RestoreAction::make()->label(__('admin.restore')),
+                    ForceDeleteAction::make()->label(__('admin.force_delete')),
+                ])->label(__('admin.options'))->icon('heroicon-m-ellipsis-vertical')->color('gray')->button(),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()->label(__('Delete')),
-                    RestoreBulkAction::make()->label(__('Restore')),
-                    ForceDeleteBulkAction::make()->label(__('Force Delete')),
+                    DeleteBulkAction::make()->label(__('admin.delete')),
+                    RestoreBulkAction::make()->label(__('admin.restore')),
+                    ForceDeleteBulkAction::make()->label(__('admin.force_delete')),
                 ]),
             ]);
     }

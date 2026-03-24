@@ -22,12 +22,12 @@ class DonorForm
     {
         return $schema
             ->components([
-                Section::make(__('User Account'))
-                    ->description(__('Create New User Account or Select Existing'))
+                Section::make(__('admin.user_account'))
+                    ->description(__('admin.create_new_user_account_or_select_existing'))
                     ->icon('heroicon-o-user-circle')
                     ->schema([
                         Select::make('user_id')
-                            ->label(__('Linked Account'))
+                            ->label(__('admin.linked_account'))
                             ->relationship('user', 'name', function ($query) {
                                 return $query->where('role', UserRole::DONOR)
                                     ->orderByRaw('EXISTS (SELECT 1 FROM donors WHERE donors.user_id = users.id) ASC')
@@ -37,7 +37,7 @@ class DonorForm
                                 $isOccupied = Donor::where('user_id', $user->id)
                                     ->when($record, fn($q) => $q->where('id', '!=', $record->id))
                                     ->exists();
-                                return $isOccupied ? $user->name . ' (' . __('Occupied') . ')' : $user->name;
+                                return $isOccupied ? $user->name . ' (' . __('admin.occupied') . ')' : $user->name;
                             })
                             ->disableOptionWhen(function (string $value, $record) {
                                 return Donor::where('user_id', $value)
@@ -49,26 +49,26 @@ class DonorForm
                             ->preload()
                             ->createOptionForm([
                                 TextInput::make('name')
-                                    ->label(__('Name'))
+                                    ->label(__('admin.name'))
                                     ->required()
                                     ->maxLength(255),
 
                                 TextInput::make('email')
-                                    ->label(__('Email'))
+                                    ->label(__('admin.email'))
                                     ->email()
                                     ->required()
                                     ->maxLength(255)
                                     ->unique('users', 'email'),
 
                                 TextInput::make('phone')
-                                    ->label(__('Phone'))
+                                    ->label(__('admin.phone'))
                                     ->tel()
                                     ->required()
                                     ->maxLength(255)
                                     ->unique('users', 'phone'),
 
                                 TextInput::make('password')
-                                    ->label(__('Password'))
+                                    ->label(__('admin.password'))
                                     ->password()
                                     ->revealable()
                                     ->required()
@@ -78,17 +78,17 @@ class DonorForm
                             ])
                             ->createOptionAction(function ($action) {
                                 return $action
-                                    ->modalHeading(__('Create New User'))
-                                    ->modalSubmitActionLabel(__('Create'));
+                                    ->modalHeading(__('admin.create_new_user'))
+                                    ->modalSubmitActionLabel(__('admin.create'));
                             }),
                     ])->columns(2),
 
-                Section::make(__('Personal Information'))
-                    ->description(__('Basic donor data'))
+                Section::make(__('admin.personal_information'))
+                    ->description(__('admin.basic_donor_data'))
                     ->icon('heroicon-o-identification')
                     ->schema([
                         TextInput::make('national_id')
-                            ->label(__('National ID'))
+                            ->label(__('admin.national_id'))
                             ->required()
                             ->maxLength(9)
                             ->minLength(9)
@@ -96,13 +96,13 @@ class DonorForm
                             ->unique('donors', 'national_id', ignoreRecord: true),
 
                         Select::make('gender')
-                            ->label(__('Gender'))
+                            ->label(__('admin.gender'))
                             ->options(\App\Enums\Gender::class)
                             ->required()
                             ->native(false),
 
                         DatePicker::make('birth_date')
-                            ->label(__('Birth Date'))
+                            ->label(__('admin.birth_date'))
                             ->required()
                             ->native(false)
                             ->maxDate(now()->subYears(app(\App\Settings\GeneralSettings::class)->min_donor_age))
@@ -110,26 +110,26 @@ class DonorForm
                             ->displayFormat('Y/m/d'),
 
                         Select::make('governorate_id')
-                            ->label(__('Governorate'))
+                            ->label(__('admin.governorate'))
                             ->relationship('governorate', 'name')
                             ->searchable()
                             ->preload()
                             ->required(),
                     ])->columns(2),
 
-                Section::make(__('Geographic Location'))
-                    ->description(__('Geographic coordinates of the donor (optional)'))
+                Section::make(__('admin.geographic_location'))
+                    ->description(__('admin.geographic_coordinates_of_the_donor_optional'))
                     ->icon('heroicon-o-map-pin')
                     ->schema([
                         TextInput::make('lat')
-                            ->label(__('Latitude'))
+                            ->label(__('admin.latitude'))
                             ->numeric()
                             ->minValue(-90)
                             ->maxValue(90)
                             ->step(0.000001),
 
                         TextInput::make('lng')
-                            ->label(__('Longitude'))
+                            ->label(__('admin.longitude'))
                             ->numeric()
                             ->minValue(-180)
                             ->maxValue(180)
@@ -137,79 +137,79 @@ class DonorForm
                     ])->columns(2)
                     ->collapsed(),
 
-                Section::make(__('Health Profile'))
-                    ->description(__('Health and medical information'))
+                Section::make(__('admin.health_profile'))
+                    ->description(__('admin.health_and_medical_information'))
                     ->icon('heroicon-o-heart')
                     ->relationship('healthProfile')
                     ->schema([
                         Grid::make(3)
                             ->schema([
                                 Select::make('blood_type')
-                                    ->label(__('Blood Type'))
+                                    ->label(__('organization.blood_type'))
                                     ->options(\App\Enums\BloodType::class)
                                     ->required()
                                     ->native(false),
 
                                 TextInput::make('weight')
-                                    ->label(__('Weight'))
+                                    ->label(__('admin.weight'))
                                     ->numeric()
                                     ->minValue(app(\App\Settings\GeneralSettings::class)->min_donor_weight)
                                     ->maxValue(200)
-                                    ->suffix(__('kg')),
+                                    ->suffix(__('admin.kg')),
 
                                 TextInput::make('height')
-                                    ->label(__('Height'))
+                                    ->label(__('admin.height'))
                                     ->numeric()
                                     ->minValue(120)
 
                                     ->minValue(app(\App\Settings\GeneralSettings::class)->min_donor_height)
                                     ->maxValue(220)
-                                    ->suffix(__('cm')),
+                                    ->suffix(__('admin.cm')),
                             ]),
 
-                        Fieldset::make(__('Health Status'))
+                        Fieldset::make(__('admin.health_status'))
                             ->schema([
                                 Toggle::make('recent_donation')
-                                    ->label(__('Recent Donation'))
+                                    ->label(__('admin.recent_donation'))
                                     ->default(false)
                                     ->live()
                                     ->inline(false),
 
                                 Toggle::make('chronic_disease')
-                                    ->label(__('Chronic Disease'))
+                                    ->label(__('admin.chronic_disease'))
                                     ->default(false)
                                     ->inline(false),
 
                                 Toggle::make('infection')
-                                    ->label(__('Infection'))
+                                    ->label(__('admin.infection'))
                                     ->default(false)
                                     ->inline(false),
 
                                 Toggle::make('has_recent_surgery')
-                                    ->label(__('Recent Surgery'))
+                                    ->label(__('admin.recent_surgery'))
                                     ->default(false)
                                     ->live()
                                     ->inline(false),
                             ])->columns(3),
 
-                        Fieldset::make(__('Donation and Surgery Dates'))
+                        Fieldset::make(__('admin.donation_and_surgery_dates'))
                             ->schema([
                                 DatePicker::make('last_donation_date')
-                                    ->label(__('Last Donation Date'))
+                                    ->label(__('admin.last_donation_date'))
                                     ->native(false)
                                     ->maxDate(now())
                                     ->visible(fn($get) => $get('recent_donation'))
                                     ->required(fn($get) => $get('recent_donation')),
 
                                 DatePicker::make('surgery_date')
-                                    ->label(__('Surgery Date'))
+                                    ->label(__('admin.surgery_date'))
                                     ->native(false)
                                     ->maxDate(now())
                                     ->visible(fn($get) => $get('has_recent_surgery'))
                                     ->required(fn($get) => $get('has_recent_surgery')),
 
                                 DatePicker::make('next_eligible_date')
-                                    ->label(__('Next Eligible Date'))
+                                    ->label(__('admin.next_eligible_date'))
                                     ->native(false)
                                     ->minDate(now())
                                     ->hidden()

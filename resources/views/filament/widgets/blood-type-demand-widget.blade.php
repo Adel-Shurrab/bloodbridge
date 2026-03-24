@@ -1,12 +1,12 @@
 <x-filament-widgets::widget>
     <div class="blood-demand-card">
-        <h2 class="card-title">{{ __('Most Needed Blood Type') }}</h2>
+        <h2 class="card-title">{{ __('admin.most_needed_blood_type') }}</h2>
 
         @php $data = $this->getDemandData(); @endphp
 
         <div class="most-needed-section">
             <span class="blood-type-big">{{ $data['most_needed'] }}</span>
-            <span class="demand-label">{{ __('Most Requested') }}</span>
+            <span class="demand-label">{{ __('admin.most_requested') }}</span>
         </div>
 
         <div class="demand-grid">

@@ -17,33 +17,33 @@ class BloodRequestsTable
         return $table
             ->columns([
                 TextColumn::make('blood_type')
-                    ->label(__('Blood Type'))
+                    ->label(__('organization.blood_type'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('units_needed')
-                    ->label(__('Units Needed'))
+                    ->label(__('donor.units_needed'))
                     ->numeric()
                     ->sortable(),
 
                 TextColumn::make('urgency_level')
-                    ->label(__('Urgency'))
+                    ->label(__('admin.urgency'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('status')
-                    ->label(__('Status'))
+                    ->label(__('organization.status'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('responses_count')
                     ->counts('responses')
-                    ->label(__('Responses'))
+                    ->label(__('organization.responses'))
                     ->badge()
                     ->sortable(),
 
                 TextColumn::make('donors_completed')
-                    ->label(__('Donors'))
+                    ->label(__('organization.donors'))
                     ->state(function (BloodRequest $record) {
                         $completed = $record->donors_completed;
 
@@ -57,17 +57,17 @@ class BloodRequestsTable
                     }),
 
                 TextColumn::make('created_at')
-                    ->label(__('Request Date'))
+                    ->label(__('admin.request_date'))
                     ->dateTime('d/m/Y h:i A')
                     ->sortable()
                     ->toggleable(isToggledHiddenByDefault: false),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label(__('Filter by Status'))
+                    ->label(__('organization.filter_by_status'))
                     ->options(\App\Enums\BloodRequestStatus::class),
                 SelectFilter::make('urgency_level')
-                    ->label(__('Filter by Urgency'))
+                    ->label(__('organization.filter_by_urgency'))
                     ->options(\App\Enums\UrgencyLevel::class),
                 TrashedFilter::make(),
             ])
@@ -79,4 +79,3 @@ class BloodRequestsTable
             ->toolbarActions([]);
     }
 }
-

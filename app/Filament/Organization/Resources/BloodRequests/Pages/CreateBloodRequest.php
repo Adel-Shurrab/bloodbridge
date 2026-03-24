@@ -3,12 +3,11 @@
 namespace App\Filament\Organization\Resources\BloodRequests\Pages;
 
 use App\Filament\Organization\Resources\BloodRequests\BloodRequestResource;
-use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\CreateRecord;
-use LaraZeus\SpatieTranslatable\Resources\Pages\CreateRecord\Concerns\Translatable;
-
 use Illuminate\Support\Facades\Log;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\CreateRecord\Concerns\Translatable;
 
 class CreateBloodRequest extends CreateRecord
 {
@@ -23,41 +22,37 @@ class CreateBloodRequest extends CreateRecord
         ];
     }
 
-    /**
-     * Hook to run after creating the blood request
-     */
     protected function afterCreate(): void
     {
         try {
-            
             $notifiedCount = $this->record->broadcastToEligibleDonors();
 
             if ($notifiedCount > 0) {
                 $expansionInfo = $this->record->actual_search_radius_km > $this->record->search_radius_km
-                ? __("\nSearch radius: :radius km → :actualRadius km", [
-                    'radius' => $this->record->search_radius_km,
-                    'actualRadius' => $this->record->actual_search_radius_km
-                ])
-                : __("\nSearch radius: :radius km", ['radius' => $this->record->search_radius_km]);
+                    ? __('organization.search_radius_expanded', [
+                        'radius' => $this->record->search_radius_km,
+                        'actualRadius' => $this->record->actual_search_radius_km,
+                    ])
+                    : __('organization.search_radius_single', [
+                        'radius' => $this->record->search_radius_km,
+                    ]);
 
                 Notification::make()
                     ->success()
-                    ->title(__('Request created successfully ✓'))
-                    ->body(__("Found :count potential donors:expansionInfo", [
+                    ->title(__('organization.request_created_successfully'))
+                    ->body(__('organization.found_potential_donors', [
                         'count' => $notifiedCount,
-                        'expansionInfo' => $expansionInfo
+                        'expansionInfo' => $expansionInfo,
                     ]))
-                    ->success()
                     ->duration(6000)
                     ->send();
             } else {
                 Notification::make()
                     ->warning()
-                    ->title(__('Request Created'))
-                    ->body(__('No suitable donors found up to :radius km range. Please review location or expand search radius.', [
-                        'radius' => $this->record->actual_search_radius_km
+                    ->title(__('organization.request_created'))
+                    ->body(__('organization.no_suitable_donors_found', [
+                        'radius' => $this->record->actual_search_radius_km,
                     ]))
-                    ->warning()
                     ->duration(8000)
                     ->send();
             }
@@ -69,12 +64,10 @@ class CreateBloodRequest extends CreateRecord
 
             Notification::make()
                 ->danger()
-                ->title(__('Error processing broadcast request'))
-                ->body(__('Request created but error occurred during donor search process.'))
-                ->danger()
+                ->title(__('organization.error_processing_broadcast_request'))
+                ->body(__('organization.request_created_but_broadcast_failed'))
                 ->duration(7000)
                 ->send();
         }
     }
 }
-

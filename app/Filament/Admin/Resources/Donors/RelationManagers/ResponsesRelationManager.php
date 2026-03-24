@@ -16,7 +16,7 @@ class ResponsesRelationManager extends RelationManager
 
     public static function getTitle(\Illuminate\Database\Eloquent\Model $ownerRecord, string $pageClass): string
     {
-        return __('Response History');
+        return __('admin.response_history');
     }
 
     public function form(Schema $schema): Schema
@@ -24,7 +24,7 @@ class ResponsesRelationManager extends RelationManager
         return $schema
             ->components([
                 Select::make('status')
-                    ->label(__('Status'))
+                    ->label(__('organization.status'))
                     ->options(\App\Enums\RequestResponseStatus::class)
                     ->required(),
             ]);
@@ -36,24 +36,24 @@ class ResponsesRelationManager extends RelationManager
             ->recordTitleAttribute('id')
             ->columns([
                 TextColumn::make('bloodRequest.organization.org_name')
-                    ->label(__('Organization'))
+                    ->label(__('admin.organization'))
                     ->getStateUsing(fn($record) => $record->bloodRequest?->organization ? ($record->bloodRequest->organization->getTranslation('org_name', app()->getLocale(), false) ?: $record->bloodRequest->organization->getTranslation('org_name', 'ar', false)) : null)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('bloodRequest.urgency_level')
-                    ->label(__('Urgency Level'))
+                    ->label(__('admin.urgency_level'))
                     ->badge(),
                 TextColumn::make('status')
-                    ->label(__('Status'))
+                    ->label(__('organization.status'))
                     ->badge(),
                 TextColumn::make('created_at')
-                    ->label(__('Response Date'))
+                    ->label(__('organization.response_date'))
                     ->dateTime('Y/m/d h:i A')
                     ->sortable(),
             ])
             ->filters([
                 SelectFilter::make('status')
-                    ->label(__('Status'))
+                    ->label(__('organization.status'))
                     ->options(\App\Enums\RequestResponseStatus::class),
             ])
             ->headerActions([])

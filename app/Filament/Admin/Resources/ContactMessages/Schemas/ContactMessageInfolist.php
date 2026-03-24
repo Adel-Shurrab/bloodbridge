@@ -12,23 +12,23 @@ class ContactMessageInfolist
         return $schema
             ->components([
                 TextEntry::make('name')
-                    ->label(__('Name')),
+                    ->label(__('admin.name')),
                 TextEntry::make('email')
-                    ->label(__('Email')),
+                    ->label(__('admin.email')),
                 TextEntry::make('subject')
-                    ->label(__('Subject')),
+                    ->label(__('admin.subject')),
                 TextEntry::make('message')
-                    ->label(__('Message'))
+                    ->label(__('admin.message'))
                     ->columnSpanFull(),
                 TextEntry::make('ip_address')
-                    ->label(__('IP Address'))
+                    ->label(__('admin.ip_address'))
                     ->placeholder('-'),
                 TextEntry::make('read_at')
-                    ->label(__('Read At'))
+                    ->label(__('admin.read_at'))
                     ->dateTime()
-                    ->placeholder(__('Not read yet')),
+                    ->placeholder(__('admin.not_read_yet')),
                 TextEntry::make('created_at')
-                    ->label(__('Sent At'))
+                    ->label(__('admin.sent_at'))
                     ->dateTime(),
             ]);
     }

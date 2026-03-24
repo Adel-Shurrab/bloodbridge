@@ -10,7 +10,7 @@ class Dashboard extends BaseDashboard
 {
     public function getTitle(): string
     {
-        return __('filament.pages.dashboard.title');
+        return __('organization.dashboard');
     }
 
     protected function getHeaderActions(): array
@@ -27,4 +27,3 @@ class Dashboard extends BaseDashboard
         ];
     }
 }
-

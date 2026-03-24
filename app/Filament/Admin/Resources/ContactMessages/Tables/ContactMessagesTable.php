@@ -18,25 +18,25 @@ class ContactMessagesTable
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label(__('Name'))
+                    ->label(__('admin.name'))
                     ->getStateUsing(fn($record, $livewire) => $record->getTranslation('name', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->getTranslation('name', 'ar', false))
                     ->searchable(),
                 TextColumn::make('email')
-                    ->label(__('Email'))
+                    ->label(__('admin.email'))
                     ->searchable(),
                 TextColumn::make('subject')
-                    ->label(__('Subject'))
+                    ->label(__('admin.subject'))
                     ->getStateUsing(fn($record, $livewire) => $record->getTranslation('subject', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->getTranslation('subject', 'ar', false))
                     ->searchable(),
                 TextColumn::make('read_at')
-                    ->label(__('Read At'))
+                    ->label(__('admin.read_at'))
                     ->dateTime()
                     ->sortable()
                     ->badge()
                     ->color(fn($state) => $state ? 'success' : 'warning')
-                    ->placeholder(__('Unread')),
+                    ->placeholder(__('admin.unread')),
                 TextColumn::make('created_at')
-                    ->label(__('Sent At'))
+                    ->label(__('admin.sent_at'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -45,18 +45,18 @@ class ContactMessagesTable
                 //
             ])
             ->recordActions([
-                ViewAction::make()->label(__('View')),
+                ViewAction::make()->label(__('admin.view')),
                 Action::make('mark_as_read')
-                    ->label(__('Mark as Read'))
+                    ->label(__('admin.mark_as_read'))
                     ->icon('heroicon-o-check-circle')
                     ->color('success')
                     ->action(fn(ContactMessage $record) => $record->update(['read_at' => now()]))
                     ->hidden(fn(ContactMessage $record) => $record->read_at !== null),
-                DeleteAction::make()->label(__('Delete')),
+                DeleteAction::make()->label(__('admin.delete')),
             ])
             ->bulkActions([
                 BulkActionGroup::make([
-                    DeleteBulkAction::make()->label(__('Delete Selected')),
+                    DeleteBulkAction::make()->label(__('admin.delete_selected')),
                 ]),
             ]);
     }

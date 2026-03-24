@@ -20,7 +20,7 @@ class EligibilityCountdownWidget extends Widget
         if (! $profile) {
             return [
                 'eligible_now' => false,
-                'message' => __('Eligibility data unavailable'),
+                'message' => __('donor.eligibility_data_unavailable'),
                 'timestamp' => null,
             ];
         }
@@ -34,7 +34,7 @@ class EligibilityCountdownWidget extends Widget
         if ($profile->is_eligible || $dateHasPassed) {
             return [
                 'eligible_now' => true,
-                'message' => __('You are eligible to donate now'),
+                'message' => __('donor.eligible_now'),
                 'timestamp' => null,
             ];
         }
@@ -42,7 +42,7 @@ class EligibilityCountdownWidget extends Widget
         if (! $profile->next_eligible_date) {
             return [
                 'eligible_now' => false,
-                'message' => __('Sorry, you are currently ineligible to donate for medical reasons. For your safety, please follow up with the relevant authority.'),
+                'message' => __('donor.ineligible_medical'),
                 'timestamp' => null,
             ];
         }
@@ -51,9 +51,8 @@ class EligibilityCountdownWidget extends Widget
 
         return [
             'eligible_now' => false,
-            'message' => __('Countdown to eligibility'),
+            'message' => __('donor.countdown_to_eligibility'),
             'timestamp' => $target->timestamp,
         ];
     }
 }
-

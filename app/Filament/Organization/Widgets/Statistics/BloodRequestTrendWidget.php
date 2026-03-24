@@ -11,13 +11,11 @@ use Illuminate\Support\Facades\Auth;
 
 class BloodRequestTrendWidget extends ChartWidget
 {
-    protected ?string $heading = 'Blood Requests - Last 30 Days';
-
     protected ?string $maxHeight = '300px';
 
     public function getHeading(): string
     {
-        return __($this->heading);
+        return __('organization.blood_requests_last_30_days');
     }
 
     protected int | string | array $columnSpan = 'full';
@@ -30,7 +28,7 @@ class BloodRequestTrendWidget extends ChartWidget
             return [
                 'datasets' => [
                     [
-                        'label' => __('Blood Requests'),
+                        'label' => __('organization.blood_requests'),
                         'data' => [],
                         'borderColor' => '#3b82f6',
                         'backgroundColor' => 'rgba(59, 130, 246, 0.1)',
@@ -54,7 +52,7 @@ class BloodRequestTrendWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => __('Blood Requests'),
+                    'label' => __('organization.blood_requests'),
                     'data' => $data->map(fn(TrendValue $value) => $value->aggregate),
                     'borderColor' => '#3b82f6',
                     'backgroundColor' => 'rgba(59, 130, 246, 0.1)',

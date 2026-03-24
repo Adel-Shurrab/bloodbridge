@@ -20,10 +20,10 @@ class PendingApproval extends Page
         $tenant = Filament::getTenant();
 
         if ($tenant && $tenant->approval_status === OrganizationStatus::REJECTED) {
-            return __('Organization Request Rejected');
+            return __('organization.organization_request_rejected');
         }
 
-        return __('Pending Approval');
+        return __('organization.pending_approval');
     }
 
     protected function getHeaderActions(): array
@@ -44,4 +44,3 @@ class PendingApproval extends Page
         return $tenant && $tenant->approval_status !== OrganizationStatus::APPROVED;
     }
 }
-

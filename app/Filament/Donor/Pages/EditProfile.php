@@ -46,7 +46,7 @@ class EditProfile extends Page implements HasForms
     
     public static function getLabel(): string
     {
-        return __('My Profile');
+        return __('donor.my_profile');
     }
 
     public function getHeading(): string
@@ -145,71 +145,71 @@ class EditProfile extends Page implements HasForms
             ])
             ->toArray();
 
-        return Section::make(__('Personal Profile'))
-            ->description(__('Update your basic information and donor data'))
+        return Section::make(__('donor.personal_profile'))
+            ->description(__('donor.update_basic_information'))
             ->schema([
-                Fieldset::make(__('Basic Information'))
+                Fieldset::make(__('donor.basic_information'))
                     ->schema([
                         TextInput::make('name')
-                            ->label(__('Full Name'))
+                            ->label(__('donor.full_name'))
                             ->required()
                             ->maxLength(255),
 
                         TextInput::make('email')
-                            ->label(__('Email'))
+                            ->label(__('donor.email'))
                             ->email()
                             ->required()
                             ->maxLength(255)
                             ->disabled(fn() => $this->bloodTypeLocked)
-                            ->helperText(fn() => $this->bloodTypeLocked ? __('Email cannot be changed after verification.') : null),
+                            ->helperText(fn() => $this->bloodTypeLocked ? __('donor.email_cannot_be_changed_after_verification') : null),
 
                         TextInput::make('phone')
-                            ->label(__('Phone Number'))
+                            ->label(__('donor.phone_number'))
                             ->tel()
                             ->required()
                             ->maxLength(30),
 
                         TextInput::make('national_id')
-                            ->label(__('National ID'))
+                            ->label(__('donor.national_id'))
                             ->disabled()
                             ->dehydrated(false)
-                            ->helperText(__('National ID cannot be changed.')),
+                            ->helperText(__('donor.national_id_cannot_be_changed')),
                     ])
                     ->columns(2),
 
-                Fieldset::make(__('Donor Information'))
+                Fieldset::make(__('donor.donor_information'))
                     ->schema([
                         DatePicker::make('birth_date')
-                            ->label(__('Date of Birth'))
+                            ->label(__('donor.date_of_birth'))
                             ->required()
                             ->disabled()
                             ->dehydrated(false)
-                            ->helperText(__('Date of birth cannot be changed.')),
+                            ->helperText(__('donor.date_of_birth_cannot_be_changed')),
 
                         Select::make('gender')
-                            ->label(__('Gender'))
+                            ->label(__('donor.gender'))
                             ->options($genderOptions)
                             ->required()
                             ->native(false)
                             ->disabled()
                             ->dehydrated(false)
-                            ->helperText(__('Gender cannot be changed.')),
+                            ->helperText(__('donor.gender_cannot_be_changed')),
 
                         Select::make('governorate_id')
-                            ->label(__('Governorate'))
+                            ->label(__('donor.governorate'))
                             ->options(Governorate::all()->pluck('name', 'id')->toArray())
                             ->required()
                             ->native(false)
                             ->searchable(),
 
                         TextInput::make('address')
-                            ->label(__('Residential Address (filled from map)'))
+                            ->label(__('donor.residential_address_from_map'))
                             ->required()
                             ->columnSpanFull()
-                            ->helperText(__('You can manually edit the address, or move the pin on the map to update it.')),
+                            ->helperText(__('donor.address_edit_or_move_pin')),
 
                         Map::make('location')
-                            ->label(__('Set location precisely on the map'))
+                            ->label(__('donor.set_location_precisely'))
                             ->columnSpanFull()
                             ->defaultLocation(
                                 \App\Constants\PalestineCoordinates::GAZA['lat'],
@@ -289,20 +289,20 @@ class EditProfile extends Page implements HasForms
             ])
             ->toArray();
 
-        return Section::make(__('Health Profile'))
-            ->description(__('Health data that helps determine donation eligibility'))
+        return Section::make(__('donor.health_profile'))
+            ->description(__('donor.health_data_for_eligibility'))
             ->schema([
-                Fieldset::make(__('Measurements'))
+                Fieldset::make(__('donor.measurements'))
                     ->schema([
                         TextInput::make('weight')
-                            ->label(__('Weight (kg)'))
+                            ->label(__('donor.weight_kg'))
                             ->numeric()
                             ->required()
                             ->minValue(30)
                             ->maxValue(300),
 
                         TextInput::make('height')
-                            ->label(__('Height (cm)'))
+                            ->label(__('donor.height_cm'))
                             ->numeric()
                             ->required()
                             ->minValue(100)
@@ -310,51 +310,51 @@ class EditProfile extends Page implements HasForms
                     ])
                     ->columns(2),
 
-                Fieldset::make(__('Health Status'))
+                Fieldset::make(__('donor.health_status'))
                     ->schema([
                         Toggle::make('chronic_disease')
-                            ->label(__('Do you have a chronic disease?'))
+                            ->label(__('donor.do_you_have_chronic_disease'))
                             ->default(false),
 
                         Toggle::make('infection')
-                            ->label(__('Do you have an active infection?'))
+                            ->label(__('donor.do_you_have_active_infection'))
                             ->default(false),
 
                         Toggle::make('has_recent_surgery')
-                            ->label(__('Have you had surgery recently?'))
+                            ->label(__('donor.have_you_had_surgery_recently'))
                             ->default(false)
                             ->live(),
 
                         DatePicker::make('surgery_date')
-                            ->label(__('Surgery Date'))
+                            ->label(__('donor.surgery_date'))
                             ->visible(fn(Get $get) => (bool) $get('has_recent_surgery'))
                             ->required(fn(Get $get) => (bool) $get('has_recent_surgery')),
                     ])
                     ->columns(2),
 
-                Fieldset::make(__('Blood Type'))
+                Fieldset::make(__('donor.blood_type_section'))
                     ->schema([
                         Select::make('blood_type')
-                            ->label(__('Blood Type (self-reported)'))
+                            ->label(__('donor.blood_type_self_reported'))
                             ->options($bloodTypeOptions)
                             ->required()
                             ->native(false)
                             ->disabled(fn() => $this->bloodTypeLocked)
                             ->helperText(
                                 fn() => $this->bloodTypeLocked
-                                    ? __('Blood type has been verified by the organization and cannot be changed.')
-                                    : __('You can change blood type before it is verified by the organization.')
+                                    ? __('donor.blood_type_verified_cannot_change')
+                                    : __('donor.blood_type_can_change_before_verification')
                             ),
 
                         Select::make('verified_blood_type')
-                            ->label(__('Blood Type (verified by organization)'))
+                            ->label(__('donor.blood_type_verified_by_organization'))
                             ->options($bloodTypeOptions)
                             ->disabled()
                             ->dehydrated(false)
                             ->visible(fn() => $this->bloodTypeLocked),
 
                         TextInput::make('verified_by_org_name')
-                            ->label(__('Blood type verified by'))
+                            ->label(__('donor.blood_type_verified_by'))
                             ->disabled()
                             ->dehydrated(false)
                             ->visible(fn() => $this->bloodTypeLocked),
@@ -426,8 +426,7 @@ class EditProfile extends Page implements HasForms
 
         Notification::make()
             ->success()
-            ->title(__('Profile updated successfully'))
+            ->title(__('donor.profile_updated_successfully'))
             ->send();
     }
 }
-

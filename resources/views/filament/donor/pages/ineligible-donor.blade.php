@@ -2,11 +2,11 @@
     @php
         $data = $this->getIneligibilityData();
         $reasonLabel = match ($data['reason']) {
-            'blood_virus' => __('Presence of blood viruses (HCV/HBV/HIV)'),
-            'chronic_disease' => __('Chronic disease preventing donation'),
-            'heart_disease' => __('Heart Diseases'),
-            'cancer' => __('Medical history of cancer'),
-            'other_perm' => __('Other permanent medical reasons'),
+            'blood_virus' => __('donor.reason_blood_virus'),
+            'chronic_disease' => __('donor.reason_chronic_disease'),
+            'heart_disease' => __('donor.reason_heart_disease'),
+            'cancer' => __('donor.reason_cancer'),
+            'other_perm' => __('donor.reason_other_permanent'),
             default => $data['reason'],
         };
 
@@ -58,26 +58,26 @@
 
                     {{-- ── Title block ── --}}
                     <div class="mi-title-block">
-                        <p class="mi-eyebrow">{{ __('Final Medical Decision') }}</p>
-                        <h1 class="mi-title">{{ __('Medically Restricted Account') }}</h1>
-                        <div class="mi-status-pill" role="status" aria-label="{{ __('Permanent Medical Exclusion') }}">
+                        <p class="mi-eyebrow">{{ __('donor.final_medical_decision') }}</p>
+                        <h1 class="mi-title">{{ __('donor.medically_restricted_account') }}</h1>
+                        <div class="mi-status-pill" role="status" aria-label="{{ __('donor.permanent_medical_exclusion') }}">
                             <span class="mi-status-pill__dot" aria-hidden="true"></span>
-                            {{ __('Permanent Medical Exclusion') }}
+                            {{ __('donor.permanent_medical_exclusion') }}
                         </div>
                     </div>
 
                     {{-- ── Description ── --}}
                     <p class="mi-desc">
-                        {{ __('Based on the recent medical assessment, you have been permanently marked as medically unfit to donate.') }}
-                        {{ __('This measure is necessary to ensure your safety and the safety of blood recipients.') }}
+                        {{ __('donor.medical_assessment_marked_unfit') }}
+                        {{ __('donor.measure_ensures_safety') }}
                     </p>
 
                     {{-- ── Detail Panel ── --}}
-                    <div class="mi-detail-panel" role="region" aria-label="{{ __('Exclusion Details') }}">
+                    <div class="mi-detail-panel" role="region" aria-label="{{ __('donor.exclusion_details') }}">
                         <div class="mi-detail-panel__header">
                             <x-filament::icon icon="heroicon-m-clipboard-document-list"
                                 class="mi-detail-panel__header-icon" />
-                            <span>{{ __('Medical Exclusion Details') }}</span>
+                            <span>{{ __('donor.medical_exclusion_details') }}</span>
                         </div>
 
                         <div class="mi-detail-panel__rows">
@@ -87,7 +87,7 @@
                                     <x-filament::icon icon="heroicon-m-building-office-2" class="mi-detail-row__icon" />
                                 </div>
                                 <div class="mi-detail-row__content">
-                                    <span class="mi-detail-row__label">{{ __('Assessing Organization') }}</span>
+                                    <span class="mi-detail-row__label">{{ __('donor.assessing_organization') }}</span>
                                     <span class="mi-detail-row__value">{{ $data['organization_name'] }}</span>
                                 </div>
                             </div>
@@ -98,7 +98,7 @@
                                     <x-filament::icon icon="heroicon-m-calendar-days" class="mi-detail-row__icon" />
                                 </div>
                                 <div class="mi-detail-row__content">
-                                    <span class="mi-detail-row__label">{{ __('Decision Date') }}</span>
+                                    <span class="mi-detail-row__label">{{ __('donor.decision_date') }}</span>
                                     <span class="mi-detail-row__value">{{ $data['date'] }}</span>
                                 </div>
                             </div>
@@ -111,7 +111,7 @@
                                         class="mi-detail-row__icon mi-detail-row__icon--danger" />
                                 </div>
                                 <div class="mi-detail-row__content">
-                                    <span class="mi-detail-row__label">{{ __('Documented Medical Reason') }}</span>
+                                    <span class="mi-detail-row__label">{{ __('donor.documented_medical_reason') }}</span>
                                     <span
                                         class="mi-detail-row__value mi-detail-row__value--danger">{{ $reasonLabel }}</span>
                                 </div>
@@ -123,7 +123,7 @@
                     <div class="mi-notice" role="note">
                         <x-filament::icon icon="heroicon-m-information-circle" class="mi-notice__icon" />
                         <p class="mi-notice__text">
-                            {{ __('If you believe this decision was made in error, please contact technical support or visit the relevant health authority.') }}
+                            {{ __('donor.contact_support_if_error') }}
                         </p>
                     </div>
 
@@ -131,14 +131,14 @@
                     <div class="mi-actions">
                         <a href="mailto:support@bloodbridge.ps" class="mi-btn mi-btn--secondary">
                             <x-filament::icon icon="heroicon-m-envelope" class="mi-btn__icon" />
-                            <span>{{ __('Contact Support') }}</span>
+                            <span>{{ __('donor.contact_support') }}</span>
                         </a>
 
                         <form action="{{ route('filament.donor.auth.logout') }}" method="post" class="mi-logout-form">
                             @csrf
                             <button type="submit" class="mi-btn mi-btn--ghost">
                                 <x-filament::icon icon="heroicon-m-arrow-right-on-rectangle" class="mi-btn__icon" />
-                                <span>{{ __('Log out') }}</span>
+                                <span>{{ __('donor.log_out') }}</span>
                             </button>
                         </form>
                     </div>
@@ -148,7 +148,7 @@
 
             {{-- ── Footer ── --}}
             <p class="mi-footer">
-                {{ __('We appreciate your willingness to give') }} &nbsp;·&nbsp; {{ __('We wish you continued health and wellness') }}
+                {{ __('donor.we_appreciate_your_willingness') }} &nbsp;·&nbsp; {{ __('donor.we_wish_you_health') }}
             </p>
 
         </div>{{-- /mi-center --}}
