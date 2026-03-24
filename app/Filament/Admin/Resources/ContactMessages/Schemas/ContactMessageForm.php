@@ -14,24 +14,24 @@ class ContactMessageForm
         return $schema
             ->components([
                 TextInput::make('name')
-                    ->label(__('Name'))
+                    ->label(__('admin.name'))
                     ->disabled(),
                 TextInput::make('email')
-                    ->label(__('Email'))
+                    ->label(__('admin.email'))
                     ->email()
                     ->disabled(),
                 TextInput::make('subject')
-                    ->label(__('Subject'))
+                    ->label(__('admin.subject'))
                     ->disabled(),
                 Textarea::make('message')
-                    ->label(__('Message'))
+                    ->label(__('admin.message'))
                     ->disabled()
                     ->columnSpanFull(),
                 TextInput::make('ip_address')
-                    ->label(__('IP Address'))
+                    ->label(__('admin.ip_address'))
                     ->disabled(),
                 DateTimePicker::make('read_at')
-                    ->label(__('Read At')),
+                    ->label(__('admin.read_at')),
             ]);
     }
 }

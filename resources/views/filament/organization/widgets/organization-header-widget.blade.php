@@ -3,10 +3,10 @@
 
     <div class="top-bar">
         <div class="top-bar-title">
-            <h1>{{ __('Dashboard') }}</h1>
+            <h1>{{ __('organization.dashboard') }}</h1>
             <p class="top-bar-subtitle">
-                {{ __('Welcome back, :name. Here is what is happening with', ['name' => $organization?->responsible_person_name ?? auth()->user()?->name ?? __('User')]) }} <span
-                    class="brand-text">{{ $organization?->org_name ?? __('your organization') }}</span>.
+                {{ __('organization.welcome_back_with_org', ['name' => $organization?->responsible_person_name ?? auth()->user()?->name ?? __('organization.user')]) }} <span
+                    class="brand-text">{{ $organization?->org_name ?? __('organization.your_organization') }}</span>.
             </p>
         </div>
         <div class="top-bar-actions">
@@ -14,12 +14,12 @@
             {{-- Profile Section --}}
             <div class="profile-section">
                 <div class="profile-info">
-                    <span class="profile-name">{{ $organization?->responsible_person_name ?? auth()->user()?->name ?? __('User') }}</span>
+                    <span class="profile-name">{{ $organization?->responsible_person_name ?? auth()->user()?->name ?? __('organization.user') }}</span>
                     <span class="profile-role">
-                        {{ $organization?->org_name ?? __('Organization') }}
+                        {{ $organization?->org_name ?? __('organization.organization') }}
                     </span>
                 </div>
-                <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="Profile" class="profile-img">
+                <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('organization.profile') }}" class="profile-img">
             </div>
         </div>
     </div>

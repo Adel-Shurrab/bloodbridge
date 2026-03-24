@@ -9,7 +9,7 @@ class EngagementChartWidget extends ChartWidget
 {
     public function getHeading(): ?string
     {
-        return __('Peak Engagement Times');
+        return __('admin.peak_engagement_times');
     }
 
     protected string $color = 'danger';
@@ -41,7 +41,7 @@ class EngagementChartWidget extends ChartWidget
         return [
             'datasets' => [
                 [
-                    'label' => __('Blood Requests'),
+                    'label' => __('admin.blood_requests'),
                     'data' => $data,
                     'fill' => 'start',
                     'backgroundColor' => 'rgba(239, 68, 68, 0.1)',

@@ -24,14 +24,14 @@ class ViewBloodRequest extends ViewRecord
     {
         return [
             Action::make('broadcast')
-                ->label(__('Broadcast Request'))
+                ->label(__('admin.broadcast_request'))
                 ->icon('heroicon-o-megaphone')
                 ->color('primary')
                 ->visible(fn(BloodRequest $record) => $record->status === BloodRequestStatus::PENDING)
                 ->requiresConfirmation()
-                ->modalHeading(__('Broadcast Request Heading'))
-                ->modalDescription(__('Broadcast Request Description'))
-                ->modalSubmitActionLabel(__('Yes, Start Broadcast'))
+                ->modalHeading(__('admin.broadcast_request_heading'))
+                ->modalDescription(__('admin.broadcast_request_description'))
+                ->modalSubmitActionLabel(__('admin.yes_start_broadcast'))
                 ->action(function (BloodRequest $record): void {
                     $record->update([
                         'status'         => BloodRequestStatus::BROADCASTED,
@@ -39,7 +39,7 @@ class ViewBloodRequest extends ViewRecord
                     ]);
 
                     Notification::make()
-                        ->title(__('Request Broadcasted Successfully'))
+                        ->title(__('admin.request_broadcasted_successfully'))
                         ->success()
                         ->send();
 
@@ -47,14 +47,14 @@ class ViewBloodRequest extends ViewRecord
                 }),
 
             Action::make('fulfill')
-                ->label(__('Mark as Fulfilled'))
+                ->label(__('admin.mark_as_fulfilled'))
                 ->icon('heroicon-o-check-circle')
                 ->color('success')
                 ->visible(fn(BloodRequest $record) => $record->status === BloodRequestStatus::BROADCASTED)
                 ->requiresConfirmation()
-                ->modalHeading(__('Fulfill Request Heading'))
-                ->modalDescription(__('Fulfill Request Description'))
-                ->modalSubmitActionLabel(__('Yes, Fulfill Request'))
+                ->modalHeading(__('admin.fulfill_request_heading'))
+                ->modalDescription(__('admin.fulfill_request_description'))
+                ->modalSubmitActionLabel(__('admin.yes_fulfill_request'))
                 ->action(function (BloodRequest $record): void {
                     $record->update([
                         'status'       => BloodRequestStatus::FULFILLED,
@@ -62,7 +62,7 @@ class ViewBloodRequest extends ViewRecord
                     ]);
 
                     Notification::make()
-                        ->title(__('Request Marked as Fulfilled'))
+                        ->title(__('admin.request_marked_as_fulfilled'))
                         ->success()
                         ->send();
 
@@ -70,7 +70,7 @@ class ViewBloodRequest extends ViewRecord
                 }),
 
             Action::make('cancel')
-                ->label(__('Cancel Request'))
+                ->label(__('admin.cancel_request'))
                 ->icon('heroicon-o-x-circle')
                 ->color('danger')
                 ->visible(fn(BloodRequest $record) => in_array($record->status, [
@@ -78,24 +78,24 @@ class ViewBloodRequest extends ViewRecord
                     BloodRequestStatus::BROADCASTED,
                 ]))
                 ->requiresConfirmation()
-                ->modalHeading(__('Cancel Request Heading'))
-                ->modalDescription(__('Cancel Request Description'))
-                ->modalSubmitActionLabel(__('Yes, Cancel Request'))
+                ->modalHeading(__('admin.cancel_request_heading'))
+                ->modalDescription(__('admin.cancel_request_description'))
+                ->modalSubmitActionLabel(__('admin.yes_cancel_request'))
                 ->action(function (BloodRequest $record): void {
                     $record->update(['status' => BloodRequestStatus::CANCELLED]);
 
                     Notification::make()
-                        ->title(__('Request Canceled'))
+                        ->title(__('admin.request_canceled'))
                         ->warning()
                         ->send();
 
                     $this->refreshFormData(['status']);
                 }),
 
-            Actions\EditAction::make()->label(__('Edit')),
-            Actions\DeleteAction::make()->label(__('Delete')),
-            Actions\RestoreAction::make()->label(__('Restore')),
-            Actions\ForceDeleteAction::make()->label(__('Force Delete')),
+            Actions\EditAction::make()->label(__('admin.edit')),
+            Actions\DeleteAction::make()->label(__('admin.delete')),
+            Actions\RestoreAction::make()->label(__('admin.restore')),
+            Actions\ForceDeleteAction::make()->label(__('admin.force_delete')),
         ];
     }
 }

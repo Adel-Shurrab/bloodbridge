@@ -8,7 +8,7 @@ class Dashboard extends \Filament\Pages\Dashboard
 {
     public function getTitle(): string
     {
-        return __('filament.pages.dashboard.title');
+        return __('donor.dashboard');
     }
 
     public function getHeading(): string
@@ -31,4 +31,3 @@ class Dashboard extends \Filament\Pages\Dashboard
     }
 
 }
-

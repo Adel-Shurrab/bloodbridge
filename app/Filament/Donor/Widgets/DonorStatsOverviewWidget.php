@@ -17,12 +17,12 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
 
         if (! $donor) {
             return [
-                Stat::make('Total Donations', '—'),
-                Stat::make('Last Donation Date', '—'),
-                Stat::make('Requests Received', '—'),
-                Stat::make('Requests Accepted', '—'),
-                Stat::make('Acceptance Rate', '—'),
-                Stat::make('Completion Rate', '—'),
+                Stat::make(__('donor.total_donations'), '-'),
+                Stat::make(__('donor.last_donation_date'), '-'),
+                Stat::make(__('donor.requests_received'), '-'),
+                Stat::make(__('donor.requests_accepted'), '-'),
+                Stat::make(__('donor.acceptance_rate'), '-'),
+                Stat::make(__('donor.completion_rate'), '-'),
             ];
         }
 
@@ -31,7 +31,7 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
         $totalDonations = (int) ($profile?->total_donations ?? 0);
 
         $lastDonation = $profile?->last_donation_date;
-        $lastDonationLabel = $lastDonation ? $lastDonation->toDateString() : '—';
+        $lastDonationLabel = $lastDonation ? $lastDonation->toDateString() : '-';
 
         $requestsReceived = RequestResponse::query()
             ->where('donor_id', $donor->id)
@@ -62,36 +62,35 @@ class DonorStatsOverviewWidget extends StatsOverviewWidget
         $completionRate = $requestsReceived > 0 ? round(($completed / $requestsReceived) * 100) : 0;
 
         return [
-            Stat::make(__('Total Donations'), $totalDonations)
+            Stat::make(__('donor.total_donations'), $totalDonations)
                 ->icon('heroicon-m-heart')
-                ->color('danger') 
-                ->description(__('Number of your donations since registration')),
+                ->color('danger')
+                ->description(__('donor.donations_since_registration')),
 
-            Stat::make(__('Last Donation Date'), $lastDonationLabel)
+            Stat::make(__('donor.last_donation_date'), $lastDonationLabel)
                 ->icon('heroicon-m-calendar-days')
-                ->color('info') 
-                ->description(__('Your most recent donation')),
+                ->color('info')
+                ->description(__('donor.most_recent_donation')),
 
-            Stat::make(__('Requests Received'), $requestsReceived)
+            Stat::make(__('donor.requests_received'), $requestsReceived)
                 ->icon('heroicon-m-inbox')
-                ->color('primary') 
-                ->description(__('Requests matching your blood type')),
+                ->color('primary')
+                ->description(__('donor.requests_matching_blood_type')),
 
-            Stat::make(__('Requests Accepted'), $accepted + $completed)
+            Stat::make(__('donor.requests_accepted'), $accepted + $completed)
                 ->icon('heroicon-m-check-badge')
-                ->color('success') 
-                ->description(__('Number of requests you have accepted')),
+                ->color('success')
+                ->description(__('donor.accepted_requests_count')),
 
-            Stat::make(__('Acceptance Rate'), $acceptanceRate . '%')
+            Stat::make(__('donor.acceptance_rate'), $acceptanceRate . '%')
                 ->icon('heroicon-m-chart-bar')
                 ->color($acceptanceRate >= 70 ? 'success' : 'warning')
-                ->description(__('Accepted out of your total responses')),
+                ->description(__('donor.accepted_out_of_total')),
 
-            Stat::make(__('Completion Rate'), $completionRate . '%')
+            Stat::make(__('donor.completion_rate'), $completionRate . '%')
                 ->icon('heroicon-m-trophy')
                 ->color($completionRate === 100 ? 'success' : 'warning')
-                ->description(__('Completed out of accepted requests')),
+                ->description(__('donor.completed_out_of_accepted')),
         ];
     }
 }
-

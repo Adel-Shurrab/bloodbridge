@@ -19,13 +19,13 @@ class ViewAnnouncement extends ViewRecord
     {
         return [
             Action::make('publish')
-                ->label(__('Send Now'))
+                ->label(__('admin.send_now'))
                 ->icon('heroicon-o-paper-airplane')
                 ->color('success')
                 ->requiresConfirmation()
-                ->modalHeading(__('Confirm Send Announcement'))
-                ->modalDescription(__('Confirm Send Announcement Description'))
-                ->modalSubmitActionLabel(__('Yes, Send'))
+                ->modalHeading(__('admin.confirm_send_announcement'))
+                ->modalDescription(__('admin.confirm_send_announcement_description'))
+                ->modalSubmitActionLabel(__('admin.yes_send'))
                 ->action(fn() => $this->record->update(['status' => 1]))
                 ->visible(fn() => $this->record->status === 0),
             EditAction::make()

@@ -10,7 +10,7 @@ class Statistics extends Page
 {
     public static function getNavigationLabel(): string
     {
-        return __('filament.pages.statistics.title');
+        return __('organization.statistics');
     }
 
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
@@ -19,7 +19,7 @@ class Statistics extends Page
 
     public function getTitle(): string
     {
-        return __('filament.pages.statistics.title');
+        return __('organization.statistics');
     }
 
     protected function getHeaderActions(): array
@@ -52,4 +52,3 @@ class Statistics extends Page
         return [];
     }
 }
-

@@ -8,12 +8,11 @@ use App\Jobs\CancelExcessResponsesJob;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\ForceDeleteAction;
 use Filament\Actions\RestoreAction;
-use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use Filament\Notifications\Notification;
 use Filament\Resources\Pages\EditRecord;
-use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
-
 use Illuminate\Support\Facades\Log;
+use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
+use LaraZeus\SpatieTranslatable\Resources\Pages\EditRecord\Concerns\Translatable;
 
 class EditBloodRequest extends EditRecord
 {
@@ -57,7 +56,7 @@ class EditBloodRequest extends EditRecord
         $isBroadcasted = $record->status === BloodRequestStatus::BROADCASTED;
 
         $criticalChanged = $this->criticalFieldChanged();
-        $unitsIncreased  = $record->units_needed > ($this->originalValues['units_needed'] ?? $record->units_needed);
+        $unitsIncreased = $record->units_needed > ($this->originalValues['units_needed'] ?? $record->units_needed);
 
         if ($criticalChanged && $isBroadcasted) {
             try {
@@ -70,31 +69,30 @@ class EditBloodRequest extends EditRecord
 
                 Log::info('Blood request re-broadcast after critical field edit', [
                     'blood_request_id' => $record->id,
-                    'changed_fields'   => $this->getChangedCriticalFields(),
-                    'donors_notified'  => $count,
+                    'changed_fields' => $this->getChangedCriticalFields(),
+                    'donors_notified' => $count,
                 ]);
 
                 $notificationStatus = $count > 0
-                    ? __("Broadcast resent — :count potential donors", ['count' => $count])
-                    : __('Broadcast resent — No donors found in current range');
+                    ? __('organization.broadcast_resent_with_count', ['count' => $count])
+                    : __('organization.broadcast_resent_no_donors');
 
                 Notification::make()
                     ->title($notificationStatus)
-                    ->body(__('Previous donor responses cancelled and notified.'))
+                    ->body(__('organization.previous_donor_responses_cancelled'))
                     ->warning()
                     ->duration(8000)
                     ->send();
             } catch (\Exception $e) {
                 Log::error('Failed to re-broadcast blood request after edit', [
                     'blood_request_id' => $record->id,
-                    'error'            => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
 
                 Notification::make()
                     ->danger()
-                    ->title(__('Error in resending broadcast'))
-                    ->body(__('Changes saved but error occurred while resending broadcast.'))
-                    ->danger()
+                    ->title(__('organization.error_in_resending_broadcast'))
+                    ->body(__('organization.changes_saved_but_rebroadcast_failed'))
                     ->send();
             }
 
@@ -107,14 +105,14 @@ class EditBloodRequest extends EditRecord
 
                 Log::info('Blood request top-up broadcast after units_needed increase', [
                     'blood_request_id' => $record->id,
-                    'old_units'        => $this->originalValues['units_needed'],
-                    'new_units'        => $record->units_needed,
-                    'donors_notified'  => $count,
+                    'old_units' => $this->originalValues['units_needed'],
+                    'new_units' => $record->units_needed,
+                    'donors_notified' => $count,
                 ]);
 
                 $notificationStatus = $count > 0
-                    ? __("Broadcast expanded — :count additional donors", ['count' => $count])
-                    : __('No additional donors found in current range');
+                    ? __('organization.broadcast_expanded_with_count', ['count' => $count])
+                    : __('organization.no_additional_donors_found');
 
                 Notification::make()
                     ->title($notificationStatus)
@@ -124,7 +122,7 @@ class EditBloodRequest extends EditRecord
             } catch (\Exception $e) {
                 Log::error('Failed to top-up broadcast blood request after units edit', [
                     'blood_request_id' => $record->id,
-                    'error'            => $e->getMessage(),
+                    'error' => $e->getMessage(),
                 ]);
             }
 
@@ -136,11 +134,11 @@ class EditBloodRequest extends EditRecord
     {
         foreach (self::CRITICAL_FIELDS as $field) {
             if (in_array($field, ['lat', 'lng'], true)) {
-                // Compare coordinates as floats — the map picker can return
-                // slightly different decimal precision than what's stored in DB.
+                // Compare coordinates as floats because map values can differ slightly in precision.
                 if (round((float) $this->originalValues[$field], 6) !== round((float) $this->record->{$field}, 6)) {
                     return true;
                 }
+
                 continue;
             }
 
@@ -169,6 +167,7 @@ class EditBloodRequest extends EditRecord
                 if (round((float) $this->originalValues[$field], 6) !== round((float) $this->record->{$field}, 6)) {
                     $changed[] = $field;
                 }
+
                 continue;
             }
 
@@ -188,4 +187,3 @@ class EditBloodRequest extends EditRecord
         return $changed;
     }
 }
-

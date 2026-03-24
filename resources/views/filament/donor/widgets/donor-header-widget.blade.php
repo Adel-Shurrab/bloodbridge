@@ -5,7 +5,7 @@
             <div class="header-text">
                 <h1 class="dashboard-title">{{ __('filament.pages.dashboard.title') }}</h1>
                 <p class="welcome-text">
-                    {{ __('Welcome,') }} <span class="brand-text">{{ auth()->user()->name }}</span>. {{ __('Thank you for your contribution to saving lives.') }}
+                    {{ __('donor.welcome') }} <span class="brand-text">{{ auth()->user()->name }}</span>. {{ __('donor.thanks_for_contribution') }}
                 </p>
             </div>
 
@@ -14,10 +14,10 @@
                 <div class="profile-box">
                     <div class="profile-text">
                         <span class="profile-name">{{ auth()->user()->name }}</span>
-                        <span class="profile-role">{{ __('Donor') }}</span>
+                        <span class="profile-role">{{ __('donor.donor') }}</span>
                     </div>
                     <div class="profile-avatar">
-                        <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('Profile') }}">
+                        <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('donor.profile') }}">
                     </div>
                 </div>
             </div>
@@ -176,4 +176,4 @@
             }
         }
     </style>
-</x-filament-widgets::widget>
+</x-filament-widgets::widget>

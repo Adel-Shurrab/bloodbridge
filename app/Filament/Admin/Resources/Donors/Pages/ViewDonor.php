@@ -13,10 +13,10 @@ class ViewDonor extends ViewRecord
     protected function getHeaderActions(): array
     {
         return [
-            Actions\EditAction::make()->label(__('Edit')),
-            Actions\DeleteAction::make()->label(__('Delete')),
-            Actions\RestoreAction::make()->label(__('Restore')),
-            Actions\ForceDeleteAction::make()->label(__('Force Delete')),
+            Actions\EditAction::make()->label(__('admin.edit')),
+            Actions\DeleteAction::make()->label(__('admin.delete')),
+            Actions\RestoreAction::make()->label(__('admin.restore')),
+            Actions\ForceDeleteAction::make()->label(__('admin.force_delete')),
         ];
     }
 }

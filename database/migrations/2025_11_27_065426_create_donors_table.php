@@ -1,7 +1,6 @@
 <?php
 
 use App\Models\User;
-use App\Models\Donor;
 use App\Models\Governorate;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;

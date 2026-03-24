@@ -52,81 +52,81 @@ class ManageGeneralSettings extends SettingsPage
                 Tabs::make('Settings')
                     ->tabs([
                         Tab::make('System Rules')
-                            ->label(__('System Rules'))
+                            ->label(__('admin.system_rules'))
                             ->icon('heroicon-o-scale')
                             ->schema([
-                                Section::make(__('Donor Eligibility'))
+                                Section::make(__('admin.donor_eligibility'))
                                     ->schema([
-                                        TextInput::make('min_donor_age')->label(__('Min Donor Age (Years)'))->numeric()->required(),
-                                        TextInput::make('max_donor_age')->label(__('Max Donor Age (Years)'))->numeric()->required(),
-                                        TextInput::make('min_donor_weight')->label(__('Min Donor Weight (kg)'))->numeric()->required(),
-                                        TextInput::make('min_donor_height')->label(__('Min Donor Height (cm)'))->numeric()->required(),
-                                        TextInput::make('min_days_between_donations')->label(__('Min Days Between Donations (Days)'))->numeric()->required(),
-                                        TextInput::make('min_days_after_surgery')->label(__('Min Days After Surgery (Days)'))->numeric()->required(),
+                                        TextInput::make('min_donor_age')->label(__('admin.min_donor_age_years'))->numeric()->required(),
+                                        TextInput::make('max_donor_age')->label(__('admin.max_donor_age_years'))->numeric()->required(),
+                                        TextInput::make('min_donor_weight')->label(__('admin.min_donor_weight_kg'))->numeric()->required(),
+                                        TextInput::make('min_donor_height')->label(__('admin.min_donor_height_cm'))->numeric()->required(),
+                                        TextInput::make('min_days_between_donations')->label(__('admin.min_days_between_donations_days'))->numeric()->required(),
+                                        TextInput::make('min_days_after_surgery')->label(__('admin.min_days_after_surgery_days'))->numeric()->required(),
                                     ])->columns(2),
-                                Section::make(__('Organization Constraints'))
+                                Section::make(__('admin.organization_constraints'))
                                     ->schema([
-                                        TextInput::make('org_max_requests_per_day')->label(__('Max Requests Per Day'))->numeric()->required(),
+                                        TextInput::make('org_max_requests_per_day')->label(__('admin.max_requests_per_day'))->numeric()->required(),
                                     ]),
                             ]),
 
                         Tab::make('Identity & System')
-                            ->label(__('Identity & System'))
+                            ->label(__('admin.identity_and_system'))
                             ->icon('heroicon-o-cog-6-tooth')
                             ->schema([
-                                Section::make(__('Site Identity'))
+                                Section::make(__('admin.site_identity'))
                                     ->schema([
                                         Tabs::make('Site Identity Tabs')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         TextInput::make('site_name.ar')
-                                                            ->label(__('Site Name (Arabic)'))
+                                                            ->label(__('admin.site_name_arabic'))
                                                             ->required(),
                                                         TextInput::make('site_slogan.ar')
-                                                            ->label(__('Site Slogan (Arabic)')),
+                                                            ->label(__('admin.site_slogan_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         TextInput::make('site_name.en')
-                                                            ->label(__('Site Name (English)'))
+                                                            ->label(__('admin.site_name_english'))
                                                             ->required(),
                                                         TextInput::make('site_slogan.en')
-                                                            ->label(__('Site Slogan (English)')),
+                                                            ->label(__('admin.site_slogan_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                         FileUpload::make('site_logo')
-                                            ->label(__('Site Logo'))
+                                            ->label(__('admin.site_logo'))
                                             ->image()
                                             ->disk('public')
                                             ->directory('settings'),
                                         FileUpload::make('site_favicon')
-                                            ->label(__('Site Favicon'))
+                                            ->label(__('admin.site_favicon'))
                                             ->image()
                                             ->disk('public')
                                             ->directory('settings'),
                                     ])->columns(2),
-                                Section::make(__('Site Status'))
+                                Section::make(__('admin.site_status'))
                                     ->schema([
                                         Toggle::make('maintenance_mode')
-                                            ->label(__('Maintenance Mode'))
-                                            ->helperText(__('Enable this option to put the site in maintenance mode.'))
+                                            ->label(__('admin.maintenance_mode'))
+                                            ->helperText(__('admin.enable_this_option_to_put_the_site_in_maintenance_mode'))
                                             ->live(),
                                         Tabs::make('Maintenance Message Tabs')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         TextInput::make('maintenance_message.ar')
-                                                            ->label(__('Maintenance Message (Arabic)')),
+                                                            ->label(__('admin.maintenance_message_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         TextInput::make('maintenance_message.en')
-                                                            ->label(__('Maintenance Message (English)')),
+                                                            ->label(__('admin.maintenance_message_english')),
                                                     ]),
                                             ])
                                             ->visible(fn($get) => $get('maintenance_mode'))
@@ -135,446 +135,446 @@ class ManageGeneralSettings extends SettingsPage
                             ]),
 
                         Tab::make('Contact & Social')
-                            ->label(__('Contact & Social'))
+                            ->label(__('admin.contact_and_social'))
                             ->icon('heroicon-o-at-symbol')
                             ->schema([
-                                Section::make(__('Contact Information'))
+                                Section::make(__('admin.contact_information'))
                                     ->schema([
                                         TextInput::make('support_email')
-                                            ->label(__('Support Email'))
+                                            ->label(__('admin.support_email'))
                                             ->rule('email')
                                             ->required(),
                                         TextInput::make('support_phone')
-                                            ->label(__('Support Phone')),
+                                            ->label(__('admin.support_phone')),
                                         Tabs::make('Contact Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         TextInput::make('address.ar')
-                                                            ->label(__('Address (Arabic)')),
+                                                            ->label(__('admin.address_arabic')),
                                                         TextInput::make('working_days.ar')
-                                                            ->label(__('Working Days (Arabic)')),
+                                                            ->label(__('admin.working_days_arabic')),
                                                         TextInput::make('working_hours.ar')
-                                                            ->label(__('Working Hours (Arabic)')),
+                                                            ->label(__('admin.working_hours_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         TextInput::make('address.en')
-                                                            ->label(__('Address (English)')),
+                                                            ->label(__('admin.address_english')),
                                                         TextInput::make('working_days.en')
-                                                            ->label(__('Working Days (English)')),
+                                                            ->label(__('admin.working_days_english')),
                                                         TextInput::make('working_hours.en')
-                                                            ->label(__('Working Hours (English)')),
+                                                            ->label(__('admin.working_hours_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ])->columns(2),
-                                Section::make(__('Social Media Links'))
+                                Section::make(__('admin.social_media_links'))
                                     ->schema([
-                                        TextInput::make('facebook_url')->label(__('Facebook URL')),
-                                        TextInput::make('twitter_url')->label(__('Twitter (X) URL')),
-                                        TextInput::make('instagram_url')->label(__('Instagram URL')),
-                                        TextInput::make('linkedin_url')->label(__('LinkedIn URL')),
-                                        TextInput::make('youtube_url')->label(__('YouTube URL')),
+                                        TextInput::make('facebook_url')->label(__('admin.facebook_url')),
+                                        TextInput::make('twitter_url')->label(__('admin.twitter_x_url')),
+                                        TextInput::make('instagram_url')->label(__('admin.instagram_url')),
+                                        TextInput::make('linkedin_url')->label(__('admin.linkedin_url')),
+                                        TextInput::make('youtube_url')->label(__('admin.youtube_url')),
                                     ])->columns(2),
                             ]),
 
                         Tab::make('SEO')
-                            ->label(__('SEO'))
+                            ->label(__('admin.seo'))
                             ->icon('heroicon-o-magnifying-glass')
                             ->schema([
                                 Tabs::make('SEO Localized')
                                     ->tabs([
                                         Tab::make('Arabic')
-                                            ->label(__('Arabic'))
+                                            ->label(__('admin.arabic'))
                                             ->schema([
                                                 TextInput::make('seo_title.ar')
-                                                    ->label(__('Default SEO Title (Arabic)')),
+                                                    ->label(__('admin.default_seo_title_arabic')),
                                                 Textarea::make('seo_description.ar')
-                                                    ->label(__('Default SEO Description (Arabic)')),
+                                                    ->label(__('admin.default_seo_description_arabic')),
                                                 TextInput::make('seo_keywords.ar')
-                                                    ->label(__('SEO Keywords (Arabic)')),
+                                                    ->label(__('admin.seo_keywords_arabic')),
                                             ]),
                                         Tab::make('English')
-                                            ->label(__('English'))
+                                            ->label(__('admin.english'))
                                             ->schema([
                                                 TextInput::make('seo_title.en')
-                                                    ->label(__('Default SEO Title (English)')),
+                                                    ->label(__('admin.default_seo_title_english')),
                                                 Textarea::make('seo_description.en')
-                                                    ->label(__('Default SEO Description (English)')),
+                                                    ->label(__('admin.default_seo_description_english')),
                                                 TextInput::make('seo_keywords.en')
-                                                    ->label(__('SEO Keywords (English)')),
+                                                    ->label(__('admin.seo_keywords_english')),
                                             ]),
                                     ])->columnSpanFull(),
                             ]),
 
                         Tab::make('Home Page')
-                            ->label(__('Home Page'))
+                            ->label(__('admin.home_page'))
                             ->icon('heroicon-o-home')
                             ->schema([
-                                Section::make(__('Hero Section'))
+                                Section::make(__('admin.hero_section'))
                                     ->schema([
                                         Tabs::make('Hero Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('home_hero_title.ar')->label(__('Main Title (Arabic)')),
-                                                        Textarea::make('home_hero_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('home_hero_title.ar')->label(__('admin.main_title_arabic')),
+                                                        Textarea::make('home_hero_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('home_hero_title.en')->label(__('Main Title (English)')),
-                                                        Textarea::make('home_hero_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('home_hero_title.en')->label(__('admin.main_title_english')),
+                                                        Textarea::make('home_hero_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
-                                        FileUpload::make('home_hero_image')->label(__('Section Image'))->image()->disk('public')->directory('settings'),
+                                        FileUpload::make('home_hero_image')->label(__('admin.section_image'))->image()->disk('public')->directory('settings'),
                                     ]),
-                                Section::make(__('Features'))
+                                Section::make(__('admin.features'))
                                     ->schema([
                                         Tabs::make('Features Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('home_features_title.ar')->label(__('Section Title (Arabic)')),
-                                                        TextInput::make('home_features_subtitle.ar')->label(__('Section Description (Arabic)')),
+                                                        TextInput::make('home_features_title.ar')->label(__('admin.section_title_arabic')),
+                                                        TextInput::make('home_features_subtitle.ar')->label(__('admin.section_description_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('home_features_title.en')->label(__('Section Title (English)')),
-                                                        TextInput::make('home_features_subtitle.en')->label(__('Section Description (English)')),
+                                                        TextInput::make('home_features_title.en')->label(__('admin.section_title_english')),
+                                                        TextInput::make('home_features_subtitle.en')->label(__('admin.section_description_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                         Tabs::make('Features List Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Repeater::make('home_features.ar')
-                                                            ->label(__('Features List (Arabic)'))
+                                                            ->label(__('admin.features_list_arabic'))
                                                             ->schema([
-                                                                TextInput::make('icon')->label(__('Icon (Emoji or HTML)')),
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('icon')->label(__('admin.icon_emoji_or_html')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ])->columns(3),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Repeater::make('home_features.en')
-                                                            ->label(__('Features List (English)'))
+                                                            ->label(__('admin.features_list_english'))
                                                             ->schema([
-                                                                TextInput::make('icon')->label(__('Icon (Emoji or HTML)')),
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('icon')->label(__('admin.icon_emoji_or_html')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ])->columns(3),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('How It Works (For Donors)'))
+                                Section::make(__('admin.how_it_works_for_donors'))
                                     ->schema([
                                         Tabs::make('Donor Steps Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Repeater::make('home_how_it_works_donor.ar')
-                                                            ->label(__('Donor Steps (Arabic)'))
+                                                            ->label(__('admin.donor_steps_arabic'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ])->columns(2),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Repeater::make('home_how_it_works_donor.en')
-                                                            ->label(__('Donor Steps (English)'))
+                                                            ->label(__('admin.donor_steps_english'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ])->columns(2),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('How It Works (For Organizations)'))
+                                Section::make(__('admin.how_it_works_for_organizations'))
                                     ->schema([
                                         Tabs::make('Org Steps Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Repeater::make('home_how_it_works_org.ar')
-                                                            ->label(__('Organization Steps (Arabic)'))
+                                                            ->label(__('admin.organization_steps_arabic'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ])->columns(2),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Repeater::make('home_how_it_works_org.en')
-                                                            ->label(__('Organization Steps (English)'))
+                                                            ->label(__('admin.organization_steps_english'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ])->columns(2),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('Signup Section (CTA)'))
+                                Section::make(__('admin.signup_section_cta'))
                                     ->schema([
                                         Tabs::make('CTA Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('home_cta_title.ar')->label(__('Title (Arabic)')),
-                                                        TextInput::make('home_cta_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('home_cta_title.ar')->label(__('admin.title_arabic')),
+                                                        TextInput::make('home_cta_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('home_cta_title.en')->label(__('Title (English)')),
-                                                        TextInput::make('home_cta_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('home_cta_title.en')->label(__('admin.title_english')),
+                                                        TextInput::make('home_cta_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
                             ]),
 
                         Tab::make('About Page')
-                            ->label(__('About Page'))
+                            ->label(__('admin.about_page'))
                             ->icon('heroicon-o-information-circle')
                             ->schema([
-                                Section::make(__('Page Intro'))
+                                Section::make(__('admin.page_intro'))
                                     ->schema([
                                         Tabs::make('About Intro Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('about_hero_title.ar')->label(__('Title (Arabic)')),
-                                                        TextInput::make('about_hero_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('about_hero_title.ar')->label(__('admin.title_arabic')),
+                                                        TextInput::make('about_hero_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('about_hero_title.en')->label(__('Title (English)')),
-                                                        TextInput::make('about_hero_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('about_hero_title.en')->label(__('admin.title_english')),
+                                                        TextInput::make('about_hero_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('Mission & Vision'))
+                                Section::make(__('admin.mission_and_vision'))
                                     ->schema([
                                         Tabs::make('Mission Vision Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Grid::make(2)
                                                             ->schema([
                                                                 Group::make([
-                                                                    TextInput::make('about_mission_title1.ar')->label(__('Mission Title (Arabic)')),
-                                                                    Textarea::make('about_mission_text1.ar')->label(__('Mission Text (Arabic)')),
+                                                                    TextInput::make('about_mission_title1.ar')->label(__('admin.mission_title_arabic')),
+                                                                    Textarea::make('about_mission_text1.ar')->label(__('admin.mission_text_arabic')),
                                                                 ]),
                                                                 Group::make([
-                                                                    TextInput::make('about_mission_title2.ar')->label(__('Vision Title (Arabic)')),
-                                                                    Textarea::make('about_mission_text2.ar')->label(__('Vision Text (Arabic)')),
+                                                                    TextInput::make('about_mission_title2.ar')->label(__('admin.vision_title_arabic')),
+                                                                    Textarea::make('about_mission_text2.ar')->label(__('admin.vision_text_arabic')),
                                                                 ]),
                                                             ]),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Grid::make(2)
                                                             ->schema([
                                                                 Group::make([
-                                                                    TextInput::make('about_mission_title1.en')->label(__('Mission Title (English)')),
-                                                                    Textarea::make('about_mission_text1.en')->label(__('Mission Text (English)')),
+                                                                    TextInput::make('about_mission_title1.en')->label(__('admin.mission_title_english')),
+                                                                    Textarea::make('about_mission_text1.en')->label(__('admin.mission_text_english')),
                                                                 ]),
                                                                 Group::make([
-                                                                    TextInput::make('about_mission_title2.en')->label(__('Vision Title (English)')),
-                                                                    Textarea::make('about_mission_text2.en')->label(__('Vision Text (English)')),
+                                                                    TextInput::make('about_mission_title2.en')->label(__('admin.vision_title_english')),
+                                                                    Textarea::make('about_mission_text2.en')->label(__('admin.vision_text_english')),
                                                                 ]),
                                                             ]),
                                                     ]),
                                             ])->columnSpanFull(),
                                         Grid::make(2)
                                             ->schema([
-                                                FileUpload::make('about_mission_image1')->label(__('Mission Image'))->image()->disk('public')->directory('settings'),
-                                                FileUpload::make('about_mission_image2')->label(__('Vision Image'))->image()->disk('public')->directory('settings'),
+                                                FileUpload::make('about_mission_image1')->label(__('admin.mission_image'))->image()->disk('public')->directory('settings'),
+                                                FileUpload::make('about_mission_image2')->label(__('admin.vision_image'))->image()->disk('public')->directory('settings'),
                                             ]),
                                     ]),
-                                Section::make(__('Values'))
+                                Section::make(__('admin.values'))
                                     ->schema([
                                         Tabs::make('Values Intro Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('about_values_title.ar')->label(__('Section Title (Arabic)')),
-                                                        TextInput::make('about_values_subtitle.ar')->label(__('Section Description (Arabic)')),
+                                                        TextInput::make('about_values_title.ar')->label(__('admin.section_title_arabic')),
+                                                        TextInput::make('about_values_subtitle.ar')->label(__('admin.section_description_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('about_values_title.en')->label(__('Section Title (English)')),
-                                                        TextInput::make('about_values_subtitle.en')->label(__('Section Description (English)')),
+                                                        TextInput::make('about_values_title.en')->label(__('admin.section_title_english')),
+                                                        TextInput::make('about_values_subtitle.en')->label(__('admin.section_description_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                         Tabs::make('Values List Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Repeater::make('about_values.ar')
-                                                            ->label(__('Values List (Arabic)'))
+                                                            ->label(__('admin.values_list_arabic'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
-                                                                TextInput::make('icon')->label(__('Icon (Emoji or HTML)')),
-                                                                FileUpload::make('image')->label(__('Image'))->image()->disk('public')->directory('settings'),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
+                                                                TextInput::make('icon')->label(__('admin.icon_emoji_or_html')),
+                                                                FileUpload::make('image')->label(__('admin.image'))->image()->disk('public')->directory('settings'),
                                                             ])->columns(2),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Repeater::make('about_values.en')
-                                                            ->label(__('Values List (English)'))
+                                                            ->label(__('admin.values_list_english'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
-                                                                TextInput::make('icon')->label(__('Icon (Emoji or HTML)')),
-                                                                FileUpload::make('image')->label(__('Image'))->image()->disk('public')->directory('settings'),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
+                                                                TextInput::make('icon')->label(__('admin.icon_emoji_or_html')),
+                                                                FileUpload::make('image')->label(__('admin.image'))->image()->disk('public')->directory('settings'),
                                                             ])->columns(2),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('Team'))
+                                Section::make(__('admin.team'))
                                     ->schema([
                                         Tabs::make('Team Intro Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('about_team_title.ar')->label(__('Section Title (Arabic)')),
-                                                        TextInput::make('about_team_subtitle.ar')->label(__('Section Description (Arabic)')),
+                                                        TextInput::make('about_team_title.ar')->label(__('admin.section_title_arabic')),
+                                                        TextInput::make('about_team_subtitle.ar')->label(__('admin.section_description_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('about_team_title.en')->label(__('Section Title (English)')),
-                                                        TextInput::make('about_team_subtitle.en')->label(__('Section Description (English)')),
+                                                        TextInput::make('about_team_title.en')->label(__('admin.section_title_english')),
+                                                        TextInput::make('about_team_subtitle.en')->label(__('admin.section_description_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                         Tabs::make('Team Members Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Repeater::make('about_team_members.ar')
-                                                            ->label(__('Team Members (Arabic)'))
+                                                            ->label(__('admin.team_members_arabic'))
                                                             ->schema([
-                                                                TextInput::make('name')->label(__('Name')),
-                                                                TextInput::make('role')->label(__('Role')),
-                                                                Textarea::make('bio')->label(__('Bio')),
-                                                                FileUpload::make('image')->label(__('Image'))->image(),
+                                                                TextInput::make('name')->label(__('admin.name')),
+                                                                TextInput::make('role')->label(__('admin.role')),
+                                                                Textarea::make('bio')->label(__('admin.bio')),
+                                                                FileUpload::make('image')->label(__('admin.image'))->image(),
                                                             ])->columns(2),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Repeater::make('about_team_members.en')
-                                                            ->label(__('Team Members (English)'))
+                                                            ->label(__('admin.team_members_english'))
                                                             ->schema([
-                                                                TextInput::make('name')->label(__('Name')),
-                                                                TextInput::make('role')->label(__('Role')),
-                                                                Textarea::make('bio')->label(__('Bio')),
-                                                                FileUpload::make('image')->label(__('Image'))->image(),
+                                                                TextInput::make('name')->label(__('admin.name')),
+                                                                TextInput::make('role')->label(__('admin.role')),
+                                                                Textarea::make('bio')->label(__('admin.bio')),
+                                                                FileUpload::make('image')->label(__('admin.image'))->image(),
                                                             ])->columns(2),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('Impact & Join'))
+                                Section::make(__('admin.impact_and_join'))
                                     ->schema([
                                         Tabs::make('Impact Join Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('about_impact_title.ar')->label(__('Impact Title (Arabic)')),
-                                                        Textarea::make('about_impact_text.ar')->label(__('Impact Text (Arabic)')),
-                                                        TextInput::make('about_join_title.ar')->label(__('Join Title (Arabic)')),
-                                                        TextInput::make('about_join_subtitle.ar')->label(__('Join Subtitle (Arabic)')),
+                                                        TextInput::make('about_impact_title.ar')->label(__('admin.impact_title_arabic')),
+                                                        Textarea::make('about_impact_text.ar')->label(__('admin.impact_text_arabic')),
+                                                        TextInput::make('about_join_title.ar')->label(__('admin.join_title_arabic')),
+                                                        TextInput::make('about_join_subtitle.ar')->label(__('admin.join_subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('about_impact_title.en')->label(__('Impact Title (English)')),
-                                                        Textarea::make('about_impact_text.en')->label(__('Impact Text (English)')),
-                                                        TextInput::make('about_join_title.en')->label(__('Join Title (English)')),
-                                                        TextInput::make('about_join_subtitle.en')->label(__('Join Subtitle (English)')),
+                                                        TextInput::make('about_impact_title.en')->label(__('admin.impact_title_english')),
+                                                        Textarea::make('about_impact_text.en')->label(__('admin.impact_text_english')),
+                                                        TextInput::make('about_join_title.en')->label(__('admin.join_title_english')),
+                                                        TextInput::make('about_join_subtitle.en')->label(__('admin.join_subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
                             ]),
 
                         Tab::make('Contact & FAQs')
-                            ->label(__('Contact & FAQs'))
+                            ->label(__('admin.contact_and_faqs'))
                             ->icon('heroicon-o-phone')
                             ->schema([
-                                Section::make(__('Receiving Messages'))
+                                Section::make(__('admin.receiving_messages'))
                                     ->schema([
                                         Toggle::make('enable_contact_messages')
-                                            ->label(__('Enable Contact Messages'))
-                                            ->helperText(__('This option allows visitors to send messages via the Contact Us form.'))
+                                            ->label(__('admin.enable_contact_messages'))
+                                            ->helperText(__('admin.this_option_allows_visitors_to_send_messages_via_the_contact_us_form'))
                                             ->default(true),
                                     ]),
-                                Section::make(__('Page Intro'))
+                                Section::make(__('admin.page_intro'))
                                     ->schema([
                                         Tabs::make('Contact Page Intro Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('contact_hero_title.ar')->label(__('Title (Arabic)')),
-                                                        TextInput::make('contact_hero_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('contact_hero_title.ar')->label(__('admin.title_arabic')),
+                                                        TextInput::make('contact_hero_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('contact_hero_title.en')->label(__('Title (English)')),
-                                                        TextInput::make('contact_hero_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('contact_hero_title.en')->label(__('admin.title_english')),
+                                                        TextInput::make('contact_hero_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('FAQs'))
+                                Section::make(__('admin.faqs'))
                                     ->schema([
                                         Tabs::make('FAQs Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Repeater::make('contact_faqs.ar')
-                                                            ->label(__('FAQs (Arabic)'))
+                                                            ->label(__('admin.faqs_arabic'))
                                                             ->schema([
-                                                                TextInput::make('question')->label(__('Question')),
-                                                                Textarea::make('answer')->label(__('Answer')),
+                                                                TextInput::make('question')->label(__('admin.question')),
+                                                                Textarea::make('answer')->label(__('admin.answer')),
                                                             ])->columns(1),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Repeater::make('contact_faqs.en')
-                                                            ->label(__('FAQs (English)'))
+                                                            ->label(__('admin.faqs_english'))
                                                             ->schema([
-                                                                TextInput::make('question')->label(__('Question')),
-                                                                Textarea::make('answer')->label(__('Answer')),
+                                                                TextInput::make('question')->label(__('admin.question')),
+                                                                Textarea::make('answer')->label(__('admin.answer')),
                                                             ])->columns(1),
                                                     ]),
                                             ])->columnSpanFull(),
@@ -582,167 +582,167 @@ class ManageGeneralSettings extends SettingsPage
                             ]),
 
                         Tab::make('Auth Pages')
-                            ->label(__('Auth Pages'))
+                            ->label(__('admin.auth_pages'))
                             ->icon('heroicon-o-lock-closed')
                             ->schema([
-                                Section::make(__('Login Page'))
+                                Section::make(__('admin.login_page'))
                                     ->schema([
                                         Tabs::make('Login Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('login_title.ar')->label(__('Title (Arabic)')),
-                                                        Textarea::make('login_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('login_title.ar')->label(__('admin.title_arabic')),
+                                                        Textarea::make('login_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('login_title.en')->label(__('Title (English)')),
-                                                        Textarea::make('login_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('login_title.en')->label(__('admin.title_english')),
+                                                        Textarea::make('login_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
-                                        FileUpload::make('login_image')->label(__('Image'))->image(),
+                                        FileUpload::make('login_image')->label(__('admin.image'))->image(),
                                     ]),
-                                Section::make(__('Signup Choice Page'))
+                                Section::make(__('admin.signup_choice_page'))
                                     ->schema([
                                         Tabs::make('Signup Choice Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('signup_title.ar')->label(__('Title (Arabic)')),
-                                                        Textarea::make('signup_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('signup_title.ar')->label(__('admin.title_arabic')),
+                                                        Textarea::make('signup_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('signup_title.en')->label(__('Title (English)')),
-                                                        Textarea::make('signup_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('signup_title.en')->label(__('admin.title_english')),
+                                                        Textarea::make('signup_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('Donor Signup Page'))
+                                Section::make(__('admin.donor_signup_page'))
                                     ->schema([
                                         Tabs::make('Donor Signup Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('signup_donor_title.ar')->label(__('Title (Arabic)')),
-                                                        Textarea::make('signup_donor_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('signup_donor_title.ar')->label(__('admin.title_arabic')),
+                                                        Textarea::make('signup_donor_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('signup_donor_title.en')->label(__('Title (English)')),
-                                                        Textarea::make('signup_donor_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('signup_donor_title.en')->label(__('admin.title_english')),
+                                                        Textarea::make('signup_donor_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
-                                        FileUpload::make('signup_donor_image')->label(__('Image'))->image(),
+                                        FileUpload::make('signup_donor_image')->label(__('admin.image'))->image(),
                                         Tabs::make('Donor Tasks Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Repeater::make('signup_donor_tasks.ar')
-                                                            ->label(__('Tasks (Arabic)'))
+                                                            ->label(__('admin.tasks_arabic'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ]),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Repeater::make('signup_donor_tasks.en')
-                                                            ->label(__('Tasks (English)'))
+                                                            ->label(__('admin.tasks_english'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ]),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('Organization Signup Page'))
+                                Section::make(__('admin.organization_signup_page'))
                                     ->schema([
                                         Tabs::make('Org Signup Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('signup_org_title.ar')->label(__('Title (Arabic)')),
-                                                        Textarea::make('signup_org_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('signup_org_title.ar')->label(__('admin.title_arabic')),
+                                                        Textarea::make('signup_org_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('signup_org_title.en')->label(__('Title (English)')),
-                                                        Textarea::make('signup_org_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('signup_org_title.en')->label(__('admin.title_english')),
+                                                        Textarea::make('signup_org_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
-                                        FileUpload::make('signup_org_image')->label(__('Image'))->image(),
+                                        FileUpload::make('signup_org_image')->label(__('admin.image'))->image(),
                                         Tabs::make('Org Tasks Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
                                                         Repeater::make('signup_org_tasks.ar')
-                                                            ->label(__('Tasks (Arabic)'))
+                                                            ->label(__('admin.tasks_arabic'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ]),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
                                                         Repeater::make('signup_org_tasks.en')
-                                                            ->label(__('Tasks (English)'))
+                                                            ->label(__('admin.tasks_english'))
                                                             ->schema([
-                                                                TextInput::make('title')->label(__('Title')),
-                                                                TextInput::make('text')->label(__('Description')),
+                                                                TextInput::make('title')->label(__('admin.title')),
+                                                                TextInput::make('text')->label(__('admin.description')),
                                                             ]),
                                                     ]),
                                             ])->columnSpanFull(),
                                     ]),
-                                Section::make(__('Donor Registration Welcome'))
+                                Section::make(__('admin.donor_registration_welcome'))
                                     ->schema([
                                         Tabs::make('Donor Reg Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('donor_register_title.ar')->label(__('Title (Arabic)')),
-                                                        Textarea::make('donor_register_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('donor_register_title.ar')->label(__('admin.title_arabic')),
+                                                        Textarea::make('donor_register_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('donor_register_title.en')->label(__('Title (English)')),
-                                                        Textarea::make('donor_register_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('donor_register_title.en')->label(__('admin.title_english')),
+                                                        Textarea::make('donor_register_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
-                                        FileUpload::make('donor_register_image')->label(__('Image'))->image(),
+                                        FileUpload::make('donor_register_image')->label(__('admin.image'))->image(),
                                     ]),
-                                Section::make(__('Organization Registration Welcome'))
+                                Section::make(__('admin.organization_registration_welcome'))
                                     ->schema([
                                         Tabs::make('Org Reg Localized')
                                             ->tabs([
                                                 Tab::make('Arabic')
-                                                    ->label(__('Arabic'))
+                                                    ->label(__('admin.arabic'))
                                                     ->schema([
-                                                        TextInput::make('org_register_title.ar')->label(__('Title (Arabic)')),
-                                                        Textarea::make('org_register_subtitle.ar')->label(__('Subtitle (Arabic)')),
+                                                        TextInput::make('org_register_title.ar')->label(__('admin.title_arabic')),
+                                                        Textarea::make('org_register_subtitle.ar')->label(__('admin.subtitle_arabic')),
                                                     ]),
                                                 Tab::make('English')
-                                                    ->label(__('English'))
+                                                    ->label(__('admin.english'))
                                                     ->schema([
-                                                        TextInput::make('org_register_title.en')->label(__('Title (English)')),
-                                                        Textarea::make('org_register_subtitle.en')->label(__('Subtitle (English)')),
+                                                        TextInput::make('org_register_title.en')->label(__('admin.title_english')),
+                                                        Textarea::make('org_register_subtitle.en')->label(__('admin.subtitle_english')),
                                                     ]),
                                             ])->columnSpanFull(),
-                                        FileUpload::make('org_register_image')->label(__('Image'))->image(),
+                                        FileUpload::make('org_register_image')->label(__('admin.image'))->image(),
                                     ]),
                             ]),
                     ])->columnSpanFull(),

@@ -1,30 +1,27 @@
 <x-filament-panels::page>
     <div class="statistics-page-layout">
-        {{-- Custom Header for this page --}}
         <div class="top-bar">
             <div class="top-bar-title">
-                <h1>الإحصائيات</h1>
+                <h1>{{ __('admin.statistics_title') }}</h1>
                 <p class="top-bar-subtitle">
-                    المقاييس والرؤى الرئيسية لطلبات التبرع بالدم.
+                    {{ __('admin.statistics_subtitle') }}
                 </p>
             </div>
             <div class="top-bar-actions">
                 <div class="profile-section">
                     <div class="profile-info">
                         <span class="profile-name">{{ auth()->user()->name }}</span>
-                        <span class="profile-role">مسؤول النظام</span>
+                        <span class="profile-role">{{ __('admin.system_administrator') }}</span>
                     </div>
-                    <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="Profile" class="profile-img">
+                    <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('admin.profile') }}" class="profile-img">
                 </div>
             </div>
         </div>
 
-        {{-- Stats Grid --}}
         <div class="stats-section mb-8">
             @livewire(\App\Filament\Admin\Widgets\AdvancedStatsOverview::class)
         </div>
 
-        {{-- Middle Section: Activity and Demand --}}
         <div class="middle-grid">
             <div class="grid-col">
                 @livewire(\App\Filament\Admin\Widgets\RecentActivityWidget::class)
@@ -34,9 +31,12 @@
             </div>
         </div>
 
-        {{-- Bottom Section: Chart --}}
         <div class="chart-section mt-8">
             @livewire(\App\Filament\Admin\Widgets\EngagementChartWidget::class)
+        </div>
+
+        <div class="mt-8">
+            @livewire('app.filament.admin.widgets.m-l-scoring-monitor-widget')
         </div>
     </div>
 
@@ -47,18 +47,16 @@
             gap: 1.5rem;
         }
 
-        /* Reusing the Header Styles (scoped to statistics page) */
         .top-bar {
-            background: #ffffff;
-            padding: 1.5rem 2.5rem;
-            border-radius: 24px;
-            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            justify-content: space-between;
             margin-bottom: 2rem;
             border: 1px solid rgba(211, 47, 47, 0.05);
-            
+            border-radius: 24px;
+            background: #ffffff;
+            padding: 1.5rem 2.5rem;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.06);
         }
 
         .dark .top-bar {
@@ -67,10 +65,10 @@
         }
 
         .top-bar-title h1 {
+            margin-bottom: 0.25rem;
+            color: #1f2937;
             font-size: 2.25rem;
             font-weight: 800;
-            color: #1f2937;
-            margin-bottom: 0.25rem;
         }
 
         .dark .top-bar-title h1 {
@@ -87,9 +85,9 @@
             display: flex;
             align-items: center;
             gap: 1rem;
-            padding: 0.75rem 1.25rem;
-            background: #fff5f5;
             border-radius: 16px;
+            background: #fff5f5;
+            padding: 0.75rem 1.25rem;
         }
 
         .dark .profile-section {
@@ -103,8 +101,8 @@
         }
 
         .profile-name {
-            font-weight: 800;
             color: #1f2937;
+            font-weight: 800;
         }
 
         .dark .profile-name {
@@ -120,8 +118,8 @@
         .profile-img {
             width: 50px;
             height: 50px;
-            border-radius: 50%;
             border: 3px solid #d32f2f;
+            border-radius: 50%;
         }
 
         .middle-grid {
@@ -136,17 +134,16 @@
             }
         }
 
-        /* Customizing Filament Chart Container */
         .fi-wi-chart {
-            background: white !important;
             border-radius: 24px !important;
+            background: white !important;
             padding: 2rem !important;
             box-shadow: 0 4px 25px rgba(0, 0, 0, 0.05) !important;
         }
 
         .dark .fi-wi-chart {
-            background: #111827 !important;
             border: 1px solid #1f2937 !important;
+            background: #111827 !important;
         }
     </style>
 </x-filament-panels::page>

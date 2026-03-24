@@ -70,12 +70,12 @@ class EditOrganizationProfile extends EditTenantProfile
 
     public static function getLabel(): string
     {
-        return __('Organization Profile');
+        return __('organization.organization_profile');
     }
 
     public function getTitle(): string
     {
-        return __('Manage Organization Profile');
+        return __('organization.manage_organization_profile');
     }
 
     protected function getHeaderActions(): array
@@ -91,8 +91,8 @@ class EditOrganizationProfile extends EditTenantProfile
             ->columns(1)
             ->components([
                 
-                Section::make(__('Basic Information'))
-                    ->description(__('Basic data for the hospital or medical center'))
+                Section::make(__('organization.basic_information'))
+                    ->description(__('organization.basic_data_hospital_center'))
                     ->icon('heroicon-o-building-office-2')
                     ->iconColor('primary')
                     ->collapsible()
@@ -101,27 +101,27 @@ class EditOrganizationProfile extends EditTenantProfile
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('org_name')
-                                    ->label(__('Organization / Medical Center Name'))
-                                    ->placeholder(__('Enter organization name'))
+                                    ->label(__('organization.organization_medical_center_name'))
+                                    ->placeholder(__('organization.enter_organization_name'))
                                     ->required()
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-m-building-office')
-                                    ->helperText(__('Official name of the organization or medical center'))
+                                    ->helperText(__('organization.official_name_of_organization'))
                                     ->live(onBlur: true)
                                     ->columnSpan(2),
 
                                 Textarea::make('description')
-                                    ->label(__('Organization Description'))
-                                    ->placeholder(__('Enter a brief description of the organization and its services...'))
+                                    ->label(__('organization.organization_description'))
+                                    ->placeholder(__('organization.enter_brief_description'))
                                     ->rows(4)
                                     ->maxLength(1000)
-                                    ->helperText(__('A brief profile about the organization and the services it provides (up to 1000 characters)'))
+                                    ->helperText(__('organization.organization_brief_profile'))
                                     ->columnSpan(2),
                             ]),
                     ]),
 
-                Section::make(__('Contact Information'))
-                    ->description(__('Contact details and geographical location of the organization'))
+                Section::make(__('organization.contact_information'))
+                    ->description(__('organization.contact_details_and_location'))
                     ->icon('heroicon-o-phone')
                     ->iconColor('success')
                     ->collapsible()
@@ -130,28 +130,28 @@ class EditOrganizationProfile extends EditTenantProfile
                         Grid::make(2)
                             ->schema([
                                 TextInput::make('contact_email')
-                                    ->label(__('Email'))
+                                    ->label(__('organization.email'))
                                     ->placeholder('example@hospital.ps')
                                     ->email()
                                     ->required()
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-m-envelope')
-                                    ->helperText(__('Official email for communication'))
+                                    ->helperText(__('organization.official_email_for_communication'))
                                     ->suffixIcon('heroicon-m-at-symbol')
                                     ->columnSpan(1),
 
                                 TextInput::make('contact_phone')
-                                    ->label(__('Phone Number'))
+                                    ->label(__('organization.phone_number'))
                                     ->placeholder('970591234567')
                                     ->tel()
                                     ->required()
                                     ->maxLength(255)
                                     ->prefixIcon('heroicon-m-phone')
-                                    ->helperText(__('Landline or mobile phone number'))
+                                    ->helperText(__('organization.landline_or_mobile_phone'))
                                     ->columnSpan(1),
 
                                 Map::make('location')
-                                    ->label(__('Organization Location on Map'))
+                                    ->label(__('organization.organization_location_on_map'))
                                     ->columnSpanFull()
                                     ->defaultLocation(
                                         PalestineCoordinates::GAZA['lat'],
@@ -192,8 +192,8 @@ class EditOrganizationProfile extends EditTenantProfile
                             ]),
                     ]),
 
-                Section::make(__('Working Hours & Capacity'))
-                    ->description(__('Daily working hours and center capacity for receiving donors'))
+                Section::make(__('organization.working_hours_capacity'))
+                    ->description(__('organization.daily_working_hours_center_capacity'))
                     ->icon('heroicon-o-clock')
                     ->iconColor('warning')
                     ->collapsible()
@@ -203,12 +203,12 @@ class EditOrganizationProfile extends EditTenantProfile
                         Group::make()
                             ->schema([
                                 Placeholder::make('working_hours_label')
-                                    ->label(__('Working Hours'))
-                                    ->content(__('Specify daily opening and closing times')),
+                                    ->label(__('organization.working_hours'))
+                                    ->content(__('organization.specify_daily_opening_and_closing')),
 
                                 Toggle::make('emergency_available')
-                                    ->label(__('24/7 Emergency Duty'))
-                                    ->helperText(__('When enabled, the center operates around the clock'))
+                                    ->label(__('organization.emergency_duty_24_7'))
+                                    ->helperText(__('organization.center_operates_around_clock'))
                                     ->default(false)
                                     ->inline(false)
                                     ->live()
@@ -228,12 +228,12 @@ class EditOrganizationProfile extends EditTenantProfile
                                 Grid::make(3)
                                     ->schema([
                                         TimePicker::make('opening_time')
-                                            ->label(__('Opening Time'))
+                                            ->label(__('organization.opening_time'))
                                             ->placeholder('08:00')
                                             ->seconds(false)
                                             ->native(false)
                                             ->prefixIcon('heroicon-m-clock')
-                                            ->helperText(__('Time for starting to receive donors'))
+                                            ->helperText(__('organization.time_for_starting_to_receive_donors'))
                                             ->displayFormat('H:i')
                                             ->visible(fn(callable $get) => !$get('emergency_available'))
                                             ->required(fn(callable $get) => !$get('emergency_available'))
@@ -241,12 +241,12 @@ class EditOrganizationProfile extends EditTenantProfile
                                             ->columnSpan(1),
 
                                         TimePicker::make('closing_time')
-                                            ->label(__('Closing Time'))
+                                            ->label(__('organization.closing_time'))
                                             ->placeholder('16:00')
                                             ->seconds(false)
                                             ->native(false)
                                             ->prefixIcon('heroicon-m-clock')
-                                            ->helperText(__('Time for ending donor reception'))
+                                            ->helperText(__('organization.time_for_ending_donor_reception'))
                                             ->displayFormat('H:i')
                                             ->after('opening_time')
                                             ->visible(fn(callable $get) => !$get('emergency_available'))
@@ -255,16 +255,16 @@ class EditOrganizationProfile extends EditTenantProfile
                                             ->columnSpan(1),
 
                                         TextInput::make('daily_capacity')
-                                            ->label(__('Daily Capacity'))
+                                            ->label(__('organization.daily_capacity'))
                                             ->placeholder('50')
                                             ->numeric()
                                             ->required()
                                             ->default(0)
                                             ->minValue(0)
                                             ->maxValue(1000)
-                                            ->suffix(__('donor/day'))
+                                            ->suffix(__('organization.donor_per_day'))
                                             ->prefixIcon('heroicon-m-user-group')
-                                            ->helperText(__('Number of donors that can be received daily'))
+                                            ->helperText(__('organization.number_of_donors_received_daily'))
                                             ->columnSpan(fn(callable $get) => $get('emergency_available') ? 3 : 1),
                                     ]),
                             ]),
@@ -272,8 +272,8 @@ class EditOrganizationProfile extends EditTenantProfile
                         Group::make()
                             ->schema([
                                 Placeholder::make('working_days_label')
-                                    ->label(__('Weekly Working Days'))
-                                    ->content(__('Select the working days when the center receives donors')),
+                                    ->label(__('organization.weekly_working_days'))
+                                    ->content(__('organization.select_working_days_center_receives_donors')),
 
                                 CheckboxList::make('working_days')
                                     ->label('')
@@ -281,7 +281,7 @@ class EditOrganizationProfile extends EditTenantProfile
                                     ->columns(4)
                                     ->gridDirection('row')
                                     ->bulkToggleable()
-                                    ->helperText(__('You can select or deselect all days at once'))
+                                    ->helperText(__('organization.select_or_deselect_all_days'))
                                     ->columnSpanFull()
                                     ->rules([])
                                     ->dehydrated(true)
@@ -342,4 +342,3 @@ class EditOrganizationProfile extends EditTenantProfile
         unset($this->otherLocaleData[$this->activeLocale]);
     }
 }
-

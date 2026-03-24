@@ -1,10 +1,10 @@
 <x-filament-widgets::widget>
     <div class="top-bar">
         <div class="top-bar-title">
-            <h1>{{ __('Dashboard') }}</h1>
+            <h1>{{ __('admin.dashboard') }}</h1>
             <p class="top-bar-subtitle">
-                {{ __('Welcome back, :name.', ['name' => auth()->user()->name]) }}
-                {{ __('Here is what is happening with') }} <span
+                {{ __('admin.welcome_back_name', ['name' => auth()->user()->name]) }}
+                {{ __('admin.here_is_what_is_happening_with') }} <span
                     class="brand-text">{{ app(\App\Settings\GeneralSettings::class)->getTranslation('site_name') }}</span>.
             </p>
         </div>
@@ -15,10 +15,10 @@
                 <div class="profile-info">
                     <span class="profile-name">{{ auth()->user()->name }}</span>
                     <span class="profile-role">
-                        {{ auth()->user()->role === \App\Enums\UserRole::ADMIN ? __('System Administrator') : __('Organization') }}
+                        {{ auth()->user()->role === \App\Enums\UserRole::ADMIN ? __('admin.system_administrator_role') : __('admin.organization_role') }}
                     </span>
                 </div>
-                <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="Profile" class="profile-img">
+                <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('admin.profile') }}" class="profile-img">
             </div>
         </div>
     </div>

@@ -1,0 +1,25 @@
+{
+  "auc_roc": 0.9262,
+  "accuracy": 0.81,
+  "precision": 0.8571,
+  "recall": 0.8438,
+  "f1_score": 0.8504,
+  "feature_importance": {
+    "acceptance_rate": 0.44110000133514404,
+    "urgency_level": 0.08760000020265579,
+    "recency_score": 0.06379999965429306,
+    "days_since_last": 0.05939999967813492,
+    "total_responses": 0.04650000110268593,
+    "blood_type": 0.04580000042915344,
+    "distance_km": 0.04280000180006027,
+    "gender": 0.0421999990940094,
+    "hour_of_day": 0.03889999911189079,
+    "age": 0.03830000013113022,
+    "day_of_week": 0.03500000014901161,
+    "total_donations": 0.034299999475479126,
+    "loyalty_score": 0.024399999529123306
+  },
+  "training_samples": 400,
+  "test_samples": 100,
+  "dataset_size": 500
+}

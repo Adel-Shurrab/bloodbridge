@@ -21,31 +21,31 @@ class AnnouncementsTable
         return $table
             ->columns([
                 TextColumn::make('title')
-                    ->label(__('Announcement Title'))
+                    ->label(__('admin.announcement_title'))
                     ->getStateUsing(fn($record, $livewire) => $record->getTranslation('title', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->getTranslation('title', 'ar', false))
                     ->searchable(),
 
                 TextColumn::make('target_type')
-                    ->label(__('Target Audience'))
+                    ->label(__('admin.target_audience'))
                     ->formatStateUsing(fn($state) => match ($state) {
-                        'all' => __('All'),
-                        'role' => __('Specific Role'),
-                        'specific_users' => __('Specific Users'),
+                        'all' => __('admin.all'),
+                        'role' => __('admin.specific_role'),
+                        'specific_users' => __('admin.specific_users'),
                         default => $state
                     }),
 
                 IconColumn::make('send_via_email')
-                    ->label(__('Email'))
+                    ->label(__('admin.email'))
                     ->boolean(),
 
                 TextColumn::make('status')
-                    ->label(__('Status'))
+                    ->label(__('organization.status'))
                     ->badge()
                     ->color(fn($state) => $state === 1 ? 'success' : 'warning')
-                    ->formatStateUsing(fn($state) => $state === 1 ? __('Published') : __('Draft')),
+                    ->formatStateUsing(fn($state) => $state === 1 ? __('admin.published') : __('admin.draft')),
 
                 TextColumn::make('published_at')
-                    ->label(__('Published At'))
+                    ->label(__('admin.published_at'))
                     ->dateTime()
                     ->sortable(),
             ])
@@ -54,19 +54,19 @@ class AnnouncementsTable
                 //
             ])
             ->recordActions([
-                ViewAction::make()->label(__('View')),
+                ViewAction::make()->label(__('admin.view')),
                 Action::make('publish')
-                    ->label(__('Send'))
+                    ->label(__('admin.send'))
                     ->icon('heroicon-o-paper-airplane')
                     ->color('success')
                     ->requiresConfirmation()
-                    ->modalHeading(__('Confirm Send'))
-                    ->modalDescription(__('Are you sure you want to send this announcement? It will be sent immediately to all targeted users and you will not be able to edit it afterwards.'))
-                    ->modalSubmitActionLabel(__('Yes, send now'))
+                    ->modalHeading(__('admin.confirm_send'))
+                    ->modalDescription(__('admin.send_announcement_confirmation_long'))
+                    ->modalSubmitActionLabel(__('admin.yes_send_now'))
                     ->action(fn(Announcement $record) => $record->update(['status' => 1]))
                     ->visible(fn(Announcement $record) => $record->status === 0),
                 EditAction::make()
-                    ->label(__('Edit'))
+                    ->label(__('admin.edit'))
                     ->hidden(fn(Announcement $record) => $record->status === 1),
             ])
             ->toolbarActions([

@@ -13,183 +13,183 @@ class DonorInfolist
         return $schema
             ->components([
 
-                Section::make(__('Personal Information'))
+                Section::make(__('admin.personal_information'))
                     ->icon('heroicon-o-user-circle')
                     ->columns(3)
                     ->components([
                         TextEntry::make('user.name')
-                            ->label(__('Full Name'))
+                            ->label(__('admin.full_name'))
                             ->weight('bold')
                             ->size('lg')
                             ->getStateUsing(fn($record, $livewire) => $record->user ? ($record->user->name) : null),
 
                         TextEntry::make('national_id')
-                            ->label(__('National ID'))
+                            ->label(__('admin.national_id'))
                             ->copyable()
-                            ->copyMessage(__('Copied!'))
+                            ->copyMessage(__('admin.copied'))
                             ->icon('heroicon-o-identification'),
 
                         TextEntry::make('gender')
-                            ->label(__('Gender'))
+                            ->label(__('admin.gender'))
                             ->badge(),
 
                         TextEntry::make('user.email')
-                            ->label(__('Email'))
+                            ->label(__('admin.email'))
                             ->copyable()
                             ->icon('heroicon-o-envelope')
                             ->url(fn($state) => 'mailto:' . $state),
 
                         TextEntry::make('user.phone')
-                            ->label(__('Phone'))
+                            ->label(__('admin.phone'))
                             ->copyable()
                             ->icon('heroicon-o-phone')
                             ->url(fn($state) => 'tel:' . $state),
 
                         TextEntry::make('birth_date')
-                            ->label(__('Birth Date'))
+                            ->label(__('admin.birth_date'))
                             ->date('Y/m/d')
                             ->icon('heroicon-o-calendar'),
 
                         TextEntry::make('governorate.name')
-                            ->label(__('Governorate'))
+                            ->label(__('admin.governorate'))
                             ->badge()
                             ->color('info')
                             ->icon('heroicon-o-map-pin')
                             ->getStateUsing(fn($record, $livewire) => $record->governorate?->getTranslation('name', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->governorate?->getTranslation('name', 'ar', false)),
 
                         TextEntry::make('auto_location_address')
-                            ->label(__('Address'))
+                            ->label(__('admin.address'))
                             ->columnSpan(2)
-                            ->placeholder(__('No address registered')),
+                            ->placeholder(__('admin.no_address_registered')),
                     ]),
 
-                Section::make(__('System Data'))
+                Section::make(__('admin.system_data'))
                     ->icon('heroicon-o-chart-bar')
                     ->columns(4)
                     ->components([
                         TextEntry::make('points')
-                            ->label(__('Accumulated Points'))
-                            ->formatStateUsing(fn($state) => number_format($state) . ' ' . __('points'))
+                            ->label(__('admin.accumulated_points'))
+                            ->formatStateUsing(fn($state) => number_format($state) . ' ' . __('admin.points'))
                             ->badge()
                             ->color('warning')
                             ->size('lg'),
 
                         TextEntry::make('level')
-                            ->label(__('Donor Level'))
-                            ->formatStateUsing(fn($state) => __('Level') . ' ' . $state)
+                            ->label(__('admin.donor_level'))
+                            ->formatStateUsing(fn($state) => __('admin.level') . ' ' . $state)
                             ->badge()
                             ->color('primary'),
 
                         TextEntry::make('created_at')
-                            ->label(__('Registration Date'))
+                            ->label(__('admin.registration_date'))
                             ->dateTime('Y/m/d')
                             ->since()
                             ->icon('heroicon-o-clock'),
 
                         TextEntry::make('updated_at')
-                            ->label(__('Last Update'))
+                            ->label(__('admin.last_update'))
                             ->dateTime('Y/m/d H:i')
                             ->icon('heroicon-o-arrow-path'),
                     ]),
 
-                Section::make(__('Health Profile'))
+                Section::make(__('admin.health_profile'))
                     ->icon('heroicon-o-heart')
                     ->columns(4)
                     ->components([
 
                         TextEntry::make('healthProfile.blood_type')
-                            ->label(__('Blood Type (Declared)'))
+                            ->label(__('admin.blood_type_declared'))
                             ->badge()
                             ->size('xl'),
 
                         TextEntry::make('healthProfile.verified_blood_type')
-                            ->label(__('Blood Type (Verified)'))
+                            ->label(__('admin.blood_type_verified'))
                             ->badge()
                             ->color('success')
-                            ->placeholder(__('Not verified yet')),
+                            ->placeholder(__('admin.not_verified_yet')),
 
                         TextEntry::make('healthProfile.weight')
-                            ->label(__('Weight'))
-                            ->suffix(' ' . __('kg'))
-                            ->formatStateUsing(fn($state) => $state ? $state . ' ' . __('kg') : '—')
+                            ->label(__('admin.weight'))
+                            ->suffix(' ' . __('admin.kg'))
+                            ->formatStateUsing(fn($state) => $state ? $state . ' ' . __('admin.kg') : '-')
                             ->color(fn($state) => $state && $state < 50 ? 'danger' : null),
 
                         TextEntry::make('healthProfile.height')
-                            ->label(__('Height'))
-                            ->formatStateUsing(fn($state) => $state ? $state . ' ' . __('cm') : '—')
+                            ->label(__('admin.height'))
+                            ->formatStateUsing(fn($state) => $state ? $state . ' ' . __('admin.cm') : '-')
                             ->color(fn($state) => $state && $state < 140 ? 'danger' : null),
 
                         TextEntry::make('healthProfile.is_eligible')
-                            ->label(__('Donation Eligibility'))
-                            ->formatStateUsing(fn($state) => $state ? '✓ ' . __('Eligible to donate') : '✗ ' . __('Not eligible currently'))
+                            ->label(__('admin.donation_eligibility'))
+                            ->formatStateUsing(fn($state) => $state ? __('admin.eligible_to_donate') : __('admin.not_eligible_currently'))
                             ->badge()
                             ->size('lg')
                             ->color(fn($state) => $state ? 'success' : 'danger'),
 
                         TextEntry::make('healthProfile.next_eligible_date')
-                            ->label(__('Next Eligibility Date'))
+                            ->label(__('admin.next_eligibility_date'))
                             ->date('Y/m/d')
-                            ->placeholder('—')
+                            ->placeholder('-')
                             ->icon('heroicon-o-calendar-days')
                             ->color('warning'),
 
                         TextEntry::make('healthProfile.total_donations')
-                            ->label(__('Total Donations'))
-                            ->formatStateUsing(fn($state) => $state . ' ' . __('donations'))
+                            ->label(__('admin.total_donations'))
+                            ->formatStateUsing(fn($state) => $state . ' ' . __('admin.donations'))
 
                             ->badge()
                             ->color('primary'),
 
                         TextEntry::make('healthProfile.last_donation_date')
-                            ->label(__('Last Donation'))
+                            ->label(__('admin.last_donation'))
                             ->date('Y/m/d')
                             ->since()
-                            ->placeholder(__('None'))
+                            ->placeholder(__('organization.none'))
                             ->icon('heroicon-o-clock'),
 
                         TextEntry::make('healthProfile.chronic_disease')
-                            ->label(__('Chronic Disease'))
-                            ->formatStateUsing(fn($state) => $state ? __('Yes') : __('No'))
+                            ->label(__('admin.chronic_disease'))
+                            ->formatStateUsing(fn($state) => $state ? __('admin.yes') : __('admin.no'))
                             ->badge()
                             ->color(fn($state) => $state ? 'danger' : 'success'),
 
                         TextEntry::make('healthProfile.infection')
-                            ->label(__('Current Infection'))
-                            ->formatStateUsing(fn($state) => $state ? __('Yes') : __('No'))
+                            ->label(__('admin.current_infection'))
+                            ->formatStateUsing(fn($state) => $state ? __('admin.yes') : __('admin.no'))
                             ->badge()
                             ->color(fn($state) => $state ? 'danger' : 'success'),
 
                         TextEntry::make('healthProfile.has_recent_surgery')
-                            ->label(__('Recent Surgery'))
-                            ->formatStateUsing(fn($state) => $state ? __('Yes') : __('No'))
+                            ->label(__('admin.recent_surgery'))
+                            ->formatStateUsing(fn($state) => $state ? __('admin.yes') : __('admin.no'))
                             ->badge()
                             ->color(fn($state) => $state ? 'warning' : 'success'),
 
                         TextEntry::make('healthProfile.recent_donation')
-                            ->label(__('Recent Donation (< 90 days)'))
-                            ->formatStateUsing(fn($state) => $state ? __('Yes') : __('No'))
+                            ->label(__('admin.recent_donation_under_90_days'))
+                            ->formatStateUsing(fn($state) => $state ? __('admin.yes') : __('admin.no'))
                             ->badge()
                             ->color(fn($state) => $state ? 'warning' : 'success'),
                     ]),
 
-                Section::make(__('Geographic Location'))
+                Section::make(__('admin.geographic_location'))
                     ->icon('heroicon-o-map-pin')
                     ->collapsed()
                     ->columns(3)
                     ->components([
                         TextEntry::make('governorate.name')
-                            ->label(__('Governorate')),
+                            ->label(__('admin.governorate')),
 
                         TextEntry::make('lat')
-                            ->label(__('Latitude'))
-                            ->placeholder(__('Not specified')),
+                            ->label(__('admin.latitude'))
+                            ->placeholder(__('admin.not_specified')),
 
                         TextEntry::make('lng')
-                            ->label(__('Longitude'))
-                            ->placeholder(__('Not specified')),
+                            ->label(__('admin.longitude'))
+                            ->placeholder(__('admin.not_specified')),
 
                         TextEntry::make('google_maps_link')
-                            ->label(__('Google Maps Link'))
+                            ->label(__('admin.google_maps_link'))
                             ->columnSpanFull()
                             ->getStateUsing(fn($record) => $record->lat
                                 ? "({$record->lat}, {$record->lng})"
@@ -197,7 +197,7 @@ class DonorInfolist
                             ->url(fn($record) => $record->lat
                                 ? "https://www.google.com/maps?q={$record->lat},{$record->lng}"
                                 : null, true)
-                            ->placeholder(__('No coordinates')),
+                            ->placeholder(__('admin.no_coordinates')),
                     ]),
             ]);
     }
