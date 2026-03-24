@@ -7,6 +7,10 @@ use Illuminate\Support\ServiceProvider;
 use Filament\Tables\Table;
 use Filament\Actions\Action;
 use BezhanSalleh\LanguageSwitch\LanguageSwitch;
+use App\Services\DonorScoringService;
+use App\Settings\ScoringSettings;
+use App\Services\BloodRequestBroadcastService;
+use App\Services\FastApiCircuitBreaker;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -15,6 +19,7 @@ class AppServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        // Password validation rules
         \Illuminate\Validation\Rules\Password::defaults(function () {
             return \Illuminate\Validation\Rules\Password::min(8)
                 ->letters()
@@ -22,6 +27,35 @@ class AppServiceProvider extends ServiceProvider
                 ->numbers()
                 ->symbols();
         });
+
+        $this->app->singleton(
+            DonorScoringService::class,
+            function ($app) {
+                return new DonorScoringService(
+                    $app->make(ScoringSettings::class),
+                    $app->make(FastApiCircuitBreaker::class),
+                );
+            }
+        );
+
+        $this->app->singleton(
+            BloodRequestBroadcastService::class,
+            function ($app) {
+                return new BloodRequestBroadcastService(
+                    $app->make(DonorScoringService::class),
+                    $app->make(ScoringSettings::class),
+                );
+            }
+        );
+
+        $this->app->singleton(
+            FastApiCircuitBreaker::class,
+            function ($app) {
+                return new FastApiCircuitBreaker(
+                    $app->make(ScoringSettings::class),
+                );
+            }
+        );
     }
 
     /**

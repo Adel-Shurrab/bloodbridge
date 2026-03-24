@@ -3,7 +3,6 @@
 namespace App\Settings;
 
 use Spatie\LaravelSettings\Settings;
-use Spatie\LaravelSettings\SettingsCasts\SettingsCast;
 
 class GeneralSettings extends Settings
 {

@@ -8,15 +8,16 @@ use App\Enums\RequestResponseStatus;
 use App\Enums\UrgencyLevel;
 use App\Models\BloodRequest;
 use App\Models\Donor;
-use App\Notifications\BloodRequestMatchNotification;
 use App\Jobs\DispatchBloodRequestNotifications;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use App\Services\DonorScoringService;
+use App\Settings\ScoringSettings;
 
 class BloodRequestBroadcastService
 {
-    
+
     private const DONOR_SAFETY_MULTIPLIER_NORMAL = 2.0;
     private const DONOR_SAFETY_MULTIPLIER_CRITICAL = 2.5;
     private const CRITICAL_RADIUS_MULTIPLIER = 3;
@@ -25,6 +26,11 @@ class BloodRequestBroadcastService
 
     private const NOTIFICATION_COOLDOWN_CRITICAL_HOURS = 0.5;
     private const NOTIFICATION_COOLDOWN_NORMAL_HOURS = 2.0;
+
+    public function __construct(
+        private DonorScoringService $donorScoringService,
+        private ScoringSettings $scoringSettings,
+    ) {}
 
     /**
      * Broadcast a blood request to eligible donors within progressive search radius
@@ -43,19 +49,46 @@ class BloodRequestBroadcastService
         }
 
         try {
-            
+            // Step 1: Find eligible donors via progressive radius expansion
             $eligibleDonors = DB::transaction(function () use ($bloodRequest) {
                 $donors = $this->findEligibleDonorsWithExpansion($bloodRequest);
                 $this->updateBroadcastStatus($bloodRequest);
-
                 return $donors;
             });
 
+            $totalEligible = $eligibleDonors->count();
+
+            // Step 2: Score and select best donors
+            // Rule-Based always runs
+            // XGBoost runs only when ml_scoring_enabled = true
+            $urgency = $bloodRequest->urgency_level === UrgencyLevel::CRITICAL
+                ? 'critical'
+                : 'normal';
+
+            $scoringResult  = $this->donorScoringService->scoreAndSelect(
+                $eligibleDonors,
+                $urgency
+            );
+
+            $eligibleDonors = $scoringResult['selected'];
+
+            Log::info('Donors filtered by scoring', [
+                'blood_request_id' => $bloodRequest->id,
+                'total_eligible'   => $totalEligible,
+                'after_scoring'    => $eligibleDonors->count(),
+                'exploiter_count'  => $scoringResult['exploiter_count'],
+                'explorer_count'   => $scoringResult['explorer_count'],
+                'cold_start_count' => $scoringResult['cold_start_count'],
+                'source_breakdown' => $scoringResult['source_breakdown'],
+            ]);
+
+            // Step 3: Send notifications to selected donors
             $notificationsQueued = $this->notifyEligibleDonors($bloodRequest, $eligibleDonors);
 
             Log::info('Blood request broadcasted successfully', [
-                'blood_request_id' => $bloodRequest->id,
-                'donors_found' => $eligibleDonors->count(),
+                'blood_request_id'     => $bloodRequest->id,
+                'donors_found'         => $totalEligible,
+                'donors_notified'      => $eligibleDonors->count(),
                 'notifications_queued' => $notificationsQueued,
             ]);
 
@@ -63,12 +96,13 @@ class BloodRequestBroadcastService
         } catch (\Exception $e) {
             Log::error('Failed to broadcast blood request', [
                 'blood_request_id' => $bloodRequest->id,
-                'error' => $e->getMessage(),
-                'trace' => $e->getTraceAsString(),
+                'error'            => $e->getMessage(),
+                'trace'            => $e->getTraceAsString(),
             ]);
             throw $e;
         }
     }
+
 
     /**
      * Validate that blood request has location data (GPS or governorate)
@@ -78,7 +112,7 @@ class BloodRequestBroadcastService
      */
     private function hasValidLocation(BloodRequest $bloodRequest): bool
     {
-        
+
         $hasCoordinates = $bloodRequest->lat !== null
             && $bloodRequest->lng !== null
             && $bloodRequest->search_radius_km > 0;
@@ -103,7 +137,7 @@ class BloodRequestBroadcastService
         $currentRadius = $this->getInitialSearchRadius($bloodRequest, $isCritical);
 
         $matchedDonors = collect();
-        $excludedDonorIds = []; 
+        $excludedDonorIds = [];
         $expansionAttempts = 0;
 
         while ($this->shouldContinueExpansion($matchedDonors, $targetDonorCount, $currentRadius)) {
@@ -112,7 +146,7 @@ class BloodRequestBroadcastService
                 $compatibleBloodTypes,
                 $currentRadius,
                 $isCritical,
-                $excludedDonorIds 
+                $excludedDonorIds
             );
 
             $matchedDonors = $matchedDonors->merge($newDonors);
@@ -126,7 +160,7 @@ class BloodRequestBroadcastService
             }
 
             if ($currentRadius >= self::MAX_SEARCH_RADIUS_KM) {
-                break; 
+                break;
             }
 
             $currentRadius += self::RADIUS_EXPANSION_STEP_KM;
@@ -242,8 +276,8 @@ class BloodRequestBroadcastService
         $governorateId = $bloodRequest->organization->governorate_id;
 
         $query = Donor::withinRadius(
-            $lat, 
-            $lng, 
+            $lat,
+            $lng,
             $radiusKm,
             $governorateId
         )
@@ -275,7 +309,7 @@ class BloodRequestBroadcastService
         bool $isCritical,
         array $excludedDonorIds = []
     ): Collection {
-        
+
         if ($isCritical) {
             return collect([]);
         }
@@ -288,7 +322,7 @@ class BloodRequestBroadcastService
         $query = Donor::withinRadius($lat, $lng, $radiusKm, $governorateId)
             ->eligible()
             ->whereHas('healthProfile', function ($query) {
-                
+
                 $query->where('blood_type', BloodType::UNKNOWN)
                     ->whereNull('verified_blood_type');
             })
@@ -348,7 +382,7 @@ class BloodRequestBroadcastService
      */
     private function notifyEligibleDonors(BloodRequest $bloodRequest, Collection $donors): int
     {
-        
+
         $donorData = [];
         foreach ($donors as $donor) {
             if ($donor->user) {

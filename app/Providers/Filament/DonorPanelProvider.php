@@ -29,6 +29,7 @@ class DonorPanelProvider extends PanelProvider
         return $panel
             ->id('donor')
             ->path('donor')
+            ->viteTheme('resources/css/filament/donor/theme.css')
             ->brandName(fn() => $settings->getTranslation('site_name'))
             ->brandLogo(fn() => view('filament.logo', ['height' => '2.5rem']))
             ->brandLogoHeight('2.5rem')

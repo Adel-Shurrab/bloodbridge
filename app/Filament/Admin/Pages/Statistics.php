@@ -2,15 +2,12 @@
 
 namespace App\Filament\Admin\Pages;
 
-use App\Filament\Admin\Widgets\AdvancedStatsOverview;
-use App\Filament\Admin\Widgets\BloodTypeDemandWidget;
-use App\Filament\Admin\Widgets\EngagementChartWidget;
-use App\Filament\Admin\Widgets\RecentActivityWidget;
-use App\Filament\Admin\Widgets\StatsOverview;
 use Filament\Pages\Page;
 
 class Statistics extends Page
 {
+    protected string $view = 'filament.pages.statistics';
+
     protected static string | \BackedEnum | null $navigationIcon = 'heroicon-o-chart-bar';
 
     protected static ?int $navigationSort = 1;
@@ -28,20 +25,5 @@ class Statistics extends Page
     public function getTitle(): string | \Illuminate\Contracts\Support\Htmlable
     {
         return __('filament.pages.statistics.title');
-    }
-
-    protected function getHeaderWidgets(): array
-    {
-        return [
-            AdvancedStatsOverview::class,
-            BloodTypeDemandWidget::class,
-            RecentActivityWidget::class,
-            EngagementChartWidget::class,
-        ];
-    }
-
-    protected function getFooterWidgets(): array
-    {
-        return [];
     }
 }

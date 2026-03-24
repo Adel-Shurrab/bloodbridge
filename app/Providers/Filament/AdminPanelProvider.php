@@ -34,6 +34,7 @@ class AdminPanelProvider extends PanelProvider
             ->default()
             ->id('admin')
             ->path('admin')
+            ->viteTheme('resources/css/filament/admin/theme.css')
             ->brandName(fn() => $settings->getTranslation('site_name'))
             ->brandLogo(fn() => view('filament.logo', ['height' => '3.5rem']))
             ->brandLogoHeight('3.5rem')
@@ -102,6 +103,7 @@ class AdminPanelProvider extends PanelProvider
         \Livewire\Livewire::component('app.filament.admin.widgets.advanced-stats-overview', Widgets\AdvancedStatsOverview::class);
         \Livewire\Livewire::component('app.filament.admin.widgets.blood-type-demand-widget', Widgets\BloodTypeDemandWidget::class);
         \Livewire\Livewire::component('app.filament.admin.widgets.engagement-chart-widget', Widgets\EngagementChartWidget::class);
+        \Livewire\Livewire::component('app.filament.admin.widgets.m-l-scoring-monitor-widget', Widgets\MLScoringMonitorWidget::class);
         \Livewire\Livewire::component('app.filament.admin.widgets.recent-activity-widget', Widgets\RecentActivityWidget::class);
     }
 }
