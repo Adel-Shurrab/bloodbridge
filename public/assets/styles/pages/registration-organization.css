@@ -327,6 +327,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 200px;
 }
 
 .file-remove {
@@ -862,5 +863,27 @@
     .form-group textarea {
         padding: 0.75rem;
         font-size: 0.95rem;
+    }
+}
+
+@media (min-width: 860px){
+
+    .file-name{
+        max-width: 250px;
+    }
+
+}
+
+@media (min-width:575px) and (max-width: 768px) {
+
+    .file-name{
+        max-width: 400px;
+    }
+}
+
+@media (min-width:460px) and (max-width: 575px) {
+
+    .file-name{
+        max-width: 300px;
     }
 }
