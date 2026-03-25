@@ -25,8 +25,9 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Filters\TernaryFilter;
 use Filament\Tables\Filters\Filter;
 use Filament\Forms\Components\DatePicker;
-use Filament\Notifications\Notification;
 use Filament\Support\Enums\FontWeight;
+use App\Enums\NotificationType;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Carbon;
@@ -42,15 +43,6 @@ class ResponsesRelationManager extends RelationManager
     protected static ?string $title = 'Donor Responses';
 
     protected static string|BackedEnum|null $icon = 'heroicon-o-users';
-
-    /**
-     * Send a toast notification and dispatch it so it shows immediately in modals (Filament v4).
-     */
-    protected function sendToast(Notification $notification): void
-    {
-        $notification->send();
-        $this->dispatch('notificationSent', $notification->toArray());
-    }
 
     public function form(Schema $schema): Schema
     {
@@ -305,12 +297,6 @@ class ResponsesRelationManager extends RelationManager
                         }
 
                         if ($record->status !== RequestResponseStatus::PENDING) {
-                            $this->sendToast(
-                                Notification::make()
-                                    ->title(__('organization.invalid_status'))
-                                    ->body(__('organization.this_action_is_only_allowed_for_pending_responses'))
-                                    ->warning()
-                            );
                             return;
                         }
 
@@ -318,11 +304,15 @@ class ResponsesRelationManager extends RelationManager
                         $record->verified_at = now();
                         $record->save();
 
-                        $this->sendToast(
-                            Notification::make()
-                                ->title(__('organization.donor_arrival_confirmed'))
-                                ->success()
-                        );
+                        $orgUser = $record->bloodRequest->organization?->user;
+                        if ($orgUser) {
+                            $record->load(['donor.user', 'donor.healthProfile', 'bloodRequest.organization']);
+                            app(NotificationService::class)->send(
+                                $orgUser,
+                                new \App\Notifications\DonorResponseNotification($record),
+                                NotificationType::DONOR_RESPONSE
+                            );
+                        }
                     }),
 
                 Action::make('mark_no_show')
@@ -350,24 +340,21 @@ class ResponsesRelationManager extends RelationManager
                         }
 
                         if ($record->status !== RequestResponseStatus::PENDING) {
-                            $this->sendToast(
-                                Notification::make()
-                                    ->title(__('organization.invalid_status'))
-                                    ->body(__('organization.this_action_is_only_allowed_for_pending_responses'))
-                                    ->warning()
-                            );
                             return;
                         }
 
                         $record->status = RequestResponseStatus::NO_SHOW;
                         $record->save();
 
-                        $this->sendToast(
-                            Notification::make()
-                                ->title(__('organization.no_show_registered'))
-                                ->body(__('organization.donor_status_updated_to_no_show'))
-                                ->warning()
-                        );
+                        $orgUser = $record->bloodRequest->organization?->user;
+                        if ($orgUser) {
+                            $record->load(['donor.user', 'donor.healthProfile', 'bloodRequest.organization']);
+                            app(NotificationService::class)->send(
+                                $orgUser,
+                                new \App\Notifications\DonorResponseNotification($record),
+                                NotificationType::DONOR_RESPONSE
+                            );
+                        }
                     }),
 
                 Action::make('medical_results')
@@ -511,12 +498,6 @@ class ResponsesRelationManager extends RelationManager
                         }
 
                         if ($record->status !== RequestResponseStatus::ACCEPTED) {
-                            $this->sendToast(
-                                Notification::make()
-                                    ->title(__('organization.invalid_status'))
-                                    ->body(__('organization.this_action_is_only_allowed_for_accepted_responses'))
-                                    ->warning()
-                            );
                             return;
                         }
 
@@ -621,11 +602,6 @@ class ResponsesRelationManager extends RelationManager
                             );
                         }
 
-                        $this->sendToast(
-                            Notification::make()
-                                ->title(__('organization.results_saved_successfully'))
-                                ->success()
-                        );
                     }),
 
                 ViewAction::make()
