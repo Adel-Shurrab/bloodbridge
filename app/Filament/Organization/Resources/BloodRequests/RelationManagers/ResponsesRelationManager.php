@@ -315,11 +315,8 @@ class ResponsesRelationManager extends RelationManager
                         }
 
                         $record->status = RequestResponseStatus::ACCEPTED;
+                        $record->verified_at = now();
                         $record->save();
-
-                        $record->bloodRequest->organization->user->notify(
-                            new \App\Notifications\DonorResponseNotification($record)
-                        );
 
                         $this->sendToast(
                             Notification::make()
@@ -364,10 +361,6 @@ class ResponsesRelationManager extends RelationManager
 
                         $record->status = RequestResponseStatus::NO_SHOW;
                         $record->save();
-
-                        $record->bloodRequest->organization->user->notify(
-                            new \App\Notifications\DonorResponseNotification($record)
-                        );
 
                         $this->sendToast(
                             Notification::make()
@@ -533,19 +526,16 @@ class ResponsesRelationManager extends RelationManager
                         DB::transaction(function () use ($record, $healthProfile, $data, $orgId) {
 
                             $record->verified_at = Carbon::now();
-                            $wasCompleted = $record->status === RequestResponseStatus::COMPLETED;
 
-                            if ($record->status === RequestResponseStatus::ACCEPTED) {
-                                if ($data['eligibility_status'] === 'eligible') {
-                                    $record->status = RequestResponseStatus::COMPLETED;
-                                } else {
-                                    $record->status = RequestResponseStatus::DECLINED;
-                                }
+                            if ($data['eligibility_status'] === 'eligible') {
+                                $record->status = RequestResponseStatus::COMPLETED;
+                            } else {
+                                $record->status = RequestResponseStatus::DECLINED;
                             }
 
                             $record->save();
 
-                            if (!$wasCompleted && $record->status === RequestResponseStatus::COMPLETED) {
+                            if ($record->status === RequestResponseStatus::COMPLETED) {
                                 $request = $record->bloodRequest;
                                 $completedCount = $request->responses()
                                     ->where('status', RequestResponseStatus::COMPLETED)
