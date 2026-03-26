@@ -101,7 +101,7 @@ class FastApiCircuitBreaker
      */
     public function getState(): string
     {
-        return Cache::get(self::KEY_STATE, self::STATE_CLOSED);
+        return Cache::store('file')->get(self::KEY_STATE, self::STATE_CLOSED);
     }
 
     // =========================================================================
@@ -110,13 +110,13 @@ class FastApiCircuitBreaker
 
     private function transitionTo(string $state): void
     {
-        Cache::put(self::KEY_STATE, $state, now()->addHours(1));
+        Cache::store('file')->put(self::KEY_STATE, $state, now()->addHours(1));
         Log::info("FastAPI circuit breaker → {$state}");
     }
 
     private function shouldAttemptReset(): bool
     {
-        $openedAt        = Cache::get(self::KEY_OPENED_AT);
+        $openedAt        = Cache::store('file')->get(self::KEY_OPENED_AT);
         $recoverySeconds = $this->settings->circuit_breaker_recovery_seconds;
 
         if ($openedAt === null) {
@@ -129,20 +129,20 @@ class FastApiCircuitBreaker
 
     private function onSuccess(): void
     {
-        Cache::forget(self::KEY_FAILURES);
-        Cache::forget(self::KEY_OPENED_AT);
+        Cache::store('file')->forget(self::KEY_FAILURES);
+        Cache::store('file')->forget(self::KEY_OPENED_AT);
         $this->transitionTo(self::STATE_CLOSED);
     }
 
     private function onFailure(\Exception $e): void
     {
-        $failures  = (int) Cache::increment(self::KEY_FAILURES);
+        $failures  = (int) Cache::store('file')->increment(self::KEY_FAILURES);
         $threshold = $this->settings->circuit_breaker_failure_threshold;
 
         Log::warning("FastAPI failure #{$failures}: " . $e->getMessage());
 
         if ($failures >= $threshold) {
-            Cache::put(self::KEY_OPENED_AT, now()->timestamp, now()->addHours(1));
+            Cache::store('file')->put(self::KEY_OPENED_AT, now()->timestamp, now()->addHours(1));
             $this->transitionTo(self::STATE_OPEN);
             Log::error("Circuit breaker OPENED after {$failures} consecutive failures");
         }
