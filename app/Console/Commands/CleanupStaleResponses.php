@@ -30,12 +30,12 @@ class CleanupStaleResponses extends Command
     {
         RequestResponse::where('status', RequestResponseStatus::PENDING)
             ->whereHas('bloodRequest', fn($q) => $q->where('urgency_level', UrgencyLevel::CRITICAL))
-            ->where('created_at', '<=', now()->subHours(8))
+            ->where('responded_at', '<=', now()->subHours(8))
             ->update(['status' => RequestResponseStatus::UNREACHABLE]);
 
         RequestResponse::where('status', RequestResponseStatus::PENDING)
             ->whereHas('bloodRequest', fn($q) => $q->where('urgency_level', UrgencyLevel::NORMAL))
-            ->where('created_at', '<=', now()->subHours(48))
+            ->where('responded_at', '<=', now()->subHours(48))
             ->update(['status' => RequestResponseStatus::UNREACHABLE]);
     }
 }

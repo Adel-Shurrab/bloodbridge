@@ -44,7 +44,10 @@ class BloodRequestActionService
         $alreadyAccepted = RequestResponse::query()
             ->where('donor_id', $donor->id)
             ->where('blood_request_id', '!=', $request->id)
-            ->where('status', RequestResponseStatus::PENDING->value)
+            ->whereIn('status', [
+                RequestResponseStatus::PENDING->value,
+                RequestResponseStatus::ACCEPTED->value,
+            ])
             ->exists();
 
         if ($alreadyAccepted) {
