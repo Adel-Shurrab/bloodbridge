@@ -115,7 +115,6 @@ class QRCodeService
         }
 
         if ($status === null) {
-            
             return RequestResponseStatus::PENDING;
         }
 
@@ -132,7 +131,6 @@ class QRCodeService
         }
 
         if ($status === null) {
-            
             return BloodRequestStatus::PENDING;
         }
 

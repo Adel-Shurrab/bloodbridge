@@ -25,7 +25,7 @@ class BloodRequestActionService
     public function accept(Donor $donor, BloodRequest $request): RequestResponse
     {
         if (! $request->isActive()) {
-            throw new RuntimeException('هذا الطلب غير متاح الآن');
+            throw new RuntimeException(__('donor.request_not_available'));
         }
 
         $profile = $donor->healthProfile;
@@ -38,23 +38,24 @@ class BloodRequestActionService
             );
 
         if (! $isEligible) {
-            throw new RuntimeException('غير مؤهل للتبرع حاليًا');
-        }
-
-        $alreadyAccepted = RequestResponse::query()
-            ->where('donor_id', $donor->id)
-            ->where('blood_request_id', '!=', $request->id)
-            ->whereIn('status', [
-                RequestResponseStatus::PENDING->value,
-                RequestResponseStatus::ACCEPTED->value,
-            ])
-            ->exists();
-
-        if ($alreadyAccepted) {
-            throw new RuntimeException('لديك طلب آخر مقبول بالفعل. يرجى التراجع عنه أولاً قبل قبول طلب جديد.');
+            throw new RuntimeException(__('donor.donor_not_eligible'));
         }
 
         $response = DB::transaction(function () use ($donor, $request) {
+            $alreadyAccepted = RequestResponse::query()
+                ->where('donor_id', $donor->id)
+                ->where('blood_request_id', '!=', $request->id)
+                ->whereIn('status', [
+                    RequestResponseStatus::PENDING->value,
+                    RequestResponseStatus::ACCEPTED->value,
+                ])
+                ->lockForUpdate()
+                ->exists();
+
+            if ($alreadyAccepted) {
+                throw new RuntimeException(__('donor.already_has_active_response'));
+            }
+
             $response = RequestResponse::query()->updateOrCreate(
                 [
                     'donor_id' => $donor->id,
@@ -90,7 +91,7 @@ class BloodRequestActionService
     public function ignore(Donor $donor, BloodRequest $request): void
     {
         if (! $request->isActive()) {
-            throw new RuntimeException('هذا الطلب غير متاح الآن');
+            throw new RuntimeException(__('donor.request_not_available'));
         }
 
         DB::transaction(function () use ($donor, $request) {
@@ -121,7 +122,7 @@ class BloodRequestActionService
                 ->first();
 
             if (! $response || $response->status !== RequestResponseStatus::PENDING) {
-                throw new RuntimeException('لا يمكن التراجع عن هذا الطلب');
+                throw new RuntimeException(__('donor.cannot_cancel_response'));
             }
 
             $this->qrCodeService->revoke($response);

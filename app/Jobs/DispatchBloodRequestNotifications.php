@@ -44,55 +44,51 @@ class DispatchBloodRequestNotifications implements ShouldQueue
         $userIds = array_keys($this->donorData);
 
         /** @var \Illuminate\Support\Collection<int, User> $users */
-        User::with('donor.healthProfile')
+        $users = User::with('donor.healthProfile')
             ->whereIn('id', $userIds)
-            ->chunk(10, function (\Illuminate\Support\Collection $users) use ($bloodRequest) {
-                $donorIds = $users
-                    ->pluck('donor.id')
-                    ->filter()
-                    ->values();
+            ->get();
 
-                $alreadyRespondedDonorIds = $donorIds->isEmpty()
-                    ? collect([])
-                    : RequestResponse::query()
-                    ->where('blood_request_id', $bloodRequest->id)
-                    ->whereIn('donor_id', $donorIds->all())
-                    ->pluck('donor_id')
-                    ->unique();
+        $donorIds = $users->pluck('donor.id')->filter()->values()->all();
 
-                foreach ($users as $user) {
+        $alreadyRespondedDonorIds = empty($donorIds)
+            ? collect()
+            : RequestResponse::query()
+                ->where('blood_request_id', $bloodRequest->id)
+                ->whereIn('donor_id', $donorIds)
+                ->pluck('donor_id')
+                ->unique();
 
-                    $healthProfile = $user->donor?->healthProfile;
+        foreach ($users as $user) {
+            $healthProfile = $user->donor?->healthProfile;
 
-                    if (! $healthProfile) {
-                        continue;
-                    }
+            if (! $healthProfile) {
+                continue;
+            }
 
-                    $isStillEligible = $healthProfile->is_eligible
-                        && (
-                            is_null($healthProfile->next_eligible_date)
-                            || $healthProfile->next_eligible_date->startOfDay()->isPast()
-                            || $healthProfile->next_eligible_date->startOfDay()->isToday()
-                        );
+            $isStillEligible = $healthProfile->is_eligible
+                && (
+                    is_null($healthProfile->next_eligible_date)
+                    || $healthProfile->next_eligible_date->startOfDay()->isPast()
+                    || $healthProfile->next_eligible_date->startOfDay()->isToday()
+                );
 
-                    if (! $isStillEligible) {
-                        continue;
-                    }
+            if (! $isStillEligible) {
+                continue;
+            }
 
-                    $donorId = $user->donor?->id;
-                    if ($donorId && $alreadyRespondedDonorIds->contains($donorId)) {
-                        continue;
-                    }
+            $donorId = $user->donor?->id;
+            if ($donorId && $alreadyRespondedDonorIds->contains($donorId)) {
+                continue;
+            }
 
-                    $distance = $this->donorData[$user->id] ?? null;
+            $distance = $this->donorData[$user->id] ?? null;
 
-                    app(NotificationService::class)->send(
-                        $user,
-                        new BloodRequestMatchNotification($bloodRequest, $distance),
-                        NotificationType::BLOOD_REQUEST_MATCH
-                    );
-                }
-            });
+            app(NotificationService::class)->send(
+                $user,
+                new BloodRequestMatchNotification($bloodRequest, $distance),
+                NotificationType::BLOOD_REQUEST_MATCH
+            );
+        }
     }
 
     public static function dispatchBatches(int $bloodRequestId, array $donorData): void

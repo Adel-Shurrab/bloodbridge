@@ -18,4 +18,4 @@ FEATURES_PATH = os.path.join(os.path.dirname(
 
 # Scoring
 NEUTRAL_SCORE = 0.5
-MIN_HISTORY_FOR_MODEL = 1
+MIN_HISTORY_FOR_MODEL = 5

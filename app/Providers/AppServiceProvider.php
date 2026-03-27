@@ -81,6 +81,11 @@ class AppServiceProvider extends ServiceProvider
                 }
             });
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('AppServiceProvider: failed to load GeneralSettings', [
+                'error' => $e->getMessage(),
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+            ]);
         }
 
         Table::configureUsing(function (Table $table): void {

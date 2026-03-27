@@ -588,18 +588,27 @@ class ResponsesRelationManager extends RelationManager
                         $orgUser = $record->bloodRequest->organization?->user;
                         if ($orgUser) {
                             $record->load(['donor.user', 'donor.healthProfile', 'bloodRequest.organization']);
-                            $orgUser->notify(new \App\Notifications\DonorResponseNotification($record));
+                            app(NotificationService::class)->send(
+                                $orgUser,
+                                new \App\Notifications\DonorResponseNotification($record),
+                                NotificationType::DONOR_RESPONSE
+                            );
                         }
 
                         if (in_array($data['eligibility_status'], ['temporary', 'permanent'])) {
-                            $record->donor->user->notify(
-                                new \App\Notifications\DonorIneligibilityNotification(
-                                    eligibilityStatus: $data['eligibility_status'],
-                                    rejectionReason: $data['rejection_reason'] ?? null,
-                                    nextEligibleDate: $healthProfile?->next_eligible_date,
-                                    organizationName: $record->bloodRequest->organization?->getTranslation('org_name', app()->getLocale()),
-                                )
-                            );
+                            $donorUser = $record->donor->user;
+                            if ($donorUser) {
+                                app(NotificationService::class)->send(
+                                    $donorUser,
+                                    new \App\Notifications\DonorIneligibilityNotification(
+                                        eligibilityStatus: $data['eligibility_status'],
+                                        rejectionReason: $data['rejection_reason'] ?? null,
+                                        nextEligibleDate: $healthProfile?->next_eligible_date,
+                                        organizationName: $record->bloodRequest->organization?->getTranslation('org_name', app()->getLocale()),
+                                    ),
+                                    NotificationType::DONOR_INELIGIBILITY
+                                );
+                            }
                         }
 
                     }),
