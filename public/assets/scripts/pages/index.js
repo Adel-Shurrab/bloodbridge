@@ -61,20 +61,20 @@ tabBtns.forEach(btn => {
 });
 
 // Smooth scrolling
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        const href = this.getAttribute('href');
+// document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+//     anchor.addEventListener('click', function (e) {
+//         const href = this.getAttribute('href');
 
-        // Skip if it's just a placeholder hash for modal triggers
-        if (href === '#') return;
+//         // Skip if it's just a placeholder hash for modal triggers
+//         if (href === '#') return;
 
-        e.preventDefault();
-        const target = document.querySelector(href);
-        if (target) {
-            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-    });
-});
+//         e.preventDefault();
+//         const target = document.querySelector(href);
+//         if (target) {
+//             target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+//         }
+//     });
+// });
 
 // Mobile Menu functionality
 const mobileMenuBtn = document.getElementById('mobile-menu-btn');
@@ -109,3 +109,7 @@ if (mobileMenuBtn && mobileNav && mobileMenuCloseBtn && overlay) {
         link.addEventListener('click', closeMenu);
     });
 }
+
+setTimeout(() => {
+    document.body.classList.add("loaded");
+}, 100);

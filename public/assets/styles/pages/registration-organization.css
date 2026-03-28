@@ -241,6 +241,11 @@
     box-shadow: 0 0 0 3px rgba(211, 47, 47, 0.1);
 }
 
+.form-group .no:focus{
+    border: 2px solid #e5e7eb !important;
+    box-shadow: none;
+}
+
 .form-group input.error,
 .form-group select.error,
 .form-group textarea.error {
@@ -322,6 +327,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    max-width: 200px;
 }
 
 .file-remove {
@@ -344,7 +350,6 @@
 
 .file-remove:hover {
     background: #b91c1c;
-    transform: rotate(90deg);
 }
 
 /* Password Input */
@@ -858,5 +863,27 @@
     .form-group textarea {
         padding: 0.75rem;
         font-size: 0.95rem;
+    }
+}
+
+@media (min-width: 860px){
+
+    .file-name{
+        max-width: 250px;
+    }
+
+}
+
+@media (min-width:575px) and (max-width: 768px) {
+
+    .file-name{
+        max-width: 400px;
+    }
+}
+
+@media (min-width:460px) and (max-width: 575px) {
+
+    .file-name{
+        max-width: 300px;
     }
 }
