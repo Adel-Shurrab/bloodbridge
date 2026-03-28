@@ -19,7 +19,6 @@ use Filament\Pages\Tenancy\EditTenantProfile;
 
 use LaraZeus\SpatieTranslatable\Actions\LocaleSwitcher;
 use Dotswan\MapPicker\Fields\Map;
-use App\Constants\PalestineCoordinates;
 
 use LaraZeus\SpatieTranslatable\Resources\Concerns\HasActiveLocaleSwitcher;
 
@@ -154,8 +153,8 @@ class EditOrganizationProfile extends EditTenantProfile
                                     ->label(__('organization.organization_location_on_map'))
                                     ->columnSpanFull()
                                     ->defaultLocation(
-                                        PalestineCoordinates::GAZA['lat'],
-                                        PalestineCoordinates::GAZA['lng']
+                                        app(\App\Settings\GeneralSettings::class)->map_default_lat,
+                                        app(\App\Settings\GeneralSettings::class)->map_default_lng
                                     )
                                     ->afterStateUpdated(function (Get $get, Set $set, ?array $state): void {
                                         $set('lat', $state['lat']);
@@ -163,8 +162,8 @@ class EditOrganizationProfile extends EditTenantProfile
                                     })
                                     ->afterStateHydrated(function ($state, $record, Set $set): void {
                                         $set('location', [
-                                            'lat' => $record?->lat ?? PalestineCoordinates::GAZA['lat'],
-                                            'lng' => $record?->lng ?? PalestineCoordinates::GAZA['lng']
+                                            'lat' => $record?->lat ?? app(\App\Settings\GeneralSettings::class)->map_default_lat,
+                                            'lng' => $record?->lng ?? app(\App\Settings\GeneralSettings::class)->map_default_lng
                                         ]);
                                     })
                                     ->extraStyles([
@@ -178,7 +177,7 @@ class EditOrganizationProfile extends EditTenantProfile
                                     ->showZoomControl(true)
                                     ->draggable(true)
                                     ->tilesUrl("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
-                                    ->zoom(PalestineCoordinates::ZOOM_CITY)
+                                    ->zoom(app(\App\Settings\GeneralSettings::class)->map_zoom_city)
                                     ->detectRetina(true)
                                     ->showMyLocationButton(true)
                                     ->extraTileControl([])

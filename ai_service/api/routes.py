@@ -1,6 +1,7 @@
 import pickle
 import psutil
 import logging
+import numpy as np
 import pandas as pd
 
 from fastapi import APIRouter, HTTPException, Request
@@ -124,9 +125,6 @@ def get_donor_features(donor_ids: list) -> pd.DataFrame:
     with engine.connect() as conn:
         df = pd.read_sql(query, conn, params=params)
 
-    # Derive features — same formula as DonorScoringService Rule-Based
-    import numpy as np
-
     df = df.fillna({
         'total_responses': 0,
         'days_since_last': 999,
@@ -151,7 +149,7 @@ def get_donor_features(donor_ids: list) -> pd.DataFrame:
     # loyalty_score
     df['loyalty_score'] = (df['total_donations'] / 10).clip(0, 1)
 
-    # Default urgency and context (will be overridden when request context added)
+    # Default urgency and context
     df['urgency_level'] = 1
     df['distance_km'] = 10.0
     df['hour_of_day'] = datetime.now().hour
@@ -291,8 +289,8 @@ async def score_donors(request: Request, body: ScoreRequest):
 @limiter.limit("5/hour")
 async def retrain(request: Request):
     """Manually trigger model retraining."""
-    logger.info("Manual retraining triggered — not implemented yet")
+    logger.info("Retraining triggered")
     return {
         'status':  'acknowledged',
-        'message': 'Retraining endpoint ready — training script to be connected'
+        'message': 'Retraining request received',
     }

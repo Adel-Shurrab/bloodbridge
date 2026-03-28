@@ -22,8 +22,8 @@ class BloodRequestFactory extends Factory
             'units_needed' => $this->faker->numberBetween(1, 10),
             'urgency_level' => \App\Enums\UrgencyLevel::NORMAL,
             'search_radius_km' => 10,
-            'lat' => \App\Constants\PalestineCoordinates::GAZA['lat'],
-            'lng' => \App\Constants\PalestineCoordinates::GAZA['lng'],
+            'lat' => app(\App\Settings\GeneralSettings::class)->map_default_lat,
+            'lng' => app(\App\Settings\GeneralSettings::class)->map_default_lng,
             'status' => \App\Enums\BloodRequestStatus::PENDING,
         ];
     }

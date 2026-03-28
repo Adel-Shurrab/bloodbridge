@@ -3,15 +3,10 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
-use App\Http\Controllers\TestMatchingController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 use App\Http\Controllers\PublicPagesController;
 
-Route::get('/test-matching', [TestMatchingController::class, 'testMatching'])->name('test.matching');
-Route::get('/api/test-matching', [TestMatchingController::class, 'testMatchingApi'])->name('api.test.matching');
-
-// تغليف المسارات العامة لدعم اللغات
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
     'middleware' => ['localeSessionRedirect', 'localizationRedirect', 'localeViewPath']

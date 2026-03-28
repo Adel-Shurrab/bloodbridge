@@ -99,8 +99,8 @@ class BloodRequestForm
                                     ->label(__('organization.case_location_on_map_optional'))
                                     ->columnSpanFull()
                                     ->defaultLocation(
-                                        latitude: \App\Constants\PalestineCoordinates::GAZA['lat'],
-                                        longitude: \App\Constants\PalestineCoordinates::GAZA['lng'],
+                                        latitude: app(\App\Settings\GeneralSettings::class)->map_default_lat,
+                                        longitude: app(\App\Settings\GeneralSettings::class)->map_default_lng,
                                     )
                                     ->afterStateUpdated(function (Get $get, Set $set, ?array $state): void {
                                         $set('lat', $state['lat'] ?? null);
@@ -108,8 +108,8 @@ class BloodRequestForm
                                     })
                                     ->afterStateHydrated(function ($state, $record, Set $set): void {
                                         $set('location', [
-                                            'lat' => $record?->lat ?? \App\Constants\PalestineCoordinates::GAZA['lat'],
-                                            'lng' => $record?->lng ?? \App\Constants\PalestineCoordinates::GAZA['lng'],
+                                            'lat' => $record?->lat ?? app(\App\Settings\GeneralSettings::class)->map_default_lat,
+                                            'lng' => $record?->lng ?? app(\App\Settings\GeneralSettings::class)->map_default_lng,
                                         ]);
                                     })
                                     ->extraStyles([
@@ -123,7 +123,7 @@ class BloodRequestForm
                                     ->showZoomControl(true)
                                     ->draggable(true)
                                     ->tilesUrl('https://tile.openstreetmap.org/{z}/{x}/{y}.png')
-                                    ->zoom(\App\Constants\PalestineCoordinates::ZOOM_REGION)
+                                    ->zoom(app(\App\Settings\GeneralSettings::class)->map_zoom_region)
                                     ->detectRetina(true)
                                     ->showMyLocationButton(true)
                                     ->clickable(true),

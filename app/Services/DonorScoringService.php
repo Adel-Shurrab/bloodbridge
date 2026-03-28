@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\DataTransferObjects\ScoringResult;
+use App\Enums\RequestResponseStatus;
 use App\Models\Donor;
 use App\Models\DonorPredictiveScore;
 use App\Settings\ScoringSettings;
@@ -250,18 +251,31 @@ class DonorScoringService
     {
         $minHistory = $this->settings->min_history_for_exploitation;
 
+        $acceptedValue  = RequestResponseStatus::ACCEPTED->value;
+        $completedValue = RequestResponseStatus::COMPLETED->value;
+        $noShowValue    = RequestResponseStatus::NO_SHOW->value;
+        $countedStatuses = [
+            RequestResponseStatus::PENDING->value,
+            RequestResponseStatus::ACCEPTED->value,
+            RequestResponseStatus::COMPLETED->value,
+            RequestResponseStatus::IGNORED->value,
+            RequestResponseStatus::NO_SHOW->value,
+            RequestResponseStatus::UNREACHABLE->value,
+            RequestResponseStatus::NOT_NEEDED->value,
+        ];
+
         $rows = DB::table('donors as d')
             ->select([
                 'd.id as donor_id',
                 DB::raw('COUNT(rr.id) as total_responses'),
-                DB::raw('COUNT(CASE WHEN rr.status IN (1, 3) THEN 1 END) as accepted_count'),
-                DB::raw('COUNT(CASE WHEN rr.status = 5 THEN 1 END) as no_show_count'),
-                DB::raw('DATEDIFF(NOW(), MAX(rr.responded_at)) as days_since_last'),
+                DB::raw("COUNT(CASE WHEN rr.status IN ({$acceptedValue}, {$completedValue}) THEN 1 END) as accepted_count"),
+                DB::raw("COUNT(CASE WHEN rr.status = {$noShowValue} THEN 1 END) as no_show_count"),
+                DB::raw('MAX(rr.responded_at) as last_responded_at'),
                 DB::raw('COALESCE(dhp.total_donations, 0) as total_donations'),
             ])
-            ->leftJoin('request_responses as rr', function ($join) {
+            ->leftJoin('request_responses as rr', function ($join) use ($countedStatuses) {
                 $join->on('d.id', '=', 'rr.donor_id')
-                    ->whereIn('rr.status', [1, 2, 3, 4, 5, 6, 7])
+                    ->whereIn('rr.status', $countedStatuses)
                     ->whereNotNull('rr.responded_at');
             })
             ->leftJoin('donor_health_profiles as dhp', 'd.id', '=', 'dhp.donor_id')
@@ -281,13 +295,14 @@ class DonorScoringService
                 continue;
             }
 
-            $acceptanceRate = $row->accepted_count / $total;
             $noShowPenalty  = (int) $row->no_show_count;
             $adjustedTotal  = $total + $noShowPenalty;
 
             $acceptanceRate = $row->accepted_count / $adjustedTotal;
 
-            $daysSinceLast  = $row->days_since_last ?? 999;
+            $daysSinceLast  = $row->last_responded_at
+                ? (int) now()->diffInDays(\Carbon\Carbon::parse($row->last_responded_at))
+                : 999;
             $recencyScore   = match (true) {
                 $daysSinceLast <= 7   => 1.0,
                 $daysSinceLast <= 30  => 0.8,

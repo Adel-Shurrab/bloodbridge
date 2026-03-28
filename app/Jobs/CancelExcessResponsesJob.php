@@ -59,9 +59,15 @@ class CancelExcessResponsesJob implements ShouldQueue
         foreach ($pendingResponses as $response) {
             /** @var RequestResponse $response */
             try {
+                $affected = RequestResponse::where('id', $response->id)
+                    ->where('status', RequestResponseStatus::PENDING)
+                    ->update(['status' => RequestResponseStatus::NOT_NEEDED]);
+
+                if (! $affected) {
+                    continue;
+                }
 
                 $response->status = RequestResponseStatus::NOT_NEEDED;
-                $response->save();
 
                 $qrService->revoke($response);
 

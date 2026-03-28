@@ -86,8 +86,8 @@ class EditProfile extends Page implements HasForms
 
     private function getInitialFormData($user, $donor, $healthProfile): array
     {
-        $lat = $donor?->lat ?? \App\Constants\PalestineCoordinates::GAZA['lat'];
-        $lng = $donor?->lng ?? \App\Constants\PalestineCoordinates::GAZA['lng'];
+        $lat = $donor?->lat ?? app(\App\Settings\GeneralSettings::class)->map_default_lat;
+        $lng = $donor?->lng ?? app(\App\Settings\GeneralSettings::class)->map_default_lng;
 
         $verifyingOrgName = $healthProfile?->verifyingOrganization?->org_name
             ?? $healthProfile?->verifyingOrganization?->name
@@ -212,8 +212,8 @@ class EditProfile extends Page implements HasForms
                             ->label(__('donor.set_location_precisely'))
                             ->columnSpanFull()
                             ->defaultLocation(
-                                \App\Constants\PalestineCoordinates::GAZA['lat'],
-                                \App\Constants\PalestineCoordinates::GAZA['lng']
+                                app(\App\Settings\GeneralSettings::class)->map_default_lat,
+                                app(\App\Settings\GeneralSettings::class)->map_default_lng
                             )
                             ->afterStateUpdated(function (Get $get, Set $set, ?array $state): void {
                                 if (!$state) return;
@@ -266,7 +266,7 @@ class EditProfile extends Page implements HasForms
                             ->showZoomControl(true)
                             ->draggable(true)
                             ->tilesUrl("https://tile.openstreetmap.org/{z}/{x}/{y}.png")
-                            ->zoom(\App\Constants\PalestineCoordinates::ZOOM_CITY)
+                            ->zoom(app(\App\Settings\GeneralSettings::class)->map_zoom_city)
                             ->detectRetina(true)
                             ->showMyLocationButton(true)
                             ->extraControl([
