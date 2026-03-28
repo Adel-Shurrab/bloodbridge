@@ -197,5 +197,19 @@ return new class extends SettingsMigration
         $this->migrator->add('general.org_max_requests_per_day', 5);
 
         $this->migrator->add('general.enable_contact_messages', true);
+
+        // Default coordinates for Gaza (central Palestine location)
+        $this->migrator->add('general.map_default_lat', 31.5);
+        $this->migrator->add('general.map_default_lng', 34.4667);
+        
+        // Validation bounds for coordinate inputs
+        $this->migrator->add('general.map_lat_min', 31.2);
+        $this->migrator->add('general.map_lat_max', 32.6);
+        $this->migrator->add('general.map_lng_min', 34.2);
+        $this->migrator->add('general.map_lng_max', 35.6);
+        
+        // Map zoom levels for consistent UX
+        $this->migrator->add('general.map_zoom_region', 10);
+        $this->migrator->add('general.map_zoom_city', 13);
     }
 };

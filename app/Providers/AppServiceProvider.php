@@ -67,20 +67,12 @@ class AppServiceProvider extends ServiceProvider
             $settings = app(\App\Settings\GeneralSettings::class);
             view()->share('settings', $settings);
             config(['app.name' => (string) $settings->site_name]);
-
-            \Illuminate\Support\Facades\DB::listen(function ($query) {
-                if (str_contains(strtolower($query->sql), 'delete from `notifications`') || str_contains(strtolower($query->sql), 'update `notifications`')) {
-                    \Illuminate\Support\Facades\Log::info('Notification Query:', [
-                        'sql' => $query->sql,
-                        'bindings' => $query->bindings,
-                        'time' => $query->time,
-                        'url' => request()->fullUrl(),
-                        'method' => request()->method(),
-                        'user_id' => auth()->id(),
-                    ]);
-                }
-            });
         } catch (\Throwable $e) {
+            \Illuminate\Support\Facades\Log::error('AppServiceProvider: failed to load GeneralSettings', [
+                'error' => $e->getMessage(),
+                'file'  => $e->getFile(),
+                'line'  => $e->getLine(),
+            ]);
         }
 
         Table::configureUsing(function (Table $table): void {

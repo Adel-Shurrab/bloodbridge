@@ -13,9 +13,17 @@ class EmailVerificationPromptController extends Controller
      * Display the email verification prompt.
      */
     public function __invoke(Request $request): RedirectResponse|View
-    {
-        return $request->user()->hasVerifiedEmail()
-            ? redirect()->intended($request->user()->getDashboardUrl())
-            : view('auth.verify-email');
+{
+    if ($request->user()->hasVerifiedEmail()) {
+        return redirect()->intended($request->user()->getDashboardUrl());
     }
+
+    if (! $request->session()->has('email_verification_sent')) {
+        $request->user()->sendEmailVerificationNotification();
+        $request->session()->put('email_verification_sent', true);
+        $request->session()->flash('status', 'verification-link-sent');
+    }
+
+    return view('auth.verify-email');
+}
 }

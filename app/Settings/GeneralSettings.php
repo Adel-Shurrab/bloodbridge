@@ -93,6 +93,16 @@ class GeneralSettings extends Settings
 
     public int $org_max_requests_per_day = 5;
 
+    // Map coordinates for Palestine regions
+    public float $map_default_lat = 31.5;
+    public float $map_default_lng = 34.4667;
+    public float $map_lat_min = 31.2;
+    public float $map_lat_max = 32.6;
+    public float $map_lng_min = 34.2;
+    public float $map_lng_max = 35.6;
+    public int $map_zoom_region = 10;
+    public int $map_zoom_city = 13;
+
     protected static array $translatableFields = [
         'site_name',
         'site_slogan',

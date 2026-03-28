@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Notifications\SystemAnnouncement;
+use App\Services\NotificationService;
+use App\Enums\NotificationType;
 use Spatie\Translatable\HasTranslations;
 
 class Announcement extends Model
@@ -57,7 +59,11 @@ class Announcement extends Model
                             $users = User::whereIn('id', $ids)->whereNotNull('email_verified_at')->get();
                         }
 
-                        \Illuminate\Support\Facades\Notification::send($users, new SystemAnnouncement($announcement));
+                        app(NotificationService::class)->sendBatch(
+                            $users,
+                            new SystemAnnouncement($announcement),
+                            NotificationType::SYSTEM_ANNOUNCEMENT
+                        );
                     }
                 ])->dispatch();
             }

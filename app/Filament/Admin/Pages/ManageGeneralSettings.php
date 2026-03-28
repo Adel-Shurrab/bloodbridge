@@ -16,6 +16,9 @@ use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\TagsInput;
+use Dotswan\MapPicker\Fields\Map;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 
 class ManageGeneralSettings extends SettingsPage
 {
@@ -744,6 +747,107 @@ class ManageGeneralSettings extends SettingsPage
                                             ])->columnSpanFull(),
                                         FileUpload::make('org_register_image')->label(__('admin.image'))->image(),
                                     ]),
+                            ]),
+
+                        Tab::make('Map Settings')
+                            ->label(__('admin.map_settings'))
+                            ->icon('heroicon-o-map')
+                            ->schema([
+                                Section::make(__('admin.default_map_location'))
+                                    ->description(__('admin.default_location_for_map_displays'))
+                                    ->schema([
+                                        Map::make('default_location')
+                                            ->label(__('admin.select_location_on_map'))
+                                            ->columnSpanFull()
+                                            ->defaultLocation(
+                                                latitude: 31.5,
+                                                longitude: 34.4667,
+                                            )
+                                            ->afterStateUpdated(function (Get $get, Set $set, ?array $state): void {
+                                                if ($state) {
+                                                    $set('map_default_lat', $state['lat']);
+                                                    $set('map_default_lng', $state['lng']);
+                                                }
+                                            })
+                                            ->afterStateHydrated(function ($state, Set $set, $record): void {
+                                                $set('default_location', [
+                                                    'lat' => $record?->map_default_lat ?? 31.5,
+                                                    'lng' => $record?->map_default_lng ?? 34.4667,
+                                                ]);
+                                            })
+                                            ->extraStyles([
+                                                'min-height: 400px',
+                                                'border-radius: 8px',
+                                            ])
+                                            ->liveLocation(true, true, 5000)
+                                            ->showMarker(true)
+                                            ->markerColor('#3b82f6')
+                                            ->showFullscreenControl(true)
+                                            ->showZoomControl(true)
+                                            ->draggable(true)
+                                            ->tilesUrl('https://tile.openstreetmap.org/{z}/{x}/{y}.png')
+                                            ->zoom(10)
+                                            ->detectRetina(true)
+                                            ->showMyLocationButton(true)
+                                            ->clickable(true),
+                                        Grid::make(2)
+                                            ->schema([
+                                                TextInput::make('map_default_lat')
+                                                    ->label(__('admin.default_latitude'))
+                                                    ->numeric()
+                                                    ->step(0.0001)
+                                                    ->required(),
+                                                TextInput::make('map_default_lng')
+                                                    ->label(__('admin.default_longitude'))
+                                                    ->numeric()
+                                                    ->step(0.0001)
+                                                    ->required(),
+                                            ]),
+                                    ]),
+
+                                Section::make(__('admin.coordinate_bounds'))
+                                    ->description(__('admin.valid_coordinate_range_for_user_input'))
+                                    ->schema([
+                                        TextInput::make('map_lat_min')
+                                            ->label(__('admin.minimum_latitude'))
+                                            ->numeric()
+                                            ->step(0.0001)
+                                            ->required(),
+                                        TextInput::make('map_lat_max')
+                                            ->label(__('admin.maximum_latitude'))
+                                            ->numeric()
+                                            ->step(0.0001)
+                                            ->required(),
+                                        TextInput::make('map_lng_min')
+                                            ->label(__('admin.minimum_longitude'))
+                                            ->numeric()
+                                            ->step(0.0001)
+                                            ->required(),
+                                        TextInput::make('map_lng_max')
+                                            ->label(__('admin.maximum_longitude'))
+                                            ->numeric()
+                                            ->step(0.0001)
+                                            ->required(),
+                                    ])->columns(2),
+
+                                Section::make(__('admin.map_zoom_levels'))
+                                    ->description(__('admin.zoom_level_for_map_displays'))
+                                    ->schema([
+                                        TextInput::make('map_zoom_region')
+                                            ->label(__('admin.region_zoom_level'))
+                                            ->helperText(__('admin.for_blood_request_locations'))
+                                            ->numeric()
+                                            ->minValue(1)
+                                            ->maxValue(20)
+                                            ->required(),
+                                        TextInput::make('map_zoom_city')
+                                            ->label(__('admin.city_zoom_level'))
+                                            ->helperText(__('admin.for_user_profiles'))
+                                            ->numeric()
+                                            ->minValue(1)
+                                            ->maxValue(20)
+                                            ->required(),
+                                    ])->columns(2),
                             ]),
                     ])->columnSpanFull(),
             ]);

@@ -75,8 +75,8 @@ class RegisteredUserController extends Controller
             'blood_type' => ['nullable', 'in:' . implode(',', array_column(\App\Enums\BloodType::cases(), 'value'))],
 
             'auto_location_address' => ['nullable', 'string', 'max:500'],
-            'auto_lat' => ['nullable', 'numeric', 'between:31.2,32.6'],
-            'auto_lng' => ['nullable', 'numeric', 'between:34.2,35.6'],
+            'auto_lat' => ['nullable', 'numeric', 'between:' . app(\App\Settings\GeneralSettings::class)->map_lat_min . ',' . app(\App\Settings\GeneralSettings::class)->map_lat_max],
+            'auto_lng' => ['nullable', 'numeric', 'between:' . app(\App\Settings\GeneralSettings::class)->map_lng_min . ',' . app(\App\Settings\GeneralSettings::class)->map_lng_max],
         ], [
             'chronic_disease.in' => __('Sorry, donors with chronic diseases are not eligible to donate.'),
         ]);
@@ -152,8 +152,8 @@ class RegisteredUserController extends Controller
             'adminPassword' => ['required', 'confirmed', Rules\Password::defaults()],
 
             'auto_location_address' => ['nullable', 'string', 'max:500'],
-            'auto_lat' => ['nullable', 'numeric', 'between:31.2,32.6'],
-            'auto_lng' => ['nullable', 'numeric', 'between:34.2,35.6'],
+            'auto_lat' => ['nullable', 'numeric', 'between:' . app(\App\Settings\GeneralSettings::class)->map_lat_min . ',' . app(\App\Settings\GeneralSettings::class)->map_lat_max],
+            'auto_lng' => ['nullable', 'numeric', 'between:' . app(\App\Settings\GeneralSettings::class)->map_lng_min . ',' . app(\App\Settings\GeneralSettings::class)->map_lng_max],
         ]);
 
         $user = DB::transaction(function () use ($request) {

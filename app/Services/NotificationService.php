@@ -9,7 +9,6 @@ use Throwable;
 class NotificationService
 {
 
-    // Single user 
     public function send(
         mixed $notifiable,
         object $notification,
@@ -136,51 +135,4 @@ class NotificationService
         ]);
     }
 
-    // With retry mechanism 
-    public function sendWithRetry(
-        mixed $notifiable,
-        object $notification,
-        int $maxRetries = 3,
-        int $delayMs = 100,
-        ?NotificationType $type = null,
-    ): array {
-        for ($attempt = 1; $attempt <= $maxRetries; $attempt++) {
-            $result = $this->send($notifiable, $notification, $type);
-
-            if ($result['success']) {
-                if ($attempt > 1) {
-                    Log::info('Notification succeeded after retry', [
-                        'notifiable_id' => $notifiable->getKey(),
-                        'notification_class' => get_class($notification),
-                        'attempts' => $attempt,
-                    ]);
-                }
-
-                return [
-                    'success' => true,
-                    'attempts' => $attempt,
-                    'error' => null,
-                ];
-            }
-
-            // Wait before retry (don't retry on last attempt)
-            if ($attempt < $maxRetries) {
-                usleep($delayMs * 1000);
-            }
-        }
-
-        // All retries failed
-        Log::error('Notification failed after all retries', [
-            'notifiable_id' => $notifiable->getKey(),
-            'notification_class' => get_class($notification),
-            'max_attempts' => $maxRetries,
-            'error' => $result['error'] ?? 'Unknown error',
-        ]);
-
-        return [
-            'success' => false,
-            'attempts' => $maxRetries,
-            'error' => $result['error'] ?? 'Failed after ' . $maxRetries . ' attempts',
-        ];
-    }
 }

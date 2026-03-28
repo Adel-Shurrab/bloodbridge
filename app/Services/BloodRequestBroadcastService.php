@@ -65,25 +65,35 @@ class BloodRequestBroadcastService
                 ? 'critical'
                 : 'normal';
 
-            $scoringResult  = $this->donorScoringService->scoreAndSelect(
-                $eligibleDonors,
-                $urgency
-            );
+            try {
+                $scoringResult = $this->donorScoringService->scoreAndSelect(
+                    $eligibleDonors,
+                    $urgency
+                );
 
-            $eligibleDonors = $scoringResult['selected'];
+                $eligibleDonors = $scoringResult['selected'];
 
-            Log::info('Donors filtered by scoring', [
-                'blood_request_id' => $bloodRequest->id,
-                'total_eligible'   => $totalEligible,
-                'after_scoring'    => $eligibleDonors->count(),
-                'exploiter_count'  => $scoringResult['exploiter_count'],
-                'explorer_count'   => $scoringResult['explorer_count'],
-                'cold_start_count' => $scoringResult['cold_start_count'],
-                'source_breakdown' => $scoringResult['source_breakdown'],
-            ]);
+                Log::info('Donors filtered by scoring', [
+                    'blood_request_id' => $bloodRequest->id,
+                    'total_eligible'   => $totalEligible,
+                    'after_scoring'    => $eligibleDonors->count(),
+                    'exploiter_count'  => $scoringResult['exploiter_count'],
+                    'explorer_count'   => $scoringResult['explorer_count'],
+                    'cold_start_count' => $scoringResult['cold_start_count'],
+                    'source_breakdown' => $scoringResult['source_breakdown'],
+                ]);
 
-            // Step 3: Send notifications to selected donors
-            $notificationsQueued = $this->notifyEligibleDonors($bloodRequest, $eligibleDonors);
+                // Step 3: Send notifications to selected donors
+                $notificationsQueued = $this->notifyEligibleDonors($bloodRequest, $eligibleDonors);
+            } catch (\Exception $e) {
+                // Scoring or dispatch failed after the transaction already set status to
+                // BROADCASTED. Revert so the request is not stuck in a broken state.
+                $bloodRequest->status = BloodRequestStatus::PENDING;
+                $bloodRequest->broadcasted_at = null;
+                $bloodRequest->save();
+
+                throw $e;
+            }
 
             Log::info('Blood request broadcasted successfully', [
                 'blood_request_id'     => $bloodRequest->id,
@@ -273,7 +283,7 @@ class BloodRequestBroadcastService
 
         $lat = $bloodRequest->lat;
         $lng = $bloodRequest->lng;
-        $governorateId = $bloodRequest->organization->governorate_id;
+        $governorateId = $bloodRequest->organization?->governorate_id;
 
         $query = Donor::withinRadius(
             $lat,
@@ -317,7 +327,7 @@ class BloodRequestBroadcastService
         $cooldownHours = $this->getNotificationCooldownHours($isCritical);
         $lat = $bloodRequest->lat;
         $lng = $bloodRequest->lng;
-        $governorateId = $bloodRequest->organization->governorate_id;
+        $governorateId = $bloodRequest->organization?->governorate_id;
 
         $query = Donor::withinRadius($lat, $lng, $radiusKm, $governorateId)
             ->eligible()

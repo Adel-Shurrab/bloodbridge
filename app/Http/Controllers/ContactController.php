@@ -15,7 +15,6 @@ class ContactController extends Controller
 {
     public function submit(Request $request, GeneralSettings $settings)
     {
-        $settings = app(GeneralSettings::class);
         if (!$settings->enable_contact_messages) {
             if ($request->expectsJson()) {
                 return response()->json([
@@ -45,8 +44,6 @@ class ContactController extends Controller
 
             // Try sending emails
             try {
-                $settings = app(GeneralSettings::class);
-
                 $supportEmail = $settings->support_email ?? 'admin@bloodbridge.com';
                 $siteName = $settings->site_name ?? config('app.name');
 
