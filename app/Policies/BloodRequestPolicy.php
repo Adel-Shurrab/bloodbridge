@@ -8,8 +8,17 @@ use App\Models\User;
 
 class BloodRequestPolicy
 {
+    public function viewAny(User $user): bool
+    {
+        return $user->role === UserRole::ADMIN;
+    }
+
     public function view(User $user, BloodRequest $bloodRequest): bool
     {
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
         if ($user->role === UserRole::ORGANIZATION) {
             return $bloodRequest->organization?->user_id === $user->id;
         }
@@ -23,23 +32,18 @@ class BloodRequestPolicy
         return false;
     }
 
+    public function create(User $user): bool
+    {
+        return false;
+    }
+
     public function update(User $user, BloodRequest $bloodRequest): bool
     {
-        if ($user->role === UserRole::ORGANIZATION) {
-            return $bloodRequest->organization?->user_id === $user->id;
-        }
-
         return false;
     }
 
     public function delete(User $user, BloodRequest $bloodRequest): bool
     {
-        if ($user->role === UserRole::ORGANIZATION) {
-            return $bloodRequest->organization?->user_id === $user->id;
-        }
-
         return false;
     }
 }
-
-

@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\BloodRequests\Schemas;
 
 use App\Models\BloodRequest;
+use App\Models\Organization;
 use Filament\Forms\Components\DateTimePicker;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\TextInput;
@@ -19,7 +20,7 @@ class BloodRequestForm
             ->components([
                 Select::make('organization_id')
                     ->label(__('admin.organization'))
-                    ->relationship('organization', 'org_name')
+                    ->options(Organization::localizedOptions())
                     ->searchable()
                     ->preload(),
                 Select::make('blood_type')

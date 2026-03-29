@@ -203,6 +203,6 @@ class RegisteredUserController extends Controller
         });
 
         return redirect()->to($user->getDashboardUrl())
-            ->with('success', 'تم تقديم طلبك بنجاح! حسابك قيد المراجعة حالياً.');
+            ->with('success', __('auth.organization_review_pending'));
     }
 }

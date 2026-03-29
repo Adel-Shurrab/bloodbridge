@@ -230,7 +230,7 @@
                                     @foreach ($governorates as $gov)
                                         <option value="{{ $gov->id }}"
                                             {{ old('governorate_id') == $gov->id ? 'selected' : '' }}>
-                                            {{ $gov->name }}
+                                            {{ $gov->localized_name }}
                                         </option>
                                     @endforeach
                                 </select>

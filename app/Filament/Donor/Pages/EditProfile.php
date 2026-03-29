@@ -89,7 +89,7 @@ class EditProfile extends Page implements HasForms
         $lat = $donor?->lat ?? app(\App\Settings\GeneralSettings::class)->map_default_lat;
         $lng = $donor?->lng ?? app(\App\Settings\GeneralSettings::class)->map_default_lng;
 
-        $verifyingOrgName = $healthProfile?->verifyingOrganization?->org_name
+        $verifyingOrgName = $healthProfile?->verifyingOrganization?->localized_org_name
             ?? $healthProfile?->verifyingOrganization?->name
             ?? null;
 
@@ -197,7 +197,7 @@ class EditProfile extends Page implements HasForms
 
                         Select::make('governorate_id')
                             ->label(__('donor.governorate'))
-                            ->options(Governorate::all()->pluck('name', 'id')->toArray())
+                            ->options(Governorate::localizedOptions())
                             ->required()
                             ->native(false)
                             ->searchable(),

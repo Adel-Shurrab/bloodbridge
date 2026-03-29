@@ -9,5 +9,6 @@ Artisan::command('inspire', function () {
 })->purpose('Display an inspiring quote');
 
 Schedule::command('blood:cleanup-stale-responses')->hourly();
+Schedule::command('scoring:decay-epsilon')->daily();
 
 Schedule::command('blood-requests:expire')->twiceDaily();

@@ -284,7 +284,7 @@
                     <div class="param-label">المحافظة (للمطابقة البديلة)</div>
                     <div class="param-value">
                         @if($selectedGovernorateId && $selectedGov = $allGovernorates->find($selectedGovernorateId))
-                            {{ $selectedGov->name }}
+                            {{ $selectedGov->localized_name }}
                         @else
                             -
                         @endif
@@ -421,7 +421,7 @@
                             <option value="">-- اختر المحافظة --</option>
                             @foreach($allGovernorates as $gov)
                                 <option value="{{ $gov->id }}" {{ (string) $gov->id === (string) $selectedGovernorateId ? 'selected' : '' }}>
-                                    {{ $gov->name }}
+                                    {{ $gov->localized_name }}
                                 </option>
                             @endforeach
                         </select>

@@ -5,6 +5,7 @@ namespace App\Filament\Admin\Resources\Donors\Schemas;
 use App\Enums\UserRole;
 use App\Models\User;
 use App\Models\Donor;
+use App\Models\Governorate;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\DatePicker;
@@ -111,7 +112,7 @@ class DonorForm
 
                         Select::make('governorate_id')
                             ->label(__('admin.governorate'))
-                            ->relationship('governorate', 'name')
+                            ->options(Governorate::localizedOptions())
                             ->searchable()
                             ->preload()
                             ->required(),

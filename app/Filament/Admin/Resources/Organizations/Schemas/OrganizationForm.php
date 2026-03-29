@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Resources\Organizations\Schemas;
 
 use App\Enums\UserRole;
+use App\Models\Governorate;
 use App\Models\Organization;
 use App\Models\User;
 use Filament\Forms\Components\CheckboxList;
@@ -164,7 +165,7 @@ class OrganizationForm
                             ->schema([
                                 Select::make('governorate_id')
                                     ->label(__('Governorate'))
-                                    ->relationship('governorate', 'name')
+                                    ->options(Governorate::localizedOptions())
                                     ->required()
                                     ->searchable()
                                     ->preload(),

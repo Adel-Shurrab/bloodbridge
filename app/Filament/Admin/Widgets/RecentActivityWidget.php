@@ -45,7 +45,7 @@ class RecentActivityWidget extends Widget
             ->get()
             ->each(function ($org) use ($activities) {
                 $activities->push([
-                    'title' => __('admin.organization_approval_successful', ['name' => $org->org_name ?? $org->name]),
+                    'title' => __('admin.organization_approval_successful', ['name' => $org->localized_org_name ?? $org->name]),
                     'time' => $org->updated_at->diffForHumans(),
                     'icon' => 'heroicon-m-check-badge',
                     'color' => 'orange',

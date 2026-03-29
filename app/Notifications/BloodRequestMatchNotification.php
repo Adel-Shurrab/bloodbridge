@@ -74,7 +74,7 @@ class BloodRequestMatchNotification extends Notification implements ShouldQueue
     private function getBody(object $notifiable): string
     {
         $organization = $this->bloodRequest->organization;
-        $orgName = $organization ? $organization->getTranslation('org_name', app()->getLocale()) : __('Hospital Not Specified');
+        $orgName = $organization?->localized_org_name ?: __('Hospital Not Specified');
         $bloodType = $this->bloodRequest->blood_type->getLabel();
         $units = $this->bloodRequest->units_needed;
 

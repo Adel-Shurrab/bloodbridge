@@ -604,7 +604,7 @@ class ResponsesRelationManager extends RelationManager
                                         eligibilityStatus: $data['eligibility_status'],
                                         rejectionReason: $data['rejection_reason'] ?? null,
                                         nextEligibleDate: $healthProfile?->next_eligible_date,
-                                        organizationName: $record->bloodRequest->organization?->getTranslation('org_name', app()->getLocale()),
+                                        organizationName: $record->bloodRequest->organization?->localized_org_name,
                                     ),
                                     NotificationType::DONOR_INELIGIBILITY
                                 );
@@ -656,7 +656,7 @@ class ResponsesRelationManager extends RelationManager
 
                                 Placeholder::make('verifying_org_view')
                                     ->label(__('organization.verifying_entity'))
-                                    ->content(fn($record) => $record->donor->healthProfile?->verifyingOrganization?->org_name ?? '—'),
+                                    ->content(fn($record) => $record->donor->healthProfile?->verifyingOrganization?->localized_org_name ?? '—'),
 
                                 Placeholder::make('verified_at_view')
                                     ->label(__('organization.lab_verification_date'))
