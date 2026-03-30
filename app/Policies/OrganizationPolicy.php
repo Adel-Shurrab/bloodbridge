@@ -24,16 +24,24 @@ class OrganizationPolicy
 
     public function create(User $user): bool
     {
-        return false;
+        return $user->role === UserRole::ADMIN;
     }
 
     public function update(User $user, Organization $organization): bool
     {
-        return false;
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        return $organization->user_id === $user->id;
     }
 
     public function delete(User $user, Organization $organization): bool
     {
-        return false;
+        if ($user->role === UserRole::ADMIN) {
+            return true;
+        }
+
+        return $organization->user_id === $user->id;
     }
 }
