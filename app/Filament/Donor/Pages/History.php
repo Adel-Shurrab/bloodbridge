@@ -56,7 +56,7 @@ class History extends Page implements HasTable
             ->columns([
                 TextColumn::make('bloodRequest.organization.org_name')
                     ->label(__('donor.organization'))
-                    ->getStateUsing(fn($record) => $record->bloodRequest?->organization ? ($record->bloodRequest->organization->getTranslation('org_name', app()->getLocale(), false) ?: $record->bloodRequest->organization->getTranslation('org_name', 'ar', false)) : null)
+                    ->getStateUsing(fn($record) => $record->bloodRequest?->organization?->localized_org_name)
                     ->searchable()
                     ->sortable(),
 

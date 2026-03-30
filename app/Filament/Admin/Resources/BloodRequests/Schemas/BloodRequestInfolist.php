@@ -20,8 +20,7 @@ class BloodRequestInfolist
                             ->label(__('admin.organization'))
                             ->weight('bold')
                             ->getStateUsing(fn($record) => $record->organization
-                                ? ($record->organization->getTranslation('org_name', app()->getLocale(), false)
-                                    ?: $record->organization->getTranslation('org_name', 'ar', false))
+                                ? $record->organization->localized_org_name
                                 : null)
                             ->url(fn($record) => route('filament.admin.resources.organizations.view', $record->organization))
                             ->openUrlInNewTab(),

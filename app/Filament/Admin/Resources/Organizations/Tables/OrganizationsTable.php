@@ -24,13 +24,13 @@ class OrganizationsTable
                 TextColumn::make('org_name')
                     ->label(__('Organization'))
                     ->weight('bold')
-                    ->getStateUsing(fn($record) => $record->getTranslation('org_name', app()->getLocale(), false) ?: $record->getTranslation('org_name', 'ar', false))
+                    ->getStateUsing(fn($record) => $record->localized_org_name)
                     ->searchable()
                     ->sortable(),
 
                 TextColumn::make('governorate.name')
                     ->label(__('Governorate'))
-                    ->getStateUsing(fn($record) => $record->governorate?->getTranslation('name', app()->getLocale(), false) ?: $record->governorate?->getTranslation('name', 'ar', false))
+                    ->getStateUsing(fn($record) => $record->governorate?->localized_name)
                     ->sortable(),
 
                 TextColumn::make('contact_phone')
@@ -59,7 +59,9 @@ class OrganizationsTable
                     ->options(\App\Enums\OrganizationStatus::class),
                 SelectFilter::make('governorate_id')
                     ->label(__('Governorate'))
-                    ->relationship('governorate', 'name'),
+                    ->options(\App\Models\Governorate::localizedOptions())
+                    ->searchable()
+                    ->preload(),
                 TrashedFilter::make()->label(__('Trash')),
             ])
             ->actions([

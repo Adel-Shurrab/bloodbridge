@@ -26,7 +26,11 @@ class VerifyEmailController extends Controller
             if (Auth::check() && Auth::id() == $user->id) {
                 return redirect()->intended($user->getDashboardUrl() . '?verified=1');
             }
-            return redirect()->route('login')->with('status', 'تم تأكيد بريدك الإلكتروني مسبقاً. يمكنك تسجيل الدخول.');
+
+            return redirect()->route('login')->with(
+                'status',
+                __('auth.email_already_verified')
+            );
         }
 
         if ($user->markEmailAsVerified()) {
@@ -37,6 +41,9 @@ class VerifyEmailController extends Controller
             return redirect()->intended($user->getDashboardUrl() . '?verified=1');
         }
 
-        return redirect()->route('login')->with('status', 'تم تأكيد بريدك الإلكتروني بنجاح. يمكنك تسجيل الدخول الآن.');
+        return redirect()->route('login')->with(
+            'status',
+            __('auth.email_verified_successfully')
+        );
     }
 }

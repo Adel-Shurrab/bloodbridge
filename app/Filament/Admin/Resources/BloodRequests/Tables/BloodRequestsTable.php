@@ -25,7 +25,7 @@ class BloodRequestsTable
             ->columns([
                 TextColumn::make('organization.org_name')
                     ->label(__('admin.organization_name'))
-                    ->getStateUsing(fn($record, $livewire) => $record->organization ? ($record->organization->getTranslation('org_name', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->organization->getTranslation('org_name', 'ar', false)) : null)
+                    ->getStateUsing(fn($record, $livewire) => $record->organization?->localized_org_name)
                     ->searchable()
                     ->sortable(),
                 TextColumn::make('blood_type')

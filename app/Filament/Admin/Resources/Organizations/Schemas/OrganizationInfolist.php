@@ -23,6 +23,7 @@ class OrganizationInfolist
                             ->label(__('Organization Name'))
                             ->weight('bold')
                             ->size('lg')
+                            ->getStateUsing(fn($record) => $record->localized_org_name)
                             ->columnSpan(2),
 
                         TextEntry::make('slug')
@@ -39,7 +40,8 @@ class OrganizationInfolist
                         TextEntry::make('governorate.name')
                             ->label(__('Governorate'))
                             ->badge()
-                            ->color('info'),
+                            ->color('info')
+                            ->getStateUsing(fn($record) => $record->governorate?->localized_name),
 
                         TextEntry::make('description')
                             ->label(__('Organization Description'))

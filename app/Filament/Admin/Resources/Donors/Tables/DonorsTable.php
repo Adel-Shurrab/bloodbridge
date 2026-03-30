@@ -51,7 +51,7 @@ class DonorsTable
                     ->sortable(),
                 TextColumn::make('governorate.name')
                     ->label(__('admin.governorate'))
-                    ->getStateUsing(fn($record) => $record->governorate?->getTranslation('name', app()->getLocale(), false) ?: $record->governorate?->getTranslation('name', 'ar', false))
+                    ->getStateUsing(fn($record) => $record->governorate?->localized_name)
                     ->sortable(),
                 TextColumn::make('birth_date')
                     ->label(__('admin.birth_date'))
@@ -86,7 +86,7 @@ class DonorsTable
                     ->options(\App\Enums\Gender::class),
                 SelectFilter::make('governorate_id')
                     ->label(__('admin.governorate'))
-                    ->relationship('governorate', 'name')
+                    ->options(\App\Models\Governorate::localizedOptions())
                     ->searchable()
                     ->preload(),
                 SelectFilter::make('blood_type')

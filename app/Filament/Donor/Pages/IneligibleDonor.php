@@ -42,7 +42,7 @@ class IneligibleDonor extends Page
             ->first();
 
         return [
-            'organization_name' => $log?->organization?->org_name ?? __('donor.specialized_medical_facility'),
+            'organization_name' => $log?->organization?->localized_org_name ?? __('donor.specialized_medical_facility'),
             'reason' => $log?->rejection_reason ?? __('donor.medical_reasons_preventing_permanent_donation'),
             'date' => $log?->created_at?->format('Y/m/d') ?? now()->format('Y/m/d'),
         ];

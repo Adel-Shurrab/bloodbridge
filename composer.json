@@ -12,7 +12,6 @@
         "php": "^8.3",
         "bezhansalleh/filament-language-switch": "*",
         "dotswan/filament-map-picker": "^2.1",
-        "endroid/qr-code": "^5.0",
         "filament/spatie-laravel-settings-plugin": "*",
         "flowframe/laravel-trend": "^0.4.0",
         "lara-zeus/spatie-translatable": "1.0",

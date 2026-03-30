@@ -225,7 +225,7 @@ function createRipple(event) {
     height: ${size}px;
     border-radius: 50%;
     background: rgba(211, 47, 47, 0.2);
-    right: ${x}px;
+    left: ${x}px;
     top: ${y}px;
     transform: scale(0);
     animation: ripple 0.6s ease-out;

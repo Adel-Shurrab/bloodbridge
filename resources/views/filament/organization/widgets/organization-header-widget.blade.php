@@ -6,7 +6,7 @@
             <h1>{{ __('organization.dashboard') }}</h1>
             <p class="top-bar-subtitle">
                 {{ __('organization.welcome_back_with_org', ['name' => $organization?->responsible_person_name ?? auth()->user()?->name ?? __('organization.user')]) }} <span
-                    class="brand-text">{{ $organization?->org_name ?? __('organization.your_organization') }}</span>.
+                    class="brand-text">{{ $organization?->localized_org_name ?? __('organization.your_organization') }}</span>.
             </p>
         </div>
         <div class="top-bar-actions">
@@ -16,7 +16,7 @@
                 <div class="profile-info">
                     <span class="profile-name">{{ $organization?->responsible_person_name ?? auth()->user()?->name ?? __('organization.user') }}</span>
                     <span class="profile-role">
-                        {{ $organization?->org_name ?? __('organization.organization') }}
+                        {{ $organization?->localized_org_name ?? __('organization.organization') }}
                     </span>
                 </div>
                 <img src="{{ filament()->getUserAvatarUrl(auth()->user()) }}" alt="{{ __('organization.profile') }}" class="profile-img">
