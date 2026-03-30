@@ -220,7 +220,7 @@
                                     <input type="text" id="auto_location_address" name="auto_location_address"
                                         value="{{ old('auto_location_address') }}"
                                         placeholder="{{ __('Click the location button to determine your location automatically') }}"
-                                        readonly style="flex: 1; background: #f9fafb; cursor: pointer;" />
+                                        readonly style="flex: 1; background: #f9fafb; caret-color:transparent;" class="no" />
                                     <button type="button" id="gps-location-btn" class="btn btn-outline"
                                         style="padding: 0.875rem 1.5rem; white-space: nowrap; min-width: auto;"
                                         title="{{ __('Determine location automatically') }}">
@@ -247,10 +247,10 @@
                         <div class="form-row">
                             <div class="form-group">
                                 <label for="password">{{ __('Password') }} <span class="required">*</span></label>
-                                <div class="password-input">
+                                <div class="password-input" style="position:relative; display:flex;">
                                     <input type="password" id="password" name="password" required
-                                        placeholder="••••••••" />
-                                    <button type="button" class="toggle-password" data-target="password">
+                                        placeholder="••••••••" style="flex:1;" />
+                                    <button type="button" class="toggle-password" data-target="password" style="position:absolute;">
                                         <span class="eye-icon">👁️</span>
                                     </button>
                                 </div>
@@ -261,11 +261,11 @@
                             <div class="form-group">
                                 <label for="password_confirmation">{{ __('Confirm Password') }} <span
                                         class="required">*</span></label>
-                                <div class="password-input">
+                                <div class="password-input" style="position:relative; display:flex;">
                                     <input type="password" id="password_confirmation" name="password_confirmation"
-                                        required placeholder="••••••••" />
+                                        required placeholder="••••••••" style="flex:1;"/>
                                     <button type="button" class="toggle-password"
-                                        data-target="password_confirmation">
+                                        data-target="password_confirmation" style="position:absolute;">
                                         <span class="eye-icon">👁️</span>
                                     </button>
                                 </div>
@@ -500,10 +500,10 @@
                             style="padding: 1.5rem; background: #f9fafb; border-radius: 0.5rem; border: 1px solid #e5e7eb; margin-bottom: 2rem;">
                             <div class="form-group checkbox-group" style="margin: 0;">
                                 <label class="checkbox-label"
-                                    style="display: flex; align-items: flex-start; gap: 0.75rem; cursor: pointer;">
+                                    style="display: flex; align-items: center; cursor: pointer;">
                                     <input type="checkbox" id="termsAgree" name="terms" required
                                         style="margin-top: 0.25rem;" />
-                                    <span class="checkbox-custom" style="margin-top: 0.25rem;"></span>
+                                    <span class="checkbox-custom"></span>
                                     <span class="checkbox-text" style="padding: 0;">
                                         {{ __('I acknowledge that I have read and agreed to') }}
                                         <a href="{{ route('terms') }}" target="_blank" class="terms-link"

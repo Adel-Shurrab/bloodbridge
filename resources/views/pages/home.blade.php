@@ -11,7 +11,7 @@
                 <div style="display: flex; gap: 1rem; flex-wrap: wrap">
                     <a href="{{ route('register.donor') }}" class="btn btn-primary"
                         style="font-size: 1.1rem; padding: 1rem 2.5rem">{{ __('Donate Now') }}</a>
-                    <a href="#how-it-works" class="btn btn-outline">{{ __('Read More') }}</a>
+                    <a href="#how-it-works" class="btn btn-outline" style="display:flex; align-items:center;">{{ __('Read More') }}</a>
                 </div>
                 <div class="hero-stats">
                     <div class="stat-card">

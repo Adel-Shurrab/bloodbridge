@@ -97,25 +97,25 @@ function initScrollAnimations() {
 }
 
 // Smooth scroll for anchor links
-function initSmoothScroll() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            const href = this.getAttribute('href');
+// function initSmoothScroll() {
+//     document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+//         anchor.addEventListener('click', function (e) {
+//             const href = this.getAttribute('href');
 
-            // Skip if it's just a placeholder hash for modal triggers
-            if (href === '#') return;
+//             // Skip if it's just a placeholder hash for modal triggers
+//             if (href === '#') return;
 
-            e.preventDefault();
-            const target = document.querySelector(href);
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-}
+//             e.preventDefault();
+//             const target = document.querySelector(href);
+//             if (target) {
+//                 target.scrollIntoView({
+//                     behavior: 'smooth',
+//                     block: 'start'
+//                 });
+//             }
+//         });
+//     });
+// }
 
 // Add staggered animation to cards
 function initStaggeredAnimations() {
@@ -166,7 +166,6 @@ document.addEventListener('DOMContentLoaded', () => {
     initNavbarScroll();
     initMobileMenu();
     initScrollAnimations();
-    initSmoothScroll();
     initStaggeredAnimations();
     initParallax();
     initInteractiveEffects();

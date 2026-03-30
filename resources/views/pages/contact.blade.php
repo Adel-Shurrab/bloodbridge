@@ -36,7 +36,7 @@
                     @if ($settings->enable_contact_messages)
                         <h3>{{ __('Send us a Message') }}</h3>
                         <form id="contactForm" method="POST" action="{{ route('contact.submit') }}"
-                            class="contact-form">
+                            class="contact-form" novalidate>
                             @csrf
                             <div class="form-group">
                                 <label for="name">{{ __('Your Name') }} <span class="required">*</span></label>
@@ -64,18 +64,21 @@
                                     aria-required="true" aria-describedby="messageError"></textarea>
                                 <span class="error-message" id="messageError"></span>
                             </div>
-                            <div class="form-group checkbox">
+                            <div style="margin-bottom: 1.5rem;">
+                                <div class="form-group checkbox" style="margin-bottom: 0;">
                                 <input type="checkbox" id="privacy" name="privacy" required aria-required="true" />
                                 <label for="privacy">{{ __('I agree to the') }} <a href="javascript:void(0)"
                                         @click.prevent="$dispatch('open-modal', 'privacyModal')">{{ __('Privacy Policy') }}</a>
                                     <span class="required">*</span></label>
+                                </div>
+                                <span class="error-message" id="privacyError"></span>
                             </div>
                             <button type="submit" class="btn btn-primary full-width" id="submitBtn">
                                 <span class="btn-text">{{ __('Send Message') }}</span>
                                 <span class="btn-loader" style="display: none;">{{ __('Sending...') }}</span>
                             </button>
-                            <div class="form-message success-message" id="successMessage" style="display: none;"></div>
-                            <div class="form-message error-message" id="errorMessage" style="display: none;"></div>
+                            <div class="form-message success-message" id="successMessage" style="display: none; margin-top: 1.5rem !important; "></div>
+                            <div class="form-message error-message" id="errorMessage" style="display: none; margin-top: 1.5rem !important;"></div>
                         </form>
                     @else
                         <div class="text-center" style="padding: 40px 20px;">
