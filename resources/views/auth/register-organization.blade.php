@@ -140,7 +140,7 @@
                             </div>
                             <div class="info-box mini" style="margin: 0 0 1.5rem 0; padding: 0.75rem 1rem;">
                                 <div class="info-icon">💡</div>
-                                <div class="info-content">
+                                <div class="info-content" style="display:flex; align-items:center;">
                                     <p style="font-size: 0.85rem;">
                                         {{ __('Providing operating hours helps donors choose the appropriate time to visit you.') }}
                                     </p>
@@ -182,10 +182,9 @@
                                         class="required">*</span></label>
                                 <input type="number" id="daily_capacity" name="daily_capacity"
                                     value="{{ old('daily_capacity') }}" min="1"
-                                    placeholder="{{ __('Example: 50') }}" />
+                                    placeholder="{{ __('Example: 50') }}" />                                
+                                <span class="helper-text">{{ __('The estimated number of donors the organization can receive daily. Entering this number helps us organize the flow of donors.') }}</span>
                                 <span class="error-message"></span>
-                                <span
-                                    class="helper-text">{{ __('The estimated number of donors the organization can receive daily. Entering this number helps us organize the flow of donors.') }}</span>
                             </div>
                         </div>
 
@@ -248,7 +247,7 @@
                                     <input type="text" id="auto_location_address" name="auto_location_address"
                                         value="{{ old('auto_location_address') }}"
                                         placeholder="{{ __('Click the location button to determine the organization\'s location automatically') }}"
-                                        readonly style="flex: 1; background: #f9fafb; cursor: pointer;" />
+                                        readonly style="flex: 1; background: #f9fafb; caret-color:transparent;" class="no"/>
                                     <button type="button" id="gps-location-btn" class="btn btn-outline"
                                         style="padding: 0.875rem 1.5rem; white-space: nowrap; min-width: auto;"
                                         title="{{ __('Determine location automatically') }}">
@@ -270,7 +269,7 @@
                             </div>
                         </div>
                     </div>
-            </div>
+
             <div class="form-step" id="step3">
                 <h2 class="step-title">{{ __('Documentation & Management') }}</h2>
 
@@ -288,14 +287,14 @@
                         <div class="file-upload-wrapper">
                             <input type="file" id="licenseUpload" name="licenseUpload"
                                 accept=".pdf,.jpg,.jpeg,.png" class="file-input" />
-                            <div class="file-upload-display" id="fileUploadDisplay">
+                            <div class="file-upload-display" id="fileUploadDisplay" style="flex-direction:column;">
                                 <div class="file-icon">📄</div>
                                 <div class="file-text">
                                     <span class="file-prompt">{{ __('Click to upload') }}</span>
                                     <span class="file-hint">{{ __('PDF, JPG, PNG up to 5MB') }}</span>
                                 </div>
                             </div>
-                            <div class="file-selected" id="fileSelected" style="display: none">
+                            <div class="file-selected" id="fileSelected" style="display: none; margin-top:0;">
                                 <span class="file-name" id="fileName"></span>
                                 <button type="button" class="file-remove" id="fileRemove">×</button>
                             </div>
@@ -336,23 +335,23 @@
                 <div class="form-row">
                     <div class="form-group">
                         <label for="adminPassword">{{ __('Password') }} <span class="required">*</span></label>
-                        <div class="password-input">
-                            <input type="password" id="adminPassword" name="adminPassword" placeholder="••••••••" />
-                            <button type="button" class="toggle-password" data-target="adminPassword">
+                        <div class="password-input" style="position:relative;">
+                            <input type="password" id="adminPassword" name="adminPassword" placeholder="••••••••" style="flex:1;"/>
+                            <button type="button" class="toggle-password" data-target="adminPassword" style="position:absolute;">
                                 <span class="eye-icon">👁️</span>
                             </button>
                         </div>
-                        <span class="error-message"></span>
                         <span class="helper-text">{{ __('Must be at least 8 characters') }}</span>
+                        <span class="error-message"></span>       
                     </div>
 
                     <div class="form-group">
                         <label for="adminPassword_confirmation">{{ __('Confirm Password') }} <span
                                 class="required">*</span></label>
-                        <div class="password-input">
+                        <div class="password-input" style="position:relative;">
                             <input type="password" id="adminPassword_confirmation" name="adminPassword_confirmation"
-                                placeholder="••••••••" />
-                            <button type="button" class="toggle-password" data-target="adminPassword_confirmation">
+                                placeholder="••••••••" style="flex:1;"/>
+                            <button type="button" class="toggle-password" data-target="adminPassword_confirmation" style="position:absolute;">
                                 <span class="eye-icon">👁️</span>
                             </button>
                         </div>
