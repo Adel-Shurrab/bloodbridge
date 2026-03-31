@@ -119,11 +119,11 @@ class BloodRequest extends Model
     }
 
     /**
-     * Get number of donors found (computed from responses)
+     * Get number of donors found (computed from accepted/pending/completed responses)
      */
     public function getDonorsFoundAttribute(): int
     {
-        return $this->responses()->count();
+        return $this->acceptedResponses()->count();
     }
 
     /**
@@ -140,7 +140,7 @@ class BloodRequest extends Model
     }
 
     /**
-     * Scope to only include active blood requests (BROADCASTED or MATCHED, not fulfilled).
+     * Scope to only include active blood requests (BROADCASTED, not fulfilled).
      *
      * @param  \Illuminate\Database\Eloquent\Builder  $query
      * @return void
