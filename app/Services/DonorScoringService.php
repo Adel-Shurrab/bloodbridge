@@ -48,6 +48,7 @@ class DonorScoringService
             $result = $results[$donor->id] ?? ScoringResult::neutral($donor->id);
             $donor->setAttribute('scoringResult', $result);
             $donor->setAttribute('score', $result->score);
+
             return $donor;
         });
 
@@ -64,33 +65,55 @@ class DonorScoringService
         $exploitSlots = (int) ceil($budget * (1 - $this->settings->exploration_ratio));
         $exploreSlots = $budget - $exploitSlots;
 
-        // Step 5: Fill slots
-        $selectedExploiters = $exploiters->sortByDesc('score')->take($exploitSlots);
-        $selectedExplorers  = $explorers->shuffle()->take($exploreSlots);
-        $selected           = $selectedExploiters->merge($selectedExplorers);
+        // Step 5: Fill slots, then backfill from whichever pool still has capacity.
+        $sortedExploiters = $exploiters->sortByDesc('score')->values();
+        $shuffledExplorers = $explorers->shuffle()->values();
+
+        $selectedExploiters = $sortedExploiters->take($exploitSlots);
+        $selectedExplorers = $shuffledExplorers->take($exploreSlots);
+        $selected = $selectedExploiters->merge($selectedExplorers);
+
+        $remainingBudget = $budget - $selected->count();
+
+        if ($remainingBudget > 0) {
+            $selectedIds = $selected->pluck('id')->all();
+
+            $backfill = $sortedExploiters
+                ->merge($shuffledExplorers)
+                ->reject(fn(Donor $donor) => in_array($donor->id, $selectedIds, true))
+                ->take($remainingBudget);
+
+            $selected = $selected->merge($backfill);
+        }
+
+        $explorerIds = $shuffledExplorers->pluck('id');
+        $selectedExplorerCount = $selected
+            ->filter(fn(Donor $donor) => $explorerIds->contains($donor->id))
+            ->count();
+        $selectedExploiterCount = $selected->count() - $selectedExplorerCount;
 
         // Step 6: Build stats for logging and A/B tracking
-        $coldStartCount  = $scored->filter(fn($d) => $d->scoringResult->isColdStart)->count();
+        $coldStartCount = $scored->filter(fn($d) => $d->scoringResult->isColdStart)->count();
         $sourceBreakdown = $scored
             ->groupBy(fn($d) => $d->scoringResult->source)
             ->map->count()
             ->toArray();
 
         Log::info('DonorScoringService::scoreAndSelect', [
-            'total_eligible'  => $donors->count(),
+            'total_eligible' => $donors->count(),
             'exploiters_pool' => $exploiters->count(),
-            'explorers_pool'  => $explorers->count(),
-            'selected_total'  => $selected->count(),
-            'cold_start'      => $coldStartCount,
-            'budget'          => $budget,
-            'urgency'         => $urgency,
-            'sources'         => $sourceBreakdown,
+            'explorers_pool' => $explorers->count(),
+            'selected_total' => $selected->count(),
+            'cold_start' => $coldStartCount,
+            'budget' => $budget,
+            'urgency' => $urgency,
+            'sources' => $sourceBreakdown,
         ]);
 
         return [
-            'selected'         => $selected->values(),
-            'exploiter_count'  => $selectedExploiters->count(),
-            'explorer_count'   => $selectedExplorers->count(),
+            'selected' => $selected->values(),
+            'exploiter_count' => $selectedExploiterCount,
+            'explorer_count' => $selectedExplorerCount,
             'cold_start_count' => $coldStartCount,
             'source_breakdown' => $sourceBreakdown,
         ];
@@ -127,7 +150,7 @@ class DonorScoringService
     }
 
     // =========================================================================
-    // Waterfall — Never Fails Silently
+    // Waterfall - Never Fails Silently
     // =========================================================================
 
     /**
@@ -135,11 +158,11 @@ class DonorScoringService
      * Tries each level in order, falls back to the next if unavailable.
      *
      * Level 1: Fresh DB cache
-     * Level 2: FastAPI (XGBoost) — skipped if ml_scoring_enabled = false
+     * Level 2: FastAPI (XGBoost) - skipped if ml_scoring_enabled = false
      * Level 3: Rule-based PHP formula
-     * Level 4: Neutral 0.5 (implicit — handled in scoreAndSelect)
+     * Level 4: Neutral 0.5 (implicit - handled in scoreAndSelect)
      *
-     * @param  int[]                     $donorIds
+     * @param  int[] $donorIds
      * @return array<int, ScoringResult>
      */
     private function getScoreResults(array $donorIds): array
@@ -156,7 +179,7 @@ class DonorScoringService
         if ($this->settings->ml_scoring_enabled) {
             $apiResults = $this->getFromFastApi($missing);
             $results = $results + $apiResults;
-            $missing    = array_values(array_diff($donorIds, array_keys($results)));
+            $missing = array_values(array_diff($donorIds, array_keys($results)));
         }
 
         if (empty($missing)) {
@@ -174,7 +197,7 @@ class DonorScoringService
      * Level 1: Get fresh scores from donor_predictive_scores table.
      * A score is considered fresh if computed within score_staleness_days.
      *
-     * @param  int[]                     $donorIds
+     * @param  int[] $donorIds
      * @return array<int, ScoringResult>
      */
     private function getFromDbCache(array $donorIds): array
@@ -194,9 +217,9 @@ class DonorScoringService
 
     /**
      * Level 2: Get scores from FastAPI (XGBoost model).
-     * Returns empty array if FastAPI is unavailable — waterfall continues.
+     * Returns empty array if FastAPI is unavailable - waterfall continues.
      *
-     * @param  int[]                     $donorIds
+     * @param  int[] $donorIds
      * @return array<int, ScoringResult>
      */
     private function getFromFastApi(array $donorIds): array
@@ -237,23 +260,23 @@ class DonorScoringService
 
     /**
      * Level 3: Rule-based scoring using a single aggregate SQL query.
-     * No loops. No N+1. Always available — no external dependencies.
+     * No loops. No N+1. Always available - no external dependencies.
      *
      * Formula:
-     *   score = (acceptance_rate × 0.50)
-     *         + (recency_score   × 0.30)
-     *         + (loyalty_score   × 0.20)
+     *   score = (acceptance_rate x 0.50)
+     *         + (recency_score   x 0.30)
+     *         + (loyalty_score   x 0.20)
      *
-     * @param  int[]                     $donorIds
+     * @param  int[] $donorIds
      * @return array<int, ScoringResult>
      */
     private function getFromRuleBasedQuery(array $donorIds): array
     {
         $minHistory = $this->settings->min_history_for_exploitation;
 
-        $acceptedValue  = RequestResponseStatus::ACCEPTED->value;
+        $acceptedValue = RequestResponseStatus::ACCEPTED->value;
         $completedValue = RequestResponseStatus::COMPLETED->value;
-        $noShowValue    = RequestResponseStatus::NO_SHOW->value;
+        $noShowValue = RequestResponseStatus::NO_SHOW->value;
         $countedStatuses = [
             RequestResponseStatus::PENDING->value,
             RequestResponseStatus::ACCEPTED->value,
@@ -288,35 +311,35 @@ class DonorScoringService
 
         foreach ($rows as $row) {
             $donorId = (int) $row->donor_id;
-            $total   = (int) $row->total_responses;
+            $total = (int) $row->total_responses;
 
             if ($total < $minHistory) {
                 $results[$donorId] = ScoringResult::coldStart($donorId);
                 continue;
             }
 
-            $noShowPenalty  = (int) $row->no_show_count;
-            $adjustedTotal  = $total + $noShowPenalty;
+            $noShowPenalty = (int) $row->no_show_count;
+            $adjustedTotal = $total + $noShowPenalty;
 
             $acceptanceRate = $row->accepted_count / $adjustedTotal;
 
-            $daysSinceLast  = $row->last_responded_at
+            $daysSinceLast = $row->last_responded_at
                 ? (int) now()->diffInDays(\Carbon\Carbon::parse($row->last_responded_at))
                 : 999;
-            $recencyScore   = match (true) {
-                $daysSinceLast <= 7   => 1.0,
-                $daysSinceLast <= 30  => 0.8,
-                $daysSinceLast <= 90  => 0.5,
+            $recencyScore = match (true) {
+                $daysSinceLast <= 7 => 1.0,
+                $daysSinceLast <= 30 => 0.8,
+                $daysSinceLast <= 90 => 0.5,
                 $daysSinceLast <= 180 => 0.3,
-                default               => 0.1,
+                default => 0.1,
             };
 
             $loyaltyScore = min((int) $row->total_donations / 10, 1.0);
 
             $score = round(
                 ($acceptanceRate * 0.50) +
-                    ($recencyScore   * 0.30) +
-                    ($loyaltyScore   * 0.20),
+                    ($recencyScore * 0.30) +
+                    ($loyaltyScore * 0.20),
                 4
             );
 
@@ -334,11 +357,11 @@ class DonorScoringService
      * Split scored donors into two pools:
      *
      * Exploiters: donors the system is confident about (high scorers)
-     *             → Fill 80% of notification slots
+     *             -> Fill 80% of notification slots
      *
      * Explorers:  cold-start donors + bottom epsilon% of scored donors
-     *             → Fill 20% of notification slots
-     *             → Helps discover hidden high-potential donors
+     *             -> Fill 20% of notification slots
+     *             -> Helps discover hidden high-potential donors
      *
      * @param  Collection $scored Donors with scoringResult and score attributes
      * @return array{0: Collection, 1: Collection} [exploiters, explorers]
@@ -346,15 +369,15 @@ class DonorScoringService
     private function splitByEpsilonGreedy(Collection $scored): array
     {
         // Cold-start donors always go to exploration
-        $coldStart  = $scored->filter(fn($d) => $d->scoringResult->isColdStart);
+        $coldStart = $scored->filter(fn($d) => $d->scoringResult->isColdStart);
 
-        // Scored donors sorted high → low
+        // Scored donors sorted high -> low
         $withScores = $scored
             ->filter(fn($d) => ! $d->scoringResult->isColdStart)
             ->sortByDesc('score')
             ->values();
 
-        $epsilon      = $this->settings->exploration_ratio;
+        $epsilon = $this->settings->exploration_ratio;
         $exploreCount = (int) ceil($withScores->count() * $epsilon);
 
         $exploiters = $withScores->slice(0, $withScores->count() - $exploreCount);

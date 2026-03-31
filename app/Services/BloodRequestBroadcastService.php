@@ -90,6 +90,7 @@ class BloodRequestBroadcastService
                 // BROADCASTED. Revert so the request is not stuck in a broken state.
                 $bloodRequest->status = BloodRequestStatus::PENDING;
                 $bloodRequest->broadcasted_at = null;
+                $bloodRequest->actual_search_radius_km = null;
                 $bloodRequest->save();
 
                 throw $e;
@@ -370,7 +371,8 @@ class BloodRequestBroadcastService
     }
 
     /**
-     * Apply recent notification filter to query (prevents spam)
+     * Apply recent notification filter to query (prevents spam).
+     * Excludes donors who recently interacted with any request (not just active ones).
      */
     private function applyRecentNotificationFilter($query, float $cooldownHours): void
     {
@@ -378,6 +380,9 @@ class BloodRequestBroadcastService
             ->whereIn('status', [
                 RequestResponseStatus::PENDING,
                 RequestResponseStatus::ACCEPTED,
+                RequestResponseStatus::IGNORED,
+                RequestResponseStatus::DECLINED,
+                RequestResponseStatus::NO_SHOW,
             ]);
     }
 
