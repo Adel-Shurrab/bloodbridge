@@ -40,8 +40,14 @@ class DonorScoringService
      */
     public function scoreAndSelect(Collection $donors, string $urgency): array
     {
+        // Build [donor_id => distance_km] from the distance column added by withinRadius scope
+        $distances = $donors
+            ->filter(fn(Donor $d) => $d->getAttribute('distance') !== null)
+            ->mapWithKeys(fn(Donor $d) => [(int) $d->id => (float) $d->getAttribute('distance')])
+            ->toArray();
+
         // Step 1: Get a ScoringResult for every donor via the waterfall
-        $results = $this->getScoreResults($donors->pluck('id')->toArray());
+        $results = $this->getScoreResults($donors->pluck('id')->toArray(), $urgency, $distances);
 
         // Step 2: Attach the ScoringResult and score to each Donor model
         $scored = $donors->map(function (Donor $donor) use ($results) {
@@ -125,7 +131,7 @@ class DonorScoringService
      */
     public function getScore(Donor $donor): ScoringResult
     {
-        $results = $this->getScoreResults([(int) $donor->id]);
+        $results = $this->getScoreResults([(int) $donor->id], 'normal', []);
 
         return $results[(int) $donor->id]
             ?? ScoringResult::neutral($donor->id);
@@ -165,7 +171,7 @@ class DonorScoringService
      * @param  int[] $donorIds
      * @return array<int, ScoringResult>
      */
-    private function getScoreResults(array $donorIds): array
+    private function getScoreResults(array $donorIds, string $urgency, array $distances): array
     {
         // Level 1: Fresh DB cache
         $results = $this->getFromDbCache($donorIds);
@@ -177,20 +183,24 @@ class DonorScoringService
 
         // Level 2: FastAPI
         if ($this->settings->ml_scoring_enabled) {
-            $apiResults = $this->getFromFastApi($missing);
+            $apiResults = $this->getFromFastApi($missing, $urgency, $distances);
             $results = $results + $apiResults;
             $missing = array_values(array_diff($donorIds, array_keys($results)));
         }
 
         if (empty($missing)) {
+            $this->persistToDbCache($results);
             return $results;
         }
 
         // Level 3: Rule-based
         Log::info('Using rule-based scoring for ' . count($missing) . ' donors');
         $ruleResults = $this->getFromRuleBasedQuery($missing);
+        $results = $results + $ruleResults;
 
-        return $results + $ruleResults;
+        $this->persistToDbCache($results);
+
+        return $results;
     }
 
     /**
@@ -222,13 +232,15 @@ class DonorScoringService
      * @param  int[] $donorIds
      * @return array<int, ScoringResult>
      */
-    private function getFromFastApi(array $donorIds): array
+    private function getFromFastApi(array $donorIds, string $urgency, array $distances): array
     {
-        $raw = $this->circuitBreaker->attempt(function () use ($donorIds) {
+        $raw = $this->circuitBreaker->attempt(function () use ($donorIds, $urgency, $distances) {
             $response = Http::connectTimeout(5)
                 ->timeout(8)
                 ->post(config('services.fastapi.url') . '/api/score', [
                     'donor_ids' => $donorIds,
+                    'urgency'   => $urgency,
+                    'distances' => empty($distances) ? null : $distances,
                 ]);
 
             if (! $response->successful()) {
@@ -349,23 +361,48 @@ class DonorScoringService
         return $results;
     }
 
+    /**
+     * Persist newly computed scores (Level 2 and Level 3) to the DB cache.
+     * Skips cold-start placeholders and results that were already read from the cache.
+     *
+     * @param array<int, ScoringResult> $results
+     */
+    private function persistToDbCache(array $results): void
+    {
+        $rows = [];
+        $now  = now();
+
+        foreach ($results as $donorId => $result) {
+            if ($result->isColdStart || $result->source === 'db_cache') {
+                continue;
+            }
+
+            $rows[] = [
+                'donor_id'               => $donorId,
+                'acceptance_probability' => $result->score,
+                'computed_at'            => $now,
+                'model_version'          => $result->source,
+                'data_points_count'      => 0,
+                'created_at'             => $now,
+                'updated_at'             => $now,
+            ];
+        }
+
+        if (empty($rows)) {
+            return;
+        }
+
+        DonorPredictiveScore::upsert(
+            $rows,
+            ['donor_id'],
+            ['acceptance_probability', 'computed_at', 'model_version', 'updated_at']
+        );
+    }
+
     // =========================================================================
     // Epsilon-Greedy Bucketing
     // =========================================================================
 
-    /**
-     * Split scored donors into two pools:
-     *
-     * Exploiters: donors the system is confident about (high scorers)
-     *             -> Fill 80% of notification slots
-     *
-     * Explorers:  cold-start donors + bottom epsilon% of scored donors
-     *             -> Fill 20% of notification slots
-     *             -> Helps discover hidden high-potential donors
-     *
-     * @param  Collection $scored Donors with scoringResult and score attributes
-     * @return array{0: Collection, 1: Collection} [exploiters, explorers]
-     */
     private function splitByEpsilonGreedy(Collection $scored): array
     {
         // Cold-start donors always go to exploration

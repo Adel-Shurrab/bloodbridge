@@ -37,6 +37,8 @@ engine = create_engine(
 
 class ScoreRequest(BaseModel):
     donor_ids: List[int]
+    urgency: Optional[str] = 'normal'
+    distances: Optional[Dict[int, float]] = None
 
     @field_validator('donor_ids')
     @classmethod
@@ -91,7 +93,7 @@ def load_feature_names():
         return []
 
 
-def get_donor_features(donor_ids: list) -> pd.DataFrame:
+def get_donor_features(donor_ids: list, urgency: str = 'normal', distances: dict = None) -> pd.DataFrame:
     """
     Fetch donor features from database in a single query.
     Same features as our Jupyter notebook training data.
@@ -149,9 +151,15 @@ def get_donor_features(donor_ids: list) -> pd.DataFrame:
     # loyalty_score
     df['loyalty_score'] = (df['total_donations'] / 10).clip(0, 1)
 
-    # Default urgency and context
-    df['urgency_level'] = 1
-    df['distance_km'] = 10.0
+    # urgency_level: NORMAL=1, CRITICAL=2 (matches Laravel UrgencyLevel enum)
+    df['urgency_level'] = 2 if urgency == 'critical' else 1
+
+    # distance_km: use per-donor real distance if provided, fall back to 10.0
+    if distances:
+        df['distance_km'] = df['donor_id'].map(distances).fillna(10.0)
+    else:
+        df['distance_km'] = 10.0
+
     df['hour_of_day'] = datetime.now().hour
     df['day_of_week'] = datetime.now().weekday()
 
@@ -241,7 +249,7 @@ async def score_donors(request: Request, body: ScoreRequest):
         })
 
     # Fetch features from DB
-    features_df = get_donor_features(body.donor_ids)
+    features_df = get_donor_features(body.donor_ids, body.urgency, body.distances)
 
     # Get response counts for cold-start detection
     placeholders = ', '.join([f':id_{i}' for i in range(len(body.donor_ids))])
