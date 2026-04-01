@@ -18,6 +18,9 @@ class VerifyEmailController extends Controller
     {
         $user = User::findOrFail($id);
 
+        // Set the user's preferred locale so flash messages appear in the right language
+        app()->setLocale($user->locale ?? config('app.fallback_locale'));
+
         if (! hash_equals((string) $hash, sha1($user->getEmailForVerification()))) {
             abort(403);
         }
