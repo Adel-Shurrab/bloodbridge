@@ -42,9 +42,55 @@ class BloodRequestActionService
         }
 
         $response = DB::transaction(function () use ($donor, $request) {
+            $lockedRequest = BloodRequest::query()
+                ->lockForUpdate()
+                ->find($request->id);
+
+            if (! $lockedRequest || ! $lockedRequest->isActive()) {
+                throw new RuntimeException(__('donor.request_not_available'));
+            }
+
+            // Serialize accepts per donor so one donor cannot claim two requests concurrently.
+            $lockedDonor = Donor::query()
+                ->lockForUpdate()
+                ->find($donor->id);
+
+            $lockedProfile = $lockedDonor?->healthProfile()
+                ->lockForUpdate()
+                ->first();
+
+            $isEligible = $lockedProfile
+                && $lockedProfile->is_eligible
+                && (
+                    is_null($lockedProfile->next_eligible_date)
+                    || $lockedProfile->next_eligible_date->startOfDay()->isPast()
+                    || $lockedProfile->next_eligible_date->startOfDay()->isToday()
+                );
+
+            if (! $isEligible) {
+                throw new RuntimeException(__('donor.donor_not_eligible'));
+            }
+
+            // Check if donor already has an active response to THIS request
+            $existingForThisRequest = RequestResponse::query()
+                ->where('donor_id', $donor->id)
+                ->where('blood_request_id', $lockedRequest->id)
+                ->whereIn('status', [
+                    RequestResponseStatus::PENDING->value,
+                    RequestResponseStatus::ACCEPTED->value,
+                    RequestResponseStatus::COMPLETED->value,
+                ])
+                ->lockForUpdate()
+                ->first();
+
+            if ($existingForThisRequest) {
+                throw new RuntimeException(__('donor.already_has_active_response'));
+            }
+
+            // Check if donor has an active response to ANY OTHER request
             $alreadyAccepted = RequestResponse::query()
                 ->where('donor_id', $donor->id)
-                ->where('blood_request_id', '!=', $request->id)
+                ->where('blood_request_id', '!=', $lockedRequest->id)
                 ->whereIn('status', [
                     RequestResponseStatus::PENDING->value,
                     RequestResponseStatus::ACCEPTED->value,
@@ -59,7 +105,7 @@ class BloodRequestActionService
             $response = RequestResponse::query()->updateOrCreate(
                 [
                     'donor_id' => $donor->id,
-                    'blood_request_id' => $request->id,
+                    'blood_request_id' => $lockedRequest->id,
                 ],
                 [
                     'status' => RequestResponseStatus::PENDING->value,
@@ -69,7 +115,7 @@ class BloodRequestActionService
 
             $this->qrCodeService->generate($response, true);
 
-            return $response;
+            return $response->refresh();
         });
 
         $orgUser = $request->organization?->user;
@@ -95,10 +141,32 @@ class BloodRequestActionService
         }
 
         DB::transaction(function () use ($donor, $request) {
+            $lockedRequest = BloodRequest::query()
+                ->lockForUpdate()
+                ->find($request->id);
+
+            if (! $lockedRequest || ! $lockedRequest->isActive()) {
+                throw new RuntimeException(__('donor.request_not_available'));
+            }
+
+            $existing = RequestResponse::query()
+                ->where('donor_id', $donor->id)
+                ->where('blood_request_id', $lockedRequest->id)
+                ->lockForUpdate()
+                ->first();
+
+            if ($existing && in_array($existing->status, [
+                RequestResponseStatus::PENDING,
+                RequestResponseStatus::ACCEPTED,
+                RequestResponseStatus::COMPLETED,
+            ], true)) {
+                throw new RuntimeException(__('donor.cannot_ignore_active_response'));
+            }
+
             $response = RequestResponse::query()->updateOrCreate(
                 [
                     'donor_id' => $donor->id,
-                    'blood_request_id' => $request->id,
+                    'blood_request_id' => $lockedRequest->id,
                 ],
                 [
                     'status' => RequestResponseStatus::IGNORED->value,
@@ -116,9 +184,18 @@ class BloodRequestActionService
     public function cancel(Donor $donor, BloodRequest $request): void
     {
         DB::transaction(function () use ($donor, $request) {
+            $lockedRequest = BloodRequest::query()
+                ->lockForUpdate()
+                ->find($request->id);
+
+            if (! $lockedRequest || ! $lockedRequest->isActive()) {
+                throw new RuntimeException(__('donor.cannot_cancel_response'));
+            }
+
             $response = RequestResponse::query()
                 ->where('donor_id', $donor->id)
-                ->where('blood_request_id', $request->id)
+                ->where('blood_request_id', $lockedRequest->id)
+                ->lockForUpdate()
                 ->first();
 
             if (! $response || $response->status !== RequestResponseStatus::PENDING) {

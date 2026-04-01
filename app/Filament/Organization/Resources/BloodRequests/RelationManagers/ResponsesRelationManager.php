@@ -517,12 +517,12 @@ class ResponsesRelationManager extends RelationManager
                             $record->save();
 
                             if ($record->status === RequestResponseStatus::COMPLETED) {
-                                $request = $record->bloodRequest;
+                                $request = \App\Models\BloodRequest::lockForUpdate()->find($record->bloodRequest->id);
                                 $completedCount = $request->responses()
                                     ->where('status', RequestResponseStatus::COMPLETED)
                                     ->count();
 
-                                if ($completedCount >= $request->units_needed) {
+                                if ($completedCount >= $request->units_needed && $request->status !== BloodRequestStatus::FULFILLED) {
                                     $request->status = BloodRequestStatus::FULFILLED;
                                     $request->fulfilled_at = now();
                                     $request->save();

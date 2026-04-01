@@ -131,4 +131,5 @@ return [
     'donor_not_eligible' => 'غير مؤهل للتبرع حاليًا.',
     'already_has_active_response' => 'لديك طلب آخر مقبول بالفعل. يرجى التراجع عنه أولاً قبل قبول طلب جديد.',
     'cannot_cancel_response' => 'لا يمكن التراجع عن هذا الطلب.',
+    'cannot_ignore_active_response' => 'لا يمكنك رفض الطلب بعد الالتزام به.',
 ];
