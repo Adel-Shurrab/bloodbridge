@@ -34,9 +34,6 @@ engine = create_engine(
 )
 
 
-# =========================================================================
-# Schemas — define what goes in and what comes out
-# =========================================================================
 
 class ScoreRequest(BaseModel):
     donor_ids: List[int]
@@ -74,9 +71,6 @@ class HealthResponse(BaseModel):
     details:          Dict
 
 
-# =========================================================================
-# Helpers
-# =========================================================================
 
 def load_model():
     """Load model from disk. Returns None if not found."""
@@ -169,9 +163,6 @@ def get_donor_features(donor_ids: list, urgency: str = 'normal', distances: dict
     return df
 
 
-# =========================================================================
-# Endpoints
-# =========================================================================
 
 @router.get('/health', response_model=HealthResponse)
 async def health():
@@ -185,7 +176,6 @@ async def health():
     last_trained = None
     db_connected = False
 
-    # Check model
     try:
         model = load_model()
         model_loaded = model is not None
@@ -193,7 +183,6 @@ async def health():
     except Exception as e:
         details['model'] = f'error: {str(e)}'
 
-    # Check database + last training log
     try:
         with engine.connect() as conn:
             db_connected = True
@@ -209,7 +198,6 @@ async def health():
     except Exception as e:
         details['database'] = f'error: {str(e)}'
 
-    # Check memory
     memory_pct = psutil.virtual_memory().percent
     details['memory_pct'] = memory_pct
 
@@ -244,17 +232,14 @@ async def score_donors(request: Request, body: ScoreRequest):
     model = load_model()
     feature_names = load_feature_names()
 
-    # No model yet — mark all as cold start
     if model is None or not feature_names:
         return ScoreResponse(scores={
             did: DonorScore(score=NEUTRAL_SCORE, is_cold_start=True)
             for did in body.donor_ids
         })
 
-    # Fetch features from DB
     features_df = get_donor_features(body.donor_ids, body.urgency, body.distances)
 
-    # Get response counts for cold-start detection
     placeholders = ', '.join([f':id_{i}' for i in range(len(body.donor_ids))])
     params = {f'id_{i}': did for i, did in enumerate(body.donor_ids)}
 
@@ -282,7 +267,6 @@ async def score_donors(request: Request, body: ScoreRequest):
                 is_cold_start=True
             )
         else:
-            # Score using XGBoost model
             X = row[feature_names].values.reshape(1, -1)
             prob = float(model.predict_proba(X)[0][1])
             scores[donor_id] = DonorScore(

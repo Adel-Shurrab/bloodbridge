@@ -37,3 +37,8 @@ donors.sql
 notifications.sql
 users.sql
 testsprite_tests/tmp/config.json
+docs/scoring_flow_from_code.md
+docs/qr_verification_from_code.md
+docs/implementation_gaps.md
+docs/code_architecture_summary.md
+docs/broadcast_flow_from_code.md
