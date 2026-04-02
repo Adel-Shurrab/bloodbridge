@@ -1,13 +1,3 @@
-"""
-BloodBridge XGBoost Retraining Module
-======================================
-Loads real response history from the database, trains a new XGBoost donor
-acceptance model, saves the artifacts, and returns a metrics dict ready to
-be stored in model_training_logs.
-
-Called by the FastAPI /api/retrain endpoint.
-"""
-
 import os
 import sys
 import json
@@ -57,9 +47,6 @@ XGBOOST_PARAMS = {
 }
 
 
-# =============================================================================
-# Database helpers
-# =============================================================================
 
 def _make_engine():
     url = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}'
@@ -123,9 +110,6 @@ def _load_real_data(engine) -> pd.DataFrame:
     return df
 
 
-# =============================================================================
-# Synthetic data augmentation
-# =============================================================================
 
 def _generate_synthetic(n: int, seed: int = 42) -> pd.DataFrame:
     """
@@ -165,8 +149,7 @@ def _generate_synthetic(n: int, seed: int = 42) -> pd.DataFrame:
     recency_score   = np.exp(-days_since_last / 60)
     loyalty_score   = np.clip(total_donations / 10, 0, 1)
 
-    # Acceptance probability mirrors the notebook's weighted formula
-    base = 0.47
+    base = 0.20
     p    = np.full(n, base)
     p   += acceptance_rate * 0.40
     p   += np.where(days_since_last == 999, -0.15,
@@ -204,9 +187,6 @@ def _generate_synthetic(n: int, seed: int = 42) -> pd.DataFrame:
     })
 
 
-# =============================================================================
-# Feature engineering (mirrors api/routes.py get_donor_features)
-# =============================================================================
 
 def _engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     df = df.copy()
@@ -229,9 +209,6 @@ def _engineer_features(df: pd.DataFrame) -> pd.DataFrame:
     return df
 
 
-# =============================================================================
-# Public API
-# =============================================================================
 
 def retrain() -> dict:
     """
@@ -243,7 +220,6 @@ def retrain() -> dict:
     """
     engine = _make_engine()
 
-    # ── Load real data ────────────────────────────────────────────────────────
     df_real = _load_real_data(engine)
     real_count = len(df_real)
     logger.info(f"Loaded {real_count} real response records for training.")
@@ -252,7 +228,6 @@ def retrain() -> dict:
         df_real = _engineer_features(df_real)
         df_real = df_real[FEATURE_NAMES + ['label']].dropna()
 
-    # ── Augment with synthetic data if real data is sparse ───────────────────
     if real_count < MIN_REAL_RECORDS:
         n_synthetic = max(MIN_REAL_RECORDS, 300) - real_count
         logger.info(f"Augmenting with {n_synthetic} synthetic rows.")
@@ -267,7 +242,6 @@ def retrain() -> dict:
     total_records = len(df)
     logger.info(f"Training on {total_records} total records ({real_count} real + {total_records - real_count} synthetic).")
 
-    # ── Train / test split ────────────────────────────────────────────────────
     X = df[FEATURE_NAMES].values
     y = df['label'].values
 
@@ -275,7 +249,6 @@ def retrain() -> dict:
         X, y, test_size=0.20, stratify=y, random_state=42,
     )
 
-    # ── XGBoost ───────────────────────────────────────────────────────────────
     pos   = int(y_train.sum())
     neg   = int(len(y_train) - pos)
     spw   = round(neg / pos, 4) if pos > 0 else 1.0
@@ -285,7 +258,6 @@ def retrain() -> dict:
     model = xgb.XGBClassifier(**params)
     model.fit(X_train, y_train, eval_set=[(X_test, y_test)], verbose=False)
 
-    # ── Metrics ───────────────────────────────────────────────────────────────
     y_pred  = model.predict(X_test)
     y_proba = model.predict_proba(X_test)[:, 1]
 
@@ -298,13 +270,11 @@ def retrain() -> dict:
     }
     logger.info(f"Training metrics: {metrics}")
 
-    # ── Feature importance ────────────────────────────────────────────────────
     importance = {
         name: round(float(score), 6)
         for name, score in zip(FEATURE_NAMES, model.feature_importances_)
     }
 
-    # ── Save model artifacts ──────────────────────────────────────────────────
     version = f"v{datetime.now().strftime('%Y%m%d')}"
 
     os.makedirs(os.path.dirname(MODEL_PATH), exist_ok=True)
