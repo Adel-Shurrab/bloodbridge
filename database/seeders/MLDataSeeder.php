@@ -14,24 +14,9 @@ use Carbon\Carbon;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Str;
 
-/**
- * Generates 12 months of realistic blood request / response history.
- *
- * Goals:
- *  - Every eligible donor ends up with ≥ 8 responses in request_responses.
- *  - Status distribution matches real-world donation behaviour so that the
- *    rule-based scorer (acceptance_rate, recency, loyalty) and the XGBoost
- *    model both receive meaningful signal.
- *  - Respects blood-type compatibility using BloodType::getCompatibleDonorTypes().
- */
 class MLDataSeeder extends Seeder
 {
     private const MIN_RESPONSES = 8;
-
-    // -------------------------------------------------------------------------
-    // Weighted response-status pools by donor archetype.
-    // Each entry: [RequestResponseStatus, weight (0-100)].
-    // -------------------------------------------------------------------------
 
     private const VETERAN = [           // ≥ 6 total donations
         [RequestResponseStatus::COMPLETED,    70],
@@ -65,17 +50,7 @@ class MLDataSeeder extends Seeder
         [RequestResponseStatus::UNREACHABLE,  20],
     ];
 
-    // -------------------------------------------------------------------------
-    // Historical request specs.
-    // [org_slug, blood_type, urgency, days_ago, req_status, units, arabic_note]
-    //
-    // Distribution is intentionally weighted toward AB+ (all donors compatible)
-    // so every donor accumulates enough history to leave cold-start.
-    // -------------------------------------------------------------------------
-
     private array $requestSpecs = [
-
-        // ── AB+ — universal recipient; hits all 23 eligible donors ───────────
         ['al-shifa',   BloodType::AB_POSITIVE, UrgencyLevel::CRITICAL, 365, BloodRequestStatus::FULFILLED, 4, 'عملية زراعة كبد طارئة — AB+ مطلوب فوراً'],
         ['nasser',     BloodType::AB_POSITIVE, UrgencyLevel::NORMAL,   345, BloodRequestStatus::EXPIRED,   3, 'مريض يحتاج نقل دم دوري'],
         ['indonesian', BloodType::AB_POSITIVE, UrgencyLevel::CRITICAL, 315, BloodRequestStatus::FULFILLED, 5, 'حادث سير متعدد الضحايا — AB+ عاجل'],
@@ -87,40 +62,33 @@ class MLDataSeeder extends Seeder
         ['nasser',     BloodType::AB_POSITIVE, UrgencyLevel::CRITICAL, 115, BloodRequestStatus::FULFILLED, 5, 'انهيار مبنى — AB+ للمصابين في العناية المركزة'],
         ['indonesian', BloodType::AB_POSITIVE, UrgencyLevel::NORMAL,    75, BloodRequestStatus::FULFILLED, 3, 'مريض قصور كلوي مزمن — AB+ دوري'],
 
-        // ── O+ — hits O+ and O- donors ────────────────────────────────────────
         ['al-shifa',   BloodType::O_POSITIVE, UrgencyLevel::CRITICAL, 358, BloodRequestStatus::FULFILLED, 8, 'انهيار مبنى — O+ للمصابين البالغين'],
         ['nasser',     BloodType::O_POSITIVE, UrgencyLevel::NORMAL,   328, BloodRequestStatus::EXPIRED,   3, 'مريض أنيميا حادة يحتاج O+ بشكل دوري'],
         ['indonesian', BloodType::O_POSITIVE, UrgencyLevel::CRITICAL, 298, BloodRequestStatus::FULFILLED, 5, 'ولادة مع نزيف حاد — O+ عاجل'],
         ['al-quds',    BloodType::O_POSITIVE, UrgencyLevel::NORMAL,   258, BloodRequestStatus::FULFILLED, 2, 'مخزون بنك الدم منخفض — نداء لـ O+'],
         ['alaqsa',     BloodType::O_POSITIVE, UrgencyLevel::CRITICAL, 188, BloodRequestStatus::FULFILLED, 6, 'انفجار — O+ للضحايا الحرجين'],
 
-        // ── A+ — hits A+, A-, O+, O- donors ──────────────────────────────────
         ['al-shifa',   BloodType::A_POSITIVE, UrgencyLevel::NORMAL,   348, BloodRequestStatus::FULFILLED, 3, 'مريض تلاسيميا — A+ شهري'],
         ['nasser',     BloodType::A_POSITIVE, UrgencyLevel::CRITICAL, 303, BloodRequestStatus::FULFILLED, 5, 'جراحة طارئة — A+ فوراً'],
         ['indonesian', BloodType::A_POSITIVE, UrgencyLevel::NORMAL,   223, BloodRequestStatus::EXPIRED,   2, 'تجهيز احتياطي A+ لبنك الدم'],
         ['al-quds',    BloodType::A_POSITIVE, UrgencyLevel::CRITICAL, 148, BloodRequestStatus::FULFILLED, 4, 'مريض في العناية المركزة — A+ عاجل'],
 
-        // ── B+ — hits B+, O+, O- donors (B- ineligible in seeder) ────────────
         ['al-shifa',   BloodType::B_POSITIVE, UrgencyLevel::NORMAL,   333, BloodRequestStatus::EXPIRED,   3, 'مريض غسيل كلى — B+ أسبوعي'],
         ['nasser',     BloodType::B_POSITIVE, UrgencyLevel::CRITICAL, 268, BloodRequestStatus::FULFILLED, 5, 'جراحة طارئة للبطن — B+ مطلوب'],
         ['alaqsa',     BloodType::B_POSITIVE, UrgencyLevel::NORMAL,   198, BloodRequestStatus::FULFILLED, 2, 'طفل مصاب يحتاج B+'],
         ['najjar',     BloodType::B_POSITIVE, UrgencyLevel::CRITICAL, 128, BloodRequestStatus::FULFILLED, 4, 'ضحية حادث — B+ نادر في المنطقة'],
 
-        // ── A- — hits A-, O- donors ───────────────────────────────────────────
         ['european',   BloodType::A_NEGATIVE, UrgencyLevel::CRITICAL, 360, BloodRequestStatus::FULFILLED, 3, 'حامل تحتاج A- قبل الولادة'],
         ['al-shifa',   BloodType::A_NEGATIVE, UrgencyLevel::NORMAL,   230, BloodRequestStatus::EXPIRED,   2, 'A- شحيح في بنك الدم'],
         ['nasser',     BloodType::A_NEGATIVE, UrgencyLevel::CRITICAL, 108, BloodRequestStatus::FULFILLED, 4, 'حادث سير — A- طارئاً'],
 
-        // ── B- — hits O- donors (both B- donors are permanently ineligible) ───
         ['indonesian', BloodType::B_NEGATIVE, UrgencyLevel::CRITICAL, 350, BloodRequestStatus::FULFILLED, 2, 'رضيع يحتاج B- نادر'],
         ['al-quds',    BloodType::B_NEGATIVE, UrgencyLevel::NORMAL,   220, BloodRequestStatus::EXPIRED,   1, 'تجميع مخزون B-'],
         ['alaqsa',     BloodType::B_NEGATIVE, UrgencyLevel::CRITICAL,  88, BloodRequestStatus::FULFILLED, 3, 'زراعة كلى — B- طارئ'],
 
-        // ── O- — hits O- donors only (universal donor) ───────────────────────
         ['al-shifa',   BloodType::O_NEGATIVE, UrgencyLevel::CRITICAL, 385, BloodRequestStatus::FULFILLED, 5, 'مجهول الهوية في الطوارئ — O- الوحيد الآمن'],
         ['nasser',     BloodType::O_NEGATIVE, UrgencyLevel::NORMAL,   158, BloodRequestStatus::FULFILLED, 3, 'طفل مصاب — O- ضروري'],
 
-        // ── AB- — hits AB-, A-, B-, O- donors ────────────────────────────────
         ['european',   BloodType::AB_NEGATIVE, UrgencyLevel::CRITICAL, 366, BloodRequestStatus::FULFILLED, 2, 'زراعة قلب — AB- نادر جداً'],
         ['najjar',     BloodType::AB_NEGATIVE, UrgencyLevel::NORMAL,   175, BloodRequestStatus::EXPIRED,   1, 'احتياطي AB- لحالات الطوارئ'],
     ];
@@ -138,8 +106,6 @@ class MLDataSeeder extends Seeder
         'استبعاد طبي: تبرع حديث منذ أقل من 90 يوماً',
     ];
 
-    // =========================================================================
-
     public function run(): void
     {
         $orgs   = Organization::all()->keyBy('slug');
@@ -149,9 +115,6 @@ class MLDataSeeder extends Seeder
             ->filter(fn($d) => ! in_array($d->national_id, $this->skipNationalIds))
             ->values();
 
-        // ------------------------------------------------------------------
-        // Phase 1: create historical requests + bulk responses
-        // ------------------------------------------------------------------
         foreach ($this->requestSpecs as [$slug, $bloodType, $urgency, $daysAgo, $reqStatus, $units, $note]) {
             $org = $orgs[$slug] ?? null;
             if (! $org) continue;
@@ -198,9 +161,6 @@ class MLDataSeeder extends Seeder
             }
         }
 
-        // ------------------------------------------------------------------
-        // Phase 2: safety net — guarantee every eligible donor has ≥ MIN_RESPONSES
-        // ------------------------------------------------------------------
         $historicalRequests = BloodRequest::whereIn('status', [
             BloodRequestStatus::FULFILLED,
             BloodRequestStatus::EXPIRED,
@@ -236,10 +196,6 @@ class MLDataSeeder extends Seeder
             }
         }
     }
-
-    // =========================================================================
-    // Helpers
-    // =========================================================================
 
     private function filterCompatible($donors, BloodType $requestType): array
     {
