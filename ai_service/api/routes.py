@@ -1,3 +1,5 @@
+import asyncio
+import json
 import pickle
 import psutil
 import logging
@@ -19,6 +21,7 @@ from config import (
     MIN_HISTORY_FOR_MODEL,
     DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 )
+from training.train import retrain as run_retrain
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix='/api', tags=['scoring'])
@@ -296,9 +299,55 @@ async def score_donors(request: Request, body: ScoreRequest):
 @router.post('/retrain')
 @limiter.limit("5/hour")
 async def retrain(request: Request):
-    """Manually trigger model retraining."""
+    """
+    Train a new XGBoost model on current DB data, persist artifacts,
+    and record the run in model_training_logs.
+    """
     logger.info("Retraining triggered")
+
+    try:
+        result = await asyncio.to_thread(run_retrain)
+    except Exception as exc:
+        logger.error(f"Retraining failed: {exc}")
+        raise HTTPException(status_code=500, detail=f"Training failed: {str(exc)}")
+
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO model_training_logs
+                    (model_version, training_date, data_records_used,
+                     algorithm, hyperparameters, metrics, feature_importance,
+                     created_at, updated_at)
+                VALUES
+                    (:version, :date, :records,
+                     'xgboost', :hyperparams, :metrics, :importance,
+                     :now, :now)
+                ON DUPLICATE KEY UPDATE
+                    training_date      = VALUES(training_date),
+                    data_records_used  = VALUES(data_records_used),
+                    hyperparameters    = VALUES(hyperparameters),
+                    metrics            = VALUES(metrics),
+                    feature_importance = VALUES(feature_importance),
+                    updated_at         = VALUES(updated_at)
+            """), {
+                'version':    result['model_version'],
+                'date':       datetime.now(),
+                'records':    result['data_records_used'],
+                'hyperparams': json.dumps(result['hyperparameters']),
+                'metrics':    json.dumps(result['metrics']),
+                'importance': json.dumps(result['feature_importance']),
+                'now':        datetime.now(),
+            })
+    except Exception as exc:
+        logger.error(f"Failed to write model_training_logs: {exc}")
+        raise HTTPException(status_code=500, detail=f"Model trained but log write failed: {str(exc)}")
+
+    logger.info(f"Retrain complete — version {result['model_version']}, AUC-ROC {result['metrics'].get('auc_roc')}")
+
     return {
-        'status':  'acknowledged',
-        'message': 'Retraining request received',
+        'status':             'success',
+        'model_version':      result['model_version'],
+        'data_records_used':  result['data_records_used'],
+        'real_records_used':  result['real_records_used'],
+        'metrics':            result['metrics'],
     }
