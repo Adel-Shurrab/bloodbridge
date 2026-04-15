@@ -30,6 +30,7 @@ class DatabaseSeeder extends Seeder
             BloodRequestSeeder::class,
             InteractionSeeder::class,
             MLDataSeeder::class,
+            DonorScoreSeeder::class,
         ]);
     }
 }
