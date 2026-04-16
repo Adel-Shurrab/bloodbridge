@@ -301,4 +301,13 @@ return [
     'expires_at' => 'ينتهي في',
     'scan_date' => 'تاريخ المسح',
     'not_yet_scanned' => 'لم يتم المسح بعد',
+
+    // Medical assessment correction
+    'correct_medical_assessment' => 'تصحيح التقييم الطبي',
+    'correct_medical_assessment_description' => 'يمكنك تصحيح هذا التقييم مرة واحدة فقط. لا يمكن تغيير فصيلة الدم إلا إذا كانت مؤسستك قد تحققت منها أصلاً.',
+    'correction_notice' => 'تصحيح لمرة واحدة',
+    'correction_notice_body' => 'يمكن استخدام هذا التصحيح مرة واحدة فقط ومن قِبل مؤسستك فقط. فصيلة الدم مقفلة إذا تحققت منها مؤسسة أخرى.',
+    'save_correction' => 'حفظ التصحيح',
+    'correct_blood_type' => 'تصحيح فصيلة الدم',
+    'correct_blood_type_description' => 'صحّح فصيلة الدم المسجّلة لهذا التبرع. يمكن إجراء ذلك مرة واحدة فقط ومن قِبل مؤسستك فحسب.',
 ];

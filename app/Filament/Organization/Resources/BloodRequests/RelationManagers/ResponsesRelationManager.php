@@ -613,6 +613,388 @@ class ResponsesRelationManager extends RelationManager
 
                     }),
 
+                Action::make('correct_medical_results')
+                    ->label(__('organization.correct_medical_assessment'))
+                    ->icon('heroicon-o-pencil-square')
+                    ->color('warning')
+                    ->modalHeading(__('organization.correct_medical_assessment'))
+                    ->modalDescription(__('organization.correct_medical_assessment_description'))
+                    ->modalSubmitActionLabel(__('organization.save_correction'))
+                    ->modalIcon('heroicon-o-pencil-square')
+                    ->form(function (RequestResponse $record) {
+                        $tenantId = filament()->getTenant()?->getKey();
+                        $bloodTypeAlreadyVerifiedByOther =
+                            $record->donor->healthProfile?->verified_blood_type !== null &&
+                            (int) $record->donor->healthProfile?->verified_by_organization_id !== (int) $tenantId;
+
+                        return [
+                            Section::make(__('organization.correction_notice'))
+                                ->description(__('organization.correction_notice_body'))
+                                ->icon('heroicon-o-exclamation-triangle')
+                                ->compact()
+                                ->schema([]),
+
+                            Section::make(__('organization.blood_type_verification'))
+                                ->description(__('organization.confirm_lab_verified_blood_type'))
+                                ->compact()
+                                ->schema([
+                                    Select::make('verified_blood_type')
+                                        ->label(__('organization.lab_verified_blood_type'))
+                                        ->options(BloodType::class)
+                                        ->default(fn() => $record->donor->healthProfile?->verified_blood_type ?? $record->donor->healthProfile?->blood_type)
+                                        ->required()
+                                        ->native(false)
+                                        ->disabled($bloodTypeAlreadyVerifiedByOther)
+                                        ->dehydrated()
+                                        ->helperText(
+                                            $bloodTypeAlreadyVerifiedByOther
+                                                ? __('organization.blood_type_is_lab_verified_and_cannot_be_changed')
+                                                : __('organization.this_blood_type_will_be_confirmed_after_verification')
+                                        ),
+                                ]),
+
+                            Section::make(__('organization.medical_assessment_and_eligibility'))
+                                ->description(__('organization.determine_donor_eligibility_based_on_examination'))
+                                ->compact()
+                                ->schema([
+                                    Select::make('eligibility_status')
+                                        ->label(__('organization.donation_health_status'))
+                                        ->options([
+                                            'eligible' => __('organization.medically_fit_donated_successfully'),
+                                            'temporary' => __('organization.temporarily_unfit_donation_postponed'),
+                                            'permanent' => __('organization.permanently_unfit_medical_exclusion'),
+                                        ])
+                                        ->required()
+                                        ->native(false)
+                                        ->live(),
+
+                                    Select::make('rejection_reason')
+                                        ->label(__('organization.medical_exclusion_reason'))
+                                        ->options(fn($get) => match ($get('eligibility_status')) {
+                                            'temporary' => [
+                                                'low_hemoglobin' => __('organization.low_hemoglobin'),
+                                                'underweight' => __('organization.underweight'),
+                                                'recent_illness' => __('organization.recent_illness_antibiotics'),
+                                                'low_blood_pressure' => __('organization.low_blood_pressure'),
+                                                'other_temp' => __('organization.other_temporary_medical_reasons'),
+                                            ],
+                                            'permanent' => [
+                                                'blood_virus' => __('organization.blood_viruses'),
+                                                'chronic_disease' => __('organization.chronic_disease_preventing_donation'),
+                                                'heart_disease' => __('organization.heart_diseases'),
+                                                'cancer' => __('organization.history_of_cancer'),
+                                                'other_perm' => __('organization.other_permanent_medical_reasons'),
+                                            ],
+                                            default => [],
+                                        })
+                                        ->required(fn($get) => in_array($get('eligibility_status'), ['temporary', 'permanent']))
+                                        ->visible(fn($get) => in_array($get('eligibility_status'), ['temporary', 'permanent']))
+                                        ->native(false),
+
+                                    Select::make('delay_duration')
+                                        ->label(__('organization.temporary_exclusion_duration'))
+                                        ->options([
+                                            '1_week' => __('organization.one_week'),
+                                            '2_weeks' => __('organization.two_weeks'),
+                                            '1_month' => __('organization.one_month'),
+                                            '2_months' => __('organization.two_months'),
+                                            '3_months' => __('organization.three_months'),
+                                            '6_months' => __('organization.six_months'),
+                                            'custom' => __('organization.custom_date_option'),
+                                        ])
+                                        ->visible(fn($get) => $get('eligibility_status') === 'temporary')
+                                        ->required(fn($get) => $get('eligibility_status') === 'temporary')
+                                        ->default('3_months')
+                                        ->native(false)
+                                        ->live(),
+
+                                    DatePicker::make('custom_date')
+                                        ->label(__('organization.specify_custom_date'))
+                                        ->native(false)
+                                        ->required(fn($get) => $get('delay_duration') === 'custom')
+                                        ->visible(fn($get) => $get('delay_duration') === 'custom')
+                                        ->minDate(now())
+                                        ->live(),
+
+                                    Placeholder::make('next_date_preview')
+                                        ->label(__('organization.expected_next_eligibility_date'))
+                                        ->content(function ($get) {
+                                            if (!$get('delay_duration')) {
+                                                return '-';
+                                            }
+                                            return match ($get('delay_duration')) {
+                                                '1_week' => now()->addWeek()->format('Y-m-d'),
+                                                '2_weeks' => now()->addWeeks(2)->format('Y-m-d'),
+                                                '1_month' => now()->addMonth()->format('Y-m-d'),
+                                                '2_months' => now()->addMonths(2)->format('Y-m-d'),
+                                                '3_months' => now()->addMonths(3)->format('Y-m-d'),
+                                                '6_months' => now()->addMonths(6)->format('Y-m-d'),
+                                                'custom' => $get('custom_date') ?? __('organization.please_select_a_date'),
+                                                default => now()->addMonths(3)->format('Y-m-d'),
+                                            };
+                                        })
+                                        ->visible(fn($get) => $get('eligibility_status') === 'temporary')
+                                        ->extraAttributes(['class' => 'text-primary-600 font-bold']),
+
+                                    Textarea::make('lab_notes')
+                                        ->label(__('organization.medical_facility_notes'))
+                                        ->placeholder(__('organization.internal_notes_about_the_case_or_results'))
+                                        ->rows(2)
+                                        ->columnSpanFull(),
+                                ]),
+                        ];
+                    })
+                    ->visible(fn(RequestResponse $record) =>
+                        $record->status === RequestResponseStatus::DECLINED &&
+                        $record->correction_used_at === null
+                    )
+                    ->action(function (RequestResponse $record, array $data) {
+                        $tenantId = filament()->getTenant()?->getKey();
+
+                        if (! $tenantId) {
+                            abort(403);
+                        }
+
+                        $record->loadMissing(['bloodRequest', 'donor.healthProfile']);
+                        $record->refresh();
+
+                        if ((int) $record->bloodRequest?->organization_id !== (int) $tenantId) {
+                            abort(403);
+                        }
+
+                        if ($record->status !== RequestResponseStatus::DECLINED || $record->correction_used_at !== null) {
+                            return;
+                        }
+
+                        $healthProfile = $record->donor->healthProfile;
+                        $orgId = (int) $tenantId;
+
+                        DB::transaction(function () use ($record, $healthProfile, $data, $orgId) {
+                            // Mark correction as used
+                            $record->correction_used_at = Carbon::now();
+
+                            if ($data['eligibility_status'] === 'eligible') {
+                                $record->status = RequestResponseStatus::COMPLETED;
+                            } else {
+                                $record->status = RequestResponseStatus::DECLINED;
+                            }
+
+                            $record->save();
+
+                            // Check if this COMPLETED correction now fulfils the blood request
+                            if ($record->status === RequestResponseStatus::COMPLETED) {
+                                $request = \App\Models\BloodRequest::lockForUpdate()->find($record->bloodRequest->id);
+                                $completedCount = $request->responses()
+                                    ->where('status', RequestResponseStatus::COMPLETED)
+                                    ->count();
+
+                                if ($completedCount >= $request->units_needed && $request->status !== BloodRequestStatus::FULFILLED) {
+                                    $request->status = BloodRequestStatus::FULFILLED;
+                                    $request->fulfilled_at = now();
+                                    $request->save();
+
+                                    \App\Jobs\CancelExcessResponsesJob::dispatchSync($request);
+                                }
+                            }
+
+                            if ($healthProfile) {
+                                // Find the original log to detect if chronic_disease was set by this org
+                                $originalLog = EligibilityLog::where('donor_id', $record->donor_id)
+                                    ->where('organization_id', $orgId)
+                                    ->where('check_type', EligibilityLog::TYPE_LAB_VERIFICATION)
+                                    ->latest()
+                                    ->first();
+
+                                // Revert chronic_disease if it was set by this org's original assessment
+                                if ($originalLog?->is_permanent && $healthProfile->chronic_disease) {
+                                    $healthProfile->chronic_disease = false;
+                                }
+
+                                // Update blood type only if this org originally verified it (or it hasn't been verified yet)
+                                if (
+                                    empty($healthProfile->verified_by_organization_id) ||
+                                    (int) $healthProfile->verified_by_organization_id === $orgId
+                                ) {
+                                    $healthProfile->verified_blood_type = $data['verified_blood_type'];
+                                    $healthProfile->verified_by_organization_id = $orgId;
+                                    $healthProfile->verified_at = Carbon::now();
+                                }
+
+                                if ($data['eligibility_status'] === 'permanent') {
+                                    $healthProfile->chronic_disease = true;
+                                    $healthProfile->is_eligible = false;
+                                    $healthProfile->next_eligible_date = null;
+                                } elseif ($data['eligibility_status'] === 'temporary') {
+                                    $healthProfile->chronic_disease = false;
+                                    $healthProfile->is_eligible = false;
+
+                                    $nextDate = match ($data['delay_duration']) {
+                                        '1_week' => Carbon::now()->addWeek(),
+                                        '2_weeks' => Carbon::now()->addWeeks(2),
+                                        '1_month' => Carbon::now()->addMonth(),
+                                        '2_months' => Carbon::now()->addMonths(2),
+                                        '3_months' => Carbon::now()->addMonths(3),
+                                        '6_months' => Carbon::now()->addMonths(6),
+                                        'custom' => Carbon::parse($data['custom_date']),
+                                        default => Carbon::now()->addMonths(3),
+                                    };
+
+                                    $healthProfile->next_eligible_date = $nextDate;
+                                } else {
+                                    // Corrected to eligible
+                                    $healthProfile->chronic_disease = false;
+                                    $healthProfile->is_eligible = true;
+                                    $healthProfile->next_eligible_date = null;
+                                    $healthProfile->recent_donation = true;
+                                    $healthProfile->last_donation_date = Carbon::now();
+                                    $healthProfile->total_donations = ($healthProfile->total_donations ?? 0) + 1;
+                                }
+
+                                $healthProfile->save();
+                            }
+
+                            EligibilityLog::create([
+                                'donor_id' => $record->donor_id,
+                                'organization_id' => $orgId,
+                                'check_type' => EligibilityLog::TYPE_LAB_VERIFICATION,
+                                'is_eligible' => $data['eligibility_status'] === 'eligible',
+                                'is_permanent' => $data['eligibility_status'] === 'permanent',
+                                'rejection_reason' => $data['rejection_reason'] ?? null,
+                                'answers_snapshot' => [
+                                    'lab_notes' => $data['lab_notes'] ?? null,
+                                    'blood_type_at_check' => $data['verified_blood_type'],
+                                    'is_correction' => true,
+                                ],
+                            ]);
+                        });
+
+                        // Notify org user
+                        $orgUser = $record->bloodRequest->organization?->user;
+                        if ($orgUser) {
+                            $record->load(['donor.user', 'donor.healthProfile', 'bloodRequest.organization']);
+                            app(NotificationService::class)->send(
+                                $orgUser,
+                                new \App\Notifications\DonorResponseNotification($record),
+                                NotificationType::DONOR_RESPONSE
+                            );
+                        }
+
+                        // Notify donor only if still ineligible after correction
+                        if (in_array($data['eligibility_status'], ['temporary', 'permanent'])) {
+                            $donorUser = $record->donor->user;
+                            if ($donorUser) {
+                                app(NotificationService::class)->send(
+                                    $donorUser,
+                                    new \App\Notifications\DonorIneligibilityNotification(
+                                        eligibilityStatus: $data['eligibility_status'],
+                                        rejectionReason: $data['rejection_reason'] ?? null,
+                                        nextEligibleDate: $healthProfile?->next_eligible_date,
+                                        organizationName: $record->bloodRequest->organization?->localized_org_name,
+                                    ),
+                                    NotificationType::DONOR_INELIGIBILITY
+                                );
+                            }
+                        }
+                    }),
+
+                Action::make('correct_blood_type')
+                    ->label(__('organization.correct_blood_type'))
+                    ->icon('heroicon-o-beaker')
+                    ->color('warning')
+                    ->modalHeading(__('organization.correct_blood_type'))
+                    ->modalDescription(__('organization.correct_blood_type_description'))
+                    ->modalSubmitActionLabel(__('organization.save_correction'))
+                    ->modalIcon('heroicon-o-beaker')
+                    ->form([
+                        Section::make(__('organization.correction_notice'))
+                            ->description(__('organization.correction_notice_body'))
+                            ->icon('heroicon-o-exclamation-triangle')
+                            ->compact()
+                            ->schema([]),
+
+                        Section::make(__('organization.blood_type_verification'))
+                            ->description(__('organization.confirm_lab_verified_blood_type'))
+                            ->compact()
+                            ->schema([
+                                Select::make('verified_blood_type')
+                                    ->label(__('organization.lab_verified_blood_type'))
+                                    ->options(BloodType::class)
+                                    ->default(fn(RequestResponse $record) => $record->donor->healthProfile?->verified_blood_type ?? $record->donor->healthProfile?->blood_type)
+                                    ->required()
+                                    ->native(false)
+                                    ->helperText(__('organization.this_blood_type_will_be_confirmed_after_verification')),
+                            ]),
+                    ])
+                    ->visible(function (RequestResponse $record) {
+                        $tenantId = filament()->getTenant()?->getKey();
+
+                        return $record->status === RequestResponseStatus::COMPLETED
+                            && $record->correction_used_at === null
+                            && (
+                                empty($record->donor->healthProfile?->verified_by_organization_id) ||
+                                (int) $record->donor->healthProfile?->verified_by_organization_id === (int) $tenantId
+                            );
+                    })
+                    ->action(function (RequestResponse $record, array $data) {
+                        $tenantId = filament()->getTenant()?->getKey();
+
+                        if (! $tenantId) {
+                            abort(403);
+                        }
+
+                        $record->loadMissing(['bloodRequest', 'donor.healthProfile']);
+                        $record->refresh();
+
+                        if ((int) $record->bloodRequest?->organization_id !== (int) $tenantId) {
+                            abort(403);
+                        }
+
+                        if (
+                            $record->status !== RequestResponseStatus::COMPLETED ||
+                            $record->correction_used_at !== null
+                        ) {
+                            return;
+                        }
+
+                        $healthProfile = $record->donor->healthProfile;
+                        $orgId = (int) $tenantId;
+
+                        // Guard: only the org that originally verified the blood type may change it
+                        if (
+                            $healthProfile &&
+                            ! empty($healthProfile->verified_by_organization_id) &&
+                            (int) $healthProfile->verified_by_organization_id !== $orgId
+                        ) {
+                            abort(403);
+                        }
+
+                        DB::transaction(function () use ($record, $healthProfile, $data, $orgId) {
+                            $record->correction_used_at = Carbon::now();
+                            $record->save();
+
+                            if ($healthProfile) {
+                                $healthProfile->verified_blood_type = $data['verified_blood_type'];
+                                $healthProfile->verified_by_organization_id = $orgId;
+                                $healthProfile->verified_at = Carbon::now();
+                                $healthProfile->save();
+                            }
+
+                            EligibilityLog::create([
+                                'donor_id' => $record->donor_id,
+                                'organization_id' => $orgId,
+                                'check_type' => EligibilityLog::TYPE_LAB_VERIFICATION,
+                                'is_eligible' => true,
+                                'is_permanent' => false,
+                                'rejection_reason' => null,
+                                'answers_snapshot' => [
+                                    'blood_type_at_check' => $data['verified_blood_type'],
+                                    'is_correction' => true,
+                                    'correction_type' => 'blood_type_only',
+                                ],
+                            ]);
+                        });
+                    }),
+
                 ViewAction::make()
                     ->label(__('organization.view_details'))
                     ->icon('heroicon-o-eye')

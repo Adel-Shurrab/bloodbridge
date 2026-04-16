@@ -301,4 +301,13 @@ return [
     'expires_at' => 'Expires at',
     'scan_date' => 'Scan Date',
     'not_yet_scanned' => 'Not yet scanned',
+
+    // Medical assessment correction
+    'correct_medical_assessment' => 'Correct Medical Assessment',
+    'correct_medical_assessment_description' => 'You may correct this assessment one time. Blood type can only be changed if your organization originally verified it.',
+    'correction_notice' => 'One-time Correction',
+    'correction_notice_body' => 'This correction can only be used once and only by your organization. The blood type is locked if it was originally verified by a different organization.',
+    'save_correction' => 'Save Correction',
+    'correct_blood_type' => 'Correct Blood Type',
+    'correct_blood_type_description' => 'Correct the blood type recorded for this donation. This can only be done once and only by your organization.',
 ];
