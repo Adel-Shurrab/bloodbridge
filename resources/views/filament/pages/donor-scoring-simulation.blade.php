@@ -119,13 +119,20 @@
                     </thead>
                     <tbody class="divide-y divide-gray-100 dark:divide-gray-800">
                         @foreach($donorRows as $i => $row)
-                        <tr class="transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40 {{ $row['notify'] ? 'bg-green-50/30 dark:bg-green-900/10' : '' }}">
+                        {{-- Main row --}}
+                        <tr wire:click="toggleRow({{ $row['id'] }})"
+                            class="cursor-pointer transition-colors hover:bg-gray-50 dark:hover:bg-gray-800/40 {{ $row['notify'] ? 'bg-green-50/30 dark:bg-green-900/10' : '' }}">
 
                             {{-- # --}}
                             <td class="py-3 px-4 text-xs text-gray-400 dark:text-gray-500">{{ $i + 1 }}</td>
 
                             {{-- Donor Name --}}
-                            <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">{{ $row['name'] }}</td>
+                            <td class="py-3 px-4 font-medium text-gray-900 dark:text-white">
+                                <div class="flex items-center gap-1">
+                                    <span class="text-gray-400 text-xs">{{ $expandedDonorId === $row['id'] ? '▼' : '▶' }}</span>
+                                    {{ $row['name'] }}
+                                </div>
+                            </td>
 
                             {{-- Blood Type --}}
                             <td class="py-3 px-4">
@@ -186,6 +193,72 @@
                                 @endif
                             </td>
                         </tr>
+
+                        {{-- Expanded details row --}}
+                        @if($expandedDonorId === $row['id'])
+                        <tr class="bg-gray-50 dark:bg-gray-800/60">
+                            <td colspan="8" class="px-6 py-4">
+                                @php
+                                    $acceptRate = $row['total_responses'] > 0
+                                        ? round(($row['accepted_count'] / $row['total_responses']) * 100)
+                                        : null;
+                                    $lastActive = $row['last_responded_at']
+                                        ? \Carbon\Carbon::parse($row['last_responded_at'])->diffForHumans()
+                                        : null;
+                                    $mv = $row['model_version'] ?? null;
+                                    $mvColor = $mv && (str_contains($mv, 'xgboost') || str_contains($mv, 'fastapi'))
+                                        ? 'text-blue-500 dark:text-blue-400'
+                                        : 'text-orange-500 dark:text-orange-400';
+                                @endphp
+                                <div class="grid grid-cols-2 gap-3 sm:grid-cols-4">
+
+                                    {{-- Total Responses --}}
+                                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+                                        <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">{{ __('filament.pages.donor-scoring-simulation.detail_total_responses') }}</div>
+                                        <div class="text-xl font-bold text-gray-900 dark:text-white">{{ $row['total_responses'] }}</div>
+                                        @if($row['no_show_count'] > 0)
+                                            <div class="text-xs text-red-400 mt-0.5">{{ $row['no_show_count'] }} no-show</div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Acceptance Rate --}}
+                                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+                                        <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">{{ __('filament.pages.donor-scoring-simulation.detail_acceptance_rate') }}</div>
+                                        @if($acceptRate !== null)
+                                            <div class="text-xl font-bold {{ $acceptRate >= 60 ? 'text-green-600 dark:text-green-400' : ($acceptRate >= 30 ? 'text-yellow-600 dark:text-yellow-400' : 'text-red-500 dark:text-red-400') }}">
+                                                {{ $acceptRate }}%
+                                            </div>
+                                            <div class="text-xs text-gray-400 mt-0.5">{{ $row['accepted_count'] }}/{{ $row['total_responses'] }}</div>
+                                        @else
+                                            <div class="text-xl font-bold text-gray-300 dark:text-gray-600">—</div>
+                                            <div class="text-xs text-gray-400 mt-0.5">{{ __('filament.pages.donor-scoring-simulation.detail_no_history') }}</div>
+                                        @endif
+                                    </div>
+
+                                    {{-- Total Donations --}}
+                                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+                                        <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">{{ __('filament.pages.donor-scoring-simulation.detail_total_donations') }}</div>
+                                        <div class="text-xl font-bold text-gray-900 dark:text-white">{{ $row['total_donations'] }}</div>
+                                    </div>
+
+                                    {{-- Last Active / Model Version --}}
+                                    <div class="rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 p-3">
+                                        <div class="text-xs text-gray-400 dark:text-gray-500 mb-1">{{ __('filament.pages.donor-scoring-simulation.detail_last_active') }}</div>
+                                        <div class="text-sm font-medium text-gray-700 dark:text-gray-200">
+                                            {{ $lastActive ?? '—' }}
+                                        </div>
+                                        @if($row['source'] === 'db_cache' && $mv)
+                                            <div class="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                                                model: <span class="font-semibold {{ $mvColor }}">{{ $mv }}</span>
+                                            </div>
+                                        @endif
+                                    </div>
+
+                                </div>
+                            </td>
+                        </tr>
+                        @endif
+
                         @endforeach
                     </tbody>
                 </table>

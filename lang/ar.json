@@ -1344,7 +1344,12 @@
     "filament.pages.donor-scoring-simulation.will_notify": "سيُرسل له إشعار",
     "filament.pages.donor-scoring-simulation.wont_notify": "لن يُرسل له إشعار",
     "filament.pages.donor-scoring-simulation.no_eligible_donors": "لا يوجد متبرعون مؤهلون لهذا الطلب.",
-    "filament.pages.donor-scoring-simulation.disclaimer": "هذه محاكاة جافة. لم يتم إرسال أي إشعارات ولم يتم تعديل أي بيانات."
+    "filament.pages.donor-scoring-simulation.disclaimer": "هذه محاكاة جافة. لم يتم إرسال أي إشعارات ولم يتم تعديل أي بيانات.",
+    "filament.pages.donor-scoring-simulation.detail_total_responses": "إجمالي الاستجابات",
+    "filament.pages.donor-scoring-simulation.detail_acceptance_rate": "معدل القبول",
+    "filament.pages.donor-scoring-simulation.detail_total_donations": "إجمالي التبرعات",
+    "filament.pages.donor-scoring-simulation.detail_last_active": "آخر نشاط",
+    "filament.pages.donor-scoring-simulation.detail_no_history": "لا سجل"
     "filament.navigation.user-management": "إدارة المستخدمين",
     "filament.navigation.users": "إدارة المستخدمين",
     "filament.pages.dashboard.title": "لوحة التحكم",
