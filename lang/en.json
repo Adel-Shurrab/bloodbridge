@@ -1327,7 +1327,7 @@
     "filament.pages.donor-scoring-simulation.will_notify": "Will receive notification",
     "filament.pages.donor-scoring-simulation.wont_notify": "Will not receive notification",
     "filament.pages.donor-scoring-simulation.no_eligible_donors": "No eligible donors found for this request.",
-    "filament.pages.donor-scoring-simulation.disclaimer": "This is a dry-run simulation. No notifications were sent and no data was modified."
+    "filament.pages.donor-scoring-simulation.disclaimer": "This is a dry-run simulation. No notifications were sent and no data was modified.",
     "filament.navigation.user-management": "User Management",
     "filament.navigation.users": "User Management",
     "filament.pages.manage-general-settings.description": "Manage global site settings, rules, and content.",

@@ -3,6 +3,7 @@
 namespace App\Filament\Admin\Pages;
 
 use App\DataTransferObjects\ScoringResult;
+use App\Enums\RequestResponseStatus;
 use App\Enums\UrgencyLevel;
 use App\Models\BloodRequest;
 use App\Models\Donor;
@@ -12,6 +13,7 @@ use App\Settings\ScoringSettings;
 use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class DonorScoringSimulation extends Page
 {
@@ -31,6 +33,8 @@ class DonorScoringSimulation extends Page
 
     public array $donorRows = [];
 
+    public ?int $expandedDonorId = null;
+
     // ── Navigation / title ─────────────────────────────────────────────────
 
     public static function getNavigationLabel(): string
@@ -46,6 +50,13 @@ class DonorScoringSimulation extends Page
     public function getTitle(): string|\Illuminate\Contracts\Support\Htmlable
     {
         return __('filament.pages.donor-scoring-simulation.title');
+    }
+
+    // ── Toggle row expansion ───────────────────────────────────────────────
+
+    public function toggleRow(int $donorId): void
+    {
+        $this->expandedDonorId = $this->expandedDonorId === $donorId ? null : $donorId;
     }
 
     // ── Dropdown data ──────────────────────────────────────────────────────
@@ -73,6 +84,8 @@ class DonorScoringSimulation extends Page
     {
         $this->validate(['bloodRequestId' => 'required|exists:blood_requests,id']);
 
+        $this->expandedDonorId = null;
+
         $bloodRequest = BloodRequest::with('organization')->findOrFail($this->bloodRequestId);
 
         /** @var BloodRequestBroadcastService $broadcastSvc */
@@ -92,7 +105,8 @@ class DonorScoringSimulation extends Page
             return;
         }
 
-        // Eager-load relationships to avoid N+1 when building rows
+        // Cast to Eloquent Collection to enable eager-loading
+        $eligibleDonors = new \Illuminate\Database\Eloquent\Collection($eligibleDonors->all());
         $eligibleDonors->load('user', 'healthProfile');
 
         $urgency = $bloodRequest->urgency_level === UrgencyLevel::CRITICAL ? 'critical' : 'normal';
@@ -107,16 +121,22 @@ class DonorScoringSimulation extends Page
             $budget = (int) ($budget * 1.5);
         }
 
-        /** @var Collection $selected */
         $selectedIds = $result['selected']->pluck('id')->flip();
 
+        // Fetch response stats and cached model versions in one query each
+        $donorIds      = $eligibleDonors->pluck('id')->all();
+        $stats         = $this->fetchResponseStats($donorIds);
+        $modelVersions = $this->fetchModelVersions($donorIds);
+
         $this->donorRows = $eligibleDonors
-            ->map(function (Donor $donor) use ($selectedIds) {
+            ->map(function (Donor $donor) use ($selectedIds, $stats, $modelVersions) {
                 /** @var ScoringResult $sr */
                 $sr = $donor->getAttribute('scoringResult');
 
                 $healthProfile = $donor->healthProfile;
                 $bloodType     = $healthProfile?->verified_blood_type ?? $healthProfile?->blood_type;
+                $donorStats    = $stats[$donor->id] ?? null;
+                $modelVersion  = $modelVersions[$donor->id] ?? null;
 
                 return [
                     'id'         => $donor->id,
@@ -131,6 +151,13 @@ class DonorScoringSimulation extends Page
                     'source'     => $sr->source,
                     'bucket'     => $donor->getAttribute('scoringBucket') ?? 'exploration',
                     'notify'     => $selectedIds->has($donor->id),
+                    // Interaction stats
+                    'total_responses'  => $donorStats?->total_responses ?? 0,
+                    'accepted_count'   => $donorStats?->accepted_count ?? 0,
+                    'no_show_count'    => $donorStats?->no_show_count ?? 0,
+                    'total_donations'  => $healthProfile?->total_donations ?? 0,
+                    'last_responded_at'=> $donorStats?->last_responded_at,
+                    'model_version'    => $modelVersion,
                 ];
             })
             ->sortByDesc('score')
@@ -153,6 +180,59 @@ class DonorScoringSimulation extends Page
             ->title(__('filament.pages.donor-scoring-simulation.simulation_complete'))
             ->success()
             ->send();
+    }
+
+    /**
+     * Fetch response stats for multiple donors in a single query.
+     *
+     * @param  int[] $donorIds
+     * @return array<int, object>
+     */
+    private function fetchResponseStats(array $donorIds): array
+    {
+        $acceptedValue  = RequestResponseStatus::ACCEPTED->value;
+        $completedValue = RequestResponseStatus::COMPLETED->value;
+        $noShowValue    = RequestResponseStatus::NO_SHOW->value;
+
+        $countedStatuses = [
+            RequestResponseStatus::PENDING->value,
+            RequestResponseStatus::ACCEPTED->value,
+            RequestResponseStatus::COMPLETED->value,
+            RequestResponseStatus::IGNORED->value,
+            RequestResponseStatus::NO_SHOW->value,
+            RequestResponseStatus::UNREACHABLE->value,
+            RequestResponseStatus::NOT_NEEDED->value,
+        ];
+
+        return DB::table('request_responses')
+            ->select([
+                'donor_id',
+                DB::raw('COUNT(*) as total_responses'),
+                DB::raw("COUNT(CASE WHEN status IN ({$acceptedValue}, {$completedValue}) THEN 1 END) as accepted_count"),
+                DB::raw("COUNT(CASE WHEN status = {$noShowValue} THEN 1 END) as no_show_count"),
+                DB::raw('MAX(responded_at) as last_responded_at'),
+            ])
+            ->whereIn('donor_id', $donorIds)
+            ->whereIn('status', $countedStatuses)
+            ->whereNotNull('responded_at')
+            ->groupBy('donor_id')
+            ->get()
+            ->keyBy('donor_id')
+            ->toArray();
+    }
+
+    /**
+     * Fetch model_version from donor_predictive_scores for db_cache display.
+     *
+     * @param  int[] $donorIds
+     * @return array<int, string|null>
+     */
+    private function fetchModelVersions(array $donorIds): array
+    {
+        return DB::table('donor_predictive_scores')
+            ->whereIn('donor_id', $donorIds)
+            ->pluck('model_version', 'donor_id')
+            ->toArray();
     }
 
     private function buildEmptySummary(int $budget): array
