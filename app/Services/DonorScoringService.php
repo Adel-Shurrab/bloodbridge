@@ -372,16 +372,27 @@ class DonorScoringService
         $rows = [];
         $now  = now();
 
+        // Resolve the latest trained model version once for the entire batch
+        $latestModelVersion = \Illuminate\Support\Facades\DB::table('model_training_logs')
+            ->orderByDesc('training_date')
+            ->value('model_version');
+
         foreach ($results as $donorId => $result) {
             if ($result->isColdStart || $result->source === 'db_cache') {
                 continue;
             }
 
+            $modelVersion = match ($result->source) {
+                'fastapi'    => $latestModelVersion ?? 'fastapi',
+                'rule_based' => 'rule_based',
+                default      => $result->source,
+            };
+
             $rows[] = [
                 'donor_id'               => $donorId,
                 'acceptance_probability' => $result->score,
                 'computed_at'            => $now,
-                'model_version'          => $result->source,
+                'model_version'          => $modelVersion,
                 'data_points_count'      => 0,
                 'created_at'             => $now,
                 'updated_at'             => $now,
