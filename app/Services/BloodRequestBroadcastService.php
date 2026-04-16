@@ -135,6 +135,26 @@ class BloodRequestBroadcastService
     }
 
     /**
+     * Dry-run entry point for the scoring simulation page.
+     * Returns eligible donors without modifying any DB state.
+     */
+    public function getEligibleDonors(BloodRequest $bloodRequest): Collection
+    {
+        if (! $this->hasValidLocation($bloodRequest)) {
+            return collect();
+        }
+
+        DB::beginTransaction();
+        try {
+            $donors = $this->findEligibleDonorsWithExpansion($bloodRequest);
+        } finally {
+            DB::rollBack();
+        }
+
+        return $donors;
+    }
+
+    /**
      * Find eligible donors using progressive radius expansion
      *
      * @param BloodRequest $bloodRequest
