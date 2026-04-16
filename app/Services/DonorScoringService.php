@@ -423,6 +423,9 @@ class DonorScoringService
         // Merge cold-start + low scorers into one exploration pool
         $explorers = $coldStart->merge($lowScorers);
 
+        $exploiters->each(fn ($d) => $d->setAttribute('scoringBucket', 'exploitation'));
+        $explorers->each(fn ($d) => $d->setAttribute('scoringBucket', 'exploration'));
+
         return [$exploiters->values(), $explorers->values()];
     }
 }
