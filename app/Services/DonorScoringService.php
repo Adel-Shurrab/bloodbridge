@@ -282,6 +282,18 @@ class DonorScoringService
      * @param  int[] $donorIds
      * @return array<int, ScoringResult>
      */
+    /**
+     * Public wrapper — used by the scoring simulation page to get rule_based
+     * scores for comparison alongside ML scores without affecting the waterfall.
+     *
+     * @param  int[] $donorIds
+     * @return array<int, ScoringResult>
+     */
+    public function scoreRuleBasedOnly(array $donorIds): array
+    {
+        return $this->getFromRuleBasedQuery($donorIds);
+    }
+
     private function getFromRuleBasedQuery(array $donorIds): array
     {
         $minHistory = $this->settings->min_history_for_exploitation;
