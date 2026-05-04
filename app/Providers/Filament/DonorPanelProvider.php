@@ -60,11 +60,13 @@ class DonorPanelProvider extends PanelProvider
                 \App\Filament\Donor\Pages\Dashboard::class,
                 \App\Filament\Donor\Pages\EditProfile::class,
                 \App\Filament\Donor\Pages\ChangePassword::class,
+                \App\Filament\Donor\Pages\Achievements::class,
             ])
             ->discoverWidgets(in: app_path('Filament/Donor/Widgets'), for: 'App\Filament\Donor\Widgets')
             ->widgets([
                 \App\Filament\Donor\Widgets\DonorHeaderWidget::class,
                 \App\Filament\Donor\Widgets\DonorStatsOverviewWidget::class,
+                \App\Filament\Donor\Widgets\DonorLatestAchievementWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

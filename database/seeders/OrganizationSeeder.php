@@ -136,44 +136,48 @@ class OrganizationSeeder extends Seeder
         foreach ($hospitals as $data) {
             $gov = Governorate::where('name->ar', $data['gov'])->first();
 
-            $user = User::create([
-                'name'      => $data['name_ar'],
-                'email'     => "admin@{$data['email_key']}.ps",
-                'phone'     => $data['phone'],
-                'password'  => Hash::make('password'),
-                'role'      => UserRole::ORGANIZATION,
-                'is_active' => true,
-            ]);
+            $user = User::updateOrCreate(
+                ['email' => "admin@{$data['email_key']}.ps"],
+                [
+                    'name'      => $data['name_ar'],
+                    'phone'     => $data['phone'],
+                    'password'  => Hash::make('password'),
+                    'role'      => UserRole::ORGANIZATION,
+                    'is_active' => true,
+                ]
+            );
 
-            Organization::create([
-                'user_id'                   => $user->id,
-                'governorate_id'            => $gov?->id,
-                'org_name'                  => [
-                    'ar' => $data['name_ar'],
-                    'en' => $data['name_en'],
-                ],
-                'slug'                      => $data['slug'],
-                'license_number'            => $data['license'],
-                'responsible_person_name'   => $data['manager'],
-                'responsible_person_position' => [
-                    'ar' => $data['position'],
-                    'en' => 'Management Director',
-                ],
-                'responsible_person_email'  => "manager@{$data['email_key']}.ps",
-                'contact_email'             => "contact@{$data['email_key']}.ps",
-                'contact_phone'             => $data['phone'],
-                'auto_location_address'     => $data['street'],
-                'description'               => $data['description'],
-                'lat'                       => $data['lat'],
-                'lng'                       => $data['lng'],
-                'approval_status'           => OrganizationStatus::APPROVED,
-                'approved_at'               => now()->subMonths(3),
-                'approved_by'               => $admin?->id,
-                'opening_time'              => '08:00',
-                'closing_time'              => '22:00',
-                'working_days'              => $workingDays,
-                'daily_capacity'            => $data['capacity'],
-            ]);
+            Organization::updateOrCreate(
+                ['slug' => $data['slug']],
+                [
+                    'user_id'                   => $user->id,
+                    'governorate_id'            => $gov?->id,
+                    'org_name'                  => [
+                        'ar' => $data['name_ar'],
+                        'en' => $data['name_en'],
+                    ],
+                    'license_number'            => $data['license'],
+                    'responsible_person_name'   => $data['manager'],
+                    'responsible_person_position' => [
+                        'ar' => $data['position'],
+                        'en' => 'Management Director',
+                    ],
+                    'responsible_person_email'  => "manager@{$data['email_key']}.ps",
+                    'contact_email'             => "contact@{$data['email_key']}.ps",
+                    'contact_phone'             => $data['phone'],
+                    'auto_location_address'     => $data['street'],
+                    'description'               => $data['description'],
+                    'lat'                       => $data['lat'],
+                    'lng'                       => $data['lng'],
+                    'approval_status'           => OrganizationStatus::APPROVED,
+                    'approved_at'               => now()->subMonths(3),
+                    'approved_by'               => $admin?->id,
+                    'opening_time'              => '08:00',
+                    'closing_time'              => '22:00',
+                    'working_days'              => $workingDays,
+                    'daily_capacity'            => $data['capacity'],
+                ]
+            );
         }
     }
 }

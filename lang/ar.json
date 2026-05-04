@@ -1414,5 +1414,8 @@
     "Retrain Model": "إعادة تدريب النموذج",
     "Retraining...": "جارٍ إعادة التدريب...",
     "Active": "نشط",
-    "Disabled": "معطّل"
+    "Disabled": "معطّل",
+    "filament.resources.achievements.title": "الإنجازات",
+    "filament.resources.achievements.singular": "إنجاز",
+    "filament.resources.achievements.plural": "الإنجازات"
 }

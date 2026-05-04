@@ -569,6 +569,19 @@ class ResponsesRelationManager extends RelationManager
                                 }
 
                                 $healthProfile->save();
+
+                            // Award achievement points for completed donations
+                            if ($record->status === RequestResponseStatus::COMPLETED) {
+                                try {
+                                    app(\App\Services\AchievementService::class)
+                                        ->awardDonationPoints($record->donor, $record->bloodRequest);
+                                } catch (\Throwable $e) {
+                                    \Illuminate\Support\Facades\Log::error('Achievement hook failed (medical_results)', [
+                                        'donor_id' => $record->donor_id,
+                                        'error'    => $e->getMessage(),
+                                    ]);
+                                }
+                            }
                             }
 
                             EligibilityLog::create([

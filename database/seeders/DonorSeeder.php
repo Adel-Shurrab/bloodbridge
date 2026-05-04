@@ -669,26 +669,30 @@ class DonorSeeder extends Seeder
         foreach ($donors as $data) {
             $gov = Governorate::where('name->ar', $data['gov'])->first();
 
-            $user = User::create([
-                'name'      => $data['name'],
-                'email'     => $data['email'],
-                'phone'     => $data['phone'],
-                'password'  => $password,
-                'role'      => UserRole::DONOR,
-                'is_active' => true,
-            ]);
+            $user = User::updateOrCreate(
+                ['email' => $data['email']],
+                [
+                    'name'      => $data['name'],
+                    'phone'     => $data['phone'],
+                    'password'  => $password,
+                    'role'      => UserRole::DONOR,
+                    'is_active' => true,
+                ]
+            );
 
-            $donor = Donor::create([
-                'user_id'               => $user->id,
-                'governorate_id'        => $gov?->id,
-                'national_id'           => $data['national_id'],
-                'gender'                => $data['gender'],
-                'birth_date'            => $data['birth_date'],
-                'lat'                   => $data['lat'],
-                'lng'                   => $data['lng'],
-                'auto_location_address' => $data['lat'] ? "محافظة {$data['gov']}، قطاع غزة" : null,
-                'points'                => $data['points'],
-            ]);
+            $donor = Donor::updateOrCreate(
+                ['national_id' => $data['national_id']],
+                [
+                    'user_id'               => $user->id,
+                    'governorate_id'        => $gov?->id,
+                    'gender'                => $data['gender'],
+                    'birth_date'            => $data['birth_date'],
+                    'lat'                   => $data['lat'],
+                    'lng'                   => $data['lng'],
+                    'auto_location_address' => $data['lat'] ? "محافظة {$data['gov']}، قطاع غزة" : null,
+                    'points'                => $data['points'],
+                ]
+            );
 
             $profileData = [
                 'donor_id'                      => $donor->id,
@@ -705,7 +709,10 @@ class DonorSeeder extends Seeder
                 'verified_blood_type'           => $data['verified_blood_type'],
             ];
 
-            DonorHealthProfile::create($profileData);
+            DonorHealthProfile::updateOrCreate(
+                ['donor_id' => $donor->id],
+                $profileData
+            );
         }
     }
 }

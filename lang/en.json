@@ -1414,5 +1414,8 @@
     "Retrain Model": "Retrain Model",
     "Retraining...": "Retraining...",
     "Active": "Active",
-    "Disabled": "Disabled"
+    "Disabled": "Disabled",
+    "filament.resources.achievements.title": "Achievements",
+    "filament.resources.achievements.singular": "Achievement",
+    "filament.resources.achievements.plural": "Achievements"
 }
