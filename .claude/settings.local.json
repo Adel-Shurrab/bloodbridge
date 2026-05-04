@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(powershell -Command \"Get-Process python,pythonw,jupyter-kernel -ErrorAction SilentlyContinue | Stop-Process -Force; Write-Host 'Done'\")",
+      "Bash(python:*)",
+      "Bash(pip install:*)",
+      "Bash(python3:*)",
+      "Bash(py:*)",
+      "Bash(where python:*)",
+      "Bash(where py:*)",
+      "Bash(C:Python313python.exe -m pip install python-docx PyMuPDF)",
+      "Bash(\"/C/Python313/python.exe\" -m pip install python-docx PyMuPDF)",
+      "Bash(\"/C/Python313/python.exe\" -c \"\nfrom docx import Document\ndoc = Document\\(r'c:/Users/adels/OneDrive/Desktop/EPD_CSE5_GraduationProjectReportTemplate \\(1\\) \\(AutoRecovered\\).docx'\\)\nprint\\(f'Paragraphs: {len\\(doc.paragraphs\\)}, Tables: {len\\(doc.tables\\)}'\\)\nfor i, para in enumerate\\(doc.paragraphs[:100]\\):\n    if para.text.strip\\(\\):\n        print\\(f'[{i}] STYLE={para.style.name!r}: {para.text[:200]}'\\)\n\" 2>&1)",
+      "Bash(\"/C/Python313/python.exe\" -c \"\nfrom docx import Document\ndoc = Document\\(r'c:/Users/adels/OneDrive/Desktop/EPD_CSE5_GraduationProjectReportTemplate \\(1\\) \\(AutoRecovered\\).docx'\\)\nfor i, para in enumerate\\(doc.paragraphs[96:250]\\):\n    if para.text.strip\\(\\):\n        print\\(f'[{i+96}] STYLE={para.style.name!r}: {para.text[:220]}'\\)\n\" 2>&1)",
+      "Bash(php -l app/Services/DonorScoringService.php)",
+      "Bash(php -l app/Console/Commands/CleanupStaleResponses.php)",
+      "Bash(php artisan:*)",
+      "Bash(venv/Scripts/python.exe -m pytest tests/test_training.py -v)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(curl -s http://localhost:8000/)",
+      "Bash(curl -s http://localhost:8000/api/health)"
+    ]
+  }
+}

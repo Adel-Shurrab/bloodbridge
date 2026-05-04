@@ -90,6 +90,7 @@ class BloodRequestBroadcastService
                 // BROADCASTED. Revert so the request is not stuck in a broken state.
                 $bloodRequest->status = BloodRequestStatus::PENDING;
                 $bloodRequest->broadcasted_at = null;
+                $bloodRequest->actual_search_radius_km = null;
                 $bloodRequest->save();
 
                 throw $e;
@@ -131,6 +132,26 @@ class BloodRequestBroadcastService
             && $bloodRequest->organization->governorate_id !== null;
 
         return $hasCoordinates || $hasGovernorate;
+    }
+
+    /**
+     * Dry-run entry point for the scoring simulation page.
+     * Returns eligible donors without modifying any DB state.
+     */
+    public function getEligibleDonors(BloodRequest $bloodRequest): Collection
+    {
+        if (! $this->hasValidLocation($bloodRequest)) {
+            return collect();
+        }
+
+        DB::beginTransaction();
+        try {
+            $donors = $this->findEligibleDonorsWithExpansion($bloodRequest);
+        } finally {
+            DB::rollBack();
+        }
+
+        return $donors;
     }
 
     /**
@@ -370,7 +391,8 @@ class BloodRequestBroadcastService
     }
 
     /**
-     * Apply recent notification filter to query (prevents spam)
+     * Apply recent notification filter to query (prevents spam).
+     * Excludes donors who recently interacted with any request (not just active ones).
      */
     private function applyRecentNotificationFilter($query, float $cooldownHours): void
     {
@@ -378,6 +400,9 @@ class BloodRequestBroadcastService
             ->whereIn('status', [
                 RequestResponseStatus::PENDING,
                 RequestResponseStatus::ACCEPTED,
+                RequestResponseStatus::IGNORED,
+                RequestResponseStatus::DECLINED,
+                RequestResponseStatus::NO_SHOW,
             ]);
     }
 

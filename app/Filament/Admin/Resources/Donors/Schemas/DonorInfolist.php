@@ -55,7 +55,7 @@ class DonorInfolist
                             ->badge()
                             ->color('info')
                             ->icon('heroicon-o-map-pin')
-                            ->getStateUsing(fn($record, $livewire) => $record->governorate?->getTranslation('name', $livewire?->activeLocale ?? app()->getLocale(), false) ?: $record->governorate?->getTranslation('name', 'ar', false)),
+                            ->getStateUsing(fn($record, $livewire) => $record->governorate?->localized_name),
 
                         TextEntry::make('auto_location_address')
                             ->label(__('admin.address'))
@@ -178,7 +178,8 @@ class DonorInfolist
                     ->columns(3)
                     ->components([
                         TextEntry::make('governorate.name')
-                            ->label(__('admin.governorate')),
+                            ->label(__('admin.governorate'))
+                            ->getStateUsing(fn($record) => $record->governorate?->localized_name),
 
                         TextEntry::make('lat')
                             ->label(__('admin.latitude'))

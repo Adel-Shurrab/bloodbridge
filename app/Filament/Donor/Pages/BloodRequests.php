@@ -8,6 +8,7 @@ use App\Enums\UrgencyLevel;
 use App\Filament\Donor\Widgets\EligibilityCountdownWidget;
 use App\Models\BloodRequest;
 use App\Models\Donor;
+use App\Models\Organization;
 use App\Models\RequestResponse;
 use App\Services\BloodRequestActionService;
 use App\Services\QRCodeService;
@@ -50,7 +51,7 @@ class BloodRequests extends Page implements HasTable
 
     public static function getNavigationLabel(): string
     {
-        return __('donor.blood_requests');
+        return __('filament.navigation.blood_requests');
     }
 
     public function getHeading(): string
@@ -166,7 +167,10 @@ class BloodRequests extends Page implements HasTable
             })
             ->whereDoesntHave('responses', function ($query) use ($donor) {
                 $query->where('donor_id', $donor->id)
-                    ->where('status', '!=', RequestResponseStatus::PENDING);
+                    ->whereNotIn('status', [
+                        RequestResponseStatus::PENDING,
+                        RequestResponseStatus::IGNORED,
+                    ]);
             })
             ->orderBy('distance_km')
             ->orderByDesc('broadcasted_at');
@@ -187,9 +191,15 @@ class BloodRequests extends Page implements HasTable
                     ->options(BloodType::class),
                 SelectFilter::make('organization')
                     ->label(__('donor.organization'))
-                    ->relationship('organization', 'org_name')
+                    ->options(Organization::localizedOptions())
                     ->searchable()
-                    ->preload(),
+                    ->preload()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->when(
+                            $data['value'] ?? null,
+                            fn (Builder $query, $value): Builder => $query->where('organization_id', $value)
+                        );
+                    }),
             ]);
     }
 
@@ -201,8 +211,7 @@ class BloodRequests extends Page implements HasTable
                 ->searchable()
                 ->sortable()
                 ->formatStateUsing(
-                    fn($state, $record) => $record->organization?->getTranslation('org_name', app()->getLocale(), false)
-                        ?? ($record->organization?->getTranslation('org_name', 'ar', false) ?? '-')
+                    fn($state, $record) => $record->organization?->localized_org_name ?? '-'
                 ),
             Tables\Columns\TextColumn::make('distance_km')
                 ->label(__('donor.distance'))
@@ -303,11 +312,14 @@ class BloodRequests extends Page implements HasTable
             return false;
         }
 
-        $hasActivePending = $this->getDonorResponses()
+        $hasActiveResponse = $this->getDonorResponses()
             ->reject(fn(RequestResponse $r) => $r->blood_request_id === $request->id)
-            ->contains(fn(RequestResponse $r) => $r->status === RequestResponseStatus::PENDING);
+            ->contains(fn(RequestResponse $r) => in_array($r->status, [
+                RequestResponseStatus::PENDING,
+                RequestResponseStatus::ACCEPTED,
+            ], true));
 
-        return ! $hasActivePending;
+        return ! $hasActiveResponse;
     }
 
     protected function canIgnore(BloodRequest $request): bool

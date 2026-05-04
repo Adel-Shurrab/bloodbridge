@@ -67,7 +67,7 @@ class QRCodeService
     {
         return RequestResponse::query()
             ->where('verification_qr_code', $code)
-            
+            ->where('status', RequestResponseStatus::PENDING->value)
             ->where(function ($q) {
                 $q->whereNull('qr_code_expires_at')
                     ->orWhere('qr_code_expires_at', '>', now());

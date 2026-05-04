@@ -53,7 +53,22 @@ class Organization extends Model implements HasName
 
     public function getFilamentName(): string
     {
-        return $this->getTranslation('org_name', app()->getLocale(), false) ?: ($this->getTranslation('org_name', 'ar', false) ?: '');
+        return $this->localized_org_name ?? '';
+    }
+
+    public function getLocalizedOrgNameAttribute(): ?string
+    {
+        return $this->getTranslation('org_name', app()->getLocale(), false)
+            ?: $this->getTranslation('org_name', 'ar', false)
+            ?: $this->getTranslation('org_name', 'en', false);
+    }
+
+    public static function localizedOptions(): array
+    {
+        return static::query()
+            ->get()
+            ->mapWithKeys(fn (self $organization) => [$organization->id => $organization->localized_org_name])
+            ->toArray();
     }
 
     public function governorate()

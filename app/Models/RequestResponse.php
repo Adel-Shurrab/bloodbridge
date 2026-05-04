@@ -20,6 +20,7 @@ class RequestResponse extends Model
         'verification_qr_code',
         'qr_code_expires_at',
         'verified_at',
+        'correction_used_at',
         'decline_reason',
         'responded_at',
         'appointment_id',
@@ -28,6 +29,7 @@ class RequestResponse extends Model
     protected $casts = [
         'status' => \App\Enums\RequestResponseStatus::class,
         'verified_at' => 'datetime',
+        'correction_used_at' => 'datetime',
         'responded_at' => 'datetime',
         'qr_code_expires_at' => 'datetime',
     ];

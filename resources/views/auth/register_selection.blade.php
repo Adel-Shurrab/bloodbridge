@@ -87,7 +87,7 @@
 
             <div class="action-container">
                 <button id="continueBtn" class="btn btn-primary btn-continue disabled" disabled
-                    aria-label="{{ __('Continue to registration page') }}">
+                    aria-label="{{ __('Continue to registration page') }}" data-donor-url="/register/donor" data-org-url="/register/organization">
                     <span>{{ __('Continue') }}</span>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
                         stroke-width="2">

@@ -20,7 +20,7 @@ return new class extends Migration
 
         $governorates = [
             ['ar' => 'غزة', 'en' => 'Gaza'],
-            ['ar' => 'خانيونس', 'en' => 'Khan Younis'],
+            ['ar' => 'خان يونس', 'en' => 'Khan Younis'],
             ['ar' => 'شمال غزة', 'en' => 'North Gaza'],
             ['ar' => 'دير البلح', 'en' => 'Deir al-Balah'],
             ['ar' => 'رفح', 'en' => 'Rafah'],
@@ -28,7 +28,7 @@ return new class extends Migration
 
         foreach ($governorates as $gov) {
             DB::table('governorates')->insert([
-                'name' => json_encode($gov),
+                'name' => json_encode($gov, JSON_UNESCAPED_UNICODE),
                 'created_at' => now(),
                 'updated_at' => now(),
             ]);

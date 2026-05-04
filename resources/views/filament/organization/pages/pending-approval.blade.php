@@ -37,7 +37,7 @@
 
                     {{-- Organization Name --}}
                     <h1 class="org-name">
-                        {{ $tenant->org_name }}
+                        {{ $tenant->localized_org_name }}
                     </h1>
 
                     {{-- Status Heading --}}

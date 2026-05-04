@@ -1,3 +1,5 @@
+import asyncio
+import json
 import pickle
 import psutil
 import logging
@@ -19,6 +21,7 @@ from config import (
     MIN_HISTORY_FOR_MODEL,
     DB_HOST, DB_PORT, DB_NAME, DB_USER, DB_PASSWORD
 )
+from training.train import retrain as run_retrain
 
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix='/api', tags=['scoring'])
@@ -31,12 +34,11 @@ engine = create_engine(
 )
 
 
-# =========================================================================
-# Schemas — define what goes in and what comes out
-# =========================================================================
 
 class ScoreRequest(BaseModel):
     donor_ids: List[int]
+    urgency: Optional[str] = 'normal'
+    distances: Optional[Dict[int, float]] = None
 
     @field_validator('donor_ids')
     @classmethod
@@ -69,9 +71,6 @@ class HealthResponse(BaseModel):
     details:          Dict
 
 
-# =========================================================================
-# Helpers
-# =========================================================================
 
 def load_model():
     """Load model from disk. Returns None if not found."""
@@ -91,7 +90,7 @@ def load_feature_names():
         return []
 
 
-def get_donor_features(donor_ids: list) -> pd.DataFrame:
+def get_donor_features(donor_ids: list, urgency: str = 'normal', distances: dict = None) -> pd.DataFrame:
     """
     Fetch donor features from database in a single query.
     Same features as our Jupyter notebook training data.
@@ -149,18 +148,21 @@ def get_donor_features(donor_ids: list) -> pd.DataFrame:
     # loyalty_score
     df['loyalty_score'] = (df['total_donations'] / 10).clip(0, 1)
 
-    # Default urgency and context
-    df['urgency_level'] = 1
-    df['distance_km'] = 10.0
+    # urgency_level: NORMAL=1, CRITICAL=2 (matches Laravel UrgencyLevel enum)
+    df['urgency_level'] = 2 if urgency == 'critical' else 1
+
+    # distance_km: use per-donor real distance if provided, fall back to 10.0
+    if distances:
+        df['distance_km'] = df['donor_id'].map(distances).fillna(10.0)
+    else:
+        df['distance_km'] = 10.0
+
     df['hour_of_day'] = datetime.now().hour
     df['day_of_week'] = datetime.now().weekday()
 
     return df
 
 
-# =========================================================================
-# Endpoints
-# =========================================================================
 
 @router.get('/health', response_model=HealthResponse)
 async def health():
@@ -174,7 +176,6 @@ async def health():
     last_trained = None
     db_connected = False
 
-    # Check model
     try:
         model = load_model()
         model_loaded = model is not None
@@ -182,7 +183,6 @@ async def health():
     except Exception as e:
         details['model'] = f'error: {str(e)}'
 
-    # Check database + last training log
     try:
         with engine.connect() as conn:
             db_connected = True
@@ -198,7 +198,6 @@ async def health():
     except Exception as e:
         details['database'] = f'error: {str(e)}'
 
-    # Check memory
     memory_pct = psutil.virtual_memory().percent
     details['memory_pct'] = memory_pct
 
@@ -233,17 +232,14 @@ async def score_donors(request: Request, body: ScoreRequest):
     model = load_model()
     feature_names = load_feature_names()
 
-    # No model yet — mark all as cold start
     if model is None or not feature_names:
         return ScoreResponse(scores={
             did: DonorScore(score=NEUTRAL_SCORE, is_cold_start=True)
             for did in body.donor_ids
         })
 
-    # Fetch features from DB
-    features_df = get_donor_features(body.donor_ids)
+    features_df = get_donor_features(body.donor_ids, body.urgency, body.distances)
 
-    # Get response counts for cold-start detection
     placeholders = ', '.join([f':id_{i}' for i in range(len(body.donor_ids))])
     params = {f'id_{i}': did for i, did in enumerate(body.donor_ids)}
 
@@ -271,7 +267,6 @@ async def score_donors(request: Request, body: ScoreRequest):
                 is_cold_start=True
             )
         else:
-            # Score using XGBoost model
             X = row[feature_names].values.reshape(1, -1)
             prob = float(model.predict_proba(X)[0][1])
             scores[donor_id] = DonorScore(
@@ -288,9 +283,55 @@ async def score_donors(request: Request, body: ScoreRequest):
 @router.post('/retrain')
 @limiter.limit("5/hour")
 async def retrain(request: Request):
-    """Manually trigger model retraining."""
+    """
+    Train a new XGBoost model on current DB data, persist artifacts,
+    and record the run in model_training_logs.
+    """
     logger.info("Retraining triggered")
+
+    try:
+        result = await asyncio.to_thread(run_retrain)
+    except Exception as exc:
+        logger.error(f"Retraining failed: {exc}")
+        raise HTTPException(status_code=500, detail=f"Training failed: {str(exc)}")
+
+    try:
+        with engine.begin() as conn:
+            conn.execute(text("""
+                INSERT INTO model_training_logs
+                    (model_version, training_date, data_records_used,
+                     algorithm, hyperparameters, metrics, feature_importance,
+                     created_at, updated_at)
+                VALUES
+                    (:version, :date, :records,
+                     'xgboost', :hyperparams, :metrics, :importance,
+                     :now, :now)
+                ON DUPLICATE KEY UPDATE
+                    training_date      = VALUES(training_date),
+                    data_records_used  = VALUES(data_records_used),
+                    hyperparameters    = VALUES(hyperparameters),
+                    metrics            = VALUES(metrics),
+                    feature_importance = VALUES(feature_importance),
+                    updated_at         = VALUES(updated_at)
+            """), {
+                'version':    result['model_version'],
+                'date':       datetime.now(),
+                'records':    result['data_records_used'],
+                'hyperparams': json.dumps(result['hyperparameters']),
+                'metrics':    json.dumps(result['metrics']),
+                'importance': json.dumps(result['feature_importance']),
+                'now':        datetime.now(),
+            })
+    except Exception as exc:
+        logger.error(f"Failed to write model_training_logs: {exc}")
+        raise HTTPException(status_code=500, detail=f"Model trained but log write failed: {str(exc)}")
+
+    logger.info(f"Retrain complete — version {result['model_version']}, AUC-ROC {result['metrics'].get('auc_roc')}")
+
     return {
-        'status':  'acknowledged',
-        'message': 'Retraining request received',
+        'status':             'success',
+        'model_version':      result['model_version'],
+        'data_records_used':  result['data_records_used'],
+        'real_records_used':  result['real_records_used'],
+        'metrics':            result['metrics'],
     }

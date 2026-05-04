@@ -1,11 +1,17 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Auth\AuthenticatedSessionController;
 use App\Http\Controllers\Auth\RegisteredUserController;
 use Mcamara\LaravelLocalization\Facades\LaravelLocalization;
 
 use App\Http\Controllers\PublicPagesController;
+use App\Http\Controllers\Auth\VerifyEmailController;
+
+// Verification route must be outside the localization group so the signed URL
+// is not broken by the localizationRedirect middleware switching locale prefixes.
+Route::get('verify-email/{id}/{hash}', VerifyEmailController::class)
+    ->middleware(['signed', 'throttle:6,1'])
+    ->name('verification.verify');
 
 Route::group([
     'prefix' => LaravelLocalization::setLocale(),
@@ -24,9 +30,6 @@ Route::group([
 
     // Registration Pages
     Route::middleware('guest')->group(function () {
-        Route::get('login', [AuthenticatedSessionController::class, 'create'])
-            ->name('login');
-        Route::post('login', [AuthenticatedSessionController::class, 'store']);
         Route::get('register_selection', [RegisteredUserController::class, 'showRegisterSelection'])
             ->name('register.selection');
 
@@ -43,10 +46,6 @@ Route::group([
             ->name('register.organization.store');
     });
 
-    Route::middleware('auth')->group(function () {
-        Route::post('logout', [AuthenticatedSessionController::class, 'destroy'])
-            ->name('logout');
-    });
     // Default Auth Routes
     require __DIR__ . '/auth.php';
 });

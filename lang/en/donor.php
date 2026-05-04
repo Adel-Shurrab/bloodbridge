@@ -130,7 +130,8 @@ return [
     'we_wish_you_health' => 'We wish you continued health and wellness',
     'request_not_available' => 'This request is no longer available.',
     'donor_not_eligible' => 'You are not currently eligible to donate.',
-    'already_has_active_response' => 'You already have an active accepted request. Please cancel it before accepting a new one.',
+    'already_has_active_response' => 'You already have another active blood request. Please cancel it before accepting a new one.',
+    'cannot_ignore_active_response' => 'You cannot decline a request after you have already committed to it.',
     'cannot_cancel_response' => 'This response cannot be cancelled.',
 
     // Achievements

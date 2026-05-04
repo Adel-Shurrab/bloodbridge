@@ -92,6 +92,8 @@ class BloodRequestResource extends Resource
                 'acceptedResponses as accepted_responses_count',
                 'completedResponses as completed_responses_count',
             ]);
+            
+
     }
 
     public static function getRecordRouteBindingEloquentQuery(): Builder
@@ -113,3 +115,4 @@ class BloodRequestResource extends Resource
             ]);
     }
 }
+
