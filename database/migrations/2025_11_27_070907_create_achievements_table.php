@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('achievements', function (Blueprint $table) {
             $table->id();
-            $table->json('name')->unique()->index();
+            $table->json('name');
             $table->json('description')->nullable();
             $table->integer('points_rewards')->default(0);
             $table->string('badge_icon')->nullable();

@@ -35,6 +35,8 @@ class Donor extends Model
         'auto_location_address',
         'lat',
         'lng',
+        'points',
+        'level',
     ];
 
     public function governorate()
@@ -60,6 +62,19 @@ class Donor extends Model
     public function eligibilityLogs()
     {
         return $this->hasMany(EligibilityLog::class);
+    }
+
+    public function donorAchievements()
+    {
+        return $this->hasMany(DonorAchievement::class);
+    }
+
+    public function earnedAchievements()
+    {
+        return $this->belongsToMany(Achievement::class, 'donor_achievements')
+            ->withPivot(['earned_at', 'meta', 'awarded_by'])
+            ->withTimestamps()
+            ->wherePivotNull('deleted_at');
     }
 
     /**

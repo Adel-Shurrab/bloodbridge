@@ -3,6 +3,7 @@
 namespace App\Filament\Donor\Pages;
 use \App\Filament\Donor\Widgets\DonorStatsOverviewWidget;
 use \App\Filament\Donor\Widgets\DonorHeaderWidget;
+use \App\Filament\Donor\Widgets\DonorLatestAchievementWidget;
 
 class Dashboard extends \Filament\Pages\Dashboard
 {
@@ -20,6 +21,7 @@ class Dashboard extends \Filament\Pages\Dashboard
         return [
             DonorHeaderWidget::class,
             DonorStatsOverviewWidget::class,
+            DonorLatestAchievementWidget::class,
         ];
     }
 

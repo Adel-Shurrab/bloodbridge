@@ -16,21 +16,24 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         
-        User::factory()->create([
-            'name'     => 'مسؤول النظام',
-            'email'    => 'admin@bloodbridge.ps',
-            'phone'    => '0599000000',
-            'password' => bcrypt('password'),
-            'role'     => \App\Enums\UserRole::ADMIN,
-        ]);
+        User::updateOrCreate(
+            ['email' => 'admin@bloodbridge.ps'],
+            [
+                'name'     => 'مسؤول النظام',
+                'phone'    => '0599000000',
+                'password' => bcrypt('password'),
+                'role'     => \App\Enums\UserRole::ADMIN,
+                'email_verified_at' => now(),
+            ]
+        );
 
         $this->call([
-            OrganizationSeeder::class,
-            DonorSeeder::class,
-            BloodRequestSeeder::class,
+            OrganizationSeeder::class,  
+            DonorSeeder::class,         
+            BloodRequestSeeder::class,  
             InteractionSeeder::class,
-            MLDataSeeder::class,
-            DonorScoreSeeder::class,
+            AchievementsSeeder::class,
+               
         ]);
     }
 }
