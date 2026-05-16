@@ -9,6 +9,8 @@ class AchievementsSeeder extends Seeder
 {
     public function run(): void
     {
+        $this->restoreBadgeImages();
+
         // Phase 1 achievements only — auto-awarded by the service
         $achievements = [
             [
@@ -351,6 +353,75 @@ class AchievementsSeeder extends Seeder
                 ['criteria_type' => $data['criteria_type'], 'criteria_value' => $data['criteria_value']],
                 $data
             );
+        }
+    }
+
+    /**
+     * Automatically copies and renames badge images from resources to public storage.
+     * This ensures the project is portable and images work after a fresh clone.
+     */
+    private function restoreBadgeImages(): void
+    {
+        $sourceDir = base_path('resources/images/raw_achievements');
+        $targetDir = storage_path('app/public/achievements');
+
+        if (!is_dir($sourceDir)) {
+            return;
+        }
+
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
+        $mapping = [
+            'قطرة الحياة الاولى.png' => 'first-drop.png',
+            'المساھم.png' => 'contributor.png',
+            'المنقذ.png' => 'savior.png',
+            'المنقذ العالمي.png' => 'global-savior.png',
+            'الكنز الثمین.png' => 'precious-treasure.png',
+            'المائة الذھبیة.png' => 'golden-hundred.png',
+            'الأسطورة.png' => 'legend.png',
+            'بطل الطوار ئ.png' => 'emergency-hero.png',
+            'الفصیلة النادرة.png' => 'rare-blood-type.png',
+            'الشھر المنتظم.png' => 'regular-month.png',
+            'ربع السنة الملتزم.png' => 'quarter-year-committed.png',
+            'نصف العام الثابت.png' => 'steady-half-year.png',
+            'عام من العطاء.png' => 'year-of-giving.png',
+            'العامان المتواصلان.png' => 'two-continuous-years.png',
+            'لا إلغاء.png' => 'no-cancellation.png',
+            'الملتزم.png' => 'committed.png',
+            'المنضبط.png' => 'disciplined.png',
+            'الموثوق.png' => 'reliable.png',
+            'الكمالیة.png' => 'perfection.png',
+            'دائما جاھز.png' => 'always-ready.png',
+            'الاستجابة السریعة.png' => 'quick-response.png',
+            'الرد الفوري.png' => 'immediate-reply.png',
+            'صاعقة البرق.png' => 'lightning-bolt.png',
+            'البطل المحلي.png' => 'local-hero.png',
+            'الجار الكريم.png' => 'generous-neighbor.png',
+            'المسافر.png' => 'traveler.png',
+            'المسافر الطویل.png' => 'long-traveler.png',
+            'العابر للحدود.png' => 'cross-border.png',
+            'جولة القطاع.png' => 'sector-tour.png',
+            'المستقبل العالمي.png' => 'global-future.png',
+            'بطل رمضان.png' => 'ramadan-hero.png',
+            'یوم المتبرعل العالمي.png' => 'world-donor-day.png',
+            'الدقيق.png' => 'the-precise.png',
+        ];
+
+        $filesInSource = scandir($sourceDir);
+
+        foreach ($mapping as $arabicName => $englishName) {
+            foreach ($filesInSource as $file) {
+                if (trim($file) === trim($arabicName)) {
+                    $sourcePath = $sourceDir . DIRECTORY_SEPARATOR . $file;
+                    $targetPath = $targetDir . DIRECTORY_SEPARATOR . $englishName;
+                    if (!file_exists($targetPath)) {
+                        copy($sourcePath, $targetPath);
+                    }
+                    break;
+                }
+            }
         }
     }
 }
