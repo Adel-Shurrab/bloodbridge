@@ -1,383 +1,619 @@
+<div align="center">
+
 # BloodBridge
 
-A blood donation management platform built with Laravel 12 and Filament 4. It connects blood donors with hospitals and blood banks through geographic matching, multi-level donor scoring, and asynchronous notifications.
+### Intelligent Blood Donation Coordination Platform
 
-The platform is designed for the Gaza Strip and supports Arabic and English throughout.
+A bilingual Laravel platform that helps healthcare organizations identify, prioritize, notify, and verify eligible blood donors through location-aware matching, asynchronous workflows, and resilient scoring.
 
----
+[![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?style=flat-square&logo=laravel&logoColor=white)](https://laravel.com/)
+[![PHP](https://img.shields.io/badge/PHP-8.3%2B-777BB4?style=flat-square&logo=php&logoColor=white)](https://www.php.net/)
+[![Filament](https://img.shields.io/badge/Filament-4-FDAE4B?style=flat-square)](https://filamentphp.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-Database-4479A1?style=flat-square&logo=mysql&logoColor=white)](https://www.mysql.com/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-ML%20Service-009688?style=flat-square&logo=fastapi&logoColor=white)](https://fastapi.tiangolo.com/)
+[![XGBoost](https://img.shields.io/badge/XGBoost-Donor%20Scoring-EC6B23?style=flat-square)](https://xgboost.ai/)
+[![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](#license)
 
-## Table of Contents
+[Watch Demo](https://www.youtube.com/watch?v=y6ZVAuAgmOs) ·
+[Report an Issue](../../issues)
 
-- [Overview](#overview)
-- [Key Features](#key-features)
-- [Tech Stack](#tech-stack)
-- [Architecture](#architecture)
-- [Modules](#modules)
-- [Setup](#setup)
-- [Configuration](#configuration)
-- [Background Jobs and Scheduling](#background-jobs-and-scheduling)
-- [Notes](#notes)
+</div>
 
 ---
 
 ## Overview
 
-BloodBridge gives three types of users separate, purpose-built interfaces: system administrators, blood donors, and medical organizations. When an organization creates a blood request, the system finds eligible donors by blood type compatibility and GPS proximity, scores them using a multi-level algorithm, and dispatches notifications asynchronously through a queue worker. Donors can accept or decline requests; organizations verify attendance by scanning a QR code at admission.
+BloodBridge is a web-based blood donation coordination system designed for healthcare organizations and registered donors in the Gaza Strip.
 
-The system covers five governorates of the Gaza Strip: Gaza, North Gaza, Deir al-Balah, Khan Younis, and Rafah.
+The platform replaces fragmented coordination through phone calls, social media messages, and manual records with one structured workflow for:
+
+- creating blood requests;
+- discovering medically eligible donors;
+- matching donors by blood compatibility and geographic proximity;
+- prioritizing donors using behavioral scoring;
+- dispatching notifications asynchronously;
+- tracking donor responses;
+- verifying attendance through QR codes;
+- monitoring the complete request lifecycle.
+
+BloodBridge supports Arabic and English and provides separate interfaces for administrators, donors, and healthcare organizations.
+
+---
+
+## The Problem
+
+Blood donation coordination is highly time-sensitive. Manual communication creates several operational risks:
+
+- suitable donors may not be reached quickly;
+- the same donors may be contacted repeatedly;
+- donor eligibility may be unclear;
+- response history is difficult to track;
+- organizations may lack visibility into request progress;
+- attendance and completed donations may not be verified consistently.
+
+BloodBridge addresses these issues through a traceable, resilient, and workflow-driven platform.
+
+---
+
+## Core Workflow
+
+```mermaid
+flowchart LR
+    A[Healthcare Organization Creates Request] --> B[Validate Request and Location]
+    B --> C[Filter Compatible and Eligible Donors]
+    C --> D[Search by Geographic Radius]
+    D --> E{Enough Donors?}
+    E -- No --> F[Expand Search Radius]
+    F --> D
+    E -- Yes --> G[Score and Rank Donors]
+    G --> H[Epsilon-Greedy Selection]
+    H --> I[Queue Notification Jobs]
+    I --> J[Donor Accepts or Declines]
+    J --> K{Accepted?}
+    K -- Yes --> L[Generate QR Token]
+    L --> M[Organization Scans QR]
+    M --> N[Verify Attendance]
+    N --> O[Record Donation Outcome]
+    K -- No --> P[Update Response Status]
+```
 
 ---
 
 ## Key Features
 
-### Blood Request Lifecycle
+### Intelligent Donor Discovery
 
-- Organizations create requests specifying blood type, units needed, urgency (Normal or Critical), GPS location, and initial search radius.
-- On broadcast, the system finds eligible donors and dispatches notifications. The request status moves from `PENDING` → `BROADCASTED` → `FULFILLED` or `EXPIRED`.
-- If the initial radius does not yield enough donors, the system expands by 5 km per step up to a 25 km maximum. Critical requests start with a 3× wider radius and a tighter notification cooldown (30 minutes vs. 2 hours for normal).
-- Requests that remain open after 48 hours are expired automatically by a scheduled command.
+- ABO and Rh blood-type compatibility matching.
+- Eligibility validation before donor selection.
+- GPS-based proximity search using the Haversine formula.
+- Bounding-box pre-filtering to reduce geographic query cost.
+- Governorate-level fallback when exact coordinates are unavailable.
+- Progressive radius expansion when the initial search does not return enough donors.
 
-### Donor Matching
+### Resilient Donor Scoring
 
-- Blood type compatibility covers all ABO/Rh combinations. An `UNKNOWN` type is used as a fallback.
-- Geographic matching uses a Haversine SQL query with a bounding-box pre-filter. When GPS coordinates are unavailable the system falls back to governorate-level matching.
-- Donors must pass eligibility checks at both broadcast time and job execution time: minimum weight (50 kg) and height (140 cm), no active infection, no chronic disease, no donation within 90 days, no recent surgery within 28 days.
+BloodBridge uses a four-level scoring waterfall:
 
-### Donor Scoring
+| Level | Scoring Source | Purpose |
+|---|---|---|
+| 1 | Cached database score | Reuses a recent score to reduce latency |
+| 2 | FastAPI + XGBoost | Predicts donor response likelihood |
+| 3 | Rule-based PHP score | Keeps scoring available when the ML service fails |
+| 4 | Neutral fallback score | Prevents cold-start donors from being excluded |
 
-Donors are scored before each notification batch through a four-level waterfall that never fails silently:
+The rule-based score considers:
 
-| Level | Source | Condition |
-|-------|--------|-----------|
-| 1 | Cached DB score (`donor_predictive_scores`) | Score exists within the staleness window |
-| 2 | FastAPI XGBoost model | ML scoring enabled and circuit breaker closed |
-| 3 | Rule-based PHP | Always available as fallback |
-| 4 | Neutral 0.5 | Cold-start or no history |
-
-Rule-based formula:
-
-```
-score = (acceptance_rate × 0.50)
-      + (recency_score   × 0.30)
-      + (loyalty_score   × 0.20)
-
-acceptance_rate = accepted / (total_responses + no_show_penalty)
-recency_score   = 1.0 (≤7d) | 0.8 (≤30d) | 0.5 (≤90d) | 0.3 (≤180d) | 0.1 (older)
-loyalty_score   = min(total_donations / 10, 1.0)
+```text
+acceptance behavior
++ response recency
++ donation loyalty
+- no-show penalties
 ```
 
-An epsilon-greedy strategy (default 80 % exploitation / 20 % exploration) determines which scored donors receive notifications. Donors with fewer responses than `min_history_for_exploitation` are always placed in the exploration bucket. Critical requests receive a 1.5× notification budget.
+A circuit breaker protects the broadcast workflow from repeated FastAPI failures. When the ML service becomes unavailable, donor selection continues automatically using the internal fallback.
 
-### QR Code Verification
+### Balanced Donor Selection
 
-When a donor accepts a request, a 32-character hex token is generated and stored against their response. Donors download the QR code (SVG) from their panel. Organizations scan it at the `ScanDonorQR` page (rate-limited: 30 scans per minute per organization). A valid scan sets the response to `ACCEPTED` with a `verified_at` timestamp. The token is revoked on cancel or ignore.
+An epsilon-greedy strategy balances:
 
-### Multi-Panel System
+- **exploitation** — prioritizing donors with stronger response scores;
+- **exploration** — giving less-known or newly registered donors a fair opportunity.
 
-Three separate Filament panels, each with its own layout, middleware chain, and resource tree:
+The exploration ratio decreases gradually as more behavioral data become available.
 
-| Panel | URL | Role |
-|-------|-----|------|
-| Admin | `/admin` | System administrators |
-| Donor | `/donor` | Blood donors |
-| Organization | `/org/{slug}` | Hospitals and blood banks (multi-tenant) |
+### Asynchronous Notifications
 
-The Organization panel uses Filament tenancy keyed by organization `slug`. Each organization user belongs to exactly one tenant.
+- Notification delivery runs through Laravel queue jobs.
+- Donors are processed in controlled batches.
+- Eligibility is revalidated inside each job before sending.
+- Notifications respect the recipient's preferred language.
+- Database and real-time broadcast channels are supported.
+- Laravel Reverb can be used locally and Pusher in hosted environments.
 
-### Notifications
+### QR-Based Attendance Verification
 
-- Notifications are dispatched in batches of up to 100 donors per job.
-- Delivered via `database` + `broadcast` channels.
-- Each donor receives the notification in their preferred locale (Arabic or English).
-- Real-time delivery uses Laravel Reverb (development) or Pusher (production).
-- All sends go through `NotificationService`, which wraps `notify()`, applies the recipient's locale, and logs successes and failures.
+When a donor accepts a request:
 
-### Localization
+1. the system creates a unique QR token;
+2. the donor downloads the generated QR code;
+3. the healthcare organization scans it on arrival;
+4. the platform verifies token validity, organization ownership, expiry, and request context;
+5. attendance is recorded with a verification timestamp.
 
-Bilingual: Arabic (`ar`) and English (`en`). Per-user locale is stored in `users.locale` and synced via middleware on each request. Model fields use `spatie/laravel-translatable`. Public routes are prefixed with the active locale via `mcamara/laravel-localization`.
+The verification interface is rate-limited to reduce abusive scanning attempts.
+
+### Request Lifecycle Automation
+
+Blood requests and donor responses move through controlled status transitions.
+
+```mermaid
+stateDiagram-v2
+    [*] --> PENDING
+    PENDING --> BROADCASTED: Broadcast request
+    BROADCASTED --> FULFILLED: Required units completed
+    BROADCASTED --> EXPIRED: Request timeout
+    FULFILLED --> [*]
+    EXPIRED --> [*]
+```
+
+Scheduled commands:
+
+- expire outdated blood requests;
+- mark stale responses as unreachable;
+- cancel unnecessary pending responses;
+- reduce the exploration ratio over time.
+
+### Bilingual Experience
+
+- Arabic and English interfaces.
+- Per-user locale preference.
+- Localized notifications.
+- Translatable content and model attributes.
+- Locale-aware public routes.
+
+---
+
+## User Panels
+
+### Administrator Panel
+
+Route: `/admin`
+
+Administrators can:
+
+- manage users, donors, organizations, and blood requests;
+- approve or reject healthcare organizations;
+- monitor platform activity;
+- manage announcements and contact messages;
+- configure eligibility and scoring settings;
+- monitor ML service health and circuit-breaker state;
+- review blood-type demand and request trends.
+
+### Donor Panel
+
+Route: `/donor`
+
+Donors can:
+
+- complete and update their profile;
+- view eligibility status;
+- review compatible active requests;
+- accept, decline, or cancel responses;
+- download QR verification codes;
+- review donation and response history;
+- track personal statistics.
+
+### Healthcare Organization Panel
+
+Route: `/org/{slug}`
+
+Approved organizations can:
+
+- create and broadcast blood requests;
+- define blood type, urgency, units, location, and radius;
+- review donor responses;
+- scan donor QR codes;
+- confirm attendance and donation outcomes;
+- view organization-specific analytics.
+
+The organization panel uses tenant isolation based on the organization slug.
+
+---
+
+## Architecture
+
+```mermaid
+flowchart TB
+    U[Admin / Donor / Organization] --> W[Laravel Web Application]
+
+    W --> F[Filament Panels]
+    W --> S[Domain Services]
+    W --> DB[(MySQL Database)]
+    W --> Q[Laravel Queue]
+    W --> WS[Reverb / Pusher]
+
+    S --> B[Blood Request Broadcast Service]
+    S --> D[Donor Scoring Service]
+    S --> N[Notification Service]
+    S --> QR[QR Code Service]
+
+    D --> C[Database Score Cache]
+    D --> API[FastAPI Scoring Service]
+    API --> ML[XGBoost Model]
+
+    Q --> N
+    N --> WS
+    N --> DB
+```
+
+### Main Architectural Components
+
+- **Laravel application** — authentication, business logic, routing, validation, persistence, scheduling, and queues.
+- **Filament panels** — role-specific administrative and operational interfaces.
+- **MySQL** — donors, organizations, health profiles, blood requests, responses, settings, and audit data.
+- **FastAPI service** — exposes the XGBoost scoring component through an HTTP API.
+- **Queue workers** — process notification batches outside the request-response cycle.
+- **Broadcasting layer** — delivers real-time updates through Reverb or Pusher.
+- **Scheduler** — maintains request and response lifecycles automatically.
+
+---
+
+## Technical Highlights
+
+### Geographic Matching
+
+BloodBridge combines:
+
+- blood compatibility;
+- donor eligibility;
+- GPS coordinates;
+- Haversine distance calculation;
+- bounding-box optimization;
+- configurable search radius;
+- automatic radius expansion;
+- governorate fallback.
+
+This avoids relying on blood type alone and makes the search process adaptive when donor availability is limited.
+
+### Eligibility Engine
+
+Donor eligibility is recalculated when a health profile is saved.
+
+The evaluation considers:
+
+- chronic disease;
+- active infection;
+- minimum weight;
+- minimum height;
+- recent donation;
+- recent surgery.
+
+The system stores:
+
+- current eligibility;
+- permanent or temporary restriction;
+- next eligible donation date.
+
+### Scoring Reliability
+
+The scoring component is intentionally designed not to become a single point of failure.
+
+```mermaid
+flowchart TD
+    A[Request Donor Score] --> B{Fresh Cached Score?}
+    B -- Yes --> C[Use Cached Score]
+    B -- No --> D{ML Enabled and Circuit Closed?}
+    D -- Yes --> E[Call FastAPI XGBoost]
+    E --> F{Successful Response?}
+    F -- Yes --> G[Use ML Score]
+    F -- No --> H[Record Failure and Use PHP Fallback]
+    D -- No --> H
+    H --> I{Enough History?}
+    I -- Yes --> J[Use Rule-Based Score]
+    I -- No --> K[Use Neutral 0.5 Score]
+```
+
+### ML Validation
+
+The current XGBoost model was evaluated on a held-out subset of a synthetic dataset created for controlled project validation.
+
+| Approach | AUC-ROC | Accuracy |
+|---|---:|---:|
+| Random baseline | 0.4757 | 43% |
+| Rule-based scoring | 0.8822 | 83% |
+| XGBoost | 0.9262 | 81% |
+
+AUC-ROC is the more relevant metric in this context because the model is used primarily for ranking donors by response likelihood rather than producing a final medical or eligibility decision.
+
+> The model is a decision-support component, not a medical decision system. It should be retrained and revalidated using real operational data before production deployment.
 
 ---
 
 ## Tech Stack
 
 | Layer | Technology |
-|-------|-----------|
-| Framework | Laravel 12, PHP 8.3+ |
-| Admin UI | Filament 4 (three panels) |
-| Frontend | Alpine.js, Tailwind CSS 4, Vite 7 |
-| Database | MySQL (production), SQLite (local default) |
-| Queue | Laravel Queue, `database` driver |
-| Broadcasting | Laravel Reverb (dev) / Pusher (production) |
-| ML sidecar | Python 3, FastAPI, XGBoost |
-| QR codes | `simplesoftwareio/simple-qrcode` |
-| Settings | `spatie/laravel-settings` |
-| Trends / charts | `flowframe/laravel-trend` |
-| Testing | Pest 4 |
-| Code style | Laravel Pint |
-
-Redis is present in `.env.example` but is not used by default — the application uses the `database` driver for cache, queue, and sessions in the reference configuration.
-
-There are no Livewire components. All interactive UI is handled by Filament (which uses Livewire internally) and Alpine.js on public pages.
+|---|---|
+| Backend | PHP 8.3+, Laravel 12 |
+| Admin and User Panels | Filament 4 |
+| Frontend | Blade, Alpine.js, Tailwind CSS 4, Vite |
+| Database | MySQL |
+| ORM | Eloquent |
+| Queue | Laravel Queue |
+| Broadcasting | Laravel Reverb / Pusher |
+| Machine Learning Service | Python, FastAPI, XGBoost |
+| QR Codes | Simple QrCode |
+| Localization | Laravel Localization, translatable model fields |
+| Settings | Spatie Laravel Settings |
+| Testing | Pest |
+| Code Quality | Laravel Pint |
+| Version Control | Git, GitHub |
 
 ---
 
-## Architecture
+## Project Structure
 
-### Directory Structure
-
-```
+```text
 bloodbridge/
 ├── app/
-│   ├── Console/Commands/        # ExpireOldBloodRequests, CleanupStaleResponses,
-│   │                            #   DecayEpsilonCommand
-│   ├── Enums/                   # UserRole, BloodType, BloodRequestStatus,
-│   │                            #   UrgencyLevel, RequestResponseStatus,
-│   │                            #   OrganizationStatus, Gender, NotificationType
+│   ├── Console/Commands/
+│   ├── Enums/
 │   ├── Filament/
-│   │   ├── Admin/               # Resources: Users, Donors, Organizations,
-│   │   │                        #   BloodRequests, Announcements, ContactMessages
-│   │   │                        # Pages: Dashboard, Statistics, Settings
-│   │   ├── Donor/               # Pages: Dashboard, BloodRequests, History,
-│   │   │                        #   EditProfile, ChangePassword, IneligibleDonor
-│   │   └── Organization/        # Pages: Dashboard, Statistics, ScanDonorQR,
-│   │                            #   EditOrganizationProfile, PendingApproval
-│   ├── Jobs/                    # DispatchBloodRequestNotifications,
-│   │                            #   CancelExcessResponsesJob
-│   ├── Models/                  # User, Donor, DonorHealthProfile, Organization,
-│   │                            #   BloodRequest, RequestResponse,
-│   │                            #   DonorPredictiveScore, DonorBehavioralMetric,
-│   │                            #   Achievement, DonorAchievement, Announcement,
-│   │                            #   ContactMessage, Governorate, ModelTrainingLog, ...
-│   ├── Notifications/           # BloodRequestMatchNotification,
-│   │                            #   DonorResponseNotification,
-│   │                            #   ResponseNotNeededNotification,
-│   │                            #   SystemAnnouncement, ...
-│   ├── Providers/Filament/      # AdminPanelProvider, DonorPanelProvider,
-│   │                            #   OrganizationPanelProvider
+│   │   ├── Admin/
+│   │   ├── Donor/
+│   │   └── Organization/
+│   ├── Jobs/
+│   ├── Models/
+│   ├── Notifications/
+│   ├── Providers/Filament/
 │   ├── Services/
-│   │   ├── BloodRequestBroadcastService.php
-│   │   ├── BloodRequestActionService.php
-│   │   ├── DonorScoringService.php
-│   │   ├── FastApiCircuitBreaker.php
-│   │   ├── NotificationService.php
-│   │   └── QRCodeService.php
-│   └── Settings/                # GeneralSettings, ScoringSettings
-├── ai_service/                  # FastAPI + XGBoost sidecar
+│   └── Settings/
+├── ai_service/
 │   ├── app.py
 │   ├── config.py
-│   └── models/                  # donor_scorer.pkl, feature_names.pkl
+│   └── models/
 ├── database/
-│   ├── migrations/              # 22 migrations
-│   └── seeders/                 # Admin, organizations, donors,
-│                                #   blood requests, interactions
-└── routes/
-    ├── web.php                  # Public + auth routes (locale-prefixed)
-    └── console.php              # Scheduled commands
+│   ├── migrations/
+│   └── seeders/
+├── routes/
+│   ├── web.php
+│   └── console.php
+└── tests/
 ```
-
-### Middleware Chains
-
-- **Donor panel**: `Authenticate` → `EnsureEmailIsVerifiedUnlessAdmin` → `CheckDonorIneligibility`
-- **Organization panel tenant**: `CheckOrganizationApproved` (redirects to `PendingApproval` if status is PENDING or REJECTED)
-
-### Settings System
-
-Two settings groups backed by the `settings` database table, managed through the Admin panel:
-
-- **GeneralSettings** — site content (translatable), eligibility thresholds (`min_donor_age`, `min_days_between_donations`, weight/height limits), organization request limits, contact and social links
-- **ScoringSettings** — ML on/off toggle, epsilon value, budget cap multiplier, circuit breaker thresholds, score staleness window, `ml_enabled_since` timestamp used by the epsilon decay command
-
-### FastAPI Circuit Breaker
-
-State is stored in the `file` cache store under three keys: `fastapi_circuit:state`, `fastapi_circuit:failures`, `fastapi_circuit:opened_at`. The breaker opens after a configurable number of consecutive failures (default 3) and enters half-open after a recovery window (default 120 seconds). When open, ML scoring is skipped and the waterfall continues to Level 3 (rule-based PHP).
 
 ---
 
-## Modules
+## Main Domain Services
 
-### Blood Request Lifecycle
-
-```
-Create (PENDING)
-  └─ broadcastToEligibleDonors()
-       ├─ Validate location (GPS or governorate fallback)
-       ├─ Progressive radius expansion (5 km steps, max 25 km)
-       ├─ Score donors (4-level waterfall)
-       ├─ Epsilon-greedy selection
-       ├─ Dispatch DispatchBloodRequestNotifications in batches
-       └─ Status → BROADCASTED
-
-BROADCASTED
-  ├─ Donor accepts → response PENDING, QR token generated
-  ├─ Organization scans QR → response ACCEPTED (verified_at set)
-  ├─ Donation confirmed → response COMPLETED
-  ├─ All units confirmed → request FULFILLED
-  │    └─ CancelExcessResponsesJob: remaining PENDING → NOT_NEEDED
-  └─ 48 h timeout → request EXPIRED
-       └─ CancelExcessResponsesJob: remaining PENDING → NOT_NEEDED
-```
-
-### Response Status Lifecycle
-
-```
-PENDING → ACCEPTED (QR scanned at org)
-        → DECLINED (medical exclusion)
-        → IGNORED (donor did not respond)
-        → NO_SHOW (accepted but did not arrive)
-        → UNREACHABLE (8 h for critical / 48 h for normal, via cleanup command)
-        → NOT_NEEDED (request fulfilled or expired before donor acted)
-ACCEPTED → COMPLETED (donation recorded)
-```
-
-### Donor Eligibility
-
-Computed automatically on every `saving` event of `DonorHealthProfile` via `calculateEligibility()`. Permanent ineligibility: `chronic_disease = true`. Temporary ineligibility: weight below 50 kg, height below 140 cm, active infection (14-day cooldown), donation within 90 days, surgery within 28 days. The resulting `is_eligible` flag and `next_eligible_date` are stored, not manually set.
-
-### Admin Panel Pages
-
-- **Dashboard** — header widget, stats overview, pending organizations queue
-- **Statistics** — blood type demand, engagement charts, ML scoring monitor (30-second polling), recent activity
-- **Settings** — General Settings page, Scoring Settings page
-
-### Organization Panel Pages
-
-- **Dashboard** — organization header, blood request stats
-- **Statistics** — overview stats, request trends, blood type distribution, search radius stats, recent responses, unknown donor impact
-- **ScanDonorQR** — QR scanner with rate limiting
-- **PendingApproval** — shown when approval status is PENDING or REJECTED
-
-### Donor Panel Pages
-
-- **Dashboard** — donor header, stats overview
-- **BloodRequests** — active compatible requests with distance, accept/decline actions, QR download
-- **History** — past responses and donations
-- **EditProfile**, **ChangePassword**, **IneligibleDonor**
+| Service | Responsibility |
+|---|---|
+| `BloodRequestBroadcastService` | Discovers, scores, selects, and dispatches donors |
+| `BloodRequestActionService` | Handles donor and organization request actions |
+| `DonorScoringService` | Runs the scoring waterfall and donor ranking |
+| `FastApiCircuitBreaker` | Prevents repeated calls to a failing ML service |
+| `NotificationService` | Applies locale and delivers notifications consistently |
+| `QRCodeService` | Generates and validates donor attendance tokens |
 
 ---
 
-## Setup
+## Local Setup
 
 ### Requirements
 
 - PHP 8.3+
 - Composer 2
 - Node.js 18+
-- MySQL (or SQLite for local development)
+- MySQL
+- Python 3.10+ for the optional ML service
 
 ### Installation
 
 ```bash
-git clone <repo-url>
+git clone https://github.com/Adel-Shurrab/bloodbridge.git
 cd bloodbridge
 
-# Installs dependencies, copies .env, generates app key, runs migrations, builds assets
-composer setup
+composer install
+cp .env.example .env
+php artisan key:generate
 
-# Edit .env with your database credentials, app URL, and mail settings
+npm install
+npm run build
+
+php artisan migrate --seed
 ```
 
-### Local Development
+Configure the database and application values in `.env` before running migrations.
+
+### Start Development Services
 
 ```bash
-# Starts HTTP server + queue worker + Vite in one terminal
 composer dev
 ```
 
-This runs `php artisan serve`, `php artisan queue:listen --tries=1`, and `npm run dev` concurrently.
-
-### FastAPI ML Sidecar (optional)
-
-The Python service is required only for Level 2 ML scoring. Without it, the waterfall falls through to rule-based PHP automatically.
+Alternatively, start the services separately:
 
 ```bash
-cd ai_service
-source venv/Scripts/activate    # Windows
-uvicorn app:app --reload --port 8000
+php artisan serve
+php artisan queue:work
+php artisan schedule:work
+npm run dev
 ```
-
-The service reads database credentials from the root `.env` using the same `DB_*` keys Laravel uses. Enable ML scoring in **Admin → Settings → Scoring Settings** (`ml_scoring_enabled = true`).
 
 ---
 
-## Configuration
+## FastAPI Scoring Service
 
-Key `.env` variables (see `.env.example` for the full list):
+The FastAPI component is optional because the Laravel application contains internal fallback scoring.
+
+### Windows
+
+```bash
+cd ai_service
+python -m venv venv
+venv\Scripts\activate
+pip install -r requirements.txt
+uvicorn app:app --reload --port 8000
+```
+
+### Linux or macOS
+
+```bash
+cd ai_service
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app:app --reload --port 8000
+```
+
+Enable ML scoring through the administrator scoring settings after the service is running.
+
+---
+
+## Environment Configuration
+
+Example values:
 
 ```env
 APP_NAME=BloodBridge
+APP_ENV=local
 APP_URL=http://localhost
 APP_LOCALE=en
+APP_FALLBACK_LOCALE=en
 
 DB_CONNECTION=mysql
 DB_HOST=127.0.0.1
+DB_PORT=3306
 DB_DATABASE=bloodbridge
-DB_USERNAME=
+DB_USERNAME=root
 DB_PASSWORD=
 
 QUEUE_CONNECTION=database
-BROADCAST_CONNECTION=reverb     # or pusher
+CACHE_STORE=database
+SESSION_DRIVER=database
+
+BROADCAST_CONNECTION=reverb
 
 REVERB_APP_ID=
 REVERB_APP_KEY=
 REVERB_APP_SECRET=
 
 MAIL_MAILER=smtp
+MAIL_HOST=
+MAIL_PORT=
+MAIL_USERNAME=
+MAIL_PASSWORD=
 MAIL_FROM_ADDRESS=
 ```
 
-Do not commit `.env`. The file is git-ignored.
+Never commit `.env`, credentials, private keys, or production data.
 
 ---
 
 ## Background Jobs and Scheduling
 
-Commands are registered in `routes/console.php`:
+| Command | Schedule | Responsibility |
+|---|---|---|
+| `blood:cleanup-stale-responses` | Hourly | Marks stale donor responses as unreachable |
+| `blood-requests:expire` | Twice daily | Expires outdated requests |
+| `scoring:decay-epsilon` | Daily | Gradually reduces the exploration ratio |
 
-| Command | Schedule | Purpose |
-|---------|----------|---------|
-| `blood:cleanup-stale-responses` | Hourly | Marks PENDING responses UNREACHABLE after 8 h (critical) / 48 h (normal) |
-| `blood-requests:expire` | Twice daily | Expires BROADCASTED/PENDING requests older than 48 h; triggers NOT_NEEDED cleanup |
-| `scoring:decay-epsilon` | Daily | Adjusts exploration epsilon based on days since ML was enabled |
-
-Run the scheduler locally with:
+Run the scheduler locally:
 
 ```bash
 php artisan schedule:work
 ```
 
-### Epsilon Decay Schedule
+Run queue workers:
 
-| Days since ML enabled | Epsilon |
-|-----------------------|---------|
-| 0 – 13 | 0.20 |
-| 14 – 29 | 0.15 |
-| 30 – 59 | 0.10 |
-| 60+ | 0.05 |
+```bash
+php artisan queue:work --tries=3
+```
 
 ---
 
 ## Testing
 
+Run the full test suite:
+
 ```bash
 composer test
+```
 
-# Single file
+Or:
+
+```bash
+php artisan test
+```
+
+Run a specific test:
+
+```bash
 php artisan test tests/Feature/NotificationClassesTest.php
-./vendor/bin/pest tests/Feature/Auth/AuthenticationTest.php
+```
+
+Code formatting:
+
+```bash
+./vendor/bin/pint
 ```
 
 ---
 
-## Notes
+## Security and Reliability
 
-- `min_history_for_exploitation` in `ScoringSettings` and `MIN_HISTORY_FOR_MODEL` in `ai_service/config.py` are both set to low values suitable for development. Raise both to 5 before production use.
-- The XGBoost model was trained on 500 synthetic records (AUC-ROC 0.926 on that dataset). It should be retrained on real data before production use.
-- The `/api/retrain` endpoint in the FastAPI service exists but does not yet connect to a training script.
-- The `achievements` and `appointments` tables and models exist. The Filament UI for these is not yet implemented.
-- The `ModelTrainingLog` model exists for tracking retraining runs; auto-insertion after retraining is not yet wired up.
+BloodBridge includes:
+
+- role-based access control;
+- tenant isolation for healthcare organizations;
+- donor email verification;
+- organization approval workflow;
+- QR verification rate limiting;
+- token expiry and ownership validation;
+- server-side eligibility checks;
+- queue-time donor revalidation;
+- controlled request status transitions;
+- circuit-breaker fallback for the ML service;
+- localized notification handling;
+- protected administrative routes;
+- environment-based secret management.
+
+---
+
+## Current Limitations
+
+- The current ML model was trained on synthetic data and requires retraining with real operational data.
+- The platform supports coordination but does not replace medical screening, laboratory testing, or professional healthcare judgment.
+- Delivery effectiveness depends on network availability and user participation.
+- External SMS or WhatsApp emergency notification channels are not yet part of the core implementation.
+- The existing ML retraining endpoint is not yet connected to a complete automated retraining pipeline.
+
+---
+
+## Roadmap
+
+- Progressive Web App support.
+- Push notifications for offline users.
+- SMS and WhatsApp emergency alerts.
+- Real donor-data retraining pipeline.
+- Shared Redis-backed circuit-breaker state for distributed deployment.
+- Blood inventory monitoring.
+- Donor achievements and gamification.
+- Digital donor identification card.
+- Expanded unit, feature, and integration test coverage.
+- Deployment observability and structured operational metrics.
+
+---
+
+## Author
+
+**Adel Shurrab**  
+Laravel Backend Developer
+
+- [LinkedIn](https://www.linkedin.com/in/adel-shurrab/)
+- [GitHub](https://github.com/Adel-Shurrab)
+- [Email](mailto:adelshurrab2003@gmail.com)
 
 ---
 
 ## License
 
-MIT
+This project is licensed under the MIT License.
